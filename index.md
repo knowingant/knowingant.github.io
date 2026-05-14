@@ -1,10 +1,11 @@
 ---
-layout: home
+layout: default
 title: Home
 ---
 
 # Knowing Ant
 
-Welcome to the Knowing Ant site.
+This site hosts math handouts and password-protected diary PDFs.
 
-This is a barebones Jekyll site ready for GitHub Pages.
+- [Handouts](/handouts/)
+- [Diaries](/diaries/)

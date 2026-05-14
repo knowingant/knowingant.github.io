@@ -1,0 +1,15 @@
+---
+layout: default
+---
+
+<h1>{{ page.title }}</h1>
+
+{% if page.date %}
+<p><strong>Date:</strong> {{ page.date | date: "%Y-%m-%d" }}</p>
+{% endif %}
+
+{% if page.summary %}
+<p>{{ page.summary }}</p>
+{% endif %}
+
+<p><a href="{{ page.pdf | relative_url }}">Download PDF</a></p>
