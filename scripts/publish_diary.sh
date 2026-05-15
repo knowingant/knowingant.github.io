@@ -2,14 +2,43 @@
 
 set -euo pipefail
 
-if (( $# < 2 || $# > 3 )); then
-  echo "Usage: $0 path/to/file.tex password [Title]" >&2
+slugify() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//'
+}
+
+if (( $# < 2 )); then
+  echo "Usage: $0 path/to/file.tex password [Title] [--slug custom-slug]" >&2
   exit 1
 fi
 
 src=$1
 password=$2
-custom_title=${3-}
+shift 2
+
+custom_title=""
+custom_slug=""
+
+while (( $# > 0 )); do
+  case "$1" in
+    --slug)
+      if (( $# < 2 )); then
+        echo "Missing value for --slug" >&2
+        exit 1
+      fi
+      custom_slug=$2
+      shift 2
+      ;;
+    *)
+      if [[ -n "$custom_title" ]]; then
+        echo "Unexpected extra argument: $1" >&2
+        echo "Usage: $0 path/to/file.tex password [Title] [--slug custom-slug]" >&2
+        exit 1
+      fi
+      custom_title=$1
+      shift
+      ;;
+  esac
+done
 
 if [[ ! -f "$src" ]]; then
   echo "Missing source file: $src" >&2
@@ -33,23 +62,36 @@ fi
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 build_dir=$(mktemp -d)
-src_abs=$(cd "$(dirname "$src")" && pwd)/$(basename "$src")
-base_name=$(basename "$src_abs" .tex)
-slug=$(printf '%s' "$base_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')
+src_dir=$(cd "$(dirname "$src")" && pwd)
+src_file=$(basename "$src")
+base_name=$(basename "$src_file" .tex)
+slug_source=${custom_slug:-$base_name}
+slug=$(slugify "$slug_source")
+if [[ -z "$slug" ]]; then
+  echo "Slug must contain at least one letter or number" >&2
+  exit 1
+fi
 title=${custom_title:-$base_name}
 escaped_title=$(printf '%s' "$title" | sed 's/"/\\"/g')
 today=$(date +%F)
 plain_pdf="$build_dir/$base_name.pdf"
 encrypted_pdf="$build_dir/$slug-encrypted.pdf"
-dest_pdf="$repo_root/assets/diaries/$slug.pdf"
-entry_file="$repo_root/_diaries/$slug.md"
+dest_dir="$repo_root/assets/diaries/$slug"
+dest_pdf="$dest_dir/$slug.pdf"
+data_dir="$repo_root/_data"
+data_file="$data_dir/diaries.yml"
+pdf_path="/assets/diaries/$slug/$slug.pdf"
+summary="This PDF is password-protected."
 
 cleanup() {
   rm -rf "$build_dir"
 }
 trap cleanup EXIT
 
-latexmk -pdf -interaction=nonstopmode -halt-on-error -output-directory="$build_dir" "$src_abs"
+(
+  cd "$src_dir"
+  latexmk -pdf -interaction=nonstopmode -halt-on-error -output-directory="$build_dir" "$src_file"
+)
 
 if [[ ! -f "$plain_pdf" ]]; then
   echo "Expected PDF was not created: $plain_pdf" >&2
@@ -75,18 +117,28 @@ if [[ ! -f "$encrypted_pdf" ]]; then
   exit 1
 fi
 
-mkdir -p "$repo_root/assets/diaries" "$repo_root/_diaries"
+mkdir -p "$dest_dir" "$data_dir"
 cp "$encrypted_pdf" "$dest_pdf"
 
-cat > "$entry_file" <<EOF
----
-title: "$escaped_title"
-date: $today
-pdf: /assets/diaries/$slug.pdf
-summary: "This PDF is password-protected."
----
-EOF
+ruby -ryaml -rdate -e '
+path = ARGV.shift
+title = ARGV.shift
+pdf = ARGV.shift
+slug = ARGV.shift
+date = ARGV.shift
+summary = ARGV.shift
+data =
+  if File.exist?(path)
+    YAML.safe_load(File.read(path), permitted_classes: [Date], aliases: true)
+  else
+    []
+  end
+data = [] unless data.is_a?(Array)
+data.reject! { |item| item["slug"] == slug }
+data << { "title" => title, "pdf" => pdf, "slug" => slug, "date" => date, "summary" => summary }
+File.write(path, data.to_yaml)
+' "$data_file" "$escaped_title" "$pdf_path" "$slug" "$today" "$summary"
 
 echo "Published encrypted diary:"
 echo "  PDF:   $dest_pdf"
-echo "  Entry: $entry_file"
+echo "  Data:  $data_file"

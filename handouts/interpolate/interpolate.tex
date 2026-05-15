@@ -1,0 +1,47 @@
+\documentclass[11pt]{scrartcl}
+\usepackage{evan}
+\usepackage{mathteam}
+
+\begin{document}
+
+\title{A special kind of polynomial problem}
+\author{Michael Luo}
+\date{\today}
+
+\maketitle
+
+Let's begin with an example:
+\begin{example}[MN Math League 1D 2023/4]
+    Suppose $f(x) = ax^2 + bx + c$, and let $g(x) = x + 6$. If $f(2) = 1$, $f(11) = g(11)$, and $f(23) = g(23)$, find $f(29)$.
+\end{example}
+Your first instinct might to be set up a system of equations:
+\begin{align*}
+    f(2) &= 4a + 2b + c = 1 \\
+    f(11) &= 121a + 11b + c = 17 = g(11) \\
+    f(23) &= 529a + 23b + c = 29 = g(23).
+\end{align*}
+But this is disgusting. Even after you compute $a$, $b$, and $c$ (without making a mistake!), you have to find $841a + 29b + c$. Nope.
+
+There's a better way. We're going to need two lemmas:
+
+\begin{theorem}[Factor theorem]
+    If $x = r$ is a root of a polynomial $P$, i.e., $P(r) = 0$, then $(x - r)$ is a factor of $P$.
+\end{theorem}
+
+\begin{theorem}[Fundamental theorem of algebra]
+    A polynomial of degree $n$ has $n$ roots.
+\end{theorem}
+
+This basically means that if you know a polynomial's roots, then you know the polynomial, up to some constant factor. For example, if I gave you a quadratic $P$ with roots $1$ and $4$, you could deduce that $P(x) = a(x - 1)(x - 4)$ for some constant $a$. Furthermore, if I told you $P(0) = 1$, you could solve for $a$: $1 = P(0) = a(0 - 1)(0 - 4)$, which implies that $a = \frac{1}{4}$.
+
+Now we can solve our original problem. The trick is to define the polynomial $P(x) := f(x) - g(x)$. The conditions $f(11) = g(11)$ and $f(23) = g(23)$ tell us that $P(11) = f(11) - g(11) = 0$, and $P(23) = f(23) - g(23) = 0$. So $P$ is a quadratic with roots $11$ and $23$, i.e., $P(x) = a(x - 11)(x - 23)$ for some constant $a$. Now, we can apply our condition $f(2) = 1$ to compute $a$. We have
+\[1 = f(2) = P(2) + g(2) = a(2 - 11)(2 - 23) + 2 + 6 = 189a + 8.\]
+Solving gives $a = -\frac{1}{27}$, which we can now use to find $f(29)$:
+\[f(29) = P(29) + g(29) = -\frac{1}{27}(29 - 11)(29 - 23) + 29 + 6 = \boxed{31}.\]
+No system of equations required! Now try this.
+
+\begin{problem}
+    Suppose $P$ is a polynomial of degree $2022$ satisfying $P(1) = 1$, $P(2) = 2$, $P(3) = 3$, \dots, $P(2022) = 2022$. Also, $P(2023) = 1$. Compute $P(2024)$.
+\end{problem}
+
+\end{document}

@@ -1,0 +1,324 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage{mathteam}
+
+\title{\texorpdfstring{erm what the $\sigma$}{}}
+\author{Michael Luo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\begin{definition}
+    An \emph{arithmetic function} takes $\NN_{\ge 1}$ to $\CC$.
+\end{definition}
+
+\begin{definition}
+    An arithmetic function is called \emph{multiplicative} if $f(mn) = f(m)f(n)$ for all coprime positive integers $m$ and $n$. It is called \emph{completely multiplicative} if this relation holds even if $m$ and $n$ are not coprime.
+\end{definition}
+
+\begin{definition}
+    The \emph{Dirichlet convolution} of two arithmetic functions $f$ and $g$, denoted $f \ast g$, is defined as
+    \[(f \ast g)(n) = \sum_{d \mid n}f(d)g\left(\frac{n}{d}\right),\]
+    where the sum is taken over positive divisors $d$ of $n$.
+\end{definition}
+
+\begin{theorem}\label{thm:convolution}
+	If two of $f$, $g$, and $f \ast g$ are multiplicative, so is the third.
+\end{theorem}
+
+\section{First examples}
+
+\begin{example}
+	Compute the number of divisors of $2024$ and find their sum.
+\end{example}
+
+Let $d(n)$ be the number of divisors of $n$, and let $\sigma(n)$ be the sum of the divisors of $n$. We seek to compute $d(2024)$ and $\sigma(2024)$. Let $\mathbf 1$ and $\id$ be functions with $\mathbf 1(n) = 1$ and let $\id(n) = n$, which are both clearly multiplicative. Now we see
+\[d(n) = \sum_{d \mid n}1 = \sum_{d \mid n}\mathbf 1(d)\mathbf 1\left(\frac{n}{d}\right) = (\mathbf 1 \ast \mathbf 1)(n).\]
+Since $d(n)$ may be written as the Dirichlet convolution of two multiplicative functions, it is itself multiplicative. Similarly, observe that
+\[\sigma(n) = \sum_{d \mid n}d = \sum_{d \mid n}\id(d)\mathbf 1\left(\frac{n}{d}\right) = (\id \ast \mathbf 1)(n)\text{,}\]
+so $\sigma$ is multiplicative as well.
+
+So how do we use the multiplicativity to actually compute $d(2024)$ and $\sigma(2024)$? Well, observe that if $f$ is a multiplicative function and $n$ is a positive integer whose prime factorization is $p_1^{\alpha_1}p_2^{\alpha_2}\dots p_k^{\alpha_k}$, we have $f(n) = f(p_1^{\alpha_1})f(p_2^{\alpha_2})\dots f(p_k^{\alpha_k})$. This fact is very important---if we want to compute $f$ for arbitrary $n$, we only need to compute $f$ for prime powers, and if we want to prove two multiplicative functions $f$ and $g$ are equal, we only need to show they are equal for prime powers. So factoring $2024 = 2^3 \cdot 11 \cdot 23$, we find
+\[d(2024) = d(2^3)d(11)d(23) = (3 + 1)(1 + 1)(1 + 1) = 16\]
+and
+\[\sigma(2024) = d(2^3)d(11)d(23) = (1 + 2 + 2^2 + 2^3)(1 + 11)(1 + 23) = 4320.\]
+This is another way to find the ``standard'' formulas for the number and sum of divisors.
+
+\begin{problem}
+	\label{pro:sqrt-divisors-2024}
+	What's the sum of the square roots of the divisors of $2024$?
+\end{problem}
+
+\begin{example}[PUMaC Number Theory A 2015/6]
+	Let $d(n)$ be the number of positive divisors of $n$. Compute the smallest $n$ such that $35$ divides
+	\[\sum_{t \mid n}d(t)^3.\]
+\end{example}
+
+Let's consider the function $f(n) = \sum_{t \mid n}d(t)^3$. We note that $d = \mathbf 1 \ast \mathbf 1$ is multiplicative, so $d^3$ is multiplicative, so $f$ is multiplicative. Let's try to compute $f$ for prime powers $p^\alpha$. We see
+\[f(p^\alpha) = d(1)^3 + d(p)^3 + \dots + d(p^\alpha)^3 = 1^3 + 2^3 + \dots + (\alpha + 1)^3 = \left(\frac{(\alpha + 1)(\alpha + 2)}{2}\right)^2.\]
+Therefore, writing $n$ as its prime factorization gives
+\[f(n) = f(p_1^{\alpha_1}p_2^{\alpha_2}\dots p_k^{\alpha_k}) = f(p_1^{\alpha_1})f(p_2^{\alpha_2})\cdots f(p_k^{\alpha_k}) = \prod_{p^\alpha \parallel n}\left(\frac{(\alpha + 1)(\alpha + 2)}{2}\right)^2.\]
+We want the minimum $n$ such that $35$ divides this product, which is achieved when one of the $\alpha_i$ is $3$ and another is $5$, so the minimum possible $n$ is $2^5 \cdot 3^3 = 864$.
+
+\section{Euler's totient function}
+
+\begin{definition}
+    Euler's totient function, denoted $\varphi$, returns the number of positive integers less than a given positive integer relatively prime to it.
+\end{definition}
+
+\begin{theorem}
+    $\varphi$ is multiplicative.
+\end{theorem}
+
+\begin{proof}
+	By the Chinese Remainder Theorem, we have
+    \[\varphi(mn) = \abs{(\ZZ/mn\ZZ)^\times} = \abs{(\ZZ/m\ZZ)^\times \times (\ZZ/n\ZZ)^\times} = \varphi(m)\varphi(n).\]
+\end{proof}
+
+\begin{problem}
+	\label{pro:totient-2024}
+    Compute $\varphi(2024)$.
+\end{problem}
+
+\begin{theorem}\label{thm:totient_sum}
+	For all $n$, $\sum_{d \mid n}\varphi(d) = n$, or $\varphi \ast \mathbf 1 = \id$.
+\end{theorem}
+
+We present two proofs of this fact.
+\begin{proof}[Proof with prime powers]
+	Since both sides are multiplicative, it's enough to show the equality for $n = 1$, which is clear, and prime powers $n = p^\alpha$. We have
+	\[\sum_{d \mid p^\alpha}\varphi(d) = \varphi(1) + \varphi(p) + \dots + \varphi(p^n) = 1 + (p - 1) + \dots + \left(p^\alpha - p^{\alpha - 1}\right) = p^\alpha\text{,}\]
+	as desired.
+\end{proof}
+
+\begin{proof}[Proof by double-counting]
+	Consider the fractions $\frac1n,\frac2n,\dots,\frac nn$. We count the number of fractions by casework on their denominator when written in simplest form. If $d \mid n$, observe that there are $\varphi(\frac{n}{d})$ solutions $0 \le k \le n - 1$ to $\gcd(k,n) = d$. Therefore, there are $\varphi\left(\frac{n}{\frac nd}\right) = \varphi(d)$ fractions with denominator $d$, so there are $\sum_{d \mid n}\varphi(d)$ fractions in total. But clearly there are $n$ fractions, so $\sum_{d \mid n}\varphi(d) = n$, as desired.
+\end{proof}
+
+\begin{problem}[CMIMC Algebra 2023/7]
+	\label{pro:cmimc-2023}
+	Compute
+	\[\sum_{k = 1}^{\varphi(2023)}\frac{\gcd\left(k,\varphi(2023)\right)}{\varphi(2023)}.\]
+\end{problem}
+
+\begin{problem}[PUMaC Number Theory A 2016/7]
+	\label{pro:pumac-2016}
+	Compute the number of integers $n$ between $2017$ and $2017^2$ such that $n^n \equiv 1 \pmod{2017}$.
+\end{problem}
+
+\section{More theory}
+
+\begin{definition}
+    Let $\varepsilon$ be the arithmetic function satisfying $\varepsilon(1) = 1$ and $\varepsilon(n) = 0$ for $n \ge 2$.
+\end{definition}
+
+Note that $\varepsilon$ is multiplicative. Also note $\varepsilon$ is the identity under the Dirichlet convolution, since $\varepsilon \ast f = f$ for any arithmetic function $f$.\footnote{Don't confuse $\varepsilon$ with $\id$: $\varepsilon$ is the identity under the Dirichlet convolution, and $\id$ is the identity function.}
+
+\begin{definition}
+    Call a positive integer \emph{squarefree} if no perfect squares divide it. Define the M\"obius function
+    \[\mu(n) = \begin{cases}
+	    (-1)^k & \text{if $n$ is squarefree and is the product of $k$ distinct primes} \\
+	    0      & \text{if $n$ is not squarefree.}
+    \end{cases}\]
+\end{definition}
+
+\begin{problem}
+	Convince yourself $\mu$ is multiplicative.
+\end{problem}
+
+Why is $\mu$ useful? Well, it turns out that it has a very special property:
+
+\begin{theorem}\label{thm:1_inverse}
+	$\mu \ast \mathbf 1 = \varepsilon$.
+\end{theorem}
+
+\begin{proof}
+	We wish to show
+	\[\sum_{d \mid n}\mu(d) = \begin{cases}
+		1 & n = 1 \\
+		0 & \text{otherwise}
+	\end{cases}\]
+	for all positive integers $n$. Since both sides are multiplicative, it's enough to show the equality for $n = 1$, which is clear, and prime powers $n = p^\alpha$. We see
+	\[\sum_{d \mid p^\alpha}\mu(d) = \mu(1) + \mu(p) + \mu(p^2) + \dots + \mu(p^\alpha) = 1 + (-1) + 0 + \dots + 0 = 0 = \varepsilon(p^\alpha)\text{,}\]
+	as desired.
+\end{proof}
+
+This allows us to turn a summation function back into the original function.
+
+\begin{theorem}[M\"obius inversion]
+	Let $f$ be an arithmetic function and let $F$ be the summation function of $f$. Then
+	\[F \ast \mu = f.\]
+\end{theorem}
+
+The proof is really easy.
+
+\begin{proof}
+	\[F \ast \mu = f \ast \mathbf 1 \ast \mu = f \ast \varepsilon = f. \qedhere\]
+\end{proof}
+
+Just like $\mathbf 1$ can be inverted, all arithmetic functions with $f(1) \neq 0$ can be inverted.
+
+\begin{theorem}[Dirichlet inverses]
+	If $f$ is an arithmetic function with $f(1) \neq 0$, there exists a function $g$ also with $g(1) \neq 0$ such that $f \ast g = \varepsilon$. Furthermore, $g$ is multiplicative iff $f$ is.
+\end{theorem}
+
+\begin{proof}
+	We claim the function $g$ given by the recursive formula
+	\[g(n) = \begin{cases}
+		\frac{1}{f(1)} & n = 1 \\
+		-\frac{1}{f(1)}\sum_{d \mid n, d < n}f(n)g\left( \frac{n}{d} \right) & n > 1
+	\end{cases}\]
+	works. We show $(f \ast g)(n) = \varepsilon(n)$ for all $n$. If $n = 1$, we see
+	\[(f \ast g)(1) = f(1)g(1) = f(1) \cdot \frac{1}{f(1)} = 1 = \varepsilon(1).\]
+	Now if $n > 1$, the definition of $g(n)$ becomes
+	\[g(n) = -\frac{1}{f(1)}\left((f \ast g)(n) - f(1)g(n)\right)\text{,}\]
+	which rearranges to $(f \ast g)(n) = 0 = \varepsilon(n)$, so $f \ast g = \varepsilon$, as desired.
+\end{proof}
+
+The set of arithmetic functions forms the \emph{Dirichlet ring}
+with pointwise addition and multiplication given by the Dirichlet convolution.
+
+\section{Problems}
+
+\begin{problem}[Berkeley Math Circle]
+	\label{pro:berkeley}
+	Suppose that we are given infinitely many tickets, each with one natural number on it. For any $n \in \NN$, the number of tickets on which divisors of $n$ are written is exactly $n$. For example, the divisors of $6$, $\{1, 2, 3, 6\}$, are written in some variation on $6$ tickets, and no other ticket has these numbers written on it. Prove that any number $n \in \NN$ is written on at least one ticket.
+\end{problem}
+
+\begin{problem}[AMC 12A 2023/22]
+	\label{pro:amc12}
+	Let $f$ be an arithmetic function with $\id \ast f = \mathbf 1$. Compute $f(2023)$.
+\end{problem}
+
+\begin{problem}[Brilliant]
+	\label{pro:brilliant}
+	Show that
+	\[\sum_{d \mid n}\sigma\left(\frac nd\right)\varphi(n) = nd(n).\]
+\end{problem}
+
+\begin{problem}[SMT Team 2024/14]
+	\label{pro:smt-2024}
+	Let $f(n)$ be the number of positive divisors of $n$ that are of the form $4k +1$, for some integer $k$. Find the number of positive divisors of the sum of $f(k)$ across all positive divisors of $2^8 \cdot 29^{59} \cdot 59^{79} \cdot 79^{29}$.
+\end{problem}
+
+\begin{problem}[CMIMC Algebra 2020/8]
+	\label{pro:cmimc-2020}
+	Let $f : \NN \to (0,\infty)$ satisfy $\prod_{d \mid n}f(d) = 1$ for every $n$ which is not prime. Determine the maximum possible number of $n$ with $1 \le n \le 100$ and $f(n) \neq 1$.
+\end{problem}
+
+\pagebreak
+
+\section{Solutions}
+
+\begin{solution}{\Cref{pro:sqrt-divisors-2024}}
+    Define $\id_{1/2}(n) := \sqrt{n}$, and define $\sigma_{1/2} := \id_{1/2} \ast \mathbf 1$. We wish to compute $\sigma_{1/2}(2024)$. Since $\id_{1/2}$ and $\mathbf 1$ are multiplicative, so is $\sigma_{1/2}$. Therefore
+    \begin{align*}
+        \sigma_{1/2}(2024) &= \sigma_{1/2}(2^3)\sigma_{1/2}(11)\sigma_{1/2}(23) \\
+        &= (1 + \sqrt{2} + \sqrt{4} + \sqrt{8})(1 + \sqrt{11})(1 + \sqrt{23}) \\
+        &= 3(1 + \sqrt{2})(1 + \sqrt{11})(1 + \sqrt{23}).
+    \end{align*}
+\end{solution}
+
+\begin{solution}{\Cref{pro:totient-2024}}
+    Since $\varphi$ is multiplicative, we only need to compute $\varphi$ for prime powers. For a prime power $p^\alpha$ with $\alpha \neq 0$, $\varphi(p^\alpha) = p^\alpha - p^{\alpha - 1}$, since a positive integer at most $p$ is coprime with $p^\alpha$ iff it is not a multiple of $p$. Therefore, we have
+    \[\varphi(2024) = \varphi\left(2^3\right)\varphi(11)\varphi(23) = \left(2^3 - 2^2\right)(11 - 1)(23 - 1) = 880.\]
+\end{solution}
+
+\begin{solution}{\Cref{pro:cmimc-2023}}
+	Let
+	\[f(n) = \frac 1n\sum_{k = 1}^{n}\gcd(n,k).\]
+	We want to find $f(\varphi(2023))$. If $d \mid n$, observe that there are $\varphi(\frac{n}{d})$ solutions $1 \le k \le n$ to $\gcd(k,n) = d$. Therefore, by casework on $\gcd(n,k)$,
+	\[f(n) = \frac 1n\sum_{d \mid n}d \cdot \frac{n}{d} = \sum_{d \mid n}1 = d(n).\]
+	Observing $\varphi(2023) = \varphi(7 \cdot 17^2) = \varphi(7)\varphi(17^2) = (7 - 1)(17^2 - 17) = 2^5 \cdot 3 \cdot 17$, we see $f(\varphi(2023)) = d(\varphi(2023)) = (5 + 1)(1 + 1)(1 + 1) = 24$.
+\end{solution}
+
+\begin{solution}{\Cref{pro:pumac-2016}}
+	Note $n = 2017^2$ does not work. Observe the set of positive integers between $2017$ and $2017^2 - 1$ are in bijection with the set of equivalence classes of ordered pairs $(a \mod{2017},b \mod{2016})$. Therefore, it's equivalent to find the number of ordered pairs $(a,b)$ with $0 \le a \le 2016$ and $0 \le b \le 2015$ with $a^b \equiv 0 \pmod{2017}$.
+	
+	Observe $2017$ is prime, so for all $d \mid 2016$, there are $\varphi(d)$ $a$ with order $d$, and if $a$ has order $d$, there are $\frac{2016}d$ choices for $b$.
+	\[\sum_{d \mid 2016}\varphi(d)\frac{2016}{d}.\]
+	Let
+	\[f(n) = \sum_{d \mid n}\varphi(d)\frac{n}{d} = (\varphi \ast \id)(n).\]
+	We see $f$ is multiplicative, therefore,
+	\begin{align*}
+		f(2016) &= f(2^5 \cdot 3^2 \cdot 7) \\
+		&= f(2^5)f(3^2)f(7) \\
+		&= \left(2^5 + 5(2^5 - 2^4)\right)\left(3^2 + 2(3^2 - 3)\right)\left(7 + 7 - 1\right) \\
+		&= 30576.
+	\end{align*}
+\end{solution}
+
+\begin{solution}{\Cref{pro:berkeley}}
+	Let $f(n)$ denote the number of tickets $n$ is written on. The condition translates to
+	\[\sum_{d \mid n}f(d) = n,\]
+	so $f(n) = \varphi(n)$, which is clearly always positive.
+\end{solution}
+
+\begin{solution}{\Cref{pro:amc12}}
+	Since $\id$ and $\mathbf 1$ are multiplicative, so is $f$. Now
+	\[f(2023) = f(7 \cdot 17^2) = f(7)f(17^2).\]
+	From plugging in $n = 1,7,17,17^2$ into $(\id \ast f)(n) = \mathbf 1(n)$, we see
+	\begin{align*}
+		1f(1) &= 1 \\
+		7f(1) + 1f(7) &= 1\\
+		17f(1) + 1f(17) &= 1\\
+		17^2f(1) + 17f(17) + 1f(17^2) &= 1.
+	\end{align*}
+	Solving the system, we see $f(1) = 1$, $f(7) = -6$, $f(17) = -16$, and $f(17^2) = -16$. Therefore,
+	\[f(2023) = -6 \cdot -16 = 96. \qedhere\]
+\end{solution}
+
+\begin{solution}{\Cref{pro:brilliant}}
+	The left side is $(\sigma \ast \varphi)(n)$. From the M\"obius inversion of $\varphi \ast \mathbf 1 = \id$, we see $\varphi = \mu \ast \id$. Therefore,
+	\[\sigma \ast \varphi = \id \ast \mathbf 1 \ast \mu \ast \id = \id \ast \id.\]
+	But
+	\[(\id \ast \id)(n) = \sum_{d \mid n}d \cdot \frac{n}{d} = \sum_{d \mid n}n = nd(n). \qedhere\]
+\end{solution}
+
+\begin{solution}{\Cref{pro:smt-2024}}
+	Let $A = 29^{59}$, $B = 59^{79}$, $C = 79^{29}$, and $N = ABC$. Let $F$ be the summation function of $f$. Note that the powers of two ``don't matter'': $f(2^kn) = f(n)$, since we are only counting $1 \pmod{4}$ divisors, which must be odd. Therefore, $F(2^kn) = (k + 1)F(n)$ for odd integers $n$. We want to compute $F(2^8N) = 9F(N)$.
+
+	We note $f$ is not multiplicative: for example, $1 = f(3)f(7) \neq f(21) = 2$, so we cannot simply one-shot the problem by computing $F$ for prime powers. Hmm\dots
+
+	To exploit symmetry, we are motivated to define $g(n)$ to return the number of $3 \pmod{4}$ divisors of $n$, and $G$ to be the summation function of $g$. Now since $1 \cdot 1 \equiv 3 \cdot 3 \equiv 1 \pmod{4}$ and $1 \cdot 3 \equiv 3 \cdot 1 \equiv 3 \pmod{4}$, for coprime $m,n$ we have
+	\begin{align*}
+		f(mn) &= f(m)f(n) + g(m)g(n) \\
+		g(mn) &= f(m)g(n) + g(m)f(n).
+	\end{align*}
+
+	Now we compute
+	\begin{align*}
+		9F(N) &= 9\sum_{d \mid N}f(d) \\
+		&= 9\sum_{a \mid A}\sum_{b \mid B}\sum_{c \mid C}f(abc) \\
+		&= 9\sum_{a \mid A}\sum_{b \mid B}\sum_{c \mid C}f(a)f(b)f(c) + f(a)g(b)g(c) + g(a)f(b)g(c) + g(a)g(b)f(c) \\
+		&= 9(F(A)F(B)F(C) + F(A)G(B)G(C) + G(A)F(B)G(C) + G(A)G(B)G(C)).
+	\end{align*}
+	But since $29 \equiv 1 \pmod{4}$, $A$ has no $3 \pmod{4}$ divisors, so $g(a) = 0$ for all $a \mid A$, so $G(A) = 0$. Therefore, the expression becomes
+	\[9F(A)(F(B)F(C) + G(B)G(C)).\]
+	We compute $F(A) = T_{60}$, $F(B) = 2T_{40}$, $F(C) = 2T_{15}$, $G(B) = 2T_{40} - 40 = 40^2$, and $G(C) = 2T_{15} - 15 = 15^2$, where $T_n$ denotes the $n$th triangular number. Since $T_n = \frac{n(n + 1)}{2}$, the expression then becomes
+	\[9 \cdot \frac{60 \cdot 61}{2}\left(40 \cdot 41 \cdot 15 \cdot 16 + 40^2 \cdot 15^2\right) = 2^7 \cdot 3^4 \cdot 5^3 \cdot 61 \cdot 157\text{,}\]
+	which has $640$ factors.
+\end{solution}
+
+\begin{solution}{\Cref{pro:cmimc-2020}}
+	We've seen sums over the divisors of a number, but never products. This motivates us to turn the product into a sum by taking the logarithm of both sides and making the substitution $g(n) = \log(f(n))$. The condition becomes
+	\[\sum_{d \mid n}g(d) = 0\]
+	for non-prime $n$, and we'd like to maximize the number of nonzero values of $n$.
+
+	Although we do know something about the summation function of $g$, we don't know much about $g$ itself. Therefore, we're motivated to use M\"obius inversion. Define $G(n) = \sum_{g \mid n}g(d)$, so $G(n) = 0$ for all non-prime $n$. Now we see
+	\[g(n) = (G \ast \mu)(n) = \sum_{d \mid n}G(d)\mu\left(\frac{n}{d}\right).\]
+	Noting that $G(d)$ is zero if $d$ is not prime, the sum becomes
+	\[\sum_{p \mid n}G(p)\mu\left(\frac{n}{p}\right).\]
+
+	Note that $g(1) = 0$. We disregard it in the following discussion.
+
+	Call an integer $n$ \emph{nice} if it is in the forms $p_1\dots p_k$ or $p_1^2p_2\dots p_k$, and call one \emph{mean} if it is not nice. To ensure $g(n)$ is nonzero, $\mu\left(\frac{n}{p}\right)$ must be nonzero for at least one $p$, so $\frac{n}{p}$ must be squarefree for at least one $p$, so $n$ must be nice. Additionally, we may choose values of $g(2),g(3),g(5),\dots$ such that every nice $n$ has $g(n)$ nonzero. For example, $g(p) = \sqrt{p}$ for primes $p$ guarantees all nice $n$ have $g(n)$ nonzero since all $\sqrt{p}$ are linearly independent over $\QQ$. Therefore, the answer is the number of nice $n$ at most $100$.
+
+	We complementary count. We want the number of mean integers less than $100$. Note that an integer is mean iff a perfect cube not equal to $1$ or the square of a composite number divides it. Since we are only considering integers at most $100$, we only need to check for divisibility by $8$, $27$, $36$, and $100$. The mean integers are the multiples of $8$ between $8$ and $96$, $27$, $54$, $81$, $36$, and $100$, for a total of $17$ mean integers. Remembering to count $1$, the number of integers satisfying the condition is $82$.
+\end{solution}
+
+\end{document}
