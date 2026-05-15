@@ -1,24 +1,16 @@
-title: Knowing Ant
-description: Handouts and private diary PDFs
+title: Michael's blog
+author: Michael Luo
+email: luomichaelcunhao@gmail.com
+description: >
+  Michael's personal website.
+
 theme: minima
 markdown: kramdown
-collections:
-  handouts:
-    output: true
-    permalink: /handouts/:name/
-  diaries:
-    output: true
-    permalink: /diaries/:name/
-defaults:
-  - scope:
-      path: ""
-      type: handouts
-    values:
-      layout: entry
-      section: Handouts
-  - scope:
-      path: ""
-      type: diaries
-    values:
-      layout: entry
-      section: Diaries
+kramdown:
+  math_engine: mathjax
+
+header_pages:
+  - index.md
+  - citizenship.md
+  - handouts.md
+  - diaries.md

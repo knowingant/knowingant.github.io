@@ -1,0 +1,133 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage{mathteam}
+
+\title{Vieta's formulas}
+\author{Michael Luo}
+
+\begin{document}
+
+\maketitle
+
+\begin{quote}
+    \sffamily\small
+    If you ain't first, you're last!
+
+    \medskip
+
+    ---Ricky Bobby on two-player games
+\end{quote}
+
+In this lecture, we introduce Vieta's formulas. In this lecture, assume \emph{roots} means \emph{roots with multiplicity}. For example, the sum of the roots of the polynomial $(x - 5)^2(x + 4)$ is $5 + 5 - 4 = 6$.
+
+\begin{theorem}[Fundamental theorem of algebra]
+	For every polynomial $P$ with degree $n$ and complex coefficients, there exist unique complex $a$ and $r_1,r_2,\dots,r_n$ such that
+	\[P(x) = a\prod_{k = 1}^{n}(x - r_k)\]
+	for all $x \in \CC$. Basically, you can completely decompose polynomials over the complex numbers.
+\end{theorem}
+
+\begin{theorem}[Vieta's formulas, quadratic case]
+    Let $P(x) = ax^2 + bx + c$ have roots $r_1$ and $r_2$. Then $r_1 + r_2 = -\frac{b}{a}$ and $r_1r_2 = \frac{c}{a}$.
+\end{theorem}
+
+I'm now going to explain the general form of Vieta's formulas with examples, since the statement is kind of disgusting.
+
+The ``stereotypical'' Vieta question will give you a polynomial, and ask you to find some symmetric expression in terms of the roots of that polynomial. For these, it's usually a good idea to write down the symmetric polynomials in terms of the roots and their values, then use algebraic manipulation to find whatever you need to. 
+
+\begin{example}
+	Let $a$, $b$, and $c$ be the roots of $2x^3 - 4x^2 - 6x + 1$. Find
+	\begin{itemize}
+		\ii $a + b + c$,
+		\ii $ab + bc + ca$,
+		\ii $abc$,
+		\ii $a^2 + b^2 + c^2$,
+		\ii $a^2b + a^2c + b^2c + b^2a + c^2a + c^2b$,
+		\ii $a^3 + b^3 + c^3$,
+		\ii and $a^2b^2 + b^2c^2 + c^2a^2$.
+	\end{itemize}
+\end{example}
+
+\begin{exercise}[Putnam 1977]
+	Consider all lines that meet the graph of $y = 2x^4 + 7x^3 + 3x^2 - 5$ in four distinct points, $(x_1, y_1)$, $(x_2, y_2)$, $(x_3, y_3)$, $(x_4, y_4)$. Show that
+	\[\frac{x_1 + x_2 + x_3 + x_4}{4}\]
+	is independent of the line and find its value.
+\end{exercise}
+
+\begin{exercise}
+	Find the sum of the reciprocals of the roots of the polynomial $2x^3 + 2x + 3$.
+\end{exercise}
+
+\begin{exercise}[BMT General 2021/12]
+    Let $a$, $b$, and $c$ be the solutions of the equation $x^3 - 3 \cdot 2021^2x = 2 \cdot 2021^3$. Compute $\frac 1a + \frac 1b + \frac 1c$.
+\end{exercise}
+
+\begin{exercise}[BMT General 2021/14]
+    Let $r_1,r_2,\dots,r_{47}$ be the roots of $x^{47} - 1 = 0$. Compute
+    \[\sum_{i = 1}^{47}r_i^{2020}.\]
+\end{exercise}
+
+\begin{exercise}[2002 AMC 12A/12]
+    Both roots of the quadratic equation $x^2-63x+k=0$ are prime numbers. Find all possible values of $k$.
+\end{exercise}
+
+\begin{exercise}[2000 AMC 10/24]
+    Let $f$ be a function for which $f(\frac x3)=x^2+x+1$. Find the sum of all values of $z$ for which $f(3z)=7$.
+\end{exercise}
+
+\begin{exercise}[2002 AMC 12B/6]
+    Suppose that $a$ and $b$ are nonzero real numbers, and that the equation $x^2+ax+b=0$ has distinct solutions $a$ and $b.$ What is the ordered pair $(a,b)$? 
+\end{exercise}
+
+\begin{exercise}[2006 AMC 10B/14]
+     Let $a$ and $b$ be the roots of the equation $x^2-mx+2=0$. Suppose that $a+\frac 1b$ and $b+\frac 1a$ are the roots of the equation $x^2-px+q=0$. What is $q$?
+\end{exercise}
+
+\begin{exercise}
+	Let $a$, $b$, $c$, $x$, and $y$ be five real numbers such that $a^3 + ax + y = 0$, $b^3 + bx + y = 0$ and $c^3 + cx + y = 0$. If $a$, $b$, and $c$ are all distinct, compute $a + b + c$.
+\end{exercise}
+
+\begin{exercise}
+	Find the sum of the fifth powers of the roots of $x^5 - 20x + 23$.
+\end{exercise}
+
+\begin{exercise}[CHMMC]
+    Suppose $f(x) = x^3 + x - 1$ has roots $\alpha$, $\beta$, and $\gamma$. What is
+    \[\frac{\alpha^3}{1 - \alpha} + \frac{\beta^3}{1 - \beta} + \frac{\gamma^3}{1 - \gamma}\text{?}\]
+\end{exercise}
+
+\begin{exercise}[2003 AIME II/9] $\bigstar$
+    Consider the polynomials $P(x) = x^{6} - x^{5} - x^{3} - x^{2} - x$ and $Q(x) = x^4 - x^3 - x^2 - 1$. Given that $z_1$, $z_2$, $z_3$, and $z_4$ are the roots of $Q$, compute $P(z_1) + P(z_2) + P(z_3) + P(z_4)$.
+\end{exercise}
+
+\begin{exercise}[2008 AIME II/7] $\bigstar$
+    Let $r$, $s$, and $t$ be the three roots of the equation
+    \[8x^3 + 1001x + 2008 = 0.\]
+    Find $(r + s)^3 + (s + t)^3 + (t + r)^3$.
+\end{exercise}
+
+\begin{exercise}[SMT Algebra 2019/5] $\bigstar$
+    Let $f(x) = 36x^4 - 36x^3 - x^2 + 9x - 2$. Then let the four roots of $f(x)$ be $r_1$, $r_2$, $r_3$, and $r_4$. Find the value of
+    \[(r_1 + r_2 + r_3)(r_1 + r_2 + r_4)(r_1 + r_3 + r_4)(r_2 + r_3 + r_4)\text{.}\]
+\end{exercise}
+
+\begin{exercise}[HMMT November Guts 2019/18] $\bigstar$
+    The polynomial $x^3 - 3x^2 + 1$ has three real roots $r_1$, $r_2$, and $r_3$. Compute
+    \[\sqrt[3]{3r_1 - 2} + \sqrt[3]{3r_2 - 2} + \sqrt[3]{3r_3 - 2}\text{.}\]
+\end{exercise}
+
+\begin{exercise} $\bigstar$
+	Let $x_1$, $x_2$, and $x_3$ be the three roots of the polynomial $x^3 + 3x + 1$. Compute
+	\[\frac{x_1^2}{(5x_2 + 1)(5x_3 + 1)} + \frac{x_2^2}{(5x_3 + 1)(5x_1 + 1)} + \frac{x_3^2}{(5x_1 + 1)(5x_2 + 1)}\text{.}\]
+\end{exercise}
+
+\begin{exercise}[CMIMC ANT 2019/6] $\bigstar \bigstar$
+    Let $a$, $b$, and $c$ be the distinct solutions to the equation $x^3 - 2x^2 + 3x - 4 = 0$. Find the value of
+    \[\frac1{a(b^2 + c^2 - a^2)} + \frac1{b(c^2 + a^2 - b^2)} + \frac1{c(a^2 + b^2 - c^2)}.\]
+\end{exercise}
+
+\begin{exercise}[HMMT Guts 2023/31 extraction] $\bigstar \bigstar$
+    Let the roots of $x^3 - x - 1$ be $a$, $b$, and $c$. Compute
+    \[\bigl((a - b)(b - c)(c - a)\bigr)^2.\]
+\end{exercise}
+
+\end{document}

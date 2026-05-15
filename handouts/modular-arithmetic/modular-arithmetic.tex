@@ -1,0 +1,228 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage[print]{mathteam}
+
+\author{Minnesota ARML}
+\title{Modular arithmetic}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	A modular arithmetic problem set for all levels. Contributed by Michael Luo.
+\end{abstract}
+
+\epigraph{Algebra mains are better than geo mains by the AM-GM inequality.}{Ali at MOP 2025}
+
+\section{Yap session (short)}
+
+The yap session is intentionally short, since this is a very broad topic. Some problems in \Cref{subsec:hard} require the notion of a primitive root. If enough people are interested, I'll go over it after my short yap session and everyone else is working on the problem set. Otherwise, you can read \Cref{subsec:theory}.
+
+\begin{theorem}[Inverses exist]\label{thm:inverses} % first go over the example $n = 15$
+	Let $n$ be a positive integer and let $a$ be an integer with $\gcd(a,n) = 1$. Then there is a unique $b$ with $0 \le b < n$ such that $ab \equiv 1 \pmod n$. We call $b$ the ``modular inverse'' of $a$ modulo $n$, and $b$ is usually written $a^{-1}$ or $\frac 1a$.
+\end{theorem}
+
+Essentially, this means that we can do ``division'' modulo $n$ if the thing we're dividing by is relatively prime to $n$. This acts exactly the same as ``regular'' division, i.e.,\ we have
+\[\frac ab \cdot \frac cd \equiv \frac{ac}{bd} \quad \text{and} \quad \frac ab + \frac cd \equiv \frac{ad + bc}{bd}\]
+modulo $n$ as long as $b$ and $d$ are relatively prime with $n$.
+
+\begin{example}
+	Let $n$ be a positive integer relatively prime to $5$, and let $x$ be the multiplicative inverse of $5$ modulo $n$. Show that either the remainder of $2x$ when it is divided by $n$ or the remainder when $3x$ is divided by $n$ is greater than $\frac n2$.
+\end{example}
+
+\begin{theorem}[Euler's theorem]\label{thm:euler} % prove the case n = 15
+	Let $n$ be a positive integer and let $a$ be an integer with $\gcd(a,n) = 1$. Then
+	\[a^{\varphi(n)} \equiv 1 \pmod n.\]
+\end{theorem}
+The case $n = p$ is Fermat's little theorem, $a^{p - 1} \equiv 1 \pmod p$.
+
+\begin{theorem}[Chinese remainder theorem]
+	Let $m$ and $n$ be relatively prime positive integers. Let $a$ be a positive integer. Then ``knowing $a$ modulo $mn$, and knowing $a$ modulo $m$ and $a$ modulo $n$ \emph{are the same thing}.'' That is, to compute $a$ modulo $mn$, you only need to compute $a$ modulo $m$ and $a$ modulo $n$.\footnote{For abstract algebra enthusiasts, the map $\ZZ/mn\ZZ \to \ZZ/m\ZZ \times \ZZ/n\ZZ$ given by $x \mapsto (x \bmod m,x\bmod n)$ is a ring isomorphism.}
+\end{theorem}
+This theorem is extremely important. If you see a problem that asks you to find something modulo $2^3 \cdot 3^2 \cdot 5$, the Chinese remainder theorem tells you it's only necessary to compute it modulo $2^3$, $3^2$, and $5$ individually.
+
+\begin{example}[CMIMC ANT 2023/3] $(\bigstar)$
+	\label{exe:cmimc-crt}
+	Compute
+	\[2022^{2022^{\cdot^{\cdot^{\cdot^{2022}}}}} \pmod{111}\]
+	where there are $2022$ $2022$s. % 75
+\end{example}
+
+% At this point, let the rest of the class go while you go over the cmimc problem
+
+\section{Theory problems (boring)}\label{subsec:theory}
+
+If you're new, skip these and go straight to \Cref{subsec:easy}.
+
+\begin{exercise}
+	Verify \Cref{thm:inverses} for $n = 15$ by writing down every positive integer less than $15$ relatively prime to $15$ and its inverse modulo $15$.
+\end{exercise}
+
+\begin{exercise}
+	Let $S_n$ be the set of numbers at most $n$ relatively prime to $n$. Write down each element of $S_n$ and multiply it by $a$, then take modulo $n$. Show that this process gives you $S_n$ back (possibly in a different order). Conclude \Cref{thm:inverses}. Hint: first try the case $n = 15$.
+\end{exercise}
+
+\begin{exercise}
+	From the last exercise, we have the set equivalence $S_n = aS_n$. Take the product of the elements of both sides modulo $n$, and divide by some number relatively prime to $n$. Conclude \Cref{thm:euler}.
+\end{exercise}
+
+Let $p$ be a prime. The \emph{order} of an element $a$ modulo $p$, denoted $\ord_p(a)$, is the smallest $m$ such that $a^m \equiv 1 \pmod p$.
+
+\begin{exercise}[Fundamental theorem of orders]
+	Show that if $a^n \equiv 1 \pmod p$, then $\ord_p(a) \mid n$.
+\end{exercise}
+
+A primitive root $g$ modulo $p$ is an element modulo $p$ with order $p - 1$.
+
+\begin{exercise}[Primitive roots generate everything]
+	For all primitive roots $g$ modulo $p$,
+	\[\{1,2,\dots,p - 1\} = \{g^0,g^1,\dots,g^{p - 2}\}.\]
+\end{exercise}
+
+There are primitive roots modulo every prime. In fact, there are primitive roots modulo every power of an odd prime $p^\alpha$: this means that there exists $g$ such that the numbers modulo $p^\alpha$ relatively prime to $p$ are all hit by some power of $g$. For example, when $p^\alpha = 3^2$, we have the primitive root $2$, since
+\[\{1,2,4,5,7,8\} = \{1,2,4,8,7,5\} \equiv \{2^0,2^1,2^2,2^3,2^4,2^5\} \pmod 9.\]
+
+A useful trick when orders/primitive roots are involved is to take a ``discrete logarithm'' with the base as a primitive root (as in, represent everything as $g^k$ where $g$ is a primitive root). This turns multiplication into addition, which is much easier to think about.
+
+\pagebreak
+
+\section{Exercises}
+
+Please don't be afraid to ask for help, these problems are designed to be hard (so you can ask me questions)! Problems marked with a $(\bigstar)$ are particularly instructive, so if you don't know where to start, start with those. The following are in (approximately) order of increasing difficulty.
+
+\subsection{Level 1}\label{subsec:easy}
+
+\begin{exercise}[Bustimathon cheese]
+    Write down integers $s_1,s_2,\dots,s_{12} \ge 10^{12}$ such that
+    \[10 + 2(s_1 + s_2 + \dots + s_{12}) \equiv 2 \pmod{2024}.\]
+	Solving this problem earned me 25 dollars on the ARML bus two years ago; ask me about the story.
+\end{exercise}
+
+\begin{exercise}
+	Compute modulo 4: $17 \cdot 18$, $523 \cdot 421$, $15^{15}$, $121 \cdot 122 \cdot 123$, $100!$, $1 \cdot 3 \cdot 5 \cdot 7 \cdot 9$. % 2, 3, 3, 2, 0, 3
+\end{exercise}
+
+\begin{exercise}
+	Compute $514 \cdot 891 \pmod{11}$. % 0
+\end{exercise}
+
+\begin{exercise} $(\bigstar)$
+	Compute $98^3 \pmod{100}$ in your head. (You can write stuff on paper to think, but the ``good'' way of doing this problem should involve no actual multiplication on paper.) % 92
+\end{exercise}
+
+\begin{exercise}
+	Find $1 + 2 + 3 + \dots + 99$ modulo $100$. % 50
+\end{exercise}
+
+\begin{exercise}
+	Compute $3^{1000}$ modulo $23$. % 8
+\end{exercise}
+
+\begin{exercise} $(\bigstar)$
+	Compute $24^{50} - 15^{50} \pmod{13}$ in your head. (You can write stuff on paper to think, but the ``good'' way of doing this problem should involve no actual multiplication on paper.) % 0
+\end{exercise}
+
+\begin{exercise}[ARML 2018 Super Relay/3] $(\bigstar)$
+	For each integer $n$, let $f(n)$ be the remainder when $n^2 - 1$ is divided by $8$. Compute $f(2024) + f(2025) + f(2026) + f(2027)$. % 10
+\end{exercise}
+
+\begin{exercise}
+	Compute the inverses of the numbers $1,2,\dots,10$ modulo $11$. Note that $(a^{-1})^{-1} \equiv a \pmod{11}$, as expected.
+\end{exercise}
+
+\subsection{Level 10}
+
+\begin{exercise}
+	Prove that a number is congruent to the sum of its digits modulo $9$. Conclude the divisibility test for $9$.
+\end{exercise}
+
+\begin{exercise}
+	Compute $1^2 + 2^2 + \dots + 100^2 \pmod{57}$. % 55
+\end{exercise}
+
+\begin{exercise} $(\bigstar)$
+	Compute $71^8 \pmod{100}$ in your head. (You can write stuff on paper to think, but the ``good'' way of doing this problem should involve no actual multiplication on paper.) % 61
+\end{exercise}
+
+\begin{exercise}[ARML Tiebreaker 2018/1]
+	The increasing infinite arithmetic sequence of integers $x_1,x_2,x_3,\dots$ contains the terms $17!$ and $18!$. Compute the greatest integer $X$ such that $X!$ must also appear in the sequence. % 32
+\end{exercise}
+
+\begin{exercise}[Prize 2022/4] $(\bigstar)$
+	Determine the largest integer $n$ such that $n < 103$ and $n^3 - 1 \equiv 0 \pmod{103}$. % 56
+\end{exercise}
+
+\begin{exercise}[$\varphi$ is multiplicative]
+	Let $\varphi$ be the Euler totient function, so $\varphi(n)$ is the number of positive integers at most $n$ and relatively prime to $n$. Let $m$ and $n$ be relatively prime positive integers. Prove that $\varphi(mn) = \varphi(m)\varphi(n)$.
+\end{exercise}
+
+% \begin{exercise}[HMMT Geometry 2016/7]
+% 	The number $2017$ is prime. Let $S = \{(x,y) \mid x,y \in \ZZ, 0 \le x,y \le 2016\}$. Given points $A = (x_1,y_1)$ and $B = (x_2,y_2)$ in $S$, let
+% 	\[d_{2017} = (x_1 - x_2)^2 + (y_1 - y_2)^2 \pmod{2017}.\]
+% 	There is a point $O \in S$ that satisfies
+% 	\[d_{2017}(O,(5,5)) = d_{2017}(O,(2,6)) = d_{2017}(O,(7,11)).\]
+% 	Compute $d_{2017}(O,(5,5))$. % 1021
+% \end{exercise}
+
+\begin{exercise}[Mathleague Invitational 2024/14] $(\bigstar)$
+	Compute $\floor{\frac{10^{2024}}{10^{88} - 7}}$ modulo $100$. % 49
+\end{exercise}
+
+\subsection{Level 100}\label{subsec:hard}
+
+\begin{exercise}[AIME I 2019/14]
+	Find the least odd prime factor of $2019^8 + 1$. % 97
+\end{exercise}
+
+\begin{exercise}[AIME I 2024/13]
+	Let $p$ be the least prime number for which there exists an integer $n$ such that $n^4 + 1$ is divisible by $p^2$.
+	\begin{itemize}
+		\ii Find $p$. % 17
+		\ii Find the least positive integer $m$ such that $m^4 + 1$ is divisible by $p^2$. % 110
+	\end{itemize}
+\end{exercise}
+
+\begin{exercise}[HMMT Guts 2019/28] $(\bigstar)$
+	The last one is the actual problem, the first two are warm-ups.
+	\begin{itemize}
+		\ii For how many integers $a$ with $1 \le a \le 41$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant modulo $41$? % 9
+		\ii For how many integers $a$ with $1 \le a \le 25$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant modulo $25$? % 9
+		\ii For how many integers $a$ with $1 \le a \le 100$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant modulo $100$? % 36
+	\end{itemize}
+\end{exercise}
+
+\begin{exercise}[HMMT Guts 2015/31]\label{exe:guts_2015_easy} $(\bigstar)$
+	Define a \emph{power cycle} to be a set $S$ consisting of the nonnegative integer powers of an integer $a$, i.e., $S = \{1,a,a^2,\dots\}$ for some integer $a$. Compute the minimum number of power cycles required such that given any odd integer $n$, there exists some integer $k$ in one of the power cycles such that $n \equiv k \pmod{1024}$. % 10
+\end{exercise}
+
+\begin{exercise}[Prize 2022/17] $(\bigstar)$
+	Let $O$ be the set of odd numbers between $0$ and $100$. Let $T$ be the set of subsets of $O$ of size $25$. For any finite subset of integers $S$, let $P(S)$ be the product of the elements of $S$. Compute $\sum_{S \in T}P(S) \pmod{17}$. % 15
+\end{exercise}
+
+\begin{exercise}[OTIS Mock AIME 2024/13]
+	Compute the sum of all integers $n$ such that $1 \le n \le 2024$ and exactly one of $n^{22} - 1$ and $n^{40} - 1$ is divisible by $2024$. % 226688
+\end{exercise}
+
+\begin{exercise}[PUMaC NT 2016/7]
+	For how many integers $n$ with $2017 \le n \le 2017^2$ do we have $n^n \equiv 1 \pmod{2017}$? % 30576
+\end{exercise}
+
+\begin{exercise}[HMMT Guts 2015/31, but harder]
+	\Cref{exe:guts_2015_easy} except $n$ does not have to be odd. % 10 + 256 + 96 + 0 + 24 + 0 + 0 + 0 + 1 + 0 + 0 = 387
+\end{exercise}
+
+\subsection{Level 1000}
+
+\begin{exercise}[IMO 2005/4]
+	Determine all positive integers relatively prime to all the terms of the infinite sequence
+	\[ a_n=2^n+3^n+6^n -1,\ n\geq 1. \]
+\end{exercise}
+
+\begin{exercise}[IMO 2024/2]
+	Determine all pairs $(a,b)$ of positive integers for which the sequence
+	\[a_n := \gcd(a^n+b,b^n+a)\]
+	is eventually constant.
+\end{exercise}
+
+\end{document}

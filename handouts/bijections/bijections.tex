@@ -1,0 +1,116 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage[print]{mathteam}
+
+\title{Bijections}
+\author{Michael Luo}
+
+\begin{document}
+
+This lecture is weakly inspired by the MOP lecture ``Bijections and Catalan Numbers'' by Micah Fogel and Chris Jeuell, who are longtime ARML problem writers who visited to do a guest lecture. I glued this lecture together from several Math + Science Club lectures I gave back in 2023 for a 2026 ARML practice. The problem set is roughly in increasing order of difficulty. Starred problems are fun.
+
+Throughout, $\binom nk$ is the number of ways to choose $k$ elements from an $n$-element set, for example, $\binom 63 = 20$ and $\binom 6{-2} = \binom 67 = 0$. Also, $\sum_k f(k)$ means that the sum is taken over all integers $k$.
+
+\section{Theory}
+
+The crux of the lecture is the following completely obvious fact.
+\begin{fact}
+	Let $X$ and $Y$ be finite sets. If you can pair up the elements of $X$ and $Y$, they have the same number of elements.
+\end{fact}
+
+Here's an example.
+\begin{example}[Hall's lesser marriage theorem]
+	There are some men and women in a room. If you can divide the room into (heterosexual) couples, there are the same number of men and women.
+\end{example}
+
+\section{Examples}
+
+\begin{example}
+	Show that $\binom nk = \binom n{n - k}$.
+\end{example}
+
+\begin{example}
+	Compute the following: $\sum_k\binom nk$, $\sum_k\binom n{2k}$, $\sum_kk\binom nk$, $\sum_{i + j = k}\binom mi\binom nj$, $\sum_k \binom nk^2$, and $\sum_k k\binom nk^2$.
+\end{example}
+
+\section{Problems}
+
+These get hard quick. Ask me for hints.
+
+\begin{problem}[Pascal's rule]
+	Show that $\binom nk + \binom n{k + 1} = \binom{n + 1}{k + 1}$.
+\end{problem}
+
+\begin{problem}[Hockey-stick]
+	Show that $\binom kk + \binom{k + 1}k + \dots + \binom nk = \binom{n + 1}{k + 1}$.
+\end{problem}
+
+\begin{problem}
+	Compute $\sum_k2^k\binom nk$. Do not use the binomial theorem.
+\end{problem}
+
+\begin{problem}
+	[AwesomeMath Summer Program, also folklore $(\bigstar)$]
+	In Romania, license plates are six-digit numbers from $000000$ to $999999$. A license plate is \emph{lucky} if the sum of the first three digits is equal to the sum of the last three digits, and \emph{medium} if the sum of all its six digits is $27$. Show that the number of lucky license plates is equal to the number of medium license plates.
+\end{problem}
+
+\begin{problem}
+	Prove that
+	\[\sum_{i + j = k}i\binom mi\binom nj = m\binom{m + n - 1}{k - 1}.\]
+\end{problem}
+
+\begin{problem}
+	Let $S$ be a set containing $n$ elements. Find
+	\[\sum_{A \subseteq S}\sum_{B \subseteq S}\lvert A \cap B\rvert.\]
+\end{problem}
+
+\begin{problem}
+	[AwesomeMath Summer Program $(\bigstar)$]
+	Let $n$ be a positive integer. Let $S$ be the set of ordered $n$-tuples $(k_1,\dots,k_n)$ of nonnegative integers such that $k_1 + 2k_2 + \dots + nk_n = n$. Find a simple expression for
+	\[\sum_{(k_1,\dots,k_n) \in S}\frac{(k_1 + \dots + k_n)!}{k_1!\dots k_n!}.\]
+\end{problem}
+
+\begin{problem}[AIME I 2020/7]
+	A club consisting of $11$ men and $12$ women needs to choose a committee from among its members so that the number of women on the committee is one more than the number of men on the committee. The committee could have as few as $1$ member or as many as $23$ members. Let $N$ be the number of such committees that can be formed. Find the sum of the prime numbers that divide $N$.
+\end{problem}
+
+\begin{problem}[AIME I 2017/7]
+	For nonnegative integers $a$ and $b$ with $a + b \leq 6$, let $T(a, b) = \binom{6}{a} \binom{6}{b} \binom{6}{a + b}$. Find the sum of all $T(a, b)$, where $a$ and $b$ are nonnegative integers with $a + b \leq 6$.
+\end{problem}
+
+\begin{problem}[AIME I 2022/12]
+	Define
+	\[S_n = \sum\lvert A \cap B\rvert,\]
+	where the sum is taken over all ordered pairs $(A,B)$ such that $A$ and $B$ are subsets of $\{1,2,\dots,n\}$ with $\lvert A\rvert = \lvert B\rvert$. Let $\frac{S_{2022}}{S_{2021}} = \frac pq$, where $p$ and $q$ are relatively prime positive integers. Find the remainder when $p + q$ is divided by $1000$.
+\end{problem}
+
+\begin{problem}[AIME II 2022/10 $(\bigstar)$]
+	Find the remainder when
+	\[\binom{\binom{3}{2}}{2} + \binom{\binom{4}{2}}{2} + \dots + \binom{\binom{40}{2}}{2}\]
+	is divided by $1000$.
+\end{problem}
+
+\begin{problem}
+	[AwesomeMath Summer Program $(\bigstar)$]
+	Prove that the number of partitions of $n$ is equal to the number of partitions of $2n$ with $n$ parts.
+\end{problem}
+
+\begin{problem}[CMIMC 2026 C5 $(\bigstar)$]
+	What's the average value of $abc$ over all triples of nonnegative integers $(a,b,c)$ with $a + b + c = 100$?
+\end{problem}
+
+\begin{problem}
+	[\emph{Symmetric Functions and Combinatorics}, Exercise 1.6 nerfed $(\bigstar)$]
+	Let $m$ be a positive integer. Let $f(a,b)$ be the number of lattice paths from $(0,0)$ to $(a,b)$ only going up and right such that the area between the $x$-axis and the path is $m$. Show that $f(n,n) \ge f(n + 1,n - 1)$ for all integers $n \ge 1$.
+\end{problem}
+
+\begin{problem}[JMO 2024/2]
+	Let $m$ and $n$ be positive integers. Let $S$ be the set of integer points $(x,y)$ with $1 \le x \le 2m$ and $1 \le y \le 2n$. A configuration of $mn$ rectangles is called happy if each point in $S$ is a vertex of exactly one rectangle, and all rectangles have sides parallel to the coordinate axes. Prove that the number of happy configurations is odd.
+\end{problem}
+
+This one is virtually impossible to do using the techniques described in this lecture if you haven't seen it before. But you're free to try! Ask me for the solution: it's beautiful.
+\begin{problem}[Fermat's Christmas theorem]
+	Let $p \equiv 1 \pmod 4$ be a prime. Show that $p$ is a sum of two squares.
+\end{problem}
+
+\end{document}

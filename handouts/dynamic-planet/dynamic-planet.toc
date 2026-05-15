@@ -1,0 +1,13 @@
+\contentsline {section}{\numberline {1}Notes from Lutbuck chapter 18}{2}{section.4}%
+\contentsline {subsection}{\numberline {1.1}General definitions on glaciers}{2}{subsection.5}%
+\contentsline {subsection}{\numberline {1.2}Erosional features}{3}{subsection.7}%
+\contentsline {subsection}{\numberline {1.3}Depositional features}{3}{subsection.10}%
+\contentsline {subsubsection}{\numberline {1.3.1}Landforms made of till}{4}{subsubsection.11}%
+\contentsline {subsubsection}{\numberline {1.3.2}Landforms made of stratified drift}{4}{subsubsection.12}%
+\contentsline {subsection}{\numberline {1.4}Miscellanous}{5}{subsection.15}%
+\contentsline {section}{\numberline {2}Literally every item on the rules}{6}{section.18}%
+\contentsline {section}{\numberline {3}Numerical facts}{9}{section.28}%
+\contentsline {subsection}{\numberline {3.1}Height, thickness, area}{9}{subsection.29}%
+\contentsline {subsection}{\numberline {3.2}Dates}{10}{subsection.31}%
+\contentsline {subsection}{\numberline {3.3}Miscellanous}{10}{subsection.33}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

@@ -1,0 +1,866 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[sexy]{evan}
+\usepackage{mathteam}
+
+\DeclareMathOperator{\Pow}{Pow}
+
+\title{Complex bashing}
+\author{Michael Luo}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	This handout is intended for intermediate complex bashers. You should be able to complete BGW-complex or solve most of the problems in \Cref{sec:warm-ups}. The main content of this handout is \Cref{sec:walkthroughs}, which contains eleven walkthroughs in rough order of increasing difficulty. You should try these walkthroughs yourself before reading them.
+\end{abstract}
+
+\begin{quote}
+	\sffamily\small
+
+	[Complex bashing] will keep you alive, even if you are an inch from death, but at a terrible price. You have slain something pure and defenseless [a geometry problem] to save yourself, and you will have but a half-life, a cursed life, from the moment [you write ``let $(ABC)$ be the unit circle.'']
+
+	\medskip
+
+	---\emph{Harry Potter and the Philosopher's Stone}
+\end{quote}
+
+\tableofcontents
+\eject
+
+\section{Introduction}
+
+My style of geometry is to complex bash. Let me show you how. First, here is some advice for doing computations.
+\begin{itemize}
+	\ii Keep everything factored for as long as possible. When checking if something is real or complex, factor it first.
+	\ii Troubleshoot often.
+	\begin{itemize}
+		\ii Expressions must always be homogenous (i.e., of the same degree). For example, $bc(a^2\ol z + b + c)$ is homogenous of degree $3$, since each term has degree $3$. If you ever see something like $bc(a^2\ol z + 1)$, something has gone horribly wrong.
+		\ii Plug in $b = c$ or all ones to make sure your expression stays the same from step to step.
+		\ii Any points you construct that are symmetric in $B$ and $C$ better have coordinates that are symmetric in $b$ and $c$.
+	\end{itemize}
+	\ii Multiplication with a complex number is a dilation and a rotation, while addition with a complex number is a translation. So you can spam linear functions (compositions of multiplications and additions) to simplify computations.
+	\ii Your scratch paper should be in landscape mode.
+	\ii Let $f(z) = \frac z{\ol z}$. Then $f(z) = 1$ iff $z$ is real and $f(z) = -1$ iff $z$ is pure imaginary. A lot of the time, $f$ is pretty easy to compute, since if $a$ and $b$ are on the unit circle, then $f(a + b) = ab$ and $f(a - b) = -ab$. Also, $f(zw) = f(z)f(w)$. So if $a$, $b$, and $c$ are on the unit circle, you can do things like
+	\[f\left( \frac{(a - b)(a - c)(b + c)}{(a^2 + bc)(b - c)} \right) = \frac{(-ab) \cdot (-ac) \cdot bc}{a^2bc \cdot (-bc)} = -1.\]
+\end{itemize}
+
+Again: checking is the MOST important thing when bashing. Slow and steady really does win the race. Many times, I've had to redo a bash because I wasn't careful enough the first time, and I was using the wrong coordinate for a certain point the whole time. Check often. Check thoroughly. Any checking procedure short of doing every computation twice is acceptable. Check more often if you are low on sleep, using a rougher setup, or if (god forbid) you are breaking homogenity.
+
+\pagebreak
+
+\section{Formula sheet}
+
+\subsection{Useful formulas}
+
+For quick lookup, we include the most important formulas.
+\begin{itemize}
+	\ii For all $z$ lying on the unit circle, $\ol z = \frac 1z$.
+	\ii The midpoint of segment $AB$ is $\frac{a + b}2$.
+	\ii The foot from $P$ to $\ol{AB}$ is $\frac12(a + b + p - ab\ol p)$, given that $a$ and $b$ lie on the unit circle.
+	\ii The points $A$, $B$, and $C$ are collinear if and only if $\frac{a - c}{b - c} \in \RR$.
+	\ii We have $\dang ABC = \dang DEF$ if and only if $\frac{a - b}{c - b} \div \frac{d - e}{f - e} \in \RR$.
+	\ii The intersection of lines $\ol{AB}$ and $\ol{CD}$ is $\frac{ab(c + d) - cd(a + b)}{ab - cd}$, given that $a$, $b$, $c$, and $d$ lie on the unit circle. In particular, the intersection of tangents $\ol{AA}$ and $\ol{BB}$ is $\frac{2ab}{a + b}$.
+	\ii The points $A$, $B$, $C$, and $D$ are concyclic if and only if $\frac{(a - b)(c - d)}{(a - c)(b - d)} \in \RR$.
+	\ii The circumcenter of triangle $A$, $B$, and $C$ is
+	\[\begin{vmatrix}
+		1 & a & a\ol a \\
+		1 & b & b\ol b \\
+		1 & c & c\ol c
+	\end{vmatrix} \div \begin{vmatrix}
+		1 & a & \ol a \\
+		1 & b & \ol b \\
+		1 & c & \ol c
+	\end{vmatrix}.\]
+	This matrix formulation is ONLY useful if $a$, $b$, and $c$ have nice symmetry, and you can perform row operations to greatly simplify the computation. This case is somewhat rare. It's almost always better to translate one of the points to zero. Then the circumcenter of $A$, $B$, and $O$ (where $O$ is the origin) is
+	\[\frac{ab(\ol b - \ol a)}{a\ol b - \ol ab} = \frac{\frac a{\ol a} \cdot b - \frac b{\ol b} \cdot a}{\frac a{\ol a} - \frac b{\ol b}}.\]
+	(The reason I included the second, seemingly awkward formulation is that $\frac a{\ol a}$ and $\frac b{\ol b}$ often have nice forms.)
+	\ii Let lines $AX$ and $BY$ intersect at a point $P$. The second intersection of $(ABP)$ and $(XYP)$ is the center of the spiral similarity sending $\ol{AB}$ to $\ol{XY}$, which is $\frac{ay - bx}{a + y - b - x}$.
+\end{itemize}
+
+\subsection{Less useful formulas}
+
+We also include some less useful formulas.
+\begin{itemize}
+    \ii Let $\triangle ABC$ have incircle (or $A$-excircle) contact points $D$, $E$, and $F$. If $(DEF)$ is the unit circle, the center of $(ABC)$ is $\frac{2(d + e + f)def}{(d + e)(e + f)(f + d)}$. The two intersections between $(DEF)$ and $(ABC)$ are the roots of the following two equivalent quadratics.
+    \begin{align*}
+        2(de + ef + fd)x^2 - ((d + e)(e + f)(f + d) + 4def)x + 2def(d + e + f) &= 0 \\
+        \ol a(2d + a)x^2 - (d^2\ol a + 2d + a + 2da\ol a)x + da(d\ol a + 2) &= 0
+    \end{align*}
+    \ii Let $f,g \in \CC[x]$ and let $h$ be an irreducible quadratic with roots $r$ and $s$. Let $n = \max(\deg f,\deg g)$. Then $\frac{f(r)}{g(r)} = \frac{f(s)}{g(s)}$ iff $\alpha f(x) + \beta g(x) + C(x)h(x) = 0$. Interpreting $\CC[x]$ as a vector space, this holds iff the determinant of the $n \times n$ matrix with one row as the coefficients of $f$, one row as the coefficients of $g$, and $n - 2$ rows as the coefficients of $x^ih(x)$ for $0 \le i < n - 2$ is zero. This is probably trivial by resultants or something but I don't know resultants.
+    \ii Let $ABCD$ be a convex quadrilateral inscribed in the unit circle of the complex plane. It is possible to choose complex numbers $a$, $b$, $c$, and $d$ such that $A = a^2$, $B = b^2$, $C = c^2$, $D = d^2$, and the midpoints of $\arc{AB}$, $\arc{BC}$, $\arc{CD}$, $\arc{DA}$, $\arc{ABC}$, $\arc{BCD}$ are $-ab$, $-bc$, $-cd$, $+da$, $+ac$, and $+bd$.
+    \begin{remark*}
+        [A stupid-ass way to remember this]
+        Consider the clockwise arcs. Write the four arcs between adjacent vertices, then the two arcs between opposite vertices. Sort the arcs in each category in \emph{alphabetical order}. The midpoints of the first three arcs have negative sign and the midpoints of the second three arcs have positive sign.
+    \end{remark*}
+\end{itemize}
+
+\subsection{Jacobi bialternant formula}
+\label{ssec:jacobi-bialternant}
+
+\alert{Skip this formula for now if you're less experienced.}
+
+We'll need some theory. A partition $\lambda = \lambda_1\lambda_2\lambda_3 \dots$ is a weakly decreasing sequence of nonnegative integers $\lambda_i$ with finitely many nonzero elements. We use the French convention that the Young diagram of a partition $\lambda$ is the subset of $\ZZ_{>0}^2$ such that $(i,j)$ is in the Young diagram of $\lambda$ if and only if $i \le \lambda_j$. We will identify $\lambda$ with its Young diagram, hence we will use $\lambda$ to refer to both the partition $\lambda$ and its Young diagram. Let $S_n$ be the symmetric group, so $S_n$ is the set of permutations acting on $\{x_1,\dots,x_n\}$. For a diagram $\lambda$, a tableau is a function $\tau$ from $\lambda$ to any totally ordered set $X$, usually $\ZZ_{>0}$. We say a tableau is semistandard if its rows are weakly increasing and its columns are strictly increasing, i.e., if $i' > i$ and $j' > j$, we have $\tau(i,j) \le \tau(i',j)$ and $\tau(i,j) < \tau(i,j')$. The content or weight $\gamma(\tau)$ of a tableau $\tau$ is the sequence $(m_1,m_2,\dots)$, where $m_i$ is the cardinality of the preimage of $i$ with respect to $\tau$. For example, this is a semistandard tableau on $\lambda = 5442$ with content $(1,2,1,1,1,1,2,4,1,1)$.
+\[\begin{ytableau}
+	7 & 8 & \none & \none & \none \\
+	4 & 6 & 9 & 10 & \none \\
+	3 & 5 & 8 & 8 & \none \\
+	1 & 2 & 2 & 7 & 8
+\end{ytableau}\]
+If $\lambda$ and $\mu$ are two partitions of $n$, define the Kostka number $K_{\lambda\mu}$ to be the number of semistandard Young tableau of shape $\lambda$ and content $\mu$.
+
+Observe that $S_n$ acts $\CC[x_1,\dots,x_n]$ by permutation of variables. So for a partition $\lambda$, define
+\[a_\lambda = \sum_{w \in S_n}\sgn(w)w(x_1^{\lambda_1}\cdots x_n^{\lambda_n}) = \det(x_i^{\lambda_j})_{1 \le i,j \le n}.\]
+We will now define the monomial symmetric functions. Let $\lambda$ be a partition with at most $n$ nonzero entries and let $m_i$ be the number of times $i$ appears in $\lambda$. Then
+\[m_\lambda(x_1,\dots,x_n) := \frac1{m_1!\cdots m_n!}\sum_{w \in S_n}w(x_1^{\lambda_1} \dots x_n^{\lambda_n}).\]
+For example, $m_{211}(x_1,x_2,x_3) = x_1x_2x_3(x_1 + x_2 + x_3)$. Also, define the Schur function
+\[s_\lambda = \sum_\tau x_1^{\gamma(\tau)_1}\cdots x_n^{\gamma(\tau)_n},\]
+where the sum is taken over semistandard tableau $\tau$ on $\lambda$ with entries in $\{1,\dots,n\}$. This is equivalent to taking every semistandard tableau $\tau$, replacing each $i$ with $x_i$, multiplying the elements of $\tau$, and summing.
+
+It is a fact that the Schur functions are symmetric, i.e., they are invariant under any permutation of variables. We will sketch the proof, for completeness. The idea is that any permutation is a composition of adjacent transpositions, so it's enough to show $s_\lambda(x_1,\dots,x_i,x_{i + 1},\dots,x_n) = s_\lambda(x_1,\dots,x_{i + 1},x_i,\dots,x_n)$. For this, it's enough to show the number of semistandard tableau with content $(m_1,\dots,m_i,m_{i + 1},\dots,m_n)$ is equal to the number of semistandard tableau with content $(m_1,\dots,m_{i + 1},m_i,\dots,m_n)$ for all $(m_1,\dots,m_n)$. To show this, there's a bijection.
+
+\begin{definition}
+	For each $k$, the Bender-Knuth involution $\sigma_k$ is an involution on the set of semistandard tableau fixing shape and content except for swapping the number of occurrences of $k$ and $k + 1$. Specifically, the Bender-Knuth involution $\sigma_k$ is the composition of the following three operations.
+	\begin{enumerate}
+		\ii Simultaneously replace every $k$ with a $k + 1$ and replace every $k + 1$ with a $k$.
+		\ii If there is a cell containing $k + 1$ above a cell containing $k$, swap them. This can happen at most once in each column.
+		\ii Sort the cells containing $k$ and $k + 1$ in each row in increasing order.
+	\end{enumerate}
+\end{definition}
+
+This implies
+\begin{equation}
+	\label{equ:schur-to-monomial}
+	s_\lambda = \sum_\mu K_{\lambda\mu}m_\mu,
+\end{equation}
+where the sum is taken over all partitions $\mu$.
+
+Let $\rho$ be the partition $(n - 1,\dots,0)$. We are finally ready to state the formula.
+\begin{proposition}[Jacobi bialternant formula]
+	For all partitions $\lambda$,
+	\[a_{\lambda + \rho} = a_\rho s_\lambda.\]
+\end{proposition}
+Observe that $a_\rho$ is the Vandermonde determinant $\prod_{i < j}(x_i - x_j)$. Along with \Cref{equ:schur-to-monomial}, this implies
+\[a_{\lambda + \rho} = a_\rho s_\lambda = \prod_{i < j}(x_i - x_j)\biggl(\sum_\mu K_{\lambda\mu}m_\mu \biggr).\]
+
+An example is in order. The most useful case when complex bashing is $n = 3$. When computing symmetric determinants, you will often see expressions such as
+\[\begin{vmatrix}
+	1 & yz(3x^2 - y^2 - z^2) & x(y^2 + z^2) + yz(y + z) \\
+	1 & zx(3y^2 - z^2 - x^2) & y(z^2 + x^2) + zx(z + x) \\
+	1 & xy(3z^2 - x^2 - y^2) & z(x^2 + y^2) + xy(x + y)
+\end{vmatrix}.\]
+We will evaluate this.
+
+This is
+\[\cycsum yz(3x^2 - y^2 - z^2)((y(z^2 + x^2) + zx(z + x)) - (z(x^2 + y^2) + xy(x + y))),\]
+where the $\cycsum$ means to take the sum over the three possible cyclic variants. For example,
+\[\cycsum x^2y = x^2y + y^2z + z^2x.\]
+Expanding, this becomes
+\begin{multline*}
+	\cycsum -3 x^{3} y^{3} z + x y^{5} z - 3 x^{2} y^{3} z^{2} + y^{5} z^{2} + 3 x^{3} y z^{3} + 3 x^{2} y^{2} z^{3} - y^{4} z^{3} + y^{3} z^{4} - x y z^{5} - y^{2} z^{5} \\
+	= \cycsum y^5z^2 - y^2z^5 + y^3z^4 - y^4z^3.
+\end{multline*}
+Writing as a sum of permutations, we get
+\[\sum_{w \in S_3}\sgn(w)w(x^5y^2) - \sum_{w \in S_3}\sgn(w)w(x^4y^3) = a_{520} - a_{430}.\]
+So by the Jacobi bialternant formula, this becomes
+\[a_{210}(s_{310} - s_{220}) = (x - y)(x - z)(y - z)(s_{31} - s_{22}).\]
+We will now apply \Cref{equ:schur-to-monomial}. We only need to sum over partitions $\mu$ with sum $4$, since otherwise $K_{\lambda\mu} = 0$. We compute the eight Kostka numbers
+\begin{align*}
+	K_{31,4} &= 0 \quad K_{31,31} = 1 \quad K_{31,22} = 1 \quad K_{31,211} = 2 \\
+	K_{22,4} &= 0 \quad K_{22,31} = 0 \quad K_{22,22} = 1 \quad K_{22,211} = 1.
+\end{align*}
+We do not need to compute $K_{31,1111}$ or $K_{22,1111}$ since $n = 3$ and hence we are only summing over semistandard tableaux with entries in $\{1,2,3\}$, so we only need to consider tableaux with at most $3$ distinct entries. Hence
+\begin{align*}
+	s_{31} - s_{22} &= m_{31} + m_{22} + 2m_{211} - m_{22} - m_{211} \\
+	&= m_{31} + m_{211} \\
+	&= x^3y + x^3z + y^3z + y^3x + z^3x + z^3y + xyz(x + y + z) \\
+	&= (x^2 + y^2 + z^2)(xy + yz + zx).
+\end{align*}
+So our original determinant has the factored form
+\[(x - y)(x - z)(y - z)(x^2 + y^2 + z^2)(xy + yz + zx).\]
+Bang.
+
+\pagebreak
+
+\section{Warm-ups}
+\label{sec:warm-ups}
+
+These problems are relatively straightforward and should be tried before the walkthroughs. Many of these are taken from the OTIS unit BGW-complex.
+
+\begin{problem}
+	In triangle $ABC$ with circumcenter $O$,
+	point $X$ is the reflection of $O$ across $\ol{BC}$.
+	Define $Y$, $Z$ similarly.
+	Prove that $AX$, $BY$, $CZ$ are concurrent.
+\end{problem}
+
+\begin{problem}[ToT Spring 2018 J-A4]
+	Let $ABC$ be a triangle with circumcenter $O$
+	and let $H$ be the foot of the $A$-altitude.
+	Let $P$ be the foot the perpendicular from $A$ to line $CO$.
+	Prove that line $HP$ bisects side $AB$.
+\end{problem}
+
+\begin{problem}[PUMaC Finals 2016 A3]
+	On a cyclic quadrilateral $ABCD$, let $M$ and $N$ denote
+	the midpoints of $\ol{AB}$ and $\ol{CD}$.
+	Let $E$ be the projection of $C$ onto $\ol{AB}$
+	and let $F$ be the reflection of $N$ over the midpoint of $\ol{DE}$.
+	Assume $F$ lies in the interior of quadrilateral $ABCD$.
+	Prove that $\angle BMF = \angle CBD$.
+\end{problem}
+
+\begin{problem}[PUMaC 2013]
+	Let $\gamma$ and $I$ be the incircle and incenter of triangle $ABC$.
+	Let $D$, $E$, $F$ be the tangency points of $\gamma$
+	to $\ol{BC}$, $\ol{CA}$, $\ol{AB}$ and
+	let $D'$ be the reflection of $D$ about $I$.
+	Assume $EF$ intersects the tangents to $\gamma$
+	at $D$ and $D'$ at points $P$ and $Q$.
+	Show that $\angle DAD' + \angle PIQ = 180\dg$.
+\end{problem}
+
+\begin{problem}[China 1996]
+	Triangle $ABC$ has orthocenter $H$.
+	The tangents from $A$ to the circle with diameter $\ol{BC}$ are $AP$ and $AQ$.
+	Prove that $H$, $P$, $Q$ are collinear.
+\end{problem}
+
+\begin{problem}[JMO 2025/5]
+	Let $H$ be the orthocenter of acute triangle $ABC$, let $F$ be the foot of the altitude from $C$ to $AB$, and let $P$ be the reflection of $H$ across $BC$. Suppose that the circumcircle of triangle $AFP$ intersects line $BC$ at two distinct points $X$ and $Y$. Prove that $C$ is the midpoint of $XY$.
+\end{problem}
+
+\begin{problem}[Taiwan TST 2014]
+	In $\triangle ABC$ with incenter $I$,
+	the incircle is tangent to $\ol{CA}$, $\ol{AB}$ at $E$, $F$.
+	The reflections of $E$, $F$ across $I$ are $G$, $H$.
+	Let $Q$ be the intersection of $\ol{GH}$ and $\ol{BC}$,
+	and let $M$ be the midpoint of $\ol{BC}$.
+	Prove that $\ol{IQ}$ and $\ol{IM}$ are perpendicular.
+\end{problem}
+
+\begin{problem}[IMO 2024/4]
+	Let $ABC$ be a triangle with $AB < AC < BC$. Let the incenter and incircle of triangle $ABC$ be $I$ and $\omega$, respectively. Let $X$ be the point on line $BC$ different from $C$ such that the line through $X$ parallel to $AC$ is tangent to $\omega$. Similarly, let $Y$ be the point on line $BC$ different from $B$ such that the line through $Y$ parallel to $AB$ is tangent to $\omega$. Let $AI$ intersect the circumcircle of triangle $ABC$ at $P \ne A$. Let $K$ and $L$ be the midpoints of $AC$ and $AB$, respectively.
+
+	Prove that $\angle KIL + \angle YPX = 180^\circ$.
+\end{problem}
+
+\begin{problem}[ISL 2024 G1]
+	Let $ABCD$ be a cyclic quadrilateral such that $AC < BD < AD$ and $\angle DBA < 90^\circ$. Point $E$ lies on the line through $D$ parallel to $AB$ such that $E$ and $C$ lie on opposite sides of line $AD$, and $AC = DE$. Point $F$ lies on the line through $A$ parallel to $CD$ such that $F$ and $C$ lie on opposite sides of line $AD$, and $BD = AF$.
+
+	Prove that the perpendicular bisectors of segments $BC$ and $EF$ intersect on the circumcircle of $ABCD$.
+\end{problem}
+
+\begin{problem}[ISL 2018 G7]
+	Let $O$ be the circumcenter and $\Omega$ be the circumcircle
+	of an acute triangle $ABC$.
+	Let $P$ be a point on $\Omega$ different from $A$, $B$, $C$,
+	as well as their antipodes.
+	Let $O_A$, $O_B$, $O_C$ be the circumcenters of $\triangle AOP$, $\triangle BOP$, $\triangle COP$, respectively.
+	Line $\ell_A$ passes through $O_A$ and is perpendicular to $\ol{BC}$;
+	lines $\ell_B$ and $\ell_C$ are defined similarly.
+
+	Prove that the circumcircle of the triangle determined by $\ell_A$, $\ell_B$, $\ell_C$
+	is tangent to line $OP$.
+\end{problem}
+
+\begin{problem}[USAMO 2023/1]
+	In an acute triangle $ABC$, let $M$ be the midpoint of $\overline{BC}$. Let $P$ be the foot of the perpendicular from $C$ to $AM$. Suppose that the circumcircle of triangle $ABP$ intersects line $BC$ at two distinct points $B$ and $Q$. Let $N$ be the midpoint of $\overline{AQ}$. Prove that $NB=NC$.
+\end{problem}
+
+\begin{problem}[IMO 2023/2]
+	Let $ABC$ be an acute-angled triangle with $AB < AC$. Let $\Omega$ be the circumcircle of $ABC$. Let $S$ be the midpoint of the arc $CB$ of $\Omega$ containing $A$. The perpendicular from $A$ to $BC$ meets $BS$ at $D$ and meets $\Omega$ again at $E \neq A$. The line through $D$ parallel to $BC$ meets line $BE$ at $L$. Denote the circumcircle of triangle $BDL$ by $\omega$. Let $\omega$ meet $\Omega$ again at $P \neq B$. Prove that the line tangent to $\omega$ at $P$ meets line $BS$ on the internal angle bisector of $\angle BAC$.
+\end{problem}
+
+\pagebreak
+
+\section{Walkthroughs}
+\label{sec:walkthroughs}
+
+\subsection{EMC 2024/J3}
+
+\begin{example}[EMC 2024/J3]
+	Let $ABC$ be a triangle with incenter $I$ and incircle $\omega$. Let $\ell$ be the tangent to $\omega$ parallel to $BC$ and distinct from $BC$. Let $D$ be the intersection of $\ell$ and $AC$, and let $M$ be the midpoint of $\ol{ID}$. Prove that $\angle AMD = \angle DBC$.
+\end{example}
+
+\begin{walkthrough}
+	This is the first problem I solved using complex numbers in-contest.
+
+	Let $\omega$ be the unit circle, and let $BC$, $CA$, and $AB$ be tangent to $\omega$ and $X$, $Y$, and $Z$, respectively.
+	\begin{walk}
+		\ii Compute $a$, $d$, $m$, $b$, and $c$ using ice cream cone.
+		\ii We need to show
+		\[\frac{a - m}{d - m} \div \frac{d - b}{c - b} \in \RR.\]
+		Show that since $\frac{c - b}x \in i\RR$, it's equivalent to show
+		\[\frac{(a - m)x}{(d - m)(d - b)} \in i\RR.\]
+		\ii Finish by writing the above in terms of $x$, $y$, and $z$.
+	\end{walk}
+	I did not see the optimization of using $\frac{c - b}x \in i\RR$ during the contest.
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{ISL 2023 G5}
+
+\begin{example}[ISL 2023 G5]
+	Let $ABC$ be an acute-angled triangle with circumcircle $\omega$ and circumcentre $O$. Points $D\neq B$ and $E\neq C$ lie on $\omega$ such that $BD\perp AC$ and $CE\perp AB$. Let $CO$ meet $AB$ at $X$, and $BO$ meet $AC$ at $Y$.
+
+	Prove that the circumcircles of triangles $BXD$ and $CYE$ have an intersection on line $AO$.
+\end{example}
+
+\begin{walkthrough}
+	Let $(ABC)$ be the unit circle.
+	\begin{walk}
+		\ii Compute $X$ and $D$. Use symmetry to get $Y$ and $E$.
+	\end{walk}
+	Since the problem is true, there is some point $P$ such that $P \in \ol{AO} \cap (BXD) \cap (CYE)$. We will solve for $p$.
+	\begin{walk}[resume]
+		\ii\label{walk:bxd} Let $\lambda = \frac pa \in \RR$. Use $P \in (BXD)$ and $\lambda \in \RR$ to get
+		\[\frac{c(\lambda b - a)(\lambda c + b)(abc + a^2b + ac^2 + b^2c)}{a(\lambda a - b)(\lambda b + c)(abc + a^2c + ab^2 + bc^2)} = -1.\]
+		\ii\label{walk:cye} Use $p \in (CYE)$ and $\lambda \in \RR$ to obtain a similar condition. This should require no computation. Exploit symmetry.
+		\ii Multiply the conditions you found in parts \ref{walk:bxd} and \ref{walk:cye} to obtain
+		\[\frac{bc(\lambda a - b)(\lambda a - c)}{a^2(\lambda b - a)(\lambda c - a)} = 1.\]
+		Solve for $\lambda$ and $p$. You should get $p = \frac{a^2 + bc}{b + c}$.
+		\ii When we solved for $p$, we assumed $P$ lies on $\ol{AO}$, $(BXD)$, and $(CYE)$, which is not allowed since this is assuming the problem. Show that $p = \frac{a^2 + bc}{b + c}$ actually lies on all three curves to finish.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{MOP 2025}
+
+\begin{example}[MOP 2025]
+	Let $\omega$ be a circle centered at $O$, and let $\Gamma$ be a circle containing $\omega$. Let $\ell$ be a line tangent to $\omega$. Suppose $\ell$ meets $\Gamma$ at $P$ and $Q$. Show that as $\ell$ varies, the circumcenter of $\triangle PQO$ lies on a fixed circle.
+\end{example}
+
+\begin{walkthrough}
+	I solved this problem on a MOP 2025 team contest. I presented my solution to Carl. After I was done, he said my setup was clean. We went on to win the contest.
+
+	Let $\omega$ be the unit circle. Let $\Gamma$ have radius $r$ and be centered at $k \in \RR$. Let $\ell$ meet $\omega$ at $Z$.
+	\begin{walk}
+		\ii Use the fact that $p$ lies on $\Gamma$ to obtain $p\ol p = k(p + \ol p) + r^2 - k^2$.
+		\ii Use the fact that $p$ lies on $\ell$ to get $\ol p = \frac{2z - p}{z^2}$.
+		\ii By symmetry, repeat the two earlier parts with $q$ instead to get analogous formulas for $q\ol q$ and $\ol q$.
+		\ii Since $o = 0$, the circumcenter of $\triangle PQO$ is
+		\[\deter{p & p\ol p \\ q & q\ol q} \div \deter{p & \ol p \\ q & \ol q}.\]
+		Substitute in your formulas for $p\ol p$, $\ol p$, $q\ol q$, and $\ol q$. Use row operations to simplify. You should get
+		\[k + \frac{(r^2 - k^2)z}2.\]
+		\ii Conclude that as $z$ varies along a circle, the circumcenter does as well.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{IMO 2019/6}
+
+\begin{example}[IMO 2019/6]
+	Let $ABC$ be a triangle with incenter $I$ and incircle $\omega$.
+	Let $D$, $E$, $F$ denote the tangency points of $\omega$ with $\ol{BC}$, $\ol{CA}$, $\ol{AB}$.
+	The line through $D$ perpendicular to $\ol{EF}$ meets $\omega$ again at $R$ (other than $D$),
+	and line $AR$ meets $\omega$ again at $P$ (other than $R$).
+	Suppose the circumcircles of $\triangle PCE$ and $\triangle PBF$ meet again at $Q$ (other than $P$).
+	Prove that lines $DI$ and $PQ$ meet on the external $\angle A$-bisector.
+\end{example}
+
+\begin{walkthrough}
+	I solved this problem while eating cheese curds at the Minnesota State Fair.
+
+	Let $X$ be the intersection of the external $\angle A$-bisector and line $DI$. We show $X$ lies on line $PQ$. Let $O_1$ and $O_2$ be the centers of $(PBF)$ and $(PCE)$. Let $\omega$ be the unit circle.
+	\begin{walk}
+		\ii Show that it's enough to show $XP \perp O_1O_2$.
+		\ii Compute $r = -\frac{ef}d$ and $a = \frac{2ef}{e + f}$. Since $A$ lies on $PR$, we have $a + pr\ol a = p + r$. Solve for $p$ to get
+		\[p = \frac{ef(2d + e + f)}{2ef + df + de}.\]
+		\ii Compute
+		\[x = \frac{4d^2ef}{(e + f)(d^2 + ef)}.\]
+		\ii Obtain
+		\[o_1 = \frac{ef(2d + e + f)(d - f)}{(d + e)(d + f)(e - f)}\]
+		by translating $(PBF)$ to the origin.
+		\ii Convince yourself that we have
+		\[o_2 = -\frac{ef(2d + e + f)(d - e)}{(d + e)(d + f)(e - f)}\]
+		by swapping $e$ and $f$ in the expression for $o_1$. Compute $o_1 - o_2$.
+		\ii Show $\frac{x - p}{o_1 - o_2} \in i\RR$ to finish.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{TST 2017/5}
+
+\begin{example}[TST 2017/5]
+	Let $ABC$ be a triangle with altitude $\overline{AE}$. The $A$-excircle touches $\overline{BC}$ at $D$, and intersects the circumcircle at two points $F$ and $G$. Prove that one can select points $V$ and $N$ on lines $DG$ and $DF$ such that quadrilateral $EVAN$ is a rhombus.
+\end{example}
+
+\begin{walkthrough}
+	Let $\Omega$ be the $A$-excircle. Rename $D$ to $X$ and let $Y$ and $Z$ be the points of tangency of lines $AC$ and $AB$ with $\Omega$, respectively. Let $M$ be the midpoint of $AE$.
+
+	We will complex bash with $\Omega$ as the unit circle. For a point $P \neq X$ on $\Omega$, let $\phi(P)$ be the point lying on $PX$ and the perpendicular bisector of $AE$. We need to show $\phi(f) + \phi(g) = 2m$.
+	\begin{walk}
+		\ii Compute
+		\[m = \frac{3yz + x(y + z) - x^2}{2(y + z)}.\]
+		\ii Show that
+		\[\phi(p) = \frac{p(x^2 + yz) - x^2(y + z)}{(y + z)(p - x)}.\]
+		\ii Let $p$ be either $f$ or $g$. Use the facts that $p$, $a$, $b$, and $c$ are concyclic and $p$ is unit to get a quadratic with roots $f$ and $g$. Obtain $f + g$ and $fg$ with Vieta's formulas. You do not need to solve for $f$ and $g$, in fact, you will not be able to, as this quadratic is irreducible. You should get
+		\[f + g = \frac{4xyz + (x + y)(y + z)(z + x)}{2(xy + yz + zx)} \qquad fg = \frac{xyz(x + y + z)}{xy + yz + zx}.\]
+		\ii Using the above expressions for $f + g$ and $fg$, show that $\phi(f) + \phi(g) = 2m$. (This computation is not short.)
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{USAMO 2024/5}
+
+\begin{example}[USAMO 2024/5]
+	Point $D$ is selected inside acute $\triangle ABC$ so that $\angle DAC = \angle ACB$ and $\angle BDC = 90^{\circ} + \angle BAC$. Point $E$ is chosen on ray $BD$ so that $AE = EC$. Let $M$ be the midpoint of $BC$.
+
+	Show that line $AB$ is tangent to the circumcircle of triangle $BEM$.
+\end{example}
+
+\begin{walkthrough}
+	I solved this problem during dinner at Peking Garden after MNYMO Girls.
+
+	Let $(ABC)$ be the unit circle. Let $T$ lie on $(ABC)$ such that $\angle TAC = \angle ACB$. Let $X$ be a variable point on $(ABC)$. Redefine $D$ as the intersection between lines $BX$ and $AT$ and $E$ as the intersection between line $BX$ and the perpendicular bisector of $AC$. Since $\angle TAC = \angle ACB$, we have $\angle DAC = \angle ACB$. We show that if $\angle BDC = 90\dg + \angle BAC$, then line $AB$ is tangent to $(BEM)$.
+	\begin{walk}
+		\ii Compute $t = \frac{ac}b$, $d = \frac{a(x(b^2 + bc - ac) - abc)}{b^2x - a^2c}$, and $e = \frac{ac(b + x)}{ac + bx}$.
+		\ii Show that
+		\[\angle BDC = 90\dg + \angle BAC \iff \frac{c - d}{b - d} \div \frac{c - a}{b - a} \in i\RR \iff \frac{(c - d)(b - a)}{(b - x)(c - a)} \in i\RR.\]
+		\ii Show that the above is equivalent to
+		\[b(b - c)x^2 + a(b + c)(b + c - 2a)x - a^2c(b - c) = 0. \qquad (\bigstar)\]
+		\ii Line $AB$ is tangent to $(BEM)$ if and only if $\dang ABE = \dang BME$. Hence we require
+		\[\frac{a - b}{e - b} \div \frac{b - m}{e - m} = \frac{(a - b)(e - m)}{(x - b)(b - c)} \in \RR.\]
+		Show that this is equivalent to $(\bigstar)$.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{RMM 2026/5}
+
+\begin{example}[RMM 2026/5]
+	Let $ABC$ be a triangle with $AB < AC$, let $O$ be its circumcentre and let $XYZT$ be a parallelogram inside triangle $ABC$ such that
+	\begin{align*}
+		\angle AXB = \angle AZC, \quad & \quad \angle AZB = \angle AXC, \\
+		\angle AYB = \angle ATC, \quad & \quad \angle ATB = \angle AYC.
+	\end{align*}
+	Prove that the diagonals $XZ$ and $YT$ of the parallelogram intersect on the circumcircle of $BOC$.
+\end{example}
+	
+\begin{walkthrough}
+	Complex bash with $\ol{XZ} \cap \ol{YT}$ as the origin, so $x + z = 0$ and $y + t = 0$. Write $p \sim q$ if $0$, $p$, and $q$ are collinear in $\CC$, or equivalently, if $q = 0$ or $\frac pq \in \RR$. Write $p \sim q \sim r$ if $p \sim q$, $q \sim r$, and $r \sim p$.
+	\begin{walk}
+		\ii From the first two angle conditions and the fact that $XYZT$ lies inside $\triangle ABC$, obtain
+		\[(a - x)(a + x) \sim (b - x)(c + x) \sim (b + x)(c - x).\]
+		Use the fact that $x \sim y$ implies $x \sim y + \lambda x$ for all $\lambda \in \RR$ to show that the above implies
+		\[a^2 - x^2 \sim bc - a^2 \sim x(b - c).\]
+		\ii Since $b \neq c$, conclude that $x \sim \frac{bc - a^2}{b - c}$, and similarly, $y \sim \frac{bc - a^2}{b - c}$ as well. So $x \sim y \sim \frac{bc - a^2}{b - c}$.
+	\end{walk}
+	Now we work by cases on whether $\frac{bc - a^2}{b - c} = 0$.
+	\begin{walk}[resume]
+		\ii If $\frac{bc - a^2}{b - c} \neq 0$, show that $x \sim y$. Conclude that $XYZT$ is degenerate.
+		\ii If $\frac{bc - a^2}{b - c} = 0$, we have $\frac ab = \frac ca$, so the origin is the center of the spiral similarity sending $AB$ to $CA$. So it's enough to prove the following:
+		\begin{quote}
+			\sffamily\small
+			Let $\triangle ABC$ be a triangle with circumcenter $O$. Let $D$ be the center of the spiral similarity sending $AB$ to $CA$. Then $D$ lies on $(BOC)$.
+		\end{quote}
+		Complex bash this by setting $(ABC)$ to be the unit circle. (The point $D$ is called the $A$-Dumpty point.)
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{ISL 2024 G6}
+
+\begin{example}[ISL 2024 G6]
+	Let $ABC$ be an acute triangle with $AB < AC$, and let $\Gamma$ be the circumcircle of $ABC$. Points $X$ and $Y$ lie on $\Gamma$ so that $XY$ and $BC$ meet on the external angle bisector of $\angle BAC$. Suppose that the tangents to $\Gamma$ at $X$ and $Y$ intersect at a point $T$ on the same side of $BC$ as $A$, and that $TX$ and $TY$ intersect $BC$ at $U$ and $V$, respectively. Let $J$ be the centre of the excircle of triangle $TUV$ opposite the vertex $T$.
+
+	Prove that $AJ$ bisects $\angle BAC$.
+\end{example}
+
+\begin{walkthrough}
+	I completed the following bash in around 15 minutes after finishing the problems on the math section on the ACT.
+
+	Let $O$ be the center of $\Gamma$. Let $P \neq A$ be the second intersection of the external bisector of $\angle BAC$ and $\Gamma$. Let $Q$ be the intersection of lines $AP$ and $BC$. Redefine $J$ as the intersection between the internal bisector of $\angle UTV$ and the internal bisector of $\angle BAC$; we show our $J$ is the $T$-excenter of $\triangle TUV$.
+
+	Complex bash with $\Gamma$ as the unit circle.
+
+	\begin{walk}
+		\ii Prove that $p^2 = bc$.
+		\ii Show that the internal bisector of $\angle UTV$ passes through $O$, hence $\frac jt \in \RR$. Use this along with the fact that $AP \perp AJ$ to compute $j = \frac{xy(a - p)}{xy - ap}$.
+	\end{walk}
+
+	Since $J$ and $T$ lie on opposite sides of line $UV$, $J$ cannot be the incenter of $\triangle TUV$. Hence if we show the distance from $J$ to $BC$ is equal to the distance from $J$ to $TX$, we are done.
+
+	\begin{walk}[resume]
+		\ii Show $\lvert j + \ol jbc - b - c\rvert = \lvert j + \ol jx^2 - 2x\rvert$ is equivalent.
+		\ii Convince yourself it's enough to show
+		\[\frac{j + \ol jbc - b - c}p = \frac{j + \ol jx^2 - 2x}x.\]
+		\ii Multiply by $p$ and write $j = xy\ol j$ to get
+		\[(xy + bc)\ol j - (b + c) = p(x + y)\ol j - 2p. \qquad (\bigstar)\]
+		At this point, we are happy because this expression is symmetric in $x$ and $y$.
+	\end{walk}
+
+	In some sense, the values $a$, $p$, $x$, $y$, $b$, and $c$ that appear in the above equation ($a$ appearing implicitly through our expression of $\ol j$) are related to each other ``through'' the point $q$, since the lines $AP$, $XY$, and $BC$ all pass through $Q$. In particular, we have the three relations
+	\begin{align*}
+		q + \ol qbc &= b + c \\
+		q + \ol qxy &= x + y \\
+		q + \ol qap &= a + p.
+	\end{align*}
+	So things like $b + c$ and $x + y$ have ``nice'' expressions in terms of $q$ and $\ol q$, but they don't necessarily have nice expressions in terms of each other. So the easiest way to relate these expressions is by writing them in terms of $q$ and $\ol q$.
+
+	\begin{walk}[resume]
+		\ii Write $(\bigstar)$ in terms of $a$, $p$, $q$, $\ol q$, and $xy$ by substituting $bc = p^2$, $b + c = q + \ol qp^2$, and $x + y = q + \ol qxy$. You should get
+		\[(xy + p^2)\ol j - (q + \ol qp^2) = p(q + \ol qxy)\ol j - 2p.\]
+		\ii Expand with $\ol j = \frac{a - p}{xy - ap}$.
+		\ii We haven't used the fact that $Q$ lies on line $AP$ yet. Use $q + \ol qap = a + p$ to finish.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{ISL 2024 G5}
+
+\begin{example}[ISL 2024 G5]
+	Let $ABC$ be a triangle with incentre $I$, and let $\Omega$ be the circumcircle of triangle $BIC$. Let $K$ be a point in the interior of segment $BC$ such that $\angle BAK < \angle KAC$. The angle bisector of $\angle BKA$ intersects $\Omega$ at points $W$ and $X$ such that $A$ and $W$ lie on the same side of $BC$, and the angle bisector of $\angle CKA$ intersects $\Omega$ at points $Y$ and $Z$ such that $A$ and $Y$ lie on the same side of $BC$.
+
+	Prove that $\angle WAY = \angle ZAX$.
+\end{example}
+
+\begin{walkthrough}
+	At MOP, Razzi (the LeBron of complex bashing) presented a solution to this problem after a MOP test. Revisiting this setup a few months later, I found a further insight to work in terms of $pq$ instead of just $p$ from the beginning. This makes the computation noticeably nicer and (in my opinion) more motivated. Anyway.
+
+	We will set $\Gamma$ as the unit circle. Let $j$ represent $I$.
+	\begin{center}
+		\begin{asy}
+		/*
+		Converted from GeoGebra by User:Azjps using Evan's magic cleaner
+		https://github.com/vEnhance/dotfiles/blob/main/py-scripts/export-ggb-clean-asy.py
+		*/
+		pair A = (-5.90607,6.08410);
+		pair B = (-7.8,-2.03);
+		pair C = (4.88,-2.21);
+		pair I = (-4.05446,0.89888);
+		pair K = (-3.81141,-2.08662);
+		pair P = (-6.14582,-0.24847);
+		pair Q = (5.35711,-9.30601);
+		pair R = (-1.12284,1.32782);
+		pair S = (-8.74722,-8.35503);
+		
+		import graph;
+		pen rvwvcq = rgb(0.08235,0.39607,0.75294);
+		pen wewdxt = rgb(0.43137,0.42745,0.45098);
+		draw(A--B--C--cycle, linewidth(0.6) + rvwvcq);
+		draw(A--B, linewidth(0.6) + rvwvcq);
+		draw(B--C, linewidth(0.6) + rvwvcq);
+		draw(C--A, linewidth(0.6) + rvwvcq);
+		draw(circle((-1.51797,-6.20422), 7.54241), linewidth(0.6) + wewdxt);
+		draw(A--K, linewidth(0.6) + wewdxt);
+		draw(P--Q, linewidth(0.6) + wewdxt);
+		draw(R--S, linewidth(0.6) + wewdxt);
+		
+		dot("$A$", A, dir(90));
+		dot("$B$", B, dir(150));
+		dot("$C$", C, dir(60));
+		dot("$I$", I, dir(90));
+		dot("$K$", K, dir(270));
+		dot("$P$", P, dir(150));
+		dot("$Q$", Q, dir(330));
+		dot("$R$", R, dir(100));
+		dot("$S$", S, dir(210));
+		\end{asy}
+	\end{center}
+	\begin{walk}
+		\ii Solve for $a$ in terms of $j$, $b$, and $c$. Convince yourself that $a/\ol a$ should be $j^2$, then verify your expression for $a$ satisfies this.
+	\end{walk}
+
+	Let $P$ be any point on $\Gamma$, and let $Q$ be the other intersection of $PK$ with $\Gamma$.
+	Let $R$ and $S$ be the intersections of the line through $K$ perpendicular to $PQ$ with $\Gamma$. 
+	We show that if $P$ lies on either of the bisectors of $\angle BKA$, then $\angle PAR = \angle QAS$.
+
+	\begin{walk}[resume]
+		\ii Show that it's equivalent to require
+		\[\frac{(p - k)^2}{(a - k)(b - c)} \in \RR \qquad (\dagger)\]
+		to imply
+		\[\frac{(a - p)(a - q)}{(a - r)(a - s)} \in \RR. \qquad (\bigstar)\]
+	\end{walk}
+
+	The key insight is to parameterize the entire setup in terms of $pq$. This is motivated by the following facts:
+	\begin{itemize}
+		\ii There is an inherent symmetry between the points $p$ and $q$, since they are the roots of some quadratic. Furthermore, this quadratic is likely irreducible, since the condition and conclusion are both symmetric in $P$ and $Q$.
+		\ii Since the quadratic with roots $p$ and $q$ is irreducible, it is easier to work with $p + q$ and $pq$ rather than $p$ and $q$ themselves. In particular, the conditions on $p$ and $q$ are quartic, while the conditions on $pq$ are quadratic.
+		\ii Once $pq$ is known, $p + q$ is also known, from the relation $p + q = k + \ol kpq$. Additionally, once $pq$ is known, so is $rs$, since $PQ \perp RS$, which implies $pq + rs = 0$. Similarly, one may find $r + s$.
+		\ii Since both the condition and the conclusion are symmetric with respect to swapping $p$ and $q$ or swapping $r$ and $s$, they are expressible in terms of $pq$ and $rs$, by (say) the fundamental theorem of elementary symmetric polynomials.
+	\end{itemize}
+	Keeping this in mind, we will rewrite $(\dagger)$ and $(\bigstar)$ in terms of $pq$.
+
+	\begin{walk}[resume]
+		\ii Respecting symmetry, we rewrite $(\dagger)$ as
+		\[\frac{(p - k)(q - k)}{(a - k)(b - c)} \in \RR.\]
+		Show that this is equivalent to
+		\[p^2q^2(a - j^2\ol k) + bcj^2(a - k) = 0. \qquad (\dagger\dagger)\]
+		\ii Show that
+		\[\frac{(a - p)(a - q)}{(a - r)(a - s)} = \frac{a^2 - ak + (1 - a\ol k)pq}{a^2 - ak - (1 - a\ol k)pq}.\]
+		\ii Show that $(\bigstar)$ rearranges to
+		\[p^2q^2(1 - a\ol k)(a - j^2\ol k) + j^2(k - a)(j^2 - ak) = 0. \qquad (\bigstar\bigstar)\]
+		\ii Finish by showing $(\dagger\dagger)$ and $(\bigstar\bigstar)$ are equivalent.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{IMO 2011/6}
+
+\begin{example}[IMO 2011/6]
+	Let $ABC$ be an acute triangle with circumcircle $\Gamma$. Let $\ell$ be a tangent line to $\Gamma$, and let $\ell_a, \ell_b$ and $\ell_c$ be the lines obtained by reflecting $\ell$ in the lines $BC$, $CA$ and $AB$, respectively. Show that the circumcircle of the triangle determined by the lines $\ell_a, \ell_b$ and $\ell_c$ is tangent to the circle $\Gamma$.
+\end{example}
+
+\begin{walkthrough}
+	Evan has a $15$-minute computation that requires guessing a homothety, however, this is black magic to me. We present three solutions that all require little synthetic insight. The solutions are of increasing order of instructiveness.
+
+	Let $P$ be the tangency point of $\ell$ to $(ABC)$. Let $X = \ell_b \cap \ell_c$ and define $Y$ and $Z$ similarly. We complex bash with $(ABC)$ as the unit circle. The first step is the same in all three solutions.
+	\begin{walk}
+		\ii Compute
+		\[x = \frac{p^2(ab + bc + ca) - 2pabc + a^2bc}{p^2(b + c)} = a + \frac{bc(p - a)^2}{p^2(b + c)} \quad \text{and} \quad \overline x = \frac 1a + \frac{(p - a)^2}{a^2(b + c)}.\]
+	\end{walk}
+
+	We proceed with the first solution, which I did on \href{https://www.twitch.tv/knowingsanta}{Twitch}. The computation took two hours, but I had emotional support in the form of chat.
+	\begin{walk}[resume]
+		\ii The condition that a point $T$ lies on $(XYZ)$ may be written as
+		\[\frac{(T - y)(x - y)}{(T - z)(x - z)} \in \mathbb R.\]
+		Compute $\frac{x - y}{x - z}$. It should be really nice.
+		\ii Substituting in $\overline T = \tfrac 1T$ yields a quadratic whose roots are the intersection of $(ABC)$ and $(XYZ)$; we need to show this quadratic has a double root. Show that this quadratic is
+		\[T^2(b^2\overline y - c^2\overline z) - T(b^2 - c^2 + b^2\overline yz + c^2y\overline z) + b^2z - c^2y = 0.\]
+		\ii Substitute to show that the discriminant of this quadratic is zero. (This computation is not short.)
+	\end{walk}
+	
+	The second solution is by \texttt{malcolm} and makes use of Casey's theorem.
+	\begin{theorem*}
+		[Casey's theorem]
+		Four circles $c_1$, $c_2$, $c_3$, and $c_4$ are tangent to a fifth circle iff for some choice of signs,
+		\[T_{12}T_{34} \pm T_{13}T_{42} \pm T_{14}T_{23} = 0\]
+		where $T_{ij}$ is the length of a common tangent to circles $c_i$ and $c_j$.
+	\end{theorem*}
+	In the case where the radii of $c_i$ for $1 \le i \le 4$ are zero, this specializes to Ptolemy's theorem. Let $\Gamma$ be $(ABC)$ and let $\Gamma_X$, $\Gamma_Y$, and $\Gamma_Z$ be circles of radius zero centered at $X$, $Y$, and $Z$. Then the problem requires $\Gamma$, $\Gamma_X$, $\Gamma_Y$, and $\Gamma_Z$ to all be tangent to $(XYZ)$. By Casey's theorem, this is equivalent to
+	\[\sqrt{\Pow_\Gamma(X)}YZ \pm \sqrt{\Pow_\Gamma(Y)}ZX \pm \sqrt{\Pow_\Gamma(Z)}XY = 0.\]
+	\begin{walk}[resume]
+		\ii Compute
+		\begin{align*}
+			\Pow_\Gamma(X) = x\ol x - 1 &= \frac{(p - a)^2((ab + bc + ca)p^2 - 2abcp + abc(a + b + c))}{a^2p^2(b + c)^2} \\
+			y - z &= \frac{(b - c)(-2pabc + abc(a + b + c))}{p^2(a + b)(a + c)}
+		\end{align*}
+		\ii Divide by unit and symmetric terms to obtain
+		\[\lvert a - p\rvert\lvert b - c\rvert \pm \lvert b - p\rvert\lvert c - a\rvert \pm \lvert c - p\rvert\lvert a - b\rvert = 0.\]
+		Conclude by Ptolemy's theorem.
+	\end{walk}
+	Why should we have expected to use Ptolemy's theorem \emph{a priori}?
+
+	The third solution is by \texttt{pieater314159}. We will need the following fact.
+	\begin{theorem*}
+		[M\"obius transformations send clines to clines]
+		A cline is either a circle or a line.\footnote{A line is a circle passing through the point at infinity.} A M\"obius transformation is one of the form $z \mapsto \frac{az + b}{cz + d}$ where $a,b,c,d \in \CC$ and $ad - bc \neq 0$. Then
+		\begin{itemize}
+			\ii M\"obius transformations send clines to clines, and
+			\ii for any two clines $X$ and $Y$, there is exactly one M\"obius transform sending $X$ to $Y$.
+		\end{itemize}
+	\end{theorem*}
+	\begin{walk}[resume]
+		\ii Show that the map
+		\[f: t \mapsto \frac{p^2(ab + bc + ca) - 2pabc + abct}{p^2(a + b + c - t)}\]
+		is a M\"obius transformation sending $(ABC)$ to $(XYZ)$.
+	\end{walk}
+	Don't do any computations yet! We need to show $\lvert f(t)\rvert = 1$ for exactly one value of $t$ on the unit circle. If $f(t) = \frac{At + B}{Ct + D}$, then this is equivalent to $\lvert -\frac BA - t\rvert = \lvert -\frac DC - t\rvert$. This is the perpendicular bisector of the points $-\frac BA$ and $-\frac DC$, which is a line. We need to show this line is tangent to the unit circle.
+	\begin{walk}[resume]
+		\ii We need to show the line
+		\[\left\lvert 2p - p^2\left( \frac 1a + \frac 1b + \frac 1c \right) - t\right\rvert = \lvert a + b + c - t\rvert\]
+		is tangent to the unit circle. Show that this line is just $\ell$. Conclude.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{IMO 2013/3}
+
+\begin{example}[IMO 2013/3]
+    Let the excircle of triangle $ABC$ opposite the vertex $A$ be tangent to the side $BC$ at the point $A_1$. Define the points $B_1$ on $CA$ and $C_1$ on $AB$ analogously, using the excircles opposite $B$ and $C$, respectively. Suppose that the circumcentre of triangle $A_1B_1C_1$ lies on the circumcircle of triangle $ABC$. Prove that triangle $ABC$ is right-angled.
+\end{example}
+
+\begin{walkthrough}
+	This one's a tough cookie. Inspired by \texttt{GeronimoStilton}'s famous 2021 computer-assisted complex bash for this problem, I sought to find a setup acceptable for humans. The following bash is the result. See \href{https://artofproblemsolving.com/community/u987166h1181536p37945622}{my post} on the AoPS thread for a full solution.
+
+	Let $O$ be the circumcenter of $\triangle ABC$. Let $J$ and $r$ be the incenter and inradius of $\triangle ABC$. Let $X$ be the arc midpoint of $\arc{BC}$ opposite $A$. Let $D$ be the touchpoint of the incircle of $\triangle ABC$ to $\ol{BC}$. Define $Y$, $Z$, $E$, and $F$ similarly.
+
+	\begin{center}
+		\begin{asy}
+		/*
+		Converted from GeoGebra by User:Azjps using Evan's magic cleaner
+		https://github.com/vEnhance/dotfiles/blob/main/py-scripts/export-ggb-clean-asy.py
+		*/
+		pair A = (-0.98,5.2);
+		pair B = (-2.74,0.);
+		pair C = (4.22,0.);
+		pair J = (-0.19206,1.82753);
+		pair D = (-0.19206,0.);
+		pair E = (1.10019,3.11980);
+		pair F = (-1.92314,2.41344);
+		pair A_1 = (1.67206,0.);
+		pair B_1 = (2.13980,2.08019);
+		pair C_1 = (-1.79685,2.78655);
+		pair X = (0.74,-2.16185);
+		pair Y = (3.48488,4.46488);
+		pair Z = (-2.93695,2.96450);
+		pair O = (0.74,1.72);
+
+		import graph;
+		pen zzttqq = rgb(0.6,0.2,0.);
+		pen cqcqcq = rgb(0.75294,0.75294,0.75294);
+		draw(A--B--C--cycle, linewidth(0.6) + zzttqq);
+
+		draw(A--B, linewidth(0.6) + zzttqq);
+		draw(B--C, linewidth(0.6) + zzttqq);
+		draw(C--A, linewidth(0.6) + zzttqq);
+		draw(circle(O, 3.88185), linewidth(0.6));
+		draw(circle(J, 1.82753), linewidth(0.6));
+		dot("$A$", A, dir(120));
+		dot("$B$", B, dir(240));
+		dot("$C$", C, dir(-30));
+		dot("$J$", J, dir(65));
+		dot("$D$", D, dir(-90));
+		dot("$E$", E, dir(64));
+		dot("$F$", F, dir(160));
+		dot("$A_1$", A_1, dir(-90));
+		dot("$B_1$", B_1, dir(63));
+		dot("$C_1$", C_1, dir(120));
+		dot("$X$", X, dir(-90));
+		dot("$Y$", Y, dir(50));
+		dot("$Z$", Z, dir(170));
+		dot("$O$", O, dir(63));
+		\end{asy}
+	\end{center}
+
+	First, make sure you've read \Cref{ssec:jacobi-bialternant}. We will employ American Smartass Notation: let $\lvert f,g,h\rvert$ for rational functions $f$, $g$, and $h$ denote the magnitude of the determinant of the $3 \times 3$ matrix whose rows are the three cyclic variations of $(f,g,h)$. For example,
+	\[\left\lvert a^2 + d^2,\frac{a(x\ol j + 1)}{a + d},1\right\rvert = \left\lvert\begin{vmatrix}
+		a^2 + d^2 & \frac{a(x\ol j + 1)}{a + d} & 1 \\
+		b^2 + e^2 & \frac{b(y\ol j + 1)}{b + e} & 1 \\
+		c^2 + f^2 & \frac{c(z\ol j + 1)}{c + f} & 1
+	\end{vmatrix}\right\rvert,\]
+	where the outside vertical bars denote the magnitude.
+
+	Complex bash by setting $(ABC)$ as the unit circle. The condition that the circumcenter of $(A_1B_1C_1)$ has magnitude $1$ is equivalent to
+	\[1 = \frac{\lvert 1,a_1,a_1\ol{a_1}\rvert}{\lvert 1,a_1,\ol{a_1}\rvert}.\]
+	We will simplify this as much as possible. Throughout, use elementary column operations as needed to assist simplification.
+
+	\begin{walk}
+		\ii Since $\ol{BD} = \ol{CA_1}$, we have $a_1 + d = b + c$. Also, since $D$ lies on $\ol{BC}$, we have $d + bc\ol d = b + c$. So $a_1 = bc\ol d$. Use this to show
+		\[1 = \frac{\lvert 1,bc\ol d,d\ol d\rvert}{\lvert 1,bc\ol d,ad\rvert}.\]
+		\ii Observe that $d = j + rx$, so $d\ol d = j\ol j + r^2 + r(\frac jx + x\ol j)$. Also, $d = \frac12(j + b + c - bc\ol j)$, so $bc\ol d = \frac12(bc\ol j + b + c - j)$. Use this to show
+		\[1 = \frac{2r\lvert 1,bc\ol j - a,\frac jx + x\ol j\rvert}{\lvert1,bc\ol j - a,a(j - \frac1{\ol j})\rvert}.\]
+		\ii By Euler's theorem, $OI^2 = R(R - 2r) = 1 - 2r$, hence $2r = 1 - j\ol j$. Use this to show
+		\[1 = \frac{\lvert 1,bc\ol j - a,\frac jx + x\ol j\rvert}{\lvert 1,bc,a\rvert}.\]
+		\ii Use $j = x + y + z$ to show
+		\[1 = \frac{\lvert 1,bc\ol j - a,\frac zy + \frac yz\rvert}{\lvert 1,a,bc\rvert}.\]
+	\end{walk}
+
+	Now pick $p$, $q$, and $r$ such that $a = p^2$, $b = q^2$, $c = r^2$, $x = -qr$, $y = -rp$, and $z = -pq$ (so forget the definition of $r$ as the inradius). We will let the inputs to $a_\lambda$, $s_\lambda$, and $m_\lambda$ always be $p$, $q$, and $r$.
+
+	\begin{walk}[resume]
+		\ii Obtain
+		\[1 = \frac{\lvert 1,qr(p^3 + pqr + q^2r + qr^2),p(q^2 + r^2)\rvert}{\lvert 1,p^2,q^2r^2\rvert}.\]
+		\ii If $p^2 = q^2$, then the determinant in the denominator is zero; this implies $p^2 - q^2$ divides it. Similarly, $p^2 - r^2$ and $q^2 - r^2$ divide it. Yet it is a degree-$3$ polynomial in $p^2$, $q^2$, and $r^2$ (so $p^2$, $q^2$, and $r^2$ are ``degree-$1$''). Match the coefficients of the $p^4q^2$ term to conclude the denominator is $\lvert (p^2 - q^2)(p^2 - r^2)(q^2 - r^2)\rvert$.
+		\ii The determinant in the numerator is
+		\[\cycsum qr(p^3 + pqr + q^2r + qr^2)(q(r^2 + p^2) - r(p^2 + q^2)).\]
+		Expand to show it is $a_{521} - a_{431} - a_{530}$. This should not be hard: although there are sixteen terms, any of the form $p^aq^br^c$ where $a$, $b$, and $c$ are not all distinct should cancel, so you can just ignore them. (Why?)
+		\ii Apply the Jacobi bialternant formula to obtain
+		\[\left\lvert \frac{s_{311} - s_{221} - s_{32}}{(p + q)(q + r)(r + p)}\right\rvert.\]
+		\ii Expand in in terms of $m_\lambda$ to obtain
+		\[1 = \left\lvert \frac{m_{32} + 2m_{221}}{m_{21} + 2m_{111}}\right\rvert.\]
+		Square to get
+		\[1 = \frac{(m_{32} + 2m_{221})(m_{2,-1} + 2m_1)}{(m_{21} + 2m_{111})^2},\]
+		then expand to get
+		\[m_{32}m_{2,0,-1} + 2m_{221}m_{2,0,-1} + 2m_{32}m_1 + 4m_{221}m_1 - m_{21}^2 - 4m_{21}m_{111} - 4m_{111}^2 = 0.\]
+	\end{walk}
+
+	We're going to expand this. The key insight is that writing $m_\mu m_\nu$ as a sum of $m_\lambda$ isn't so bad, since you can abuse symmetry. For example, suppose we want to compute
+	\[m_{32}m_{2,-1} = (x^3y^2 + x^3z^2 + y^3x^2 + y^3z^2 + z^3x^2 + z^3y^2)\left( \frac{x^2}y + \frac{x^2}z + \frac{y^2}x + \frac{y^2}z + \frac{z^2}x + \frac{z^2}y \right).\]
+	A full expansion proceeds by multiplying each monomial in the left term with the right term. However, the terms on the left side are ``all essentially the same,'' the only difference being a permutation of variables. So the monomial $x^3y^2$ multiplied by the right term is
+	\[x^5y + \frac{x^5y^2}z + x^2y^4 + \frac{x^3y^4}z + x^2y^2z^2 + x^3yz^2.\]
+	Since the left side is symmetric, we get all symmetric variants of these terms when doing the full expansion. So the full expansion must be
+	\[m_{51} + m_{5,2,-1} + m_{42} + m_{4,3,-1} + 6m_{222} + m_{321}.\]
+	In this way, we obtain the expansion of $m_{32}m_{2,-1}$ by doing only $6$ multiplications instead of $36$.
+
+	\begin{walk}[resume]
+		\ii Expand all $m_\nu m_\mu$ as above to get
+		\[m_{63} + m_{54} + m_{621} + 3m_{432} + 4m_{531} + 2m_{441} + 2m_{522} + 8m_{333} = 0.\]
+		\ii The condition that $\triangle ABC$ is right may be encoded as $(a + b)(b + c)(c + a) = 0$, or $(p^2 + q^2)(q^2 + r^2)(r^2 + p^2) = 0$. Hence we know $(p^2 + q^2)(q^2 + r^2)(r^2 + p^2) = m_{42} + 2m_{222}$ divides the left-hand side of the above; we will find the other degree-$3$ factor. To this end, compute the product of $m_{42} + 2m_{222}$ with every degree-$3$ monomial symmetric function. You should get
+		\begin{align*}
+			(m_{42} + 2m_{222})m_{21} &= m_{63} + m_{621} + m_{54} + 2m_{522} + 2m_{441} + 3m_{432} \\
+			(m_{42} + 2m_{222})m_3 &= m_{72} + m_{54} + m_{432} + 2m_{522} \\
+			(m_{42} + 2m_{222})m_{111} &= m_{531} + 2m_{333}.
+		\end{align*}
+		\ii Factor using the above to get
+		\[(m_{42} + 2m_{222})(m_{21} + 4m_{111}) = 0.\]
+		\ii To finish, it's enough to show $m_{21} + 4m_{111} \neq 0$, or
+		\[\frac pq + \frac qp + \frac qr + \frac rq + \frac rp + \frac pr + 4 \neq 0.\]
+		Show that this is equivalent to
+		\[\cos(\angle POQ) + \cos(\angle QOR) + \cos(\angle ROP) = -2.\]
+		\ii Show that
+		\[\cos(\angle POQ) + \cos(\angle QOR) + \cos(\angle ROP) \ge -\frac32\]
+		by Jensen's inequality to finish.
+	\end{walk}
+\end{walkthrough}
+
+\end{document}
+
+\section{Complete quadrilaterals and the Miquel point}
+
+\begin{theorem}[Brokard's theorem]
+	Let $ABCD$ be a cyclic quadrilateral with circumcenter $O$. Let $X = AB \cap CD$, $Y = AC \cap BD$, $Z = AD \cap BC$. Then $O$ is the orthocenter of $\triangle XYZ$.
+\end{theorem}
+
+\begin{problem}[EGMO 2016/2]
+	Let $ABCD$ be a cyclic quadrilateral,
+	and let diagonals $AC$ and $BD$ intersect at $X$.
+	Let $C_1,D_1$ and $M$ be the midpoints of segments $CX$, $DX$ and $CD$, respectively.
+	Lines $AD_1$ and $BC_1$ intersect at $Y$, and line $MY$ intersects diagonals $AC$ and $BD$
+	at different points $E$ and $F$, respectively.
+	Prove that line $XY$ is tangent to the circle through $E$, $F$ and $X$.
+\end{problem}
+
+TODO: writeup nicer
+
+Let $(ABC_1D_1)$ be the unit circle, abbreviate $c_1 = c$, $d_1 = d$. Then $m = c + d - x$ and
+\[x = \frac{ac(b + d) - bd(a + c)}{ac - bd} \qquad y = \frac{ad(b + c) - bc(a + d)}{ad - bc}.\]
+We need to show
+\[\angle EXY = \angle EFX \iff \frac{(y - x)(y - m)}{(c - a)(d - b)} \in \RR.\]
+
+Let $Z$ be the intersection of lines $AB$ and $CD$. By broke hard theorem, $\frac{y - x}{z - 0} \in i\RR$, hence we need to show
+\[\frac{z(y - m)}{(c - a)(d - b)} \in i\RR,\]
+which occurs if and only if $z(y - m)$ is $-abcd$ times its own conjugate. But since $z = \frac{ab(c + d) - cd(a + b)}{ab - cd}$, we just need to show
+\[(abc + abd - acd - bcd)(y - m)\]
+is $(abcd)^2$ times its own conjugate. We compute
+\begin{align*}
+  y - m &= \frac{(abd + acd - abc - bcd)(ac - bd) + (abc + acd - abd - bcd)(ad - bc)}{(ac - bd)(ad - bc)} - c - d \\
+  &= \frac{abcd(2a + 2b - c - d) - a^2bc^2 - ab^2d^2 - a^2bd^2 - ab^2c^2 + abd^3 + abc^3}{(ac - bd)(ad - bc)} \\
+  &= \frac{ab(cd(2a + 2b - c - d) - ac^2 - bd^2 - ad^2 - bc^2 + c^3 + d^3)}{(ac - bd)(ad - bc)} \\
+  &= \frac{ab(2cd(a + b) + (c + d)(c - d)^2 - (a + b)(c^2 + d^2))}{(ac - bd)(ad - bc)} \\
+  &= \frac{ab(c + d - a - b)(c - d)^2}{(ac - bd)(ad - bc)}
+\end{align*}
+so we need to show
+\[\frac{ab(c + d - a - b)(c - d)^2(abc + abd - acd - bcd)}{(ac - bd)(ad - bc)}\]
+is $(abcd)^2$ times its own conjugate. But this is easy: the numerator is $(abcd)^4$ times its conjugate, while the denominator is $(abcd)^2$ times its conjugate.
+
+\begin{problem}[ISL 2009 G4]
+	Given a cyclic quadrilateral $ABCD$,
+	let $E = \ol{AC} \cap \ol{BD}$,
+	$F = \ol{AD} \cap \ol{BC}$.
+	The midpoints of $\ol{AB}$ and $\ol{CD}$ are $G$ and $H$, respectively.
+	Show that $\ol{EF}$ is tangent at $E$ to the circle
+	through the points $E$, $G$, and $H$.
+\end{problem}
+
+Let $X = \ol{AB} \cap \ol{CD}$. We need to show $\frac{(f - e)(g - h)}{(g - e)(e - h)} \in \RR$. Rboke hard theorem gives $f - e \sim ix$. Also, $\triangle ABE \sim \triangle DCE$, which induces the similarity $\triangle AGE \sim \triangle DHE$. Hence $\frac{a - e}{g - e} \sim \frac{h - e}{d - e}$, so $(g - e)(h - e) \sim (a - e)(d - e) \sim (a - c)(b - d)$. Hence we just need to show
+\[\frac{x(a + b - c - d)}{(a - c)(b - d)} = \frac{(a + b - c - d)(abc + abd - acd - bcd)}{(ab - cd)(a - c)(b - d)} \in i\RR.\]
+It's obvious.
+
+\begin{problem}[ISL 2024 G7]
+	Let $ABC$ be a triangle with incenter $I$ such that $AB < AC < BC$. The second intersections of $AI$, $BI$, and $CI$ with the circumcircle of triangle $ABC$ are $M_A$, $M_B$, and $M_C$, respectively. Lines $AI$ and $BC$ intersect at $D$ and lines $BM_C$ and $CM_B$ intersect at $X$. Suppose the circumcircle of triangles $XM_BM_C$ and $XBC$ intersect again at $S \neq X$. Lines $BX$ and $CX$ intersect the circumcircle of triangle $SXM_A$ again at $P \neq X$ and $Q \neq X$, respectively.
+
+	Prove that the circumcenter of triangle $SID$ lies on $PQ$.
+\end{problem}
