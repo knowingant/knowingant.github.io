@@ -1,0 +1,19 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.2}%
+\contentsline {section}{\numberline {2}Formula sheet}{3}{section.3}%
+\contentsline {subsection}{\numberline {2.1}Useful formulas}{3}{subsection.4}%
+\contentsline {subsection}{\numberline {2.2}Less useful formulas}{3}{subsection.5}%
+\contentsline {subsection}{\numberline {2.3}Jacobi bialternant formula}{4}{subsection.7}%
+\contentsline {section}{\numberline {3}Warm-ups}{7}{section.16}%
+\contentsline {section}{\numberline {4}Walkthroughs}{9}{section.41}%
+\contentsline {subsection}{\numberline {4.1}EMC 2024/J3}{9}{subsection.42}%
+\contentsline {subsection}{\numberline {4.2}ISL 2023 G5}{10}{subsection.48}%
+\contentsline {subsection}{\numberline {4.3}MOP 2025}{11}{subsection.56}%
+\contentsline {subsection}{\numberline {4.4}IMO 2019/6}{12}{subsection.64}%
+\contentsline {subsection}{\numberline {4.5}TST 2017/5}{13}{subsection.73}%
+\contentsline {subsection}{\numberline {4.6}USAMO 2024/5}{14}{subsection.80}%
+\contentsline {subsection}{\numberline {4.7}RMM 2026/5}{15}{subsection.87}%
+\contentsline {subsection}{\numberline {4.8}ISL 2024 G6}{16}{subsection.94}%
+\contentsline {subsection}{\numberline {4.9}ISL 2024 G5}{18}{subsection.105}%
+\contentsline {subsection}{\numberline {4.10}IMO 2011/6}{20}{subsection.114}%
+\contentsline {subsection}{\numberline {4.11}IMO 2013/3}{22}{subsection.128}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

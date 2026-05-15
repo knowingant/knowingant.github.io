@@ -1,0 +1,98 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage[print]{mathteam}
+
+\author{Michael Luo}
+\title{Generating functions}
+
+\begin{document}
+
+\section{Introduction}
+
+\begin{quote}
+    \sffamily\small
+    A generating function is a device somewhat similar to a bag. Instead of carrying many little objects detachedly, which could be embarrassing, we put them all in a bag, and then we have only one object to carry, the bag.
+
+    \medskip
+    
+    ---George P\'olya, \emph{Mathematics and Plausible Reasoning}
+
+    \bigskip
+
+    A generating function is a clothesline on which we hang up a sequence of numbers for display.
+
+    \medskip
+
+    ---Herbert Wilf, \emph{Generatingfunctionology}
+\end{quote}
+
+\begin{example}[Binet's formula]
+    Let $F_0 = 0$, $F_1 = 1$, and $F_n = F_{n - 1} + F_{n - 2}$ for $n \ge 2$. Let $\phi = \frac{1 + \sqrt5}2$ and $\psi = \frac{1 - \sqrt5}2$. Show (using generating functions) that
+    \[F_n = \frac{\phi^n - \psi^n}{\sqrt5}.\]
+\end{example}
+
+\begin{example}[Classic, suggested by Catherine Xu]
+    Is it possible to re-label the faces of a pair of six-sided dice with positive integers such that the probability of rolling each sum from $2$ to $12$ stays the same?
+\end{example}
+
+\section{Roots of unity filter}
+
+\begin{quote}
+    \sffamily\small
+    My genfunc skills are through the ROUF!
+
+    \medskip
+
+    ---my solution to a problem on MOP test 3
+\end{quote}
+
+\begin{example}[Classic]
+    For a subset $S \subseteq \{1,2,\dots,2000\}$, let $\sigma(S)$ be the sum of its elements. How many $S \subseteq \{1,2,\dots,2000\}$ satisfy $5 \mid \sigma(S)$?
+\end{example}
+
+\section{Problems}
+
+\begin{problem}[Classic]
+    Compute
+    \[\binom{100}0 + \binom{100}3 + \binom{100}6 + \dots + \binom{100}{99}.\]
+\end{problem}
+
+\begin{problem}[Classic]
+    Compute
+    \[0\binom{100}0 + 1\binom{100}1 + 2\binom{100}2 + \dots + 100\binom{100}{100}.\]
+\end{problem}
+
+\begin{problem}[AIME II 2016/12]
+    Place a regular hexagon in the plane. Compute the number of ways to paint each vertex one of four colors such that no two adjacent vertices can be the same color.
+\end{problem}
+
+\begin{problem}[HMMT Combo 2007/9]
+    Let $S$ denote the set of triples $(i,j,k)$ of positive integers where $i + j + k = 17$. Compute
+    \[\sum_{(i,j,k) \in S}ijk.\]
+\end{problem}
+
+\begin{problem}[Project Euler 956]
+    Let $\Omega(n)$ be the number of prime factors of $n$, counted with multiplicity. Let $D(n,m)$ to be the sum of all divisors $d$ of $n$ where $\Omega(d)$ is divisible by $m$. Describe an efficient algorithm to compute
+	\[D\biggl(\prod_{i = 1}^{1000}\prod_{j = 1}^i j,1000\biggr)\]
+	modulo the prime $10^9 - 999$.
+\end{problem}
+
+\begin{problem}[Putnam 2018 B6]
+    Let $S$ be the set of sequences of length 2018 whose terms are in the set $\{1, 2, 3, 4, 5, 6, 10\}$ and sum to 3860. Prove that the cardinality of $S$ is at most
+    \[2^{3860} \cdot \left(\frac{2018}{2048}\right)^{2018}.\]
+\end{problem}
+
+\begin{problem}[Brian Reinhart from G2, suggested by Catherine Xu]
+    A $4 \times 4$ grid containing squares labeled $1,2,\dots,16$ each exactly once is called \emph{sensible} if, over all sets $S$ of four squares containing exactly one square in each row and exactly one square in each column, the sum of the elements of $S$ is constant. Compute the number of sensible grids.
+\end{problem}
+
+\begin{problem}[Kraft-McMillan from MATH 5251]
+    For any set $S$, let $S^*$ be the set of finite sequences of elements of $S$. The elements of $S^*$ are called the \emph{words} on $S$. For example, $1011 \in \{0,1\}^*$.
+
+    Let $W = \{1,2,\dots,m\}$ and $\Sigma = \{1,2,\dots,n\}$ be finite sets. A \emph{code} is a function $f$ from $W$ to $\Sigma^*$. Let $f^*$ be the map defined by $f^*(w_1w_2\dots w_k) = f(w_1)f(w_2)\dots f(w_k)$, where we have concatenation on the right side. We say $f$ is \emph{uniquely decipherable} if $f^*$ is injective.
+
+    Show that if $f$ is uniquely decipherable, then
+    \[\sum_{i = 1}^m\frac1{n^{\lvert f(i)\rvert}} \le 1.\]
+\end{problem}
+
+\end{document}

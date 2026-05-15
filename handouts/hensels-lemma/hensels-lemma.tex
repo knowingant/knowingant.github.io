@@ -1,0 +1,154 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage{mathteam}
+
+\title{Hensel's lemma}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Solving polynomials modulo $p^k$. Prerequisites: binomial theorem, modular inverses.
+\end{abstract}
+
+\section{Theory}
+
+We begin with a motivating example:
+
+\begin{example}\label{exa:sqrt2}
+    Find all $x$ such that $x^2 \equiv 2 \pmod{7^4}$.
+\end{example}
+
+Let's try and generalize the previous method. Try to prove the identity by yourself: it looks scary, but it's pretty straightforward by expansion.
+
+\begin{exercise}\label{exa:identity}
+    Let $P$ be a polynomial with integer coefficients, $p^k$ be a prime power, and $m \le k$ be a positive integer. Prove the identity
+    \begin{equation}\label{equ:identity}
+		P(x + p^k) \equiv P(x) + p^kP'(x) \pmod{p^{k + m}},
+	\end{equation}
+    where $P'(x)$ is the \emph{derivative} of $P(x)$ (!!).
+\end{exercise}
+
+A corollary is Hensel's lemma, which allows us to ``lift'' a root $r$ of a polynomial from $\ZZ/(p^k)$ to a unique root in $\ZZ/(p^{k + m})$ (where $m \le k$), as long as $P'(r) \neq 0$. Hensel's lemma is most often used when $m = 1$, so we just lift from $\ZZ/(p^k)$ to $\ZZ/(p^{k + 1})$. I'll introduce this concrete example, which makes the general case clear.
+
+\begin{example}[A concrete example]\label{exa:hensel_example}
+	Let $P(x) = x^2 - 2$. Use \Cref{equ:identity} to convince yourself that $P(7^2\lambda + 10)$ hits all multiples of $7^2$ modulo $7^3$ as $\lambda$ ranges from $0$ to $6$, and so in particular there is exactly one value of $\lambda$ that makes $P(7^2\lambda + 10)$ zero modulo $7^3$.
+\end{example}
+
+\begin{theorem}[Hensel's lemma]
+    \[P(r + \lambda p^k) \equiv 0 \pmod{p^{k + m}}.\]
+\end{theorem}
+
+Why is the hypothesis $P'(r) \not\equiv 0 \pmod p$ necessary?
+
+Note that \Cref{exa:hensel_example} was Hensel's lemma for $P(x) = x^2 - 2$, $p^k = 7^2$, $m = 1$, and $r = 10$.
+
+\begin{exercise}\label{exa:explicit_formula}
+    Solve for $s := r + \lambda p^k$ in terms of $P$ and $r$ modulo $p^{k + m}$. Does it remind you of anything?
+\end{exercise}
+
+Let's talk about how to use Hensel's lemma. Relevant quote:
+
+\begin{quote}
+	\sffamily\small
+	Your mother can't produce polynomial roots out of thin air, no one can. Roots are the first of the five Principal Exceptions to Gamp's Law of Elemental Transfiguration [\dots] It's impossible to make roots out of nothing! You can Summon them if you know where they are, you can transform them, you can lift them if you've already got some\dots
+
+	---\emph{Harry Potter and the Deathly Hallows}
+\end{quote}
+
+Suppose you want to compute the roots of a polynomial $P$ modulo $p^k$.
+\begin{itemize}
+	\ii You must first find the roots of $P$ modulo $p$: it's impossible to make roots modulo $p^k$ out of nothing!
+	\ii For a root $r$, if $P'(r) \not\equiv 0 \pmod p$, we can lift it from $\ZZ/(p) \to \ZZ/(p^2) \to \ZZ/(p^4) \to \dots \to \ZZ/(p^k)$ by repeatedly applying \Cref{exa:explicit_formula}.
+	\ii For a root $r$, if $P'(r) \equiv 0 \pmod p$, then you should directly apply \Cref{equ:identity}. Then either $r$ has $0$ or $p$ lifts modulo $p^2$, depending on the value of $P(r)$ modulo $p^2$. Repeat to find the lifts of $r$ modulo $p^k$.
+\end{itemize}
+
+\section{Problems}
+
+\begin{exercise}[Brilliant]\label{exe:root_counting}
+    How many roots does $x^3 - x - 2$ have modulo $2^{10}$?
+\end{exercise}
+
+\begin{exercise}[AIME I 2024/13]\label{exe:aime_lift}
+    Let $p$ be the least prime number for which there exists an integer $n$ such that $n^4 + 1$ is divisible by $p^2$. Find the least positive integer $m$ such that $m^4 + 1$ is divisible by $p^2$.
+\end{exercise}
+
+\begin{exercise}[Brilliant]\label{exe:cubic_with_four_roots}
+    Find the sum of all prime powers $q$ such that the polynomial $x^3 - 3x - 123$ has at least four roots in $\ZZ/(q)$.
+\end{exercise}
+
+\begin{comment}
+	Now that the lecture has ended, we will implement the ending of Hansel and Gretel. As they pushed the witch into the oven, we have also brought an oven. Please form a single-file line.
+\end{comment}
+
+\pagebreak
+
+\section{Solutions}
+
+\begin{solution}{\Cref{exa:sqrt2}}
+	Motivated by the title of the lecture, we recall the story of Hensel and Gretel. Just as Hensel and Gretel left a trail of breadcrumbs for them to find their way home, we will leave a trail of breadcrumbs ($\sqrt 2$ modulo $7$, $7^2$, and $7^3$) to find our way home ($\sqrt 2$ modulo $7^4$).
+
+	First, the square roots of $2$ modulo $7$ are $3$ and $4$, by guessing.
+
+	Now let's try to compute the square roots of $2$ modulo $7^2$. Clearly, if $x^2 \equiv 2 \pmod{7^2}$, $x^2 \equiv 2 \pmod 7$, so $x = 3,4 \pmod 7$. WLOG let $x \equiv 3 \pmod 7$, the computations for $x \equiv 4 \pmod 7$ are analogous (just take the negative of everything). So let $x = 7\lambda + 3$ for some $\lambda$ with $0 \le \lambda < 6$, then we have
+	\[2 \equiv x^2 = (7\lambda + 3)^2 \equiv (7\lambda)^2 + 2 \cdot 7 \cdot 3 + 3^2 \equiv 7 \cdot 6\lambda + 9\pmod{7^2}.\]
+	Note how the $(7\lambda)^2$ term disappears modulo $7^2$, this allows us to solve a linear equation for $\lambda$, instead of a quadratic one. Solving the linear equation shows $\lambda \equiv 1 \pmod 7$, so $\lambda= 1$, giving $x = 10$.
+
+	Our final breadcrumb: we now try to compute the square roots of $2$ modulo $7^3$! As before, let $x = 7^2\lambda + 10$ with $0 \le \lambda < 7$, then we have
+	\[2 \equiv x^2 = (7^2\lambda + 10)^2 = (7^2\lambda)^2 + 2 \cdot 7^2\lambda \cdot 10 + 10^2 \equiv 7^2 \cdot 20\lambda + 100 \pmod{7^3}.\]
+	Solving gives $\lambda \equiv 2 \pmod 7$, so $\lambda = 2$, giving $x = 108$.
+
+	Now we find our way home: finally, we compute the square roots of $2$ modulo $7^4$! Again, let $x = 7^3\lambda + 108$ for some $0 \le \lambda < 7$, then
+	\[2 \equiv x^2 = (7^3\lambda + 108)^2 \equiv (7^3k)^2 + 2 \cdot 7^3\lambda \cdot 108 + 108^2 \equiv 7^3 \cdot 216\lambda + 108^2 \pmod{7^4}.\]
+	Solving gives $\lambda \equiv 6 \pmod 7$, so $\lambda = 6$, giving $x = 2166$. The other square root is $-2166 \equiv 235 \pmod{7^4}$.
+
+	Alternatively, we could entirely skip the modulo $7^3$ step and go directly from $7^2$ to $7^4$: instead, write $x = 7^2\lambda + 10$ for some $0 \le \lambda < 7^2$. Then
+	\[2 \equiv x^2 = (7^2\lambda + 10)^2 = (7^2\lambda)^2 + 2 \cdot 7^2\lambda \cdot 10 + 10^2 \equiv 7^2 \cdot 20\lambda + 100 \pmod{7^4}.\]
+	Solving gives $\lambda = 44$, which gives $x = 2166$ again.
+\end{solution}
+
+\begin{solution}{\Cref{exa:identity}}
+	Expand both sides and use the binomial theorem. Any terms containing a $p^{2k}$, $p^{3k}$, etc. vanish.
+
+	Stupid solution: it's enough to verify the identity when $P(x) = x^n$, since both sides are linear maps of $P$ and the polynomials $1$, $x$, $x^2$, etc. form a basis of $\ZZ[x]$.
+\end{solution}
+
+\begin{solution}{\Cref{exa:explicit_formula}}
+	From \Cref{equ:identity},
+	\[P(r + \lambda p^k) \equiv P(r) + \lambda p^kP'(r) \pmod{p^{k + m}}.\]
+	We want this to be $0$, so solving gives
+	\[\lambda \equiv -\frac{P(r)}{p^kP'(r)} \pmod{p^m}.\]
+	Equivalently,
+	\[r + \lambda p^k \equiv r - \frac{P(r)}{P'(r)} \pmod{p^{k + m}}.\]
+
+	This is Newton's method! Not a coincidence, google $p$-adic numbers.
+\end{solution}
+
+\begin{solution}{\Cref{exe:root_counting}}
+	Let $P$ be the polynomial. Modulo $4$, the only root is $2 \pmod 4$, and since $P'(2) \equiv 1 \pmod 2$, we may repeatedly apply Hensel's lemma to lift it all the way to $\ZZ/(2^{10})$. The answer is $1$.
+\end{solution}
+
+\begin{solution}{\Cref{exe:aime_lift}}
+	For some $n$, observe that $p^2 \mid n^4 + 1$ implies $n^4 \equiv -1 \pmod{p^2}$ and $n^8 \equiv 1 \pmod{p^2}$, so the order of $n$ modulo $p^2$ divides $8$ but not $4$. Therefore, the order of $n$ modulo $p^2$ is $8$, and since $n^{p(p - 1)} \equiv 1 \pmod{p^2}$, $8 \mid p(p - 1)$, so $p \equiv 1 \pmod 8$. One may check that if $p \equiv 1 \pmod 8$, then there is some $n$ such that $p^2 \mid n^4 + 1$, by, say, primitive roots. So we see $p = 17$.
+	
+	Factoring
+	\[m^4 + 1 \equiv m^4 - 16 = (m^2 - 4)(m^2 + 4) \equiv (m - 2)(m - 8)(m - 9)(m - 15) \pmod{17},\]
+	we see $m \equiv 2,8,9,15 \pmod{17}$.
+
+	Observe that if $m^4 + 1 \equiv 0 \pmod{17^2}$, then $(-m)^4 + 1 \equiv 0 \pmod{17^2}$ as well. So we only need to consider the residues $2$ and $8$ modulo $17$, and take negatives to get the corresponding ones for $9$ and $15$. Obviously, $P'(m) = 4m^3 \not\equiv 0 \pmod{17}$, so we may Hensel lift. Applying \Cref{exa:explicit_formula} to lift from modulo $\ZZ/(17)$ to $\ZZ/(17^2)$, we see $2$ lifts to
+	\[2 - \frac{2^4 + 1}{4 \cdot 2^3} \equiv 155 \pmod{17^2}\]
+	and $8$ lifts to
+	\[8 - \frac{8^4 + 1}{4 \cdot 8^3} \equiv 110 \pmod{17^2}.\]
+	(To simplify the computation, note that we only need to compute the modular inverses of $4 \cdot 2^3$ and $4 \cdot 8^3$ modulo $17$, since $17 \mid 2^4 + 1,8^4 + 1$.) The possible $m$ are $\{155,110,289 - 110,289 - 110\}$, the smallest of which is $110$.
+\end{solution}
+
+\begin{solution}{\Cref{exe:cubic_with_four_roots}}
+	Let $P$ be the polynomial and $q = p^k$.
+	
+	Note that $P$ has at most $3$ roots over $\ZZ/(p)$, since it is a field. Then Hensel's lemma says that unless $P'(r) \equiv P(r) \equiv 0 \pmod p$, each root in $\ZZ/(p^e)$ lifts to a unique root in $\ZZ/(p^{e + 1})$, which eliminates all cases except for those where $P'(r) \equiv P(r) \equiv 0 \pmod p$, which gives $p = 5,11$.
+
+	A computation with \Cref{equ:identity} shows $q = 25,125,121$ work, while $q = 625,1331$ fail. So the answer is $25 + 125 + 121 = 271$.
+\end{solution}
+
+\end{document}

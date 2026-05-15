@@ -1,0 +1,89 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[colorsec]{evan}
+\usepackage{mathteam}
+
+\author{Michael Luo}
+\title{A taste of Yau Mathcamp}
+
+\begin{document}
+
+The goal of this lecture is to prove the following beautiful theorem, which was one of the first in the field of \emph{discrepancy theory}, which studies how ``evenly distributed'' sequences are.
+
+\begin{theorem}[Roth 1954, \href{https://doi.org/10.1112/S0025579300000541}{On irregularities of distribution}]
+    \label{thm:sqrt-log-N}
+    There exists a constant $c > 0$ such that the following condition holds: for all sequences $(P_i)_{1 \le i \le N}$ with $P_i \in [0,1)$ for all $i$, there exists $n$ with $1 \le n \le N$ and $x \in [0,1)$ such that
+    \[\lvert \#\{i \mid i \le n,P_i < x\} - nx\rvert > c\sqrt{\log N}.\]
+\end{theorem}
+
+There are four versions of \Cref{thm:sqrt-log-N}. Here they are in order of increasing difficulty.
+\begin{itemize}
+    \ii Replace $\sqrt{\log N}$ with $1$. This one is trivial.
+    \ii Replace $\sqrt{\log N}$ with $\frac{\log\log N}{\log\log\log N}$. This one was proven by van Aardenne-Ehrenfest in 1945.
+    \ii The original \Cref{thm:sqrt-log-N}, proven by Roth in 1954.
+    \ii Replace $\sqrt{\log N}$ with $\log N$. This was proven by Schmidt in 1972. This is the best possible.
+\end{itemize}
+
+We will prove \Cref{thm:sqrt-log-N}. We claim the following lemma, which finishes by applying to the sequence $(P_i,\frac{i - 1}N)_{1 \le i \le N}$.
+
+\begin{lemma}
+    There exists a constant $c > 0$ such that the following condition holds: for all sequences $(P_i)_{1 \le i \le N}$ with $P_i \in [0,1)^2$ for all $i$, there exists $(x_1,x_2) \in [0,1)^2$ such that
+    \[\lvert \#\{i \mid P_i \in [0,x_1) \times [0,x_2)\} - Nx_1x_2\rvert > c\sqrt{\log N}.\]
+\end{lemma}
+
+Set $c = c_1$ be some constant to be determined later. We begin with some definitions. For $x = (x_1,x_2) \in [0,1)^2$, let
+\[C(x) = \#\{i \mid P_i \in [0,x_1) \times [0,x_2)\} \quad \text{and} \quad D(x) = C(x) - Nx_1x_2.\]
+Hence we need to show $\lvert D(x)\rvert > c_1\sqrt{\log N}$ for some $x$.
+
+Let $R = [0,1)^2$. A \emph{rectangle} is a subset of $R$ of the form $[a,b) \times [c,d)$ for some real $a,b,c,d$ with $a < b$ and $c < d$. For a rectangle $r = [a,b) \times [c,d)$, we define the four sub-rectangles
+\[
+    \begin{array}{cc}
+        r_{01} = [a,\frac{a + b}2) \times [\frac{c + d}2,d) & r_{11} = [\frac{a + b}2,b) \times [\frac{c + d}2,d) \\
+        r_{00} = [a,\frac{a + b}2) \times [c,\frac{c + d}2) & r_{10} = [\frac{a + b}2,b) \times [c,\frac{c + d}2) \\
+    \end{array}
+\]
+In other words, let $r_{00},r_{10},r_{01},r_{11}$ denote its bottom-left, bottom-right, top-left, and top-right quadrants, respectively. Additionally, we say a rectangle is \emph{bad} if it contains an element of $P$, and \emph{good} otherwise. 
+
+Let $c_2 = c_1^2$. It's enough to show
+\[\int_R D(x)^2 \odif x > c_2\log N,\]
+since if $\lvert D(x)\rvert$ was always less than $c_1\sqrt{\log N}$, then the integral would be less than $c_2\log N$. We proceed by bounding this integral.
+
+Let $m$ be the integer such that $2N \le 2^m < 4N$. For all $i$ with $0 \le i \le m$, let $\mathscr P_i$ be the partition of $R$ formed by the $2^m$ rectangles
+\[\left[\frac a{2^i},\frac{a + 1}{2^i}\right) \times \left[\frac b{2^{m - i}},\frac{b + 1}{2^{m - i}}\right) \qquad 0 \le a < 2^i,0 \le b < 2^{m - i}.\]
+In other words, $\mathscr P_i$ divides the unit square into a grid of $2^m$ rectangles, each of them $2^{-i}$ by $2^{i - m}$. For any $i$ and $x$, let $r_i(x)$ be the unique rectangle such that $x \in r_i(x)$ and $r_i(x) \in \mathscr P_i$. Then define
+\[f_i(x) = \begin{cases}
+    0 & \text{if $r_i(x)$ is bad,} \\
+    1 & \text{if $r_i(x)$ is good and $x \in r_i(x)_{00}$ or $x \in r_i(x)_{11}$} \\
+    -1 & \text{if $r_i(x)$ is good and $x \in r_i(x)_{01}$ or $x \in r_i(x)_{10}$}
+\end{cases}\]
+and $F(x) = f_0(x) + \dots + f_m(x)$.
+
+From Cauchy-Schwarz on $L^2$, we see
+\[\int_R D(x)^2 \odif x \ge \frac{(\int_R D(x)F(x) \odif x)^2}{\int_R F(x)^2 \odif x}.\]
+We now bound the numerator and denominator of the right side.
+
+For the denominator, observe that for all $i$, $\int_R f_i(x)^2 \odif x < 1$, and for any $i \neq j$, $\int_R f_i(x)f_j(x) \odif x = 0$. Therefore,
+\[\int_R F(x)^2 \odif x = \int_R f_0(x)^2 + \dots + f_m(x)^2 \odif x < \int_R (m + 1) \odif x = m + 1.\]
+
+For the numerator, we split the integral into $f_i$s and good rectangles $r$. For a good rectangle $r$, let $a$ and $b$ be the vectors from the bottom-left corner to halfway along the bottom and left edges, respectively. We compute
+\begin{align*}
+    \int_rD(x)f_i(x) \odif x &= \int_{r_{00}}D(x)f_i(x) \odif x + \int_{r_{01}}D(x)f_i(x) \odif x \\
+    &\phantom= + \int_{r_{10}}D(x)f_i(x) \odif x + \int_{r_{11}}D(x)f_i(x) \odif x \\
+    &= \int_{r_{00}}\bigl(D(x)f_i(x) + D(x + a)f_i(x + a) \\
+    &\phantom= + D(x + b)f_i(x + b) + D(x + a + b)f_i(x + a + b)\bigr) \odif x \\
+    &= \int_{r_{00}}\bigl(D(x) - D(x + a) - D(x + b) + D(x + a + b)\bigr) \odif x \\
+    &= \int_{r_{00}}\bigl(C(x) - C(x + a) - C(x + b) + C(x + a + b) - N\abs a\abs b\bigr) \odif x \\
+    &= -N\lvert a\rvert^2\lvert b\rvert^2 \\
+    &\ge -2^{-m - 5}.
+\end{align*}
+By pigeonhole, there are at least $N$ good rectangles, so we bound
+\begin{align*}
+    \biggl( \int_RD(x)F(x) \odif x \biggr)^2 &= \biggl( \sum_{i = 0}^m\sum_{\text{good $r \in \mathscr P_i$}}\int_rD(x)f_i(x) \odif x \biggr)^2 \\
+    &\ge \left( -(m + 1)N2^{-m - 5} \right)^2 \\
+    &\ge 2^{-14}(m + 1)^2.
+\end{align*}
+
+Combining the bounds, we obtain
+\[\int_R D(x)^2\odif x \ge \frac{(\int_R D(x)F(x) \odif x)^2}{\int_R F(x)^2 \odif x} \ge \frac{(m + 1)^22^{-14}}{m + 1} \ge \frac1{2^{13}} + \frac{\log N}{2^{14}\log 2},\]
+as desired.
+
+\end{document}
