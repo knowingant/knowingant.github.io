@@ -1,0 +1,164 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan} % orz
+\usepackage{mathteam}
+
+\title{The title of this handout}
+\author{Michael Luo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{How to solve recurrences}
+
+\begin{example}[Binet's formula]
+    Let $F$ be the Fibonacci sequence satisfying $F_0 = 0$, $F_1 = 1$ and $F_n = F_{n - 1} + F_{n - 2}$. Show
+    \[F_{n} = \frac{1}{\sqrt{5}}\left(\left(\frac{\sqrt{5} + 1}{2}\right)^n - \left(\frac{\sqrt{5} - 1}{2}\right)^n\right).\]
+\end{example}
+
+We could prove this formula using induction or something similar, but we will instead show how this was derived.
+
+Our approach is to first ignore the initial conditions $F_0 = 0$ and $F_1 = 1$ and instead focus on categorizing \emph{all} sequences $a$ satisfy the condition $a_n = a_{n - 1} + a_{n - 2}$. Observe that the Fibonacci relation is closed under \emph{linear combinations}: that is, if sequences $u$ and $v$ satisfy the Fibonacci relation, so is $au + bv$ where $a$ and $b$ are real numbers, where multiplication and addition are defined component-wise.
+
+The big leap here is to guess two ``nice'' sequences $u$ and $v$ that satisfy the Fibonacci relation. Then, we hope we can find $a$ and $b$ such that $au + bv$ has zeroth term $0$ and first term $1$, which gives the Fibonacci sequence. We guess the geometric sequences $u_n = \alpha^n$ and $v_n = \beta^n$ for some $\alpha$ and $\beta$. Then the Fibonacci relations become
+\begin{align*}
+	u_n = u_{n - 1} + u_{n - 2} \iff \alpha^n = \alpha^{n - 1} + \alpha^{n - 2} &\iff \alpha^2 - \alpha - 1 = 0 \\
+	v_n = v_{n - 1} + v_{n - 2} \iff \beta^n = \beta^{n - 1} + \beta^{n - 2} &\iff \beta^2 - \beta - 1 = 0.
+\end{align*}
+So $\alpha$ and $\beta$ are roots of the polynomial $P(\lambda) = \lambda^2 - \lambda - 1$. We call $P$ the \emph{characteristic polynomial} of the recurrence relation $a_n - a_{n - 1} - a_{n - 2} = 0$. It's not a coincidence that the coefficients of the characteristic polynomial correspond with the coefficients of the recurrence relation. Similarly, the characteristic polynomial of the recurrence relation $a_n = 3a_{n - 1} - 2a_{n - 3}$ is $\lambda^3 - 3\lambda^2 + 2$.
+
+\begin{exercise}
+    What is the characteristic polynomial of the recurrence relation $a_n = 4a_{n - 2} - a_{n - 3}$?
+\end{exercise}
+
+The roots of the characteristic polynomial correspond to the geometric sequences that satisfy the recurrence relation. Going back to the Fibonacci sequence, the roots of the characteristic polynomial $\lambda^2 - \lambda - 1$ are $\alpha = \frac{\sqrt{5} + 1}{2}$ and $\beta = \frac{\sqrt{5} - 1}{2}$ from the quadratic formula. Therefore $u_n = \alpha^n$ and $v_n = \beta^n$.
+
+Now we want to find $a$ and $b$ such that the initial conditions are satisfied. In other words, we want
+\begin{align*}
+    au_0 + bv_0 &= F_0\\
+    au_1 + bv_1 &= F_1.
+\end{align*}
+The system of equations becomes
+\begin{align*}
+    a &+ b = 0\\
+    a\left( \frac{1 + \sqrt{5}}{2} \right) &+ b\left( \frac{1 - \sqrt{5}}{2} \right) = 1.
+\end{align*}
+Solving, we see $a = \frac{1}{\sqrt{5}}$ and $b = -\frac{1}{\sqrt{5}}$, so
+\[F_n = au_n + bv_n = \frac{1}{\sqrt{5}}\left(\left(\frac{\sqrt{5} + 1}{2}\right)^n + \left(\frac{\sqrt{5} - 1}{2}\right)^n\right),\]
+as desired.
+
+\begin{exercise}
+    If $a_0 = 2$, $a_1 = 4$, and $a_n = a_{n - 1} + 12a_{n - 2}$, find an explicit formula for $a_n$.
+\end{exercise}
+
+\section{Problems}
+
+\begin{problem}
+    \label{pro:trivial}
+    If $a_0 = 0$ and $a_n = 3a_{n - 1} + 1$ for $n \ge 1$, find $a_n$.
+\end{problem}
+
+\begin{problem}[HMMT Guts 2012/2]
+    \label{pro:hmmt-guts}
+    Let $a_0,a_1,a_2,\dots$ denote the sequence of real numbers such that $a_0 = 2$ and $a_{n + 1} = \frac{a_n}{1 + a_n}$ for $n \ge 0$. Compute $a_{2012}$.
+\end{problem}
+
+\begin{problem}
+    \label{pro:grid-classic}
+    Find the number of ways to color each cell of a $2 \times 6$ grid such that no $2 \times 2$ square is completely black.
+\end{problem}
+
+\begin{problem}[CMIMC ANT 2023/Estimation]
+    \label{pro:cmimc-estimation}
+    Consider the sequence given by $x_1 = 1$ and $x_{n + 1} = 1 + \frac{1}{x_n}$ for $n \ge 1$. As $n$ grows large, $x_n$ gets closer and closer to $\varphi = \frac{1 + \sqrt{5}}{2}$. Approximate $\log_{1/2}\abs{x_{2023} - \varphi}$.
+\end{problem}
+
+\begin{problem}[SMT Team 2024/10]
+    \label{pro:smt-team}
+	A group of scientists are researching the population dynamics of a certain bacterial colony. They find that if $P_n$ represents the bacterial population at $n$ minutes from the start, then this population can be modeled in a surprisingly discrete way given by $P_n = \frac{P_{n-1}^3}{P_{n-3}^{4}}$. Given that in one experiment, $P_0=1, P_1=1$, and $P_2 = 7^3$, find $3\log_7(P_{100})$.
+\end{problem}
+
+\begin{problem}[CMIMC ANT 2024/9]
+    \label{pro:cmimc-ant}
+    Let $\QQ_{\ge 0}$ be the nonnegative rational numbers, $f : \QQ_{\ge 0} \to \QQ_{\ge 0}$ such that $f(z + 1) = f(z) + 1$, $f(1/z) = f(z)$ for $z \neq 0$, and $f(0) = 0$. Define a sequence $P_n$ of nonnegative integers recursively via $P_0 = 0$, $P_1 = 1$, and $P_n = 2P_{n - 1} + P_{n - 2}$ for every $n \ge 2$. Find $f\left(\frac{P_{20}}{P_{24}}\right)$.
+\end{problem}
+
+\pagebreak
+
+\section{Solutions}
+
+\begin{solution}{\Cref{pro:trivial}}
+    We can't write down the characteristic polynomial for this sequence immediately because of the pesky $+1$ term. Therefore, we are motivated to \emph{shift the sequence} to cancel out the $+ 1$ term.
+    
+    Define the sequence $b$ such that $a_n = b_n + c$ for some constant $c$. Now the condition becomes $b_n + c = 3(b_{n - 1} + c) + 1$, which rearranges to $b_n = 3b_{n - 1} + 2c + 1$. Since we want to yeet (cancel out) the constant term, we set $c = -\frac12$. Now $b_0 = a_0 + \frac12 = \frac12$ and $b_n = 3b_{n - 1}$. This is a geometric sequence, we see $b_n = \frac{3^n}{2}$, and $a_n = \frac{3^n}{2} - \frac{1}{2}$.
+\end{solution}
+
+\begin{solution}{\Cref{pro:hmmt-guts}}
+    Computing the first few terms $a_0 = \frac21$, $a_1 = \frac23$, $a_2 = \frac25$, and $a_3 = \frac27$, it's pretty clear $a_n = \frac{2}{2n + 1}$, so $a_{2012} = \frac{2}{4049}$. You could also prove this by induction or whatever.
+\end{solution}
+
+\begin{solution}{\Cref{pro:grid-classic}}
+    Casework on this thing would be absolutely disgusting, so we use recursion. Call a coloring ``good'' if it contains no $2 \times 2$ blocks that are completely black. Call a coloring ``xooks'' if its rightmost edge is black-black, and ``rbo'' otherwise. Let $a_n$ be the number of good xooks colorings of a $2 \times n$ grid, and let $b_n$ be the number of good rbo colorings of a $2 \times n$ grid. We want $a_6 + b_6$.
+
+    We observe $a_n = b_{n - 1}$ since you can add a black-black edge to any rbo $2 \times n - 1$ grid to make a xooks $2 \times n$ grid, and $b_n = 3(a_{n - 1} + b_{n - 1})$ since you can add a white-white, white-black, or black-white edge to any xooks or rbo $2 \times n - 1$ grid to make an rbo $2 \times n$ grid.
+
+    Our initial conditions are $a_0 = 0$ and $b_0 = 1$. We compute everything recursively as shown below.
+
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{|l|l|l|l|l|l|l|l|}
+        \hline
+        $n$   & $0$ & $1$ & $2$  & $3$  & $4$   & $5$   & $6$    \\ \hline
+        $a_n$ & $0$ & $1$ & $3$  & $12$ & $45$  & $171$ & $648$  \\ \hline
+        $b_n$ & $1$ & $3$ & $12$ & $45$ & $171$ & $648$ & $2457$ \\ \hline
+        \end{tabular}
+    \end{table}
+    
+    Our answer is $a_6 + b_6 = 648 + 2457 = 3105$.
+\end{solution}
+
+\begin{solution}{\Cref{pro:cmimc-estimation}}
+    Let $n = 2023$. By induction or something, we observe $x_n = \frac{F_{n + 1}}{F_n}$. So by Binet,
+    \[x_n - \varphi = \frac{F_{n + 1}}{F_n} - \varphi = \frac{\varphi^{n + 1} - \varphi^{-n - 1}}{\varphi^n - \varphi^{-n}} - \varphi = \frac{\varphi^{2n + 2} - 1}{\varphi^{2n + 1} - \varphi} - \varphi = \frac{\varphi^2 - 1}{\varphi^{2n + 1} - \varphi}.\]
+    Since we are estimating the logarithm, we basically drop everything:
+    \[\log_{1/2}\left( \frac{\varphi^2 - 1}{\varphi^{2n + 1} - \varphi} \right) \approx \log_{1/2}\left( \frac{1}{\varphi^{2n + 1}} \right) = 4047\log_2{\varphi} \approx 4000\log_2{1.62} = 4000\frac{\log 1.62}{\log 2}.\]
+    Recall from Fermi Questions $\log 2 \approx 0.3$ and $\log 3 \approx 0.48$, so $\log 1.62 = \log 162 - 2 = \log 2 + 4\log 3 - 2 \approx 0.22$ and $\log 2 \approx 0.3$, so
+    \[4000\frac{\log 1.62}{\log 2} \approx 4000\frac{0.22}{0.30} \approx 2933.\]
+    Not too far from the actual answer of $2808$-ish.
+\end{solution}
+
+\begin{solution}{\Cref{pro:smt-team}}
+    Okay what are we even doing here with the base $7$ logarithms. We yeet (get rid of) them immediately by defining $Q_n = \log_7P_n$. Now $Q_n = 3Q_{n - 1} - 4Q_{n - 3}$, and $Q_0 = Q_1 = 0$ and $Q_2 = 3$. The characteristic polynomial is $\lambda^3 - 3\lambda^2 + 4$, which factors into $(\lambda + 1)(\lambda - 2)^2$.
+
+    Since the roots of the characteristic polynomial are $-1$ and $2$, $Q_n = a(-1)^n + b2^n$ for some real $a,b$. Plugging in $n = 0$ gives $a + b = 0$, plugging in $n = 1$ gives $-a + 2b = 0$, and plugging in $n = 2$ gives $a + 4b = 3$. But oh no! This linear system of two variables and three equations has no solutions.
+
+    The problem is that our characteristic polynomial had a double root, so we only had two ``different'' sequences, which gave us a $2$ variable, $3$ equation system. We need to somehow find another sequence that works. Miraculously, the sequence $n2^n$ works. (Check it! Similarly, if $2$ was a triple root, the sequence $n^22^n$ would also work.) Therefore, we have $Q_n = a(-1)^n + b2^n + cn2^n$ for some $a,b,c$. From plugging in $n = 0,1,2$, we have the system
+    \begin{align*}
+        a + b &= 0 \\
+        -a + 2b + 2c &= 0 \\
+        a + 4b + 8c &= 3.
+    \end{align*}
+    Solving, we see $(a,b,c) = (\frac13,-\frac13,\frac12)$, so $\frac13(-1)^n - \frac132^n + \frac12n2^n$, and
+    \[3Q_{100} = (-1)^{100} - 2^{100} + \frac32 \cdot 100 \cdot 2^{100} = 149 \cdot 2^{100} + 1. \qedhere\]
+\end{solution}
+
+\begin{solution}{\Cref{pro:cmimc-ant}}
+    We only need to know about $P_n$ when $n$ is a multiple of $4$, so we are motivated to define the sequence $Q_n = P_{4n}$. The characteristic polynomial of $P$ is $\lambda^2 - 2\lambda - 1$, which has roots $1 + \sqrt{2}$ and $1 - \sqrt{2}$. Therefore, there exist $a$ and $b$ such that
+    \[P_n = a(1 + \sqrt{2})^n + b(1 - \sqrt{2})^n.\]
+    Then,
+    \[Q_n = P_{4n} = a(1 + \sqrt{2})^{4n} + b(1 - \sqrt{2})^{4n} = a(17 + 12\sqrt{2})^n + b(17 - 12\sqrt{2})^n.\]
+    Now we turn this explicit formula \emph{back into a recurrence relation}. The roots of the characteristic polynomial of $Q$ are $17 + 12\sqrt{2}$ and $17 - 12\sqrt{2}$, so by Vieta's formulas, it is $\lambda^2 - 34\lambda + 1$, so $Q_n = 34Q_{n - 1} - Q_{n - 2}$.
+
+    After playing around with certain values of $z$, we observe $f(\frac{p}{q})$ is the number of steps in the Euclidean algorithm reducing $p$ and $q$ until one of them is zero. But if $p < q$, the pairs $(p,q)$ and $(q - p,q)$ become $(p,q - p)$ after one step, so $(p,q)$ and $(q - p,q)$ take an equal number of steps to reduce to zero, so $f(\frac{p}{q}) = f(\frac{q - p}{q})$.
+    
+    Now we compute
+    \[f\left( \frac{Q_5}{Q_6} \right) = f\left( \frac{Q_6}{Q_5} \right) = f\left( \frac{34Q_5 - Q_4}{Q_5} \right) = 33 + f\left( \frac{Q_5 - Q_4}{Q_5} \right) = 33 + f\left( \frac{Q_4}{Q_5} \right).\]
+    Similarly, we have
+    \begin{align*}
+        33 + f\left( \frac{Q_4}{Q_5} \right) &= 33 \cdot 2 + f\left( \frac{Q_3}{Q_4} \right) = \dots = 33 \cdot 4 + f\left( \frac{Q_1}{Q_2} \right) \\\
+        &= 33 \cdot 4 + f\left( \frac{12}{34 \cdot 12} \right) = 33 \cdot 4 + 34 = 166. \qedhere
+    \end{align*}
+\end{solution}
+
+\end{document}

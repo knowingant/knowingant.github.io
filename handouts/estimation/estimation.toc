@@ -1,0 +1,14 @@
+\contentsline {section}{\numberline {1}Introduction}{1}{section.2}%
+\contentsline {subsection}{\numberline {1.1}How to read this handout}{1}{subsection.3}%
+\contentsline {subsection}{\numberline {1.2}A few general tricks}{2}{subsection.4}%
+\contentsline {section}{\numberline {2}Sums and products}{3}{section.13}%
+\contentsline {subsection}{\numberline {2.1}Integration}{3}{subsection.14}%
+\contentsline {subsection}{\numberline {2.2}Sums involving primes}{4}{subsection.24}%
+\contentsline {subsection}{\numberline {2.3}Number-theoretic sums (optional)}{6}{subsection.38}%
+\contentsline {section}{\numberline {3}Combinatorics}{8}{section.55}%
+\contentsline {subsection}{\numberline {3.1}Skill-based}{9}{subsection.57}%
+\contentsline {subsection}{\numberline {3.2}Intuition spam}{11}{subsection.66}%
+\contentsline {section}{\numberline {4}A complete estimation set}{13}{section.75}%
+\contentsline {subsection}{\numberline {4.1}Problems}{13}{subsection.76}%
+\contentsline {subsection}{\numberline {4.2}Solutions}{14}{subsection.83}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

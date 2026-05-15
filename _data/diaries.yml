@@ -1,0 +1,53 @@
+---
+- title: Week 1
+  date: 2026-05-13
+  pdf: "/assets/diaries/week-1/week-1.pdf"
+  summary: This PDF is password-protected.
+- title: Week 2
+  date: 2026-05-13
+  pdf: "/assets/diaries/week-2/week-2.pdf"
+  summary: This PDF is password-protected.
+- title: Week 3
+  date: 2026-05-13
+  pdf: "/assets/diaries/week-3/week-3.pdf"
+  summary: This PDF is password-protected.
+- title: Week 1
+  pdf: "/assets/diaries/week1/week1.pdf"
+  slug: week1
+  date: '2026-05-14'
+  summary: This PDF is password-protected.
+- title: Week 2
+  pdf: "/assets/diaries/week2/week2.pdf"
+  slug: week2
+  date: '2026-05-14'
+  summary: This PDF is password-protected.
+- title: Week 3
+  pdf: "/assets/diaries/week3/week3.pdf"
+  slug: week3
+  date: '2026-05-14'
+  summary: This PDF is password-protected.
+- title: Week 4
+  pdf: "/assets/diaries/week4/week4.pdf"
+  slug: week4
+  date: '2026-05-14'
+  summary: This PDF is password-protected.
+- title: Week 5
+  pdf: "/assets/diaries/week5/week5.pdf"
+  slug: week5
+  date: '2026-05-14'
+  summary: This PDF is password-protected.
+- title: PUMaC 2025
+  pdf: "/assets/diaries/pumac-2025/pumac-2025.pdf"
+  slug: pumac-2025
+  date: '2026-05-14'
+  summary: This PDF is password-protected.
+- title: CMIMC 2026
+  pdf: "/assets/diaries/cmimc-2026/cmimc-2026.pdf"
+  slug: cmimc-2026
+  date: '2026-05-14'
+  summary: This PDF is password-protected.
+- title: MOP 2025
+  pdf: "/assets/diaries/mop-2025/mop-2025.pdf"
+  slug: mop-2025
+  date: '2026-05-14'
+  summary: This PDF is password-protected.

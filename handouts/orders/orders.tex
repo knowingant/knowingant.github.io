@@ -1,0 +1,310 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage{mathteam}
+
+\title{Orders}
+\author{Michael Luo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\epigraph{There are three primary concerns in life: what to eat for breakfast, lunch, and dinner.}{MahjongSoul story}
+
+\begin{abstract}
+    My attempt at presenting orders. You should already know how to do basic computations modulo $n$.
+\end{abstract}
+
+\section{Background}
+
+I think it's best if you know what a group is.
+\begin{definition}
+	A \emph{group} is an ordered pair $(G,\star)$ of a set $G$ and a binary operation $\star$ such that:
+	\begin{itemize}
+		\ii The operation $\star$ is associative: for all $a,b,c \in G$, we have $(a \star b) \star c = a \star (b \star c)$.
+		\ii There exists an identity. That is, there is an element $e \in G$ such that for all $a \in G$, $a \star e = e \star a = a$.
+		\ii Every element in $G$ has an inverse. That is, for all $a \in G$, there exists an inverse $a^{-1}$ such that $a \star a^{-1} = a^{-1} \star a = e$.
+	\end{itemize}
+\end{definition}
+
+\begin{exercise}
+	Show that the identity and inverses are unique.
+\end{exercise}
+
+\begin{definition}
+	We define $\ZZ/n\ZZ$ to be the residue classes $\pmod{n}$, and $(\ZZ/n\ZZ)^\times$ to be the set of residue classes $\pmod{n}$ relatively prime to $n$. For example,
+	\[\ZZ/20\ZZ = \{0,1,\dots,19\} \text{ and } (\ZZ/20\ZZ)^\times = \{1,3,7,9,11,13,17,19\}\text{.}\]
+\end{definition}
+
+Here are some examples of groups.
+\begin{itemize}
+	\ii $(\ZZ,+)$: it has identity $0$ and the inverse of $n$ is $-n$.
+	\ii $(\ZZ/n\ZZ,+)$: it has identity $0$ and the inverse of $x$ is $-x \pmod{n}$.
+	\ii $(\QQ \setminus \{0\},\cdot)$: it has identity $1$ and the inverse of $x$ is $\frac1x$.
+	\ii $((\ZZ/20\ZZ)^\times,\cdot)$: it has identity $1$, and the inverses of $1,3,7,9,11,13,17,19$ are $1,7,3,9,11,17,13,19$, respectively. In fact, $((\ZZ/n\ZZ)^\times,\cdot)$ is always a group.
+\end{itemize}
+
+Here are some non-examples of groups.
+\begin{itemize}
+	\ii $(\RR,\cdot)$, since $0$ has no inverse.
+	\ii $(\ZZ/20\ZZ,\cdot)$, since $0,2,4,5,6,8,10,12,14,15,16,18$ all have no inverse. (Can you see why?)
+\end{itemize}
+
+\begin{remark*}
+	If $\star$ is clear contextually, we sometimes denote the group by just the set $G$.
+\end{remark*}
+
+Now, how can we tell if two groups are the same?
+\begin{definition}
+	A \emph{isomorphism} between two groups $(G,\star)$ and $(H,\circ)$ is essentially a structure-preserving bijection. That is, a function $f: G \to H$ is an isomorphism if:
+	\begin{itemize}
+		\ii $f$ is bijective.
+		\ii For all $g_1,g_2 \in G_1$, $f(g_1 \star g_2) = f(g_1) \circ f(g_2)$.
+	\end{itemize}
+	If there exists an isomorphism between $(G,\star)$ and $(H,\circ)$, we say $(G,\star)$ and $(H,\circ)$ are \emph{isomorphic}, denoted $(G,\star) \cong (H,\circ)$.
+\end{definition}
+
+\begin{remark*}
+	Isomorphism is an equivalence relation, that is, if $G,H,I$ are groups, then:
+	\begin{itemize}
+		\ii $G \cong G$,
+		\ii if $G \cong H$, then $H \cong G$,
+		\ii and if $G \cong H$ and $H \cong I$, then $G \cong I$.
+	\end{itemize}
+\end{remark*}
+
+If two groups are isomorphic, they are basically ``the same thing with different names''. For example, $(\ZZ,+) \cong (10\ZZ,+)$ where $10\ZZ$ is the set of multiples of $10$ with the isomorphism $f(x) = 10x$. Also, $(\RR^+,\cdot) \cong (\RR,+)$ with the isomorphism $f(x) = \log x$ (any base), since
+\[\log(a \cdot b) = \log(a) + \log(b)\text{.}\]
+Group isomorphisms are important since if we understand a group, we automatically understand all isomorphic groups.
+
+\begin{definition}
+	The \emph{direct product} of two groups $(G,\star)$ and $(H,\circ)$, denoted $(G,\star) \times (H,\circ)$, is the group defined on the set $G \times H$ and the operation $\ast$ defined by
+	\[(g_1,h_1) \ast (g_2,h_2) = (g_1 \star g_2,h_1 \circ h_2)\text{.}\]
+	We use exponents to denote a group's direct product with itself.
+\end{definition}
+
+For example, $((\ZZ/8\ZZ)^\times,\cdot) \cong (\ZZ/2\ZZ,+)^2$ under the isomorphism $f$, where
+\[f(1) = (0,0)\text{, }f(3) = (1,0)\text{, }f(5) = (0,1)\text{, and }f(7) = (1,1)\text{.}\]
+
+\begin{exercise}
+	Verify that $f$ above is indeed an isomorphism.
+\end{exercise}
+
+\begin{exercise}
+	Verify the direct product of two groups is indeed a group.
+\end{exercise}
+
+Now we have all the tools we need to talk about number theory.
+
+\section{First steps}
+
+Our goal here is to understand the structure of the group $((\ZZ/p\ZZ)^\times,\cdot)$, which happens to be surprisingly simple. First, we must actually verify that this is a group. Since the identity is $1$ and multiplication is associative, we just need to show inverses exist:
+
+\begin{theorem}[Inverses exist]
+	For all $a \in (\ZZ/p\ZZ)^\times$, there exists a unique element $b \in (\ZZ/p\ZZ)^\times$ (commonly denoted $a^{-1}$) such that $ab \equiv 1 \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+	We claim the set equivalence
+	\[\{a,2a,\dots,(p - 1)a\} = \{1,2,\dots,p - 1\}\text{,}\]
+	which implies the conclusion. Clearly $a,2a,\dots,(p - 1)a$ are all nonzero $\pmod{p}$. We claim they are also distinct, which finishes the proof by pigeonhole. Suppose $ma \equiv na \pmod{p}$ with $m < n$. But this implies $(n - m)a \equiv 0 \pmod{p}$, or $p \mid a$ or $p \mid n - m$, impossible since $0 < a, n - m < p$.
+\end{proof}
+
+We can now prove the famous Fermat's little theorem:
+
+\begin{theorem}[Fermat's little theorem]
+	For any $a \in (\ZZ/p\ZZ)^\times$, we have
+	\[a^{p - 1} \equiv 1 \pmod{p}\text{.}\]
+\end{theorem}
+
+\begin{proof}
+	Since
+	\[\{a,2a,\dots,(p - 1)a\} = \{1,2,\dots,p - 1\}\text{,}\]
+	$(a)(2a)\dots((p - 1)a) \equiv (1)(2)\dots(p - 1) \pmod{p}$. Therefore
+	\[a^{p - 1}(p - 1)! \equiv (p - 1)! \pmod{p}\text{,}\]
+	which implies the conclusion.
+\end{proof}
+
+\begin{example}
+	Compute $3^{1000} \pmod{23}$.
+\end{example}
+
+From Fermat's little theorem, we have
+\[3^{1000} \equiv 3^{22 \cdot 45 + 10} \equiv (3^{22})^{45} \cdot 3^{10} \equiv 3^{10} \equiv 2 \pmod{23}\text{.}\]
+
+Now it is time to introduce the notion of orders.
+
+\begin{definition}
+	The \emph{order} of an element $a \in (\ZZ/p\ZZ)^\ast$, denoted $\ord_p(a)$, is the smallest $m$ such that $a^m \equiv 1 \pmod{p}$.
+\end{definition}
+
+\begin{theorem}[Fundamental theorem of orders]
+	If $a^n \equiv 1 \pmod{p}$, then $\ord_p(a) \mid n$.
+\end{theorem}
+
+\begin{proof}
+	Suppose otherwise, then write $n = q\ord_p(a) + r$ where $0 < r < \ord_p(a)$. Now
+	\[a^n \equiv \left(a^{\ord_p(a)}\right)^q \cdot a^r \equiv a^r \equiv 1 \pmod{p}\text{,}\]
+	but this is impossible since $r < \ord_p(a)$.
+\end{proof}
+
+\begin{example}[AIME I 2019/14]
+	Find the least odd prime factor of $2019^8 + 1$.
+\end{example}
+
+Suppose $p \mid 2019^8 + 1$, now we see $2019^8 \equiv -1 \pmod{p}$, therefore $2019^{16} \equiv 1 \pmod{p}$. This implies $\ord_p(2019) = 16$ since the order divides $16$ but not $8$. But by Fermat's little theorem we have $2019^{p - 1} \equiv 1 \pmod{p}$, so $16 \mid p - 1$ or $p \equiv 1 \pmod{16}$. Testing the second $1 \pmod{16}$ prime $97$ works.
+
+\section{Primitive roots}
+
+Having introduced orders, we are now ready for primitive roots. The notion of a primitive root allows us to turn exponentiation and multiplication, which are generally hard to understand, into multiplication and addition, which are comparatively easier to understand. Therefore, the notion of a primitive root is critical to our understanding of the integers modulo $p$.
+
+\begin{definition}
+	A \emph{primitive root} $g$ modulo $p$ is an element in $(\ZZ/p\ZZ)^\times$ with order $p - 1$. In other words,
+	\[g^1,g^2,\dots,g^{p - 2}\]
+	are all not congruent to $1$ modulo $p$.
+\end{definition}
+
+This definition might seem a bit arbitrary. However, primitive roots have the following important property:
+
+\begin{theorem}[Primitive roots generate $(\ZZ/p\ZZ)^\times$]\label{thm:prim_roots_generate}
+	For all primitive roots $g$ modulo $p$, we have the set equivalence
+	\[(\ZZ/p\ZZ)^\times = \{1,2,\dots,p - 1\} = \{g^0,g^1,\dots,g^{p - 2}\}\text{.}\]
+\end{theorem}
+
+\begin{proof}
+	The only values $g^m$ can ever take are $1,2,\dots,p - 1$. Therefore, we are done if we prove $g^0,g^1,\dots,g^{p - 2}$ are pairwise distinct, since this implies they take the values $1,2,\dots,p - 1$ exactly once by pigeonhole. Now suppose by way of contradiction $g^a \equiv g^b \pmod{p}$ with $a < b$. Now $g^{b - a} \equiv 1 \pmod{p}$, with $1 \le b - a \le p - 2$, contradiction since $g$ is a primitive root.
+\end{proof}
+
+In general, it's hard to \emph{find} primitive roots, but we have the following (very useful) existence theorem, whose proof we omit.
+
+\begin{theorem}
+	There exist primitive roots modulo \emph{every prime}. 
+\end{theorem}
+
+This is incredibly useful. In fact, this is enough to imply the following:
+
+\begin{theorem}\label{thm:cyclic}
+	We have
+	\[((\ZZ/p\ZZ)^\times,\cdot) \cong (\ZZ/(p - 1)\ZZ,+)\text{.}\]
+\end{theorem}
+
+\begin{proof}
+	Pick any primitive root $g$. We claim $f(x) \equiv g^x \pmod{p}$ is an isomorphism. We see $f$ is bijective since $\{g^0,g^1,\dots,g^{p - 2}\} = \{1,\dots,p - 1\}$ by \Cref{thm:prim_roots_generate}, and for any $a,b \in \ZZ/(p - 1)\ZZ$, $g^{a + b} = g^a \cdot g^b$, so this is indeed an isomorphism.
+\end{proof}
+
+Invoking \Cref{thm:cyclic} to turn multiplication into addition is very powerful. This theorem basically says that, instead of dealing with multiplication modulo $p$, we can instead deal with addition modulo $p - 1$.
+
+Let's see a few examples. I strongly encourage you to try the examples yourself before reading the solutions.
+
+\begin{example}[Weakest HMMT Guts 2019/28]
+	For how many integers $a$ with $1 \le a \le 41$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant $\pmod{41}$?
+\end{example}
+
+We see $41$ works, now we count the $a \in (\ZZ/41\ZZ)^\times$. Let $a = g^k$. We want the sequence $g^k,g^{2k},g^{4k},\dots$ to eventually converge, which is equivalent to the exponents $k,2k,4k,\dots$ converging $\pmod{40}$. This occurs iff $k$ is a multiple of $5$, of which there are $8$. Therefore, the asnwer is $9$.
+
+\begin{example}[$n^2 + 1$ lemma]
+	Let $p$ be a prime. Then there exists an $n$ such that $p \mid n^2 + 1$ iff $p \equiv 1 \pmod{4}$.
+\end{example}
+
+Note the condition $p \mid n^2 + 1$ rearranges to $n^2 \equiv -1 \pmod{p}$, which becomes $\ord_p(n) = 4$. If $p \equiv 1 \pmod{4}$, then taking $n = g^{\frac{p - 1}{4}}$ where $g$ is a primitive root works. If $p \mid n^2 + 1$, $\ord_p(n) = 4 \mid p - 1$ so $p \equiv 1 \pmod{4}$, as desired.
+
+\begin{example}[SMT Team 2024/8]
+	Find the number of ordered pairs $(a,b)$ of positive integers such that $a^2 + b^2 \mid 2024^2$.
+\end{example}
+
+We'll first need the following claim, which is sometimes known as Fermat's Christmas theorem.
+
+\begin{claim*}
+	If $p$ is a prime and $p \mid a^2 + b^2$, then either $p = 2$, $p \equiv 1 \pmod{4}$, or $p \mid a,b$.
+\end{claim*}
+
+\begin{proof}
+	Suppose $a,b$ are relatively prime and $p$ is an odd prime dividing $a^2 + b^2$. We show $p \equiv 1 \pmod{4}$, which is enough. The condition rearranges to $a^2 + b^2 \equiv 0 \pmod{p}$, or $(ab^{-1})^2 + 1 \equiv 0 \pmod{p}$, where $b^{-1}$ is the multiplicative inverse of $b \pmod{p}$. But by the $n^2 + 1$ lemma this implies $p \equiv 1 \pmod{4}$, and we are done.
+\end{proof}
+
+Since $2024^2 = 2^6 \cdot 11^2 \cdot 23^2$, the only primes dividing $a^2 + b^2$ are $2,11,23$, so there are no $1 \pmod{4}$ primes. If $a$ and $b$ are relatively prime, the only possible pairs are $(1,1)$, $(2,2)$, and $(4,4)$. You can multiply these pairs by $1$, $11$, $23$, and $11 \cdot 23$ for a total of $4 \cdot 3 = 12$ pairs.
+
+\begin{example}
+	How many primitive roots are there $\pmod{p}$?
+\end{example}
+
+Translating the problem into $\ZZ/(p - 1)\ZZ$, we want to count the $a \in \ZZ/(p - 1)\ZZ$ such that $a,2a,\dots,(p - 2)a$ are nonzero $\pmod{p - 1}$. This occurs iff $a$ is relatively prime to $p - 1$, so there are $\varphi(p - 1)$ primitive roots.
+
+\begin{exercise}\label{ex:num_order}
+	For each $d \mid p - 1$, prove there are $\varphi(d)$ elements of order $d$.
+\end{exercise}
+
+\section{The composite case}
+
+Groups that are isomorphic to $(\ZZ/n\ZZ,+)$ for some $n$ are called \emph{cyclic}. We saw previously that $((\ZZ/p\ZZ)^\times,\cdot)$ is cyclic. It turns out there exist primitive roots modulo $n$ iff $n$ is of the form $2,4,p^k,2p^k$ where $p$ is an odd prime and $k$ is a positive integer. In other words, $(\ZZ/n\ZZ)^\times$ is cyclic, or,
+\[((\ZZ/n\ZZ)^\times,\cdot) \cong (\ZZ/\varphi(n)\ZZ,+)\text{.}\]
+Here, the idea of a primitive root is generalized to mean
+\[g^1,g^2,\dots,g^{\varphi(n) - 1}\]
+are all not congruent to $1 \pmod{n}$.
+
+\begin{example}[Weak HMMT Guts 2019/28]\label{ex:weak_hmmt}
+	For how many integers $a$ with $0 \le a \le 24$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant $\pmod{25}$?
+\end{example}
+
+Observe the $5$ multiples of $5$ all work. Now we consider the residue classes relatively prime to $25$. Since $\varphi(25) = 20$, we see $(\ZZ/25\ZZ)^\times \cong \ZZ/20\ZZ$. Therefore, we want the number of $a \in \ZZ/20\ZZ$ such that the sequence $a,2a,4a,8a,\dots$ is eventually constant modulo $20$. This is just the multiples of $5$, of which there are $4$. Therefore, the answer is $9$.
+
+We've seen the structure of $((\ZZ/p^k\ZZ)^\times,\cdot)$ is remarkably simple. However, we still don't really know how to deal with general $n$ with multiple distinct prime factors. However, the \emph{Chinese remainder theorem} allows us to \emph{split} general $n$ into its component prime powers, then deal with those prime powers.
+\begin{theorem}[Chinese remainder theorem]
+	For coprime $n_1$ and $n_2$, every ordered pair of residues
+	\[(r_1 \pmod{n_1},r_2 \pmod{n_2})\]
+	corresponds \emph{uniquely} to a residue $r \pmod{n_1n_2}$.\footnote{In abstract algebra terms, we have the ring isomorphism $\ZZ/n_1n_2\ZZ \cong \ZZ/n_1\ZZ \times \ZZ/n_2\ZZ$.}
+\end{theorem}
+
+Intuitively, this means prime powers \emph{don't interact}. I think the only way you can really get a feel for this theorem is doing problems with it. Let's see a few examples:
+
+\begin{example}[CMIMC ANT 2023/3]
+	Compute
+	\[2022^{\left(2022^{\cdot^{\cdot^{\cdot^{2022}}}}\right)} \pmod{111}\]
+	where there are $2022$ $2022$s.
+\end{example}
+
+Let $x_n$ denote a power tower composed of $n$ copies of $2022$, we want to compute $x_{2022}$ modulo $111$. Since $111 = 3 \cdot 37$, by the Chinese remainder theorem, it's enough to compute the expression modulo $3$ and $37$. Since $3 \mid 2022$, $3 \mid x_{2022}$, so $x_{2022} \equiv 0 \pmod{3}$. Now since $6 \mid 2022$, $36 \mid x_{2021}$, so by Fermat's little theorem, $x_{2022} \equiv 1 \pmod{37}$.
+
+So now we must determine $x_{2022} \pmod{111}$. We know $x_{2022}$ is of the form $37k + 1$, and we want this to be $0 \pmod{3}$. In other words, we want $37k + 1 \equiv k + 1 \equiv 0 \pmod{3}$, so $k = 2 \pmod{3}$, so $x_{2022} \equiv 37 \cdot 2 + 1 \equiv 75 \pmod{111}$.
+
+\begin{example}[HMMT Guts 2019/28]
+	How many positive integers $2 \le a \le 101$ have the property that there exists a positive integer $N$ for which the last two digits in the decimal representation of $a^{2^n}$ is the same for all $n \ge N$?
+\end{example}
+
+This is the same as the earlier problems but asking for $100$ instead of $41$ or $25$. The key insight here is that we can split $\ZZ/100\ZZ$ into $\ZZ/4\ZZ$ and $\ZZ/25\ZZ$ by Chinese remainder theorem:
+\begin{itemize}
+	\ii In $\ZZ/25\ZZ$, there are $9$ working residues by \Cref{ex:weak_hmmt}.
+	\ii In $\ZZ/4\ZZ$, clearly all $4$ residues work.
+\end{itemize}
+Each pair of working residues in $\ZZ/25\ZZ$ and $\ZZ/4\ZZ$ uniquely correspond to a working residue in $\ZZ/100\ZZ$, again by Chinese remainder theorem, so the answer is $9 \cdot 4 = 36$.
+
+\begin{example}[OTIS Mock AIME 2024/13]
+	Compute the sum of all integers $n$ such that $1 \le n \le 2024$ and exactly one of $n^{22} - 1$ and $n^{40} - 1$ is divisible by $2024$.
+\end{example}
+
+Let $a$, $b$, and $c$ be the number of $n$ such that $n^{22} \equiv 1 \pmod{2024}$, $n^{40} \equiv 1 \pmod{2024}$, and $n^2 \equiv 1 \pmod{2024}$, respectively. Notice that if $n$ works, so does $-n$, so we just want $1012$ times the number of $n$ that work, or $1012(a + b - 2c)$ by PIE.
+
+We study the structure of the group $(\ZZ/2024\ZZ)^\times$ under multiplication. By Chinese remainder theorem, the fact that $(\ZZ/8\ZZ)^\times = (\ZZ/2\ZZ)^2$, and $(\ZZ/p\ZZ)^\times \cong (\ZZ/(p - 1)\ZZ)$, we compute
+\begin{align*}
+	(\ZZ/2024\ZZ)^\times &\cong (\ZZ/8\ZZ)^\times \times (\ZZ/11\ZZ)^\times \times (\ZZ/23\ZZ)^\times \\
+	&\cong (\ZZ/2\ZZ)^2 \times \ZZ/10\ZZ \times \ZZ/22\ZZ \\
+	&\cong (\ZZ/2\ZZ)^2 \times \ZZ/2\ZZ \times \ZZ/5\ZZ \times \ZZ/2\ZZ \times \ZZ/11\ZZ \\
+	&\cong (\ZZ/2\ZZ)^4 \times \ZZ/5\ZZ \times \ZZ/11\ZZ\text{.}
+\end{align*}
+Let this set be $S$. Observe $a$ is the number of elements $s \in S$ such that $22s = (0,0,0,0,0,0)$, so counting component-wise shows $a = 2^4 \cdot 1 \cdot 11 = 176$. Similarly, $b$ is the number of elements such that $40s = (0,0,0,0,0,0)$, so $b = 2^4 \cdot 5 \cdot 1 = 80$. Finally, $c$ is the number of elements such that $2s = (0,0,0,0,0,0)$, so $c = 2^4 \cdot 1 \cdot 1 = 16$, so the answer is $1012(176 + 80 - 2 \cdot 16) = 226688$.
+
+\begin{example}[PUMaC NT 2016/7]
+	For how many integers $n$ with $2017 \le n \le 2017^2$ do we have $n^n \equiv 1 \pmod{2017}$?
+\end{example}
+
+Observe $p = 2017$ is prime. Observe the value of $n^n \pmod{p}$ is uniquely determined by $n \pmod{p}$ and $n \pmod{p - 1}$, and that $n$ takes on each ordered pair $(r_1,r_2) \pmod{p - 1,p}$ exactly once. Therefore we just want the number of ordered pairs $(a,b) \in \ZZ/p\ZZ \times \ZZ/(p - 1)\ZZ$ such that $a^b \equiv 1 \pmod{p}$.
+
+By \Cref{ex:num_order}, there are $\varphi(d)$ elements of order $d$ for each $d \mid n$. For each element $a \in (\ZZ/p\ZZ)^\times$, there are $\frac{p}{\ord_p(a)}$ possible $b$ such that $a^b \equiv 1 \pmod{p}$. Summing over $a$, our answer is
+\[\sum_{a = 0}^{p - 1}\frac{p - 1}{\ord_p(a)}\text{.}\]
+By casework on $\ord_p(a)$, this becomes
+\[\sum_{d \mid p - 1}\varphi(d)\frac{p - 1}{d}\text{.}\]
+Note this sum is just $(\varphi \ast \id)(p - 1)$, where $\ast$ is the Dirichlet convolution. Since $\varphi \ast \id$ is multiplicative, the sum is just
+\[\left(2^5 + 5(2^5 - 2^4)\right)\left(3^2 + 2(3^2 - 3)\right)\left(7 + 7 - 1\right) = 30576\text{.}\]
+
+\end{document}

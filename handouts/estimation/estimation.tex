@@ -1,0 +1,639 @@
+\documentclass[10pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage[print]{mathteam}
+
+\renewenvironment{solution}{\renewcommand\qedsymbol{$\blacksquare$}\begin{proof}[Solution]}{\end{proof}}
+
+\title{Estimation}
+\author{Michael Luo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	\sffamily\small
+	arml estimathon was the second time at a competition where my team loses first place to minnesota in the last $\sim10$ minutes with the first being cmimc
+
+	\medskip
+
+	---MathWizard10 on AoPS
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+In this handout, we discuss the ``mathematical'' sort of estimation problems found on Guts sets. There are also meta-problems and a few weird ones involving convex hulls of the schools of the organizers, but we shall ignore those. To get better at those, try Fermi questions (rip).
+
+Throughout, we use the convention that $A$ is the actual answer and $E$ is the estimate. Additionally, $\log$ denotes the natural logarithm.
+
+\subsection{How to read this handout}
+
+There are many difficult-to-prove theorems in this handout, such as Stirling's approximation and \Cref{thm:pntap}. You \emph{do not} need to be able to prove these, just memorize them.
+
+This handout has only three exercises in the form of a mock in \Cref{sec:bmt_set}. All the examples should be used as exercises, just with solutions. It is intended that you read the examples and seriously try them before you read the solution, with the sole exception of \Cref{exa:ryan_stats}, which is intended to be used as a statistics walkthrough.
+
+I will say this again because it's so important: \textbf{try the examples before reading the solutions}. For estimation in particular, there are some things that can't be learned just by reading. The process of knowing which terms to drop, knowing whether you are underestimating or overestimating, carrying out calculations, and in general just developing instinct is something you must learn for yourself. So please, try the examples.
+
+\subsection{A few general tricks}
+
+We have the following useful approximations (in descending order of importance):
+\begin{itemize}
+    \ii Stirling's approximation: $n! \approx \sqrt{2\pi n}(\frac ne)^n$
+    \ii Generalized binomial theorem: $(1 + \eps)^n \approx 1 + n\eps$ if $(n\eps)^2$ is negligible (you can add more terms for more accuracy)
+    \ii $\log(1 + \eps) \approx \eps$ if $\eps^2$ is negligible
+    \ii $\frac ab = \frac{a + \frac ab\eps}{b + \eps}$, useful for simplifying fractions
+    \ii $\sin\eps \approx \eps$ if $\eps^3$ is negligible, $\cos\eps \approx 1 - \frac{\eps^2}2$ if $\eps^4$ is small
+\end{itemize}
+
+Use of logarithms allows one to quickly compute otherwise-difficult expressions, especially large products. A quote often attributed to Laplace says logarithms ``by shortening the labors, doubled the life of an astronomer.'' You should memorize at least $\log 2$ and $\log 10$:
+
+\begin{theorem}[Logarithms]
+	We have $\log 2 \approx 0.69$, $\log 3 \approx 1.10$, $\log 5 \approx 1.61$, $\log 7 \approx 1.95$. In particular, $\log 10 \approx 2.30$.
+\end{theorem}
+
+Here are two nice applications of Stirling's approximations:
+
+\begin{example}[MNYMO Guts 2024 Shortlist]
+	Ryan Niu flips $1000$ coins. Estimate the probability he gets between $490$ and $510$ heads, inclusive.
+
+	You will earn $\floor{20\min(A/E,E/A)^4}$ points.
+\end{example}
+
+\begin{solution}
+	Let $n = 500$. The probability is approximately
+	\[\frac{21}{2^{2n}}\binom{2n}{n}.\]
+	But from Stirling's approximation, this becomes
+	\[\frac{21}{2^{2n}} \cdot \frac{\sqrt{2\pi \cdot 2n}(\frac{2n}{e})^{2n}}{2\pi n(\frac ne)^{2n}} \approx \frac{21}{\sqrt{500\pi}} \approx 0.53.\]
+	The actual answer is about $0.513$, so we earned $17$ points.
+\end{solution}
+
+\begin{example}[HMMT Guts 2015/33]
+	Estimate the sum of the decimal digits of $\binom{1000}{100}$.
+
+	You will earn $25(0.99)^{\abs{A - E}}$ points.
+\end{example}
+
+\begin{solution}
+    In this solution, $\log$ denotes the base $10$ logarithm. We will estimate $\log\binom{1000}{100}$ and multiply by $4.5$, assuming the digits are random. Let $a = 100$ and $b = 900$. We compute
+    \[\log(n!) \approx \log\left(\frac1{\sqrt{2\pi n}}\left(\frac ne\right)^n\right) \approx \log\left(\left(\frac ne\right)^n\right) = n(\log n - \log e),\]
+    so
+    \begin{align*}
+        \log\binom{a + b}{a} &\approx (a + b)(\log(a + b) - \log e) - a(\log a - \log e) - b(\log b - \log e) \\
+        &= (a + b)\log(a + b) - a\log a - b\log b \\
+        &= a(\log(a + b) - \log a) + b(\log(a + b) - \log b) \\
+        &\approx 100 + 900 \cdot 0.044 \\
+        &= 140.6.
+    \end{align*}
+    So our estimate is $4.5 \cdot 140.6 \approx 633$. Since the answer is $621$, we earned $22$ points.
+\end{solution}
+
+\begin{remark*}
+    Notice how, when estimating $\log(n!)$, we made the very rough estimate
+    \[\frac1{\sqrt{2\pi n}}\left(\frac ne\right)^n \approx \left(\frac ne\right)^n.\]
+    This looks terrible, but it's all inside a $\log$, so we are really only dropping the $\log\left(\frac1{\sqrt{2\pi n}}\right)$ term, which is pretty small.
+\end{remark*}
+
+\begin{remark*}
+	It's insane how easy it was to earn points using estimation ``back in the day.'' We got $22$ points from this! For reference, this is a problem worth $20$ points from the same year:
+	\begin{quote}
+		\sffamily\small
+		A wealthy king has his blacksmith fashion him a large cup,
+		whose inside is a cone of height $9$ inches and base diameter $6$ inches
+		(that is, the opening at the top of the cup is 6 inches in diameter).
+		At one of his many feasts, he orders the mug to be filled to the brim with cranberry juice.
+		For each positive integer $n$, the king stirs his drink vigorously
+		and takes a sip such that the height of fluid left in his cup after the sip goes down by $\frac1{n^2}$ inches.
+		Shortly afterwards, while the king is distracted, the court jester adds
+		pure Soylent to the cup until it's once again full. The king takes sips
+		precisely every minute, and his first sip is exactly one minute after the feast begins.
+		
+		As time progresses, the amount of juice consumed by the king (in cubic inches) approaches a number $r$. Find $r$.
+	\end{quote}
+	This problem requires Stirling as well, but is \emph{much} harder. Nowadays, it's a lot harder to get points from estimation.
+\end{remark*}
+
+\section{Sums and products}
+
+\subsection{Integration}
+
+Along with your general toolkit (switching orders of summation, generating functions), there are some special tricks more common in estimation problems. The most common is \emph{by far} estimating sums using integrals. For example:
+
+\begin{example}
+	Estimate the $n$th harmonic number $H_n = \frac11 + \dots + \frac1n$.
+\end{example}
+
+\begin{solution}
+	Just observe
+	\[\frac11 + \dots + \frac1n \approx \int_1^n\frac1x \odif x = \log n. \qedhere\]
+\end{solution}
+
+This estimate can actually be improved, a better approximation is $\log n + \gamma$, where $\gamma \approx 0.577$ is the Euler-Mascheroni constant. Here's a nice application:
+
+\begin{example}[Coupon collector]
+	Michael is reading Big Nate comics. Every second, he clicks the ``random'' button to view a random comic. Suppose there are $n$ comics. Estimate the expected number of seconds it will take for him to view all of them at least once.
+\end{example}
+
+\begin{solution}
+	Let $X_i$ be the expected number of seconds between his $i - 1$th and $i$th distinct comics. Clearly $X_1 = 1$, otherwise,
+	\[X_i = 1 + \frac{n - i + 1}n \cdot 0 + \frac{i - 1}nX_i,\]
+	so $X_i = \frac n{n - i + 1}$. So the answer is
+	\[X_1 + \dots + X_n = \frac nn + \dots + \frac n1 = nH_n \approx n \log n. \qedhere\]
+\end{solution}
+
+Our next example uses a logarithm to turn a product into a sum.
+
+\begin{example}[HMMT Guts 2020/33]
+	Estimate
+	\[\prod_{n = 1}^{\infty}n^{n^{-1.25}}.\]
+
+	You will earn $\floor{22\min(A/E,E/A)}$ points.
+\end{example}
+
+\begin{solution}
+	Instead approximate
+	\[\log A = \sum_{n = 1}^{\infty}\frac{\log n}{n^{5/4}} \approx \int_1^\infty\frac{\log x}{x^{5/4}} \,\mathrm dx = 16,\]
+	by integration by parts. Then,
+	\[N \approx e^{16} \approx e^{10\log 5} = 5^{10} \approx \frac{10^{10}}{2^{10}} \approx 10^7.\]
+	The exact answer is $8282580$, so we earn $18$ points.
+\end{solution}
+
+This example shows the importance of \emph{looking at the scoring}: the expression $\floor{22\min(A/E,E/A)}$ is much more forgiving than, say $\floor{22\min(A/E,E/A)^4}$. So we could use very rough estimates such as $16 \approx 10\log 5$ in the exponent of $e$.
+
+\begin{example}[HMMT Guts 2015/34]
+	For an integer $n$, let $f(n)$ denote the number of pairs of integers $(x,y)$ such that $x^2 + xy + y^2 = n$. Compute
+	\[\sum_{n = 1}^{10^6}nf(n).\]
+	
+	You will earn $\max(0,25 - \floor{100|\log_{10}(A/E)|})$ points.
+\end{example}
+
+\begin{solution}
+	Let $N = 10^6$. The sum becomes
+	\[\sum_{n \le N}n\sum_{x^2 + xy + y^2 = n}1 = \sum_{x^2 + xy + y^2 \le N}x^2 + xy + y^2.\]
+	Estimate this sum with an integral and evaluate using change of variables:
+	\[\iint_{x^2 + xy + y^2 \le N}x^2 + xy + y^2\,\mathrm dx\,\mathrm dy= \frac{\pi\sqrt 3}{3}N^2 \approx 1.8 \cdot 10^{12}.\]
+	The exact answer is approximately $1.81376 \cdot 10^{12}$, so this earns $25$ points.
+\end{solution}
+
+\begin{remark*}
+	The double integral in the problem is the first one I'd ever evaluated. If you aren't so familiar with multivariable calculus (like me!), I'll show you how I evaluated this integral.
+
+	First let $(u,v) = (\frac{\sqrt 3}2(x + y),\half(x - y))$, or $(x,y) = (\frac{\sqrt 3}3u + v,\frac{\sqrt 3}3u - v)$, so then $x^2 + xy + y^2 = u^2 + v^2$. Then the Jacobian is
+	\[\deter{\pdiff xu & \pdiff xv \\ \pdiff yu & \pdiff yv} = \deter{\frac{\sqrt 3}3 & 1 \\ \frac{\sqrt 3}3 & -1} = -\frac{2\sqrt 3}3,\]
+	which has absolute value $\frac{2\sqrt 3}3$. Therefore, the integral becomes
+	\[\frac{2\sqrt 3}3\iint_{u^2 + v^2 \le N}u^2 + v^2\,\mathrm du\,\mathrm dv.\]
+	Now we use polar coordinates: let $u = r\cos\theta$ and $v = r\sin\theta$, then the Jacobian is
+	\[\deter{\pdiff ur & \pdiff u\theta \\ \pdiff vr & \pdiff v\theta} = \deter{\cos\theta & -r\sin\theta \\ \sin\theta & r\cos\theta} = r(\cos^2\theta + \sin^2\theta) = r,\]
+	so then the integral becomes
+	\[\frac{2\sqrt 3}3\int_0^{\sqrt N}\int_0^{2\pi}r^3\,\mathrm d\theta\,\mathrm dr = \frac{4\pi\sqrt 3}3\int_0^{\sqrt N}r^3\,\mathrm dr = \frac{\pi\sqrt 3}{3}N^2.\]
+\end{remark*}
+
+\subsection{Sums involving primes}
+
+We have the following estimates on the number of primes:
+
+\begin{theorem}[Prime number theorem]
+	There are approximately $\frac n{\log n}$ primes below $n$.
+\end{theorem}
+
+It's often useful to think of the primes as being ``random'': the ``probability'' of $n$ being prime can be thought of $\frac1{\log n}$.
+
+\begin{theorem}[Prime number theorem for arithmetic progressions]\label{thm:pntap}
+	The primes are evenly distributed in the coprime residue classes modulo $n$.
+\end{theorem}
+
+Essentially, if you know $n$ is not $0$ or $2$ modulo $6$, then it has ``probability'' $\frac3{2\log n}$ of being prime, and if you know $n$ is $1$ modulo $4$, it has ``probability'' $\frac{2}{\log n}$ of being prime.
+
+Here's a cute application:
+
+\begin{example}
+    The number $2027$ is prime. For $i = 1,\dots,2026$, let $p_i$ be the smallest prime such that $p_i \equiv i \pmod{2027}$. Estimate $\max(p_1,\dots,p_{2026})$.
+
+    You will earn $\floor{25\min(A/E,E/A)^8}$ points.
+\end{example}
+
+\begin{solution}
+	Let $p = 2027$ and $n = p - 1 = 2026$. We assume each prime has probability $\frac1n$ of being $1,\dots,n$ modulo $p$, so by coupon collector, the expected number of primes needed to cover every nonzero residue class modulo $p$ is $n \log n$. And since the $m$th prime is approximately $m \log m$, our estimate is
+	\[n\log n\log(n \log n) = n\log n(\log n + \log \log n) \approx 2026 \cdot 7.6 \cdot (7.6 + 2.02) \approx 150000.\]
+	where we have estimated
+	\[\log n \approx \log 2048 = 11 \log 2 \approx 7.6\]
+	and
+	\[\log \log n \approx \log 7.5 = \log 3 + \log 5 - \log 2 \approx 1.1 + 1.61 - 0.69 \approx 2.02.\]
+	Since the exact answer is $113779$, we earned $2$ points.
+\end{solution}
+
+\begin{remark*}
+    The official solution uses a similar method to obtain
+    \[n\log n\log(n \log n),\]
+    but then uses the questionable estimate
+    \[n\log n\log(n \log n) \approx n\log^2 n \approx 117488,\]
+    which earns $19$ points.
+
+    It feels somewhat weird to ``rig'' the solution this way. It's a much better decision to keep the $n \log n \log \log n$ term, because the scoring has an exponent of $8$, which is extremely unforgiving. But as it turns out, dropping the term yields a much better estimate, due to luck. If instead the answer had instead been closer to $150000$, would the organizers still use the above estimate? On a contest, you are not given the luxury of knowing what the answer is. Contest organizers should write solutions for estimations before they compute the exact answer.
+
+	The astute reader may note that the first $\frac{2027}{\log 2027} \approx 266$ primes less than $2027$ will all be in distinct residue classes modulo $2027$, therefore, our assumption that the primes are randomly distributed modulo $2027$ is not accurate. However, this effect is far too small to cause a meaningful change in our answer. Indeed, taking into account this would make our answer the $k$th prime, where
+	\[k = 266 + \frac n{n - 267} + \dots + \frac n1 \approx 266 + n\log(n - 267) \approx 15405,\]
+	giving an answer of $k \log k \approx 148545$. So we really did just get unlucky.
+\end{remark*}
+
+\begin{example}[SMT Guts 2024/26]
+	A prime number is said to be \emph{toothless} if none of its digits are $2$, $4$, or $6$. Compute the number of toothless primes with at most $8$ digits.
+
+	You will earn $\max(0,25 - \ceil{\frac1{4000}\abs{E - A}})$ points.
+\end{example}
+
+\begin{solution}
+	There are $7^8$ toothless numbers. The probability $n$ is prime (given it's toothless) is $\frac{4/7}{4/10} \cdot \frac1{\log n} = \frac{10}{7\log n}$, because of the last digit. Approximating $\log n$ as $\log 10^8$, the number of toothless primes is approximately
+	\[\frac{10 \cdot 7^8}{7\log 10^8} \approx \frac{10 \cdot 7 \cdot 50^3}{8 \cdot 2.3} = \frac{700 \cdot 25^3}{23} \approx \frac{700 \cdot 25^2 \cdot 27}{25} = 472500.\]
+	
+	Since the exact answer is $478256$, we earned $23$ points.
+\end{solution}
+
+\begin{example}[HMMT Guts 2020/34]
+	For odd primes $p$, let $f(p)$ denote the smallest integer $a$ such that there does not exist an integer $n$ satisfying $p \mid n^2 - a$. Estimate the sum of $f(p)^2$ over the first $10^5$ odd primes $p$.
+
+	You will earn $\floor{22\min(A/E,E/A)^3}$ points.
+\end{example}
+
+\begin{solution}
+	Note that $f(p)$ is the smallest quadratic nonresidue modulo $p$, which must be prime (since $-1 = (\frac{ab}{p}) = (\frac ap)(\frac bp)$ implies $(\frac ap) = -1$ or $(\frac bp) = -1$.) We assume each prime $p$ has a $\half$ chance of being a quadratic nonresidue, so then the expected value of $f(p)^2$ is
+	\[\frac{2^2}2 + \frac{3^2}4 + \frac{5^2}8 + \frac{7^2}{16} + \dots \approx 23,\]
+	by taking the first few terms and bounding, so our estimate is $2300000$. Since the actual answer was $2266067$, we earned $21$ points.
+\end{solution}
+
+\begin{example}[HMMT Guts 2024/34]
+	Estimate the number of positive integers $n \le 10^6$
+	such that $n^2 + 1$ has a prime factor greater than $n$.
+
+	You will earn
+	\[\max\left(0,\left\lfloor 20\min\left(\frac EA,
+	\frac{10^6 - E}{10^6 - A}\right)^5 + 0.5\right\rfloor\right)\]
+	points.
+\end{example}
+
+\begin{solution}
+	Let $N = 10^6$, we sum over primes $p \mid n^2 + 1$. For an odd prime $p$, there are $2$ solutions to $p \mid n^2 + 1$ with $n < p$ if $p \equiv 1 \pmod 4$ and no solutions otherwise. Now let $p$ be a $1 \bmod 4$ prime.
+
+	If $p \le N$, $p$ contributes two solutions. Otherwise, assume that the solutions to $n^2 \equiv -1 \pmod p$ are uniformly distributed modulo $p$, so if $p > N$, there are on average $\frac{2N}p$ solutions to $p \mid n^2 + 1$ with $n \le N$. And if $p > N^2$, there are zero solutions, full stop. Therefore, the answer is
+	\[\sum_{p \le N}2 + \sum_{N < p < N^2}\frac{2N}p.\]
+
+	From the prime number theorem for arithmetic progressions, a positive integer $x$ has ``probability'' $\frac1{2\log x}$ of being a $1 \bmod 4$ prime. Therefore, the sum becomes
+	\begin{align*}
+		\sum_{x \le N}\frac1{2\log x} \cdot 2 + \sum_{N < x < N^2}\frac {2N}x \cdot \frac1{2\log x}
+		&\approx \int_1^N\frac1{\log x} \, \mathrm dx + \int_N^{N^2}\frac N{x\log x} \, \mathrm dx \\
+		&\approx \int_1^N\frac1{\log N} \, \mathrm dx + N(\log(\log N^2) - \log(\log N)) \\
+		&= N\left( \frac1{\log N} + \log 2 \right) \\
+		&\approx 765530.
+	\end{align*}
+	The exact answer is $757575$, so this estimate earns $17$ points.
+\end{solution}
+
+\subsection{Number-theoretic sums (optional)}
+
+Most of the problems in this section are from the OTIS unit \verb|ZNW-analyticnt|.
+
+Integrals work fine when you're faced with functions like $\frac1x$ and $\frac1{x \log x}$, but for number-theoretic functions like $\varphi$, this doesn't work.
+
+This section is pretty technical. For background, skim ``erm, what the $\sigma$,'' which can be found on \href{https://sites.google.com/view/tonkamath/manifestos}{the Minnetonka Math Team website}. Make sure you know what the following mean:
+\begin{itemize}
+	\ii The Dirichlet convolution and the fact that it preserves multiplicativity.
+	\ii The multiplicative arithmetic functions $\boldsymbol1$, $\id$, $d$, $\sigma$, $\varphi$, and $\mu$.
+	\ii The Riemann zeta function $\zeta$ and the Euler product formula. In particular, you should know $\zeta(2) = \frac{\pi^2}{6}$.
+\end{itemize}
+
+Now let's try some examples.
+
+\begin{example}
+	For all $s > 1$, show that
+	\[\sum_{n \ge 1}\frac{\mu(n)}{n^s} = \zeta(s)^{-1}.\]
+\end{example}
+
+\begin{solution}
+	We have
+	\[\sum_{n \ge 1}\frac{\mu(n)}{n^s}\sum_{m \ge 1}\frac1{m^s} = \sum_{k \ge 1}\frac{(\mu \ast \boldsymbol1)(k)}{k^s} = 1\]
+	by summing over $k = mn$.
+\end{solution}
+
+Also, by the definition of the Dirichlet convolution, we have the following:
+
+\begin{theorem}[Convolution method]
+	If $f = g \ast h$, then
+	\[\sum_{n \le N}f(n) = \sum_{d \le N}g(d)\biggl( \sum_{e \le N/d}h(e) \biggr).\]
+\end{theorem}
+
+The above is quite useful, particularly when partial sums of $h$ are easy to estimate. Let's see a few examples:
+
+\begin{example}
+	In terms of $x$, estimate
+	\[\sum_{n \le x}\varphi(n).\]
+\end{example}
+
+\begin{solution}
+	\[\sum_{n \le x}\varphi(n) = \sum_{d \le x}\mu(d)\sum_{y \le \frac xd}y \approx \sum_{d \le x}\mu(d) \cdot \frac{x^2}{2d^2} = \frac3{\pi^2}x^2. \qedhere\]
+\end{solution}
+
+\begin{example}
+	Two integers are randomly selected from $\{1,2,\dots,n\}$. Estimate the probability they are coprime.
+\end{example}
+
+\begin{solution}
+	We compute
+	\[
+		\sum_{x,y \le n,(x,y) = 1}1 = \sum_{x \le n}\sum_{y \le n}\sum_{d \mid (x,y)}\mu(d)
+		= \sum_{d \le n}\sum_{x,y \le n/d}\mu(d)
+		= \sum_{d \le n}\floor{\frac nd}^2\mu(d)
+		\approx \sum_{d \le n}\frac{n^2}{d^2}\mu(d)
+		= \frac{6}{\pi^2}n^2,
+	\]
+	so the answer is $\frac 6{\pi^2}$.
+\end{solution}
+
+\begin{example}
+	In terms of $x$, estimate
+	\[\sum_{n \le x}d(n).\]
+\end{example}
+
+\begin{solution}
+	Write $d = \boldsymbol1 \ast \boldsymbol1$, then the sum becomes
+	\[
+		\sum_{ab \le x}1
+		= \sum_{a \le \sqrt x}\floor{\frac xa} + \sum_{b \le \sqrt x}\floor{\frac xb} - \sum_{a,b \le \sqrt x}1
+		\approx 2\left(\half x \log x + \gamma x\right) - x
+		= x \log x + (2\gamma - 1)x. \qedhere
+	\]
+\end{solution}
+
+In the above example, we also could have simply evaluated the sum
+\[\sum_{ab \le x}1 = \sum_{a \le x}\sum_{b \le x/a}1 = \sum_{a \le x}\floor{\frac xa} \approx x \log x.\]
+This estimate is slightly less precise though, since here you have to delete $x$ floors, while above you only have to delete $2\floor{\sqrt x}$ floors.
+
+Warning: the next problem is hard.
+
+\begin{example}
+	In terms of $x$, estimate
+	\[\sum_{n \le x}\frac1{\varphi(n)}.\]
+\end{example}
+
+\begin{solution}
+	Let $f$ be a multiplicative function with $f(1) = 1$, $f(p) = \frac{1}{p(p - 1)}$, and $f(p^\alpha) = 0$ for $\alpha \ge 2$. Now $\frac{1}{\varphi} = f \ast \frac1{\id}$. The sum then becomes
+	\[\sum_{d \le x}f(d)\sum_{e \le x/d}\frac1e \approx \sum_{d \le x}f(d)(\log x - \log d + \gamma) \approx \log x\sum_{d \le x}f(d),\]
+	where we have dropped the $f(d)\log d$ and $f(d)\gamma$ terms since they are bounded by constants. Now we compute
+	\[\sum_{d \le x}f(d) \approx \sum_{d \ge 1}f(d) = \prod_p(1 + f(p)) = \frac{\zeta(2)\zeta(3)}{\zeta(6)},\]
+	by Euler's product formula. Therefore the sum is approximately $\frac{\zeta(2)\zeta(3)}{\zeta(6)}\log x$.
+\end{solution}
+
+Let's see a problem from an actual contest (although to be fair, I wrote this problem).
+
+\begin{example}[MNYMO Guts 2024/27]
+	The MN Youth Math Outreach Board has birthdays $B_1,B_2,\dots,B_7$ when written in MMDDYYYY form. For example, if Taylor Swift was the eighth member of the MN Youth Math Outreach Board, $B_8$ would be $12131989$, since her birthday is December 13th, 1989. Estimate the sum of the pairwise $\gcd$s of the $B_i$, or
+	\[\sum_{1 \le i < j \le 7}\gcd(B_i,B_j).\]
+	
+	You will earn $\floor{20\min(A/E,E/A)}$ points.
+\end{example}
+
+\begin{solution}
+	Assume the birthdays are randomly chosen integers from $1$ to $13000000$. Let $N = 13000000$, we compute the expected $\gcd$ of two integers chosen randomly from $1$ to $N$. Since the probability of two integers chosen from $\{1,2,\dots,N\}$ being relatively prime is approximately $\frac{6}{\pi^2}$, so the probability of the $\gcd$ being $k$ for some $k \le N$ is $\frac{6}{(k\pi)^2}$. Therefore we estimate the expected value
+	\[\sum_{k \le N}\frac{6}{k\pi^2} = \frac{6}{\pi^2}\sum_{k \le N}\frac 1k \approx \frac{6}{\pi^2}\log N \approx 10.\]
+	Since there are $\binom{7}{2}$ possible pairs, our estimate is $210$. Since the answer is $390$, we earned $10$ points.
+\end{solution}
+
+\begin{example}[HMNT 2023/36]
+	Isabella writes the expression $\sqrt d$ for each positive integer $d$ not exceeding $8!$ on the board. Seeing that these expressions might not be worth points on HMMT, Vidur simplifies each expression to the form $a\sqrt b$, where $a$ and $b$ are integers such that $b$ is not divisible by the square of a prime number. (For example, $\sqrt{20}$, $\sqrt{16}$, and $\sqrt6$ become $2\sqrt5$, $4\sqrt1$, and $1\sqrt6$, respectively.) Compute the sum of $a + b$ across all expressions that Vidur writes.
+
+	You will earn $\max\left(0,\ceil{20\left(1 - \abs{\log_{10}(A/E)}^{1/5}\right)}\right)$ points.
+\end{example}
+
+\begin{solution}
+	We assume $n$ contributes $n$ to the sum if it is squarefree, and $0$ otherwise. This underestimates the sum on two counts:
+	\begin{itemize}
+		\ii Drops all $a$. This is acceptable since each $a$ is at most $\sqrt n$.
+		\ii Drops all $b$ from non-squarefree $n$. This is larger but still relatively insignificant.
+	\end{itemize}
+	For large $n$, $n$ has ``probability'' $1 - \frac1{p^2}$ of being nonzero modulo $p^2$ for fixed $p$, so the probability $n$ is squarefree is
+	\[\prod_p\left( 1 - \frac1{p^2} \right) = \zeta(2)^{-1} = \frac6{\pi^2}.\]
+	Therefore the sum is
+	\[\sum_{n \le 8!}\frac6{\pi^2} \cdot n \approx \frac{3 \cdot 8!^2}{\pi^2}.\]
+	Since we underestimated at the start, we adjust our sum to be slightly larger by estimating $8! \approx 40000$ and $\pi \approx 3$, which gives the estimate $533333333$. Since the answer is $534810086$, we earned $15$ points.
+\end{solution}
+
+\section{Combinatorics}
+
+When you're doing an estimation problem, you have a \emph{massive advantage} compared to a standard short-answer problem: you are given a hint of the solution method just from the problem statement itself. This is the most relevant in combinatorics, when there are basically two types of estimation problem: \emph{skill-based}, and \emph{intuition spam}. If a problem is skill-based, you have to actually do some math to solve the problem, whereas for intuition spam problems, you can usually just go with your gut\footnote{haha, see what I did there?} and still earn some points.
+
+\subsection{Skill-based}
+
+If the problem statement is complicated or the scoring is unforgiving, like $\floor{25\min(A/E,E/A)^4}$, it's probably skill-based. Fortunately, if you can solve these types of problems, you will earn a lot of points.
+
+Along with your standard combinatorics skills, we will also need some statistics. We will motivate this with the following example, which we already solved by Stirling.
+
+\begin{example}[MNYMO Guts 2024 Shortlist]\label{exa:ryan_stats}
+	Ryan Niu flips $1000$ coins. Estimate the probability he gets between $490$ and $510$ heads, inclusive.
+
+	You will earn $\floor{20\min(A/E,E/A)^4}$ points.
+\end{example}
+
+\begin{solution}
+	For now, pretend you don't know Stirling. We will obtain the estimate $\frac{21}{\sqrt{500\pi}} \approx 0.53$ (earning $17$ points) with statistics.
+
+	Let $X_i$ for $1 \le i \le 1000$ be random variables evaluating to $1$ if the $i$-th flip is heads and $-1$ if the $i$-th flip is tails. We want the probability
+	\[X := X_1 + \dots + X_{1000}\]
+	is between $-20$ and $20$, inclusive.
+
+	Let $X$ be a random variable. From AP statistics, recall the following definitions:
+	\begin{itemize}
+    	\ii The \emph{expected value} or \emph{mean} of a random variable $\mu \defeq \EE(X)$.
+    	\ii The \emph{variance} of a random variable $\Var(X) \defeq \EE\big((X - \EE(X))^2\big) = \EE(X^2) - \EE(X)^2$.
+            \ii The \emph{standard deviation} $\sigma$ of a random variable is the square root of its variance.
+	\end{itemize}
+    Additionally, recall that variance is linear: if $X$ and $Y$ are independent random variables, $\Var(X + Y) = \Var(X) + \Var(Y)$. (The proof is just linearity of expectation.)
+
+	Since each of the $X_i$ have variance $1$, $X$ has variance $1000$, so $X$ has standard deviation $\sigma = \sqrt{1000}$. Also $\mu = 0$. It turns out this is already enough information to approximate the probability of $X$ being between $-21$ and $21$, because:
+	\begin{theorem}[Central limit theorem]
+		If you add many random variables, the resulting distribution is approximately normal.
+	\end{theorem}
+	This is perhaps the most important theorem in statistics. So we may approximate $X$ as the (unique!) normal distribution with expected value $0$ and standard deviation $\sqrt{1000}$. But what is a normal distribution? Bear with me for a second:
+
+	The \emph{probability density function} of the standard normal distribution (the normal distribution with mean $0$ and standard deviation $1$) is
+	\[\normalpdf(x) \defeq \frac1{\sqrt{2\pi}}e^{-x^2/2}.\]
+	That is, the probability of a standard normal random variable being between $a$ and $b$ (where $a < b$) is
+	\[\int_a^b\normalpdf(x) \, \mathrm dx.\]
+	So for example, the probability of a standard normal random variable being between, say, $-0.01$ and $0.01$ is
+	\[\int_{-0.01}^{0.01}\frac1{\sqrt{2\pi}}e^{-x^2/2}\,\mathrm dx \approx \int_{-0.01}^{0.01}\frac{\mathrm dx}{\sqrt{2\pi}} = \frac{0.02}{\sqrt{2\pi}} \approx 0.008.\]
+
+	Back to the problem: here, the standard deviation isn't $1$, so we cannot directly approximate like above. However: we may define the $Z$-value of a random variable $X$ to be
+	\[Z = \frac{X - \mu}{\sigma}.\]
+	Basically, $Z$ scales $X$ to have mean $0$ and standard deviation $1$. Now if $X$ is normal, then $Z$ is standard normal! So the probability is
+	\[\int_{\frac{-21 - \mu}{\sigma}}^{\frac{21 - \mu}{\sigma}}\normalpdf(x) \, \mathrm dx\]
+	But since $\normalpdf(x)$ is approximately $\frac1{\sqrt{2\pi}}$ when $x$ is close to $0$, this is approximately
+	\[\frac{(21 - \mu) - (-21 - \mu)}{\sigma} \cdot \frac{1}{\sqrt{2\pi}} = \frac{21}{\sqrt{500\pi}}. \qedhere\]
+\end{solution}
+
+You are allowed to use a scientific calculator for the next example.
+
+\begin{example}[HMMT Guts 2023/35]
+	The Fibonacci numbers are defined recursively by $F_0 = 0$, $F_1 = 1$, and $F_i = F_{i - 1} + F_{i - 2}$ for $i \ge 2$. Given $30$ wooden blocks of weights $\cbrt{F_2},\cbrt{F_3},\dots,\cbrt{F_{31}}$, estimate the number of ways to paint each block either red or blue such that the total weight of the red blocks and the total weight of the blue blocks differ by at most $1$.
+
+	You will earn $\floor{25\min(A/E,E/A)^8}$ points.
+\end{example}
+
+\begin{solution}
+	Let $X_i$ be a random variable that chooses $\cbrt{F_i},-\cbrt{F_i}$ at random. Let $X = X_2 + \dots + X_{31}$, we want to find the probability $X$ is in the interval $[-1,1]$. By central limit theorem, $X$ is approximately normal. Now by Binet the variance of $X$ is
+	\[\sum_{i = 2}^{31}\Var(X_i) \approx \sum_{i = 2}^{31}\frac{\varphi^{2i/3}}{\cbrt 5} = \frac{\varphi^{20} - 1}{\varphi^{2/3} - 1} \cdot \varphi^{4/3}5^{-1/3}.\]
+	Therefore the probability is approximately
+	\[\frac1{\sqrt{2\pi}} \cdot \frac{1 - (-1)}{\sqrt{\Var(X)}},\]
+	so the number of ways is $2^{30}$ times this, for an estimate of $4064732$. Since the answer is $3892346$, we earned $17$ points.
+\end{solution}
+
+This is an example of a problem that's just a straight-up combinatorics problem, but the answer extraction requires a bit of estimation.
+
+\begin{example}[HMMT Guts 2015/35]
+	Let $P$ denote the set of all subsets of $\{1,\dots,23\}$. A subset $S \subseteq P$ is called \emph{good} if whenever $A$ and $B$ are sets in $S$, $A \triangle B$ is in $S$, where $A \triangle B$ is the set consisting of the elements belonging to exactly one of $A$ and $B$. Estimate the fraction of the good subsets of $P$ with between $2015$ and $3015$ elements, inclusive.
+
+	You will earn $\max(0,25 - \floor{1000\abs{A - E}})$ points.
+\end{example}
+
+\begin{solution}
+    The main idea is to interpret the sets in $S$ as vectors in $\FF_2^{23}$, with the corresponding vector of a set $X \in S$ being $(x_1,\dots,x_{23})$, where $x_i = 1$ if $i \in X$ and $x_i = 0$ if $i \not\in X$. Then, one may interpret $\triangle$ as vector addition, so the good sets are the subspaces of $\FF_2^{23}$. We want the fraction of subspaces of $\FF_2^{23}$ with $11$ dimensions.
+    
+    By induction, we have the following facts about linear algebra over $\FF_2$:
+    \begin{itemize}
+		\ii There are $(2^{23} - 2^0)(2^{23} - 2^1)\cdots(2^{23} - 2^{n - 1})$ ways to choose an ordered list of $n$ linearly independent vectors in $\FF_2^{23}$.
+		\ii Each subspace of dimension $n$ has $(2^n - 1)(2^n - 2)\cdots(2^n - 2^{n - 1})$ bases, with ordering.
+    \end{itemize}
+    Therefore, there are
+    \[\frac{(2^{23} - 2^0)(2^{23} - 2^1)\cdots(2^{23} - 2^{n - 1})}{(2^n - 1)(2^n - 2) \cdots (2^n - 2^{n - 1})}.\]
+    subspaces of $\FF_2^{23}$ with dimension $n$. We can multiply this by constant factors since we are calculating a ratio, so we may approximate this as $\frac{2^{23n}}{2^{n^2}} = 2^{23n - n^2}$. Again scaling by a constant, this is $f(n) \defeq 2^{\frac14 -(n - \frac{23}2)^2}$. Since this decays quickly when $n$ is not close to $11$ or $12$, the ratio is approximately
+    \[\frac{f(11)}{\sum_{i = 0}^{23}f(n)} \approx \frac{f(11)}{\sum_{i = 9}^{14}f(i)} = \frac1{2(1 + 2^{-2} + 2^{-6})} = \frac{32}{81} \approx 0.395.\]
+    Since the answer is about $0.395020305$, we earned $25$ points.
+\end{solution}
+
+\subsection{Intuition spam}
+
+These types of problems are completely unapproachable using the ``standard'' methods above, and basically the only way to earn points is an educated guess. You can tell if a problem is in this category if the problem is simple but unapproachable, or if the scoring is very forgiving, like $\floor{25\min(A/E,E/A)^2}$. A common theme in this section is to find a lower bound and an upper bound, and average them in some way (such as a geometric or arithmetic mean).
+
+Even though it isn't combo, I think the following problem is pretty representative of the philosophy we will apply in this section.
+
+\begin{example}[HMMT Guts 2013/33]
+	Compute $1^{25} + 2^{24} + \dots + 25^1$.
+	
+	You will earn $\floor{25\min(A/E,E/A)^2}$ points.
+\end{example}
+
+\begin{solution}
+	Guess that the answer is about five times the largest term. Now we find the maximum of $x^{26 - x}$. It's equivalent to maximizing $(26 - x)\log x$. Taking the derivative, we need $\frac{26}x - \log x - 1 = 0$, or $x + x\log x = 26$, so $x \approx 8$. Then the answer is about
+	\[5 \cdot 8^{18} \approx 8 \cdot 10^{16}.\]
+	Since the answer is about $6.607 \cdot 10^{16}$, we earned $17$ points.
+\end{solution}
+
+Here are two nice applications of the idea of averaging upper and lower bounds:
+
+\begin{example}[SMT Guts 2024/25]
+	Frank composes a random $15$-note melody where each note is either A, B, or C. Compute the probability no sequence of $5$ consecutive notes occurs more than once in the melody he composes. (For example, in the melody ABCABCABCABCABC the sequence ABCAB occurs more than once.)
+	
+	You will earn $\max(0,25 - \ceil{500\abs{E - A}})$ points.
+\end{example}
+
+\begin{solution}
+	The probability two random $5$-note sequences are the same is $\frac1{3^5}$, so the answer is $(1 - \frac1{3^5})^n$, where $n$ is the number of ``independent'' sequences of five notes. We compute a lower and upper bound for $n$, and average:
+	\begin{itemize}
+		\ii \textbf{Lower bound.} Suppose two sequences sharing the same notes cannot overlap at all. This gives an estimate of
+		\[n = \half(6 + 5 + 4 + 3 + 2 + 2 + 2 + 3 + 4 + 5 + 6) = 21,\]
+		by casework on the location of the first string.
+		\ii \textbf{Upper bound.} Suppose any two different sequences can overlap, then there are $\binom{11}2 = 55$ sequences.
+	\end{itemize}
+	So take we take the average $38$, which gives an estimate
+	\[\left(1 - \frac1{3^5}\right)^{38} \approx 1 - \frac{38}{3^5} \approx 0.844.\]
+	Since the answer is about $0.85531769$, we earned $19$ points.
+\end{solution}
+
+\begin{example}[HMNT 2020/35]
+	Alice is trying to cross a $400$-foot wide river. She can jump at most $4$ feet, but she has many stones she can throw into the river. She will stop throwing stones and cross the river once she has placed enough stones to be able to do so. She can throw straight, but she can't judge distance very well, so each stone ends up being placed uniformly at random along the width of the river. Estimate the expected number of stones she must throw before she can get across the river.
+
+	You will earn $\floor{20\min(A/E,E/A)^3}$ points.
+\end{example}
+
+\begin{solution}
+	We compute a lower and upper bound, then average.
+	\begin{itemize}
+		\ii \textbf{Lower bound.} Divide the river into $100$ $4$-foot regions. Alice can only cross the river once she has at least one stone in each region. (Why?) By coupon collector, this gives the lower bound $100 \log 100$.
+		\ii \textbf{Upper bound.} Divide the river into $200$ $2$-foot regions. If Alice has at least one stone in each region, she can cross the river. (Why?) By coupon collector, this gives the upper bound $200 \log 200$.
+	\end{itemize}
+	Averaging, we get the estimate
+	\[\frac12(100 \log 100 + 200 \log 200) \approx \frac12(100 \cdot 4.6 + 200 \cdot (4.6 + 0.69)) = 759.\]
+	Since the answer is about $712.811$, we earned $16$ points.
+\end{solution}
+
+Here's our last example!
+
+\begin{example}[HMNT Guts 2023/35]
+	Dorothea has a $3 \times 4$ grid of dots. She colors each dot red, blue, or dark gray. Compute the number of ways Dorothea can color the grid such that there is no rectangle whose sides are parallel to the grid lines and whose vertices all have the same color.
+
+	You will earn $\floor{20\min(A/E,E/A)^2}$ points.
+\end{example}
+
+\begin{solution}
+	We compute $3^{12}$ times the probability. There are $18$ rectangles in the grid, and the probability each rectangle is monochromatic is $\frac1{27}$. We guess that $14$ of the $18$ rectangles are ``independent,'' which we fudge to $13.5$ for easier computation. Let $\eps = \frac1{27}$ and $n = 13.5$, then our estimate (by generalized binomial theorem) is
+	\[3^{12}(1 - \eps)^n \approx 3^{12}\left( 1 - n\eps + \frac{(n\eps)^2}2 - \frac{(n\eps)^3}{6} \right) = 3^{12} \cdot \frac{29}{48} \approx 320000.\]
+	Since the answer is $284688$, we earned $15$ points.
+\end{solution}
+
+\pagebreak
+
+\section{A complete estimation set}\label{sec:bmt_set}
+
+\subsection{Problems}
+
+The following three problems form a complete estimation set from BMT 2021. Try them and see how you'd perform on an actual contest. Give yourself $20$ minutes, then if you aren't finished, continue working until you have submittable answers.
+
+\begin{problem}[BMT Guts 2021/25]\label{pro:bmt_1}
+	For any $q \in \QQ$, we define its \emph{nonrepeating length} as the length of its nonrepeating part in its decimal expansion. For example, the nonrepeating length of $12$ is $2$, the nonrepeating length of $12.\overline{2024}$ is $2$, and the nonrepeating length of $12.1434\overline{2024}$ is $6$. If $n = 2021$, compute the nonrepeating length of $\frac{n^n}{n!}$.
+
+	You will earn $\max(0,\floor{25 - \frac1{10}\abs{E - A}})$ points.
+\end{problem}
+
+\begin{problem}[BMT Guts 2021/26]\label{pro:bmt_2}
+	Alice has infinitely many cookies. Every second, she flips a coin. If it is heads, she eats one cookie, and if it is tails, she eats two cookies simultaneously. If at any point, the total number of cookies she has eaten is a perfect square, she stops. Compute the expected number of cookies she eats.
+
+	You will earn $\floor{25e^{-\frac{5\abs{E - A}}{2}}}$ points.
+\end{problem}
+
+\begin{problem}[BMT Guts 2021/27]\label{pro:bmt_3}
+	Let $S = \{2^0,2^1,2^2,\dots,2^{2021}\}$. Totaled over all numbers in $S$ (without leading zeros), let $E$ and $O$ be the number of even and odd digits in base $10$, respectively. Compute $E - O$.
+
+	You will earn $\max\left(0,\floor{25 - \frac1{2 \cdot 10^8}\abs{E - A}^4}\right)$ points.
+\end{problem}
+
+The solutions are on the next page. Don't look at them for at least 20 minutes.
+
+\pagebreak
+
+\subsection{Solutions}
+
+\begin{proof}[Solution to \Cref{pro:bmt_1}]
+    We first estimate the length of the integer part, then the length of the nonrepeating part after the decimal point.
+    \begin{itemize}
+        \ii Length of the integer part: we compute
+        \[\log_{10}\left(\frac{n^n}{n!}\right) = \log_{10}\left(\frac{e^n}{\sqrt{2\pi n}}\right) \approx \frac{2021}{2.3} - 2 \approx 877.\]
+        \ii Length of the nonrepeating part after the decimal point: this is
+        \[\max(\nu_2(n!),\nu_5(n!)) = \nu_2(n!) = 2013.\]
+    \end{itemize}
+    Adding, we get $2890$. Since the answer is $2889$, we earned $24$ points.
+\end{proof}
+
+\begin{proof}[Solution to \Cref{pro:bmt_2}]
+	She has probability $\frac12$ of hitting $1$ and probability $\frac38$ of hitting $4$. Suppose she reaches $5$, which occurs with probability $\frac18$. Now we approximate the probability of her hitting any $n \ge 5$ with probability $\frac23$, since she eats on average $\frac32$ cookies per second. So (given she reaches $5$), the expected number of cookies she eats is around
+    \[\frac23 \cdot 3^2 + \frac23 \cdot \frac13 \cdot 4^2 + \frac23 \cdot \frac1{3^2} \cdot 5^2 + \dots \approx 13.\]
+    So we estimate the expected value as
+    \[\frac12 \cdot 1 + \frac38 \cdot 4 + \frac18 \cdot 13 = 3.625.\]
+    Since the answer is about $3.59$, we earned $22$ points.
+\end{proof}
+
+\begin{proof}[Solution to \Cref{pro:bmt_3}]
+	We assume everything but the first (Benford's law) and last (must be even) digits cancel. The last digit contributes $2019$ to the difference. From Benford, the ``probability'' the first digit is odd is
+    \[\frac{(\log 2 - \log 1) + (\log 4 - \log 3) + \dots + (\log 10 - \log 9)}{\log 10} \approx \frac{0.69 + 0.28 + 0.18 + 0.12 + 0.1}{2.3} \approx 0.596.\]
+    Therefore the difference between the number of even and odd digits is around $2021((1 - 0.596) - 0.596) \approx -388$, so our estimate is $2019 - 388 = 1631$. Since the answer is $1776$, we earned $22$ points.
+\end{proof}
+
+\end{document}
