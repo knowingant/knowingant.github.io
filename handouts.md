@@ -14,7 +14,7 @@ Please let me know about any errors.
 
 # S tier
 
-No S-tier handouts yet.
+I haven't written an S tier handout yet.
 
 # A tier
 
@@ -109,7 +109,7 @@ No S-tier handouts yet.
     
     An introduction to generating functions I presented at Math + Science Club.
 
-- **Glaciers**
+- **Dynamic Planet 2024-25 notes**
 [(pdf)](dynamic-planet/dynamic-planet.pdf) [(tex)](dynamic-planet/dynamic-planet.tex)
 
     A binder on glaciers I wrote for Science Olympiad
