@@ -93,8 +93,7 @@ I haven't written an S tier handout yet.
 [(pdf)](discrepancy-theory/discrepancy-theory.pdf) [(tex)](discrepancy-theory/discrepancy-theory.tex)
 
     This is a writeup of the most beautiful proof I saw at Yau Mathcamp;
-    the topic is discrepancy theory.
-    No background needed.
+    the topic is discrepancy theory. No background needed.
 
 # D tier
 
