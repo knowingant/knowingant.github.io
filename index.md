@@ -27,8 +27,6 @@ followed by my dad's hong shao pig feet.
 - Favorite Greek letter: <script type="math/tex">\gamma</script>.
 - Favorite color: red.
 
-My favorite ice cream flavor is asparagus.
-
 [mtka]: https://www.minnetonkaschools.org
 [mop]: https://web.evanchen.cc/mop.html
 

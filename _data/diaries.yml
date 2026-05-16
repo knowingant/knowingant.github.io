@@ -51,3 +51,8 @@
   slug: mop-2025
   date: '2026-05-14'
   summary: This PDF is password-protected.
+- title: list-of-characters
+  pdf: "/assets/diaries/list-of-characters/list-of-characters.pdf"
+  slug: list-of-characters
+  date: '2026-05-16'
+  summary: This PDF is password-protected.
