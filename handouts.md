@@ -9,6 +9,7 @@ decreasing quality. The worst ones (F tier) are not published.
 
 Some of these are meant to accompany a lecture,
 so there may not be enough commentary for some handouts.
+Also, the dates are messed up because I overuse the `\today` command.
 
 Please let me know about any errors.
 
