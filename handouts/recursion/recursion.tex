@@ -19,14 +19,26 @@
 
 We could prove this formula using induction or something similar, but we will instead show how this was derived.
 
-Our approach is to first ignore the initial conditions $F_0 = 0$ and $F_1 = 1$ and instead focus on categorizing \emph{all} sequences $a$ satisfy the condition $a_n = a_{n - 1} + a_{n - 2}$. Observe that the Fibonacci relation is closed under \emph{linear combinations}: that is, if sequences $u$ and $v$ satisfy the Fibonacci relation, so is $au + bv$ where $a$ and $b$ are real numbers, where multiplication and addition are defined component-wise.
+Our approach is to first ignore the initial conditions $F_0 = 0$ and $F_1 = 1$
+and instead focus on characterizing \emph{all} sequences $a$ that satisfy the condition
+\[a_n = a_{n - 1} + a_{n - 2}. \qquad (\bigstar)\]
+Observe that the set of sequences satisfying $(\bigstar)$
+is closed under \emph{linear combinations}. 
+That is, if sequences $u$ and $v$ satisfy $(\bigstar)$,
+for any real numbers $a$ and $b$, $au + bv$ satisfies $(\bigstar)$ as well,
+where scalar multiplication and addition are defined component-wise.
+Buzzword: the set of sequences satisfying the Fibonacci relation forms a vector space with dimension $2$.
 
-The big leap here is to guess two ``nice'' sequences $u$ and $v$ that satisfy the Fibonacci relation. Then, we hope we can find $a$ and $b$ such that $au + bv$ has zeroth term $0$ and first term $1$, which gives the Fibonacci sequence. We guess the geometric sequences $u_n = \alpha^n$ and $v_n = \beta^n$ for some $\alpha$ and $\beta$. Then the Fibonacci relations become
+The big leap here is to guess two ``nice'' sequences $u$ and $v$ that satisfy the Fibonacci relation.
+Then, we hope we can find $a$ and $b$ such that $au + bv$ has zeroth term $0$ and first term $1$, which gives the Fibonacci sequence.
+We guess the geometric sequences $u_n = \alpha^n$ and $v_n = \beta^n$ for some $\alpha$ and $\beta$. Then the Fibonacci relations become
 \begin{align*}
 	u_n = u_{n - 1} + u_{n - 2} \iff \alpha^n = \alpha^{n - 1} + \alpha^{n - 2} &\iff \alpha^2 - \alpha - 1 = 0 \\
 	v_n = v_{n - 1} + v_{n - 2} \iff \beta^n = \beta^{n - 1} + \beta^{n - 2} &\iff \beta^2 - \beta - 1 = 0.
 \end{align*}
-So $\alpha$ and $\beta$ are roots of the polynomial $P(\lambda) = \lambda^2 - \lambda - 1$. We call $P$ the \emph{characteristic polynomial} of the recurrence relation $a_n - a_{n - 1} - a_{n - 2} = 0$. It's not a coincidence that the coefficients of the characteristic polynomial correspond with the coefficients of the recurrence relation. Similarly, the characteristic polynomial of the recurrence relation $a_n = 3a_{n - 1} - 2a_{n - 3}$ is $\lambda^3 - 3\lambda^2 + 2$.
+So $\alpha$ and $\beta$ are roots of the polynomial $P(\lambda) = \lambda^2 - \lambda - 1$.
+We call $P$ the \emph{characteristic polynomial} of the recurrence relation $a_n - a_{n - 1} - a_{n - 2} = 0$.
+It's not a coincidence that the coefficients of the characteristic polynomial correspond with the coefficients of the recurrence relation. Similarly, the characteristic polynomial of the recurrence relation $a_n = 3a_{n - 1} - 2a_{n - 3}$ (or $a_n - 3a_{n - 1} + 2a_{n - 3} = 0$) is $\lambda^3 - 3\lambda^2 + 2$.
 
 \begin{exercise}
     What is the characteristic polynomial of the recurrence relation $a_n = 4a_{n - 2} - a_{n - 3}$?
@@ -41,8 +53,8 @@ Now we want to find $a$ and $b$ such that the initial conditions are satisfied. 
 \end{align*}
 The system of equations becomes
 \begin{align*}
-    a &+ b = 0\\
-    a\left( \frac{1 + \sqrt{5}}{2} \right) &+ b\left( \frac{1 - \sqrt{5}}{2} \right) = 1.
+    a + b &= 0\\
+    a\left( \frac{1 + \sqrt{5}}{2} \right) + b\left( \frac{1 - \sqrt{5}}{2} \right) &= 1.
 \end{align*}
 Solving, we see $a = \frac{1}{\sqrt{5}}$ and $b = -\frac{1}{\sqrt{5}}$, so
 \[F_n = au_n + bv_n = \frac{1}{\sqrt{5}}\left(\left(\frac{\sqrt{5} + 1}{2}\right)^n + \left(\frac{\sqrt{5} - 1}{2}\right)^n\right),\]

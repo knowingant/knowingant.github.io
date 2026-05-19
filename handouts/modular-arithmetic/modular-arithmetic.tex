@@ -37,7 +37,7 @@ modulo $n$ as long as $b$ and $d$ are relatively prime with $n$.
 \end{theorem}
 The case $n = p$ is Fermat's little theorem, $a^{p - 1} \equiv 1 \pmod p$.
 
-\begin{theorem}[Chinese remainder theorem]
+\begin{theorem}[Chinese remainder theorem] % draw the 3x5 CRT grid, fill in 7, leave the rest as an exercise
 	Let $m$ and $n$ be relatively prime positive integers. Let $a$ be a positive integer. Then ``knowing $a$ modulo $mn$, and knowing $a$ modulo $m$ and $a$ modulo $n$ \emph{are the same thing}.'' That is, to compute $a$ modulo $mn$, you only need to compute $a$ modulo $m$ and $a$ modulo $n$.\footnote{For abstract algebra enthusiasts, the map $\ZZ/mn\ZZ \to \ZZ/m\ZZ \times \ZZ/n\ZZ$ given by $x \mapsto (x \bmod m,x\bmod n)$ is a ring isomorphism.}
 \end{theorem}
 This theorem is extremely important. If you see a problem that asks you to find something modulo $2^3 \cdot 3^2 \cdot 5$, the Chinese remainder theorem tells you it's only necessary to compute it modulo $2^3$, $3^2$, and $5$ individually.

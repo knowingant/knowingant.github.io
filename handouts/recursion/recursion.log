@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  14 MAY 2026 15:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  17 MAY 2026 10:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**/Users/roger/repos/knowingant.github.io/recursion/recursion
-(/Users/roger/repos/knowingant.github.io/recursion/recursion.tex
+**/Users/roger/repos/knowingant.github.io/handouts/recursion/recursion
+(/Users/roger/repos/knowingant.github.io/handouts/recursion/recursion.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrartcl.cls
@@ -853,36 +853,43 @@ Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
 Document Style - pseudocode environments for use with the `algorithmicx' style
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/comment/comment.sty
 \CommentStream=\write6
- Excluding comment 'comment') (/usr/local/texlive/2025/texmf-dist/tex/latex/quiver/quiver.sty
+ Excluding comment 'comment') (/usr/local/texlive/2025/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count374
+\float@exts=\toks53
+\float@box=\box78
+\@float@everytoks=\toks54
+\@floatcapt=\box79
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/quiver/quiver.sty
 Package: quiver 2021/01/11 quiver
  (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarycalc.code.tex
 File: tikzlibrarycalc.code.tex 2023-01-15 v3.1.10 (3.1.10)
 )) (/usr/local/texlive/2025/texmf-dist/tex/generic/ulem/ulem.sty
-\UL@box=\box78
-\UL@hyphenbox=\box79
+\UL@box=\box80
+\UL@hyphenbox=\box81
 \UL@skip=\skip90
-\UL@hook=\toks53
+\UL@hook=\toks55
 \UL@height=\dimen296
-\UL@pe=\count374
+\UL@pe=\count375
 \UL@pixel=\dimen297
-\ULC@box=\box80
+\ULC@box=\box82
 Package: ulem 2019/11/18
 \ULdepth=\dimen298
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/ytableau/ytableau.sty
 Package: ytableau 2021/06/12 v1.4 Many-featured Young tableaux and Young diagrams
-\tableaux@YT=\box81
-\thistableau@YT=\box82
-\refhtdp@YT=\box83
-\toks@YT=\toks54
-\opttoksa@YT=\toks55
-\opttoksb@YT=\toks56
+\tableaux@YT=\box83
+\thistableau@YT=\box84
+\refhtdp@YT=\box85
+\toks@YT=\toks56
+\opttoksa@YT=\toks57
+\opttoksb@YT=\toks58
 \boxdim@YT=\dimen299
 \tableauwd@YT=\dimen300
-\count@YT=\count375
+\count@YT=\count376
  (/usr/local/texlive/2025/texmf-dist/tex/latex/pgfopts/pgfopts.sty
 Package: pgfopts 2014/07/10 v2.1a LaTeX package options with pgfkeys
-\pgfopts@list@add@a@toks=\toks57
-\pgfopts@list@add@b@toks=\toks58
+\pgfopts@list@add@a@toks=\toks59
+\pgfopts@list@add@b@toks=\toks60
 ))) (./recursion.aux)
 \openout1 = `recursion.aux'.
 
@@ -915,17 +922,17 @@ Package scrbase Info: activating english \refname on input line 9.
 Package scrbase Info: activating english \indexname on input line 9.
  (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count376
+\scratchcounter=\count377
 \scratchdimen=\dimen301
-\scratchbox=\box84
-\nofMPsegments=\count377
-\nofMParguments=\count378
-\everyMPshowfont=\toks59
-\MPscratchCnt=\count379
+\scratchbox=\box86
+\nofMPsegments=\count378
+\nofMParguments=\count379
+\everyMPshowfont=\toks61
+\MPscratchCnt=\count380
 \MPscratchDim=\dimen302
-\MPnumerator=\count380
-\makeMPintoPDFobject=\count381
-\everyMPtoPDFconversion=\toks60
+\MPnumerator=\count381
+\makeMPintoPDFobject=\count382
+\everyMPtoPDFconversion=\toks62
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
@@ -949,9 +956,9 @@ Class scrartcl Info: loading recommended package `bookmark'.
 Package: bookmark 2023-12-10 v1.31 PDF bookmarks (HO)
  (/usr/local/texlive/2025/texmf-dist/tex/latex/bookmark/bkm-pdftex.def
 File: bkm-pdftex.def 2023-12-10 v1.31 bookmark driver for pdfTeX and luaTeX (HO)
-\BKM@id=\count382
+\BKM@id=\count383
 ))
-\c@lstlisting=\count383
+\c@lstlisting=\count384
 Package tocbasic Info: omitting babel extension for `lol'
 (tocbasic)             because of missing \bbl@set@language on input line 9.
 \scr@dte@lstlisting@maxnumwidth=\skip91
@@ -1003,14 +1010,14 @@ LaTeX Font Info:    Trying to load font information for U+rsfs on input line 12.
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
 Package hyperref Info: bookmark level for unknown example defaults to 0 on input line 15.
-Package hyperref Info: bookmark level for unknown exercise defaults to 0 on input line 32.
+Package hyperref Info: bookmark level for unknown exercise defaults to 0 on input line 44.
 
 
 [1
 
 
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Package hyperref Info: bookmark level for unknown problem defaults to 0 on input line 58.
+Package hyperref Info: bookmark level for unknown problem defaults to 0 on input line 70.
 
 
 [2]
@@ -1026,15 +1033,15 @@ Package rerunfilecheck Info: File `recursion.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 39411 strings out of 473190
- 828590 string characters out of 5715801
- 1398779 words of memory out of 5000000
- 61883 multiletter control sequences out of 15000+600000
- 575662 words of font info for 144 fonts, out of 8000000 for 9000
+ 39464 strings out of 473190
+ 829514 string characters out of 5715801
+ 1400131 words of memory out of 5000000
+ 61934 multiletter control sequences out of 15000+600000
+ 575554 words of font info for 143 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 118i,20n,132p,10981b,591s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 118i,20n,132p,10990b,591s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on recursion.pdf (4 pages, 213995 bytes).
+Output written on recursion.pdf (4 pages, 214429 bytes).
 PDF statistics:
  185 PDF objects out of 1000 (max. 8388607)
  125 compressed objects within 2 object streams
