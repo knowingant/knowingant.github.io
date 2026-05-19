@@ -1,23 +1,25 @@
 ---
 layout: page
-title: Handouts
+title: Handouts and psets
 permalink: /handouts/
 ---
 
 My handouts are of wildly varying quality. Here, they are sorted in order of
 decreasing quality. The worst ones (F tier) are not published.
 
-Some of these are meant to accompany a lecture,
+Some of these (the "problem sets") are meant to accompany a lecture,
 so there may not be enough commentary for some handouts.
 Also, the dates are messed up because I overuse the `\today` command.
 
-Please let me know about any errors.
+Please let me know about any errors, if you have any questions, or if you want solutions.
 
-# S tier
+# Handouts
+
+### S tier
 
 I haven't written an S tier handout yet.
 
-# A tier
+### A tier
 
 - **Complex bashing**
 [(pdf)](complex-bashing/complex-bashing.pdf) [(tex)](complex-bashing/complex-bashing.tex)
@@ -31,32 +33,13 @@ I haven't written an S tier handout yet.
 
     A beginner's guide to Guts-style estimation.
 
+### B tier
+
 - **Demystifying finite fields**
 [(pdf)](finite-fields/finite-fields.pdf) [(tex)](finite-fields/finite-fields.tex)
 
     Finite fields of arbitrary order using as little theory as possible.
     We mostly cover the Frobenius automorphism. To be read after my orders handout.
-
-# B tier
-
-- **Bijections**
-[(pdf)](bijections/bijections.pdf) [(tex)](bijections/bijections.tex)
-
-    The art of using bijections to prove combinatorial identities.
-    The original material was produced for Math + Science Club,
-    then glued together to produce this problem set for Minnesota ARML.
-
-- **Avoiding sillies**
-[(pdf)](avoiding-sillies/avoiding-sillies.pdf) [(tex)](avoiding-sillies/avoiding-sillies.tex)
-
-    An anti-silly presentation I originally gave to Minnetonka Math Team.
-    Includes scratch paper samples for you to analyze.
-
-- **Modular arithmetic**
-[(pdf)](modular-arithmetic/modular-arithmetic.pdf) [(tex)](modular-arithmetic/modular-arithmetic.tex)
-
-    A modular arithmetic problem set I prepared for Minnesota ARML.
-    The set is divided into Level 1, Level 10, Level 100, and Level 1000 problems.
 
 - **Orders**
 [(pdf)](orders/orders.pdf) [(tex)](orders/orders.tex)
@@ -64,7 +47,13 @@ I haven't written an S tier handout yet.
     A heavily revised version of a handout I wrote for my freshman-year crush.
     Don't ask.
 
-# C tier
+- **Avoiding sillies**
+[(pdf)](avoiding-sillies/avoiding-sillies.pdf) [(tex)](avoiding-sillies/avoiding-sillies.tex)
+
+    An anti-silly presentation I originally gave to Minnetonka Math Team.
+    Includes scratch paper samples for you to analyze.
+
+### C tier
 
 - **erm what the** <script type="math/tex">\sigma</script>
 [(pdf)](nt-sums/nt-sums.pdf) [(tex)](nt-sums/nt-sums.tex)
@@ -84,19 +73,13 @@ I haven't written an S tier handout yet.
     A short lecture on Hensel's lemma I gave during an unofficial
     Minnetonka Math Team meeting after the end of the 2024-25 school year.
 
-- **Vieta's formulas**
-[(pdf)](vieta/vieta.pdf) [(tex)](vieta/vieta.tex)
-
-    Everyone and their grandma wrote a Vieta handout at some point.
-    Here's mine, which I originally presented at Math + Science Club in 2023.
-
 - **A taste of Yau Mathcamp**
 [(pdf)](discrepancy-theory/discrepancy-theory.pdf) [(tex)](discrepancy-theory/discrepancy-theory.tex)
 
     This is a writeup of the most beautiful proof I saw at Yau Mathcamp;
     the topic is discrepancy theory. No background needed.
 
-# D tier
+### D tier
 
 - **A special kind of polynomial problem**
 [(pdf)](interpolate/interpolate.pdf) [(tex)](interpolate/interpolate.tex)
@@ -104,13 +87,34 @@ I haven't written an S tier handout yet.
     A mini-lecture I gave to the Minnetonka Middle School East's
     Math + Science Club when I was a freshman.
 
-- **Generating functions**
-[(pdf)](genfunc/genfunc.pdf) [(tex)](genfunc/genfunc.tex)
-    
-    An introduction to generating functions I presented at Math + Science Club.
-
 - **Dynamic Planet 2024-25 notes**
 [(pdf)](dynamic-planet/dynamic-planet.pdf) [(tex)](dynamic-planet/dynamic-planet.tex)
 
     A binder on glaciers I wrote for Science Olympiad
     and later presented at Math + Science Club.
+
+# Problem sets
+
+- **Bijections**
+[(pdf)](bijections/bijections.pdf) [(tex)](bijections/bijections.tex)
+
+    The art of using bijections to prove combinatorial identities.
+    The original material was produced for Math + Science Club,
+    then glued together to produce this problem set for Minnesota ARML.
+
+- **Modular arithmetic**
+[(pdf)](modular-arithmetic/modular-arithmetic.pdf) [(tex)](modular-arithmetic/modular-arithmetic.tex)
+
+    A modular arithmetic problem set I prepared for Minnesota ARML.
+    The set is divided into Level 1, Level 10, Level 100, and Level 1000 problems.
+
+- **Generating functions**
+[(pdf)](genfunc/genfunc.pdf) [(tex)](genfunc/genfunc.tex)
+    
+    An introduction to generating functions I presented at Math + Science Club.
+
+- **Vieta's formulas**
+[(pdf)](vieta/vieta.pdf) [(tex)](vieta/vieta.tex)
+
+    Everyone and their grandma wrote a Vieta handout at some point.
+    Here's mine, which I originally presented at Math + Science Club in 2023.

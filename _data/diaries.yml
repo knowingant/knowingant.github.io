@@ -56,3 +56,8 @@
   slug: list-of-characters
   date: '2026-05-16'
   summary: This PDF is password-protected.
+- title: Week 6
+  pdf: "/assets/diaries/week6/week6.pdf"
+  slug: week6
+  date: '2026-05-18'
+  summary: This PDF is password-protected.

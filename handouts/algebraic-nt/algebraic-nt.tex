@@ -1,0 +1,240 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage{mathteam}
+
+\author{Michael Luo}
+\title{Algebraic number theory}
+\date{17 May 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    A compressed version of the Algebra and Number Theory course
+    I took at Yau Mathcamp under Prof.\ Olivier Fouquet in 2024.
+    Written for the last Math + Science Club lecture of the 2025-26 school year.
+\end{abstract}
+
+\section{Motivation}
+
+Let $f(\theta) = \cos(\theta)\cos(2\theta)\cos(4\theta)$.
+You might already know the following.
+\begin{fact}
+    [Morrie's law]
+    $f(20\dg) = \frac18$.
+\end{fact}
+The proof for this is quite pretty: 
+by three applications of sine double angle, we have
+\begin{align*}
+    \cos(20\dg)\cos(40\dg)\cos(80\dg) &=
+    \frac1{\sin(20\dg)}\sin(20\dg)\cos(20\dg)\cos(40\dg)\cos(80\dg) \\
+    &= \frac12 \cdot \frac1{\sin(20\dg)}\sin(40\dg)\cos(40\dg)\cos(80\dg) \\
+    &= \frac14 \cdot \frac1{\sin(20\dg)}\sin(80\dg)\cos(80\dg) \\
+    &= \frac18 \cdot \frac1{\sin(20\dg)}\sin(160\dg) \\
+    &= \frac18.
+\end{align*}
+Similarly, one can show
+\[f(20\dg) = f(100\dg) = f(140\dg) = \frac18.\]
+Why do $20\dg$, $100\dg$, and $140\dg$ give the same values?
+Of course, the same argument works, but \emph{why}?
+
+We will answer this question by developing some basic algebraic number theory.
+
+\section{Theory}
+
+\subsection{Rings and fields}
+
+We'll need some basic abstract algebra. I promise it's useful.
+
+Roughly, a field is a set where you can add, subtract, multiply, and divide.
+A ring is a set where you can add, subtract, and multiply.
+For example, $\QQ$, $\CC$, and $\ZZ/67\ZZ$ are fields,
+and $\ZZ$ and $\ZZ/12\ZZ$ are rings but not fields, since in both rings,
+you can't divide by $2$ --- $\frac12$ is defined in neither $\ZZ$ nor $\ZZ/12\ZZ$.
+(However, $\frac12$ is defined in $\ZZ/67\ZZ$: it's $34$, since $2 \cdot 34 \equiv 1 \pmod{67}$.)
+
+If this doesn't make sense, here's the actual definition.
+\begin{definition}
+    A \emph{ring} is a set $R$ along with two binary operations $F^2 \to F$
+    \emph{addition} and \emph{multiplication}, written $+$ and $\cdot$,
+    respectively, such that the following hold:
+    \begin{itemize}
+        \ii Addition and multiplication are commutative and associative.
+        \ii There exist two elements $0$ and $1$
+        such that $a + 0 = a$ and $a \cdot 1 = a$ for all $a \in R$.
+        \ii For any $a \in R$, there exists $-a \in R$ such that $a + (-a) = 0$.
+        \ii For any $a,b,c \in R$, $a \cdot (b + c) = a \cdot b + a \cdot c$.
+    \end{itemize}
+    We often omit the multiplication symbol, writing $ab$ instead of $a \cdot b$.
+
+    A \emph{field} $k$ is a ring where $0 \neq 1$ and for all $a \neq 0$,
+    then there exists $a^{-1} \in k$ such that $a \cdot a^{-1} = 1$.
+\end{definition}
+
+Some authors say rings don't have to have commutative multiplication,
+instead calling what we just defined above ``commutative rings.''
+These people work with weird things like quaternions.
+
+We can make rings from rings! For a ring $R$, let $R[x]$ be the smallest ring
+containing $x$. For example, $\ZZ[x]$ is the set of polynomials in $x$
+with integer coefficients, and 
+\[\ZZ[\sqrt 2] = \{a + b\sqrt2 \mid a,b \in \ZZ\}.\]
+For a field $K$, let $K(x)$ be the smallest field containing $x$.
+For example, $\QQ(x)$ is the set of quotients of polynomials with
+rational coefficients, and
+\[\QQ(\sqrt3) = \QQ[\sqrt 3] = \{a + b\sqrt 3 \mid a,b \in \QQ\}.\]
+
+\begin{exercise}
+    Verify $\QQ(\sqrt3) = \QQ[\sqrt 3]$ as above by showing $\QQ[\sqrt3]$ is a field.
+    You need to show $\frac1\alpha \in \QQ[\sqrt3]$ for any $\alpha \in \QQ[\sqrt3]$.
+\end{exercise}
+
+\subsection{Algebraic numbers}
+
+\begin{definition}
+    Some $\alpha$ is an \emph{algebraic number} if it is the root of
+    some polynomial $P$ with rational coefficients.
+    Some $\alpha$ is an \emph{algebraic integer} if it is the root of
+    some monic polynomial $P$ with integer coefficients.
+\end{definition}
+
+The set of algebraic numbers is denoted $\ol\QQ$,
+and the set of algebraic integers is denoted $\ol\ZZ$.
+It is a fact that $\ol\QQ$ is a field and $\ol\ZZ$ is a ring.
+
+We will now introduce the incredibly useful concept of a minimal polynomial.
+
+\begin{theorem}
+    [Existence and uniqueness of minimal polynomial]
+    For an algebraic integer $\alpha$, there exists a unique polynomial (up to scaling)
+    $P_\alpha$ of minimal degree such that $P_\alpha(\alpha) = 0$.
+\end{theorem}
+
+This $P_\alpha$ is called the \emph{minimal polynomial} of $\alpha$.
+The \emph{degree} of $\alpha$ is the degree of $P_\alpha$.
+For example, $P_{\sqrt3}(x) = x^2 - 3$.
+
+As $\alpha$ is a minimal polynomial, some $P_\alpha$ of minimal degree exists.
+We need to prove $P_\alpha$ is unique. We will need the following.
+
+\begin{lemma}
+    Suppose $P(\alpha) = 0$. Then $P_\alpha \mid P$.
+\end{lemma}
+
+\begin{proof}
+    By division algorithm, let $P = qP_\alpha + r$ for polynomials $q$ and $r$
+    where $\deg r < \deg P_\alpha$. Plugging in $\alpha$ yields $0 = r(\alpha)$.
+    Along with $\deg r < \deg P_\alpha$, this implies $r$ is the zero polynomial.
+\end{proof}
+
+The minimal polynomial $P_\alpha$ of an algebraic number $\alpha$ is irreducible,
+since if $P_\alpha = AB$, where $\deg A,\deg B < \deg\alpha$,
+$A(\alpha) = 0$ or $B(\alpha) = 0$, contradicting the assumption
+that $P_\alpha$ is a minimal polynomial.
+
+In the previous section, we saw that by ``rationalizing denominators,''
+$\QQ(\sqrt3) = \QQ[\sqrt3]$, since $\QQ[\sqrt3]$ is a field.
+In fact, $\QQ[\alpha]$ is a field for any algebraic number $\alpha$.
+Let me show you why.
+
+I claim that the ring $\QQ[\alpha]$ can be thought of as the set $\QQ[x]/(P_\alpha(x))$.
+For example, $\QQ[\sqrt3]$ can be thought of as the notation $\QQ[x]/(x^2 - 3)$.
+Wait, what does this notation mean? You know how $\ZZ/(5)$ is the integers modulo $5$?
+In the same way, $\QQ[x]/(x^2 - 3)$ is the set of polynomials with coefficients in $\QQ$,
+``modulo $x^2 - 3$.'' This means we can add and subtract multiples of $x^2 - 3$ at will.
+For example, in $\QQ[x](x^2 - 3)$, we may compute
+\[x^3 = x^3 - x(x^2 - 3) = 3x.\]
+Why is this the same concept as above? This is best explained with an example.
+Look at these two parallel calculations:
+the left is $\QQ(\sqrt3)$, and the right is $\QQ[x]/(x^2 - 3)$.
+\begin{align*}
+    &\phantom{=}(3 + \sqrt3)(1 - \sqrt3) & &\phantom{=} (3 + x)(1 - x)\\
+    &= 3 - 2\sqrt3 - \sqrt3^2 & &= 3 - 2x - x^2 \\
+    &= 3 - 2\sqrt3 - \sqrt3^2 + (\sqrt3^2 - 3) & &= 3 - 2x - x^2 + (x^2 - 3) \\
+    &= -2\sqrt3 & &= -2x.
+\end{align*}
+As you can see, $x$ acts like $\sqrt3$.
+For the experienced reader, the relevant buzzword sequence is that
+there's an isomorphism $\QQ(\sqrt3) \to \QQ[x]/(x^2 - 3)$
+given by $1 \mapsto 1$ and $\sqrt3 \mapsto x$.
+
+Now let me convince you that $\QQ(\alpha) = \QQ[x]/(P_\alpha(x))$ is a field.
+Note that $\ZZ/(5)$ is a field, since $5$ is prime.
+Similarly, $P_\alpha(x)$ is ``prime'' in $\QQ(\alpha)$, as it's an irreducible polynomial.
+Therefore, $\QQ(\alpha) = \QQ[x]/(P_\alpha(x))$ is a field, just like $\ZZ/(5)$ is a field.
+
+\begin{remark*}
+    The above commentary was adapted from my handout
+    ``\href{https://knowingant.github.io/handouts/finite-fields/finite-fields.pdf}
+    {Demystifying finite fields}.''
+\end{remark*}
+
+\begin{exercise} 
+    Show that an algebraic number $\alpha$ is an algebraic integer iff $P_\alpha$
+    has integer coefficients.
+\end{exercise}
+
+The roots of $P_\alpha$ are called the \emph{Galois conjugates} of $\alpha$.
+For example, the Galois conjugates $2 + \sqrt3i$ are $\{2 + \sqrt3i, 2 - \sqrt3i\}$.
+A good general intuition to have is that it's often good to think
+of an algebraic number $\alpha$ in terms of its minimal polynomial $P_\alpha$
+and its Galois conjugates.
+More harshly, $\alpha$ is useless by itself. Bring in its brothers and sisters
+--- its Galois conjugates --- to fight with it.
+
+\section{Cyclotomic polynomials}
+
+\begin{definition}
+    The $n$th cyclotomic polynomial $\Phi_n$ is the monic polynomial with roots as the $n$th primitive roots of unity.
+\end{definition}
+
+Immediately, we see
+\[\prod_{d \mid n}\Phi_d(x) = x^n - 1.\]
+This implies the following.
+
+\begin{fact}
+    Cyclotomic polynomials have integer coefficients.
+\end{fact}
+
+Sketch: if $x^m - 1 = AB$ for polynomials $A$ and $B$ with $A \in \ZZ[x]$
+then $B \in \ZZ[x]$ as well. Then induct on $n$ to finish.
+
+Funny story about $\Phi_{105}$: people used to think all cyclotomic polynomials
+had coefficients in $\{-1,0,1\}$, but $\Phi_{105}$ has a $-2$.
+
+\begin{fact}
+    Cyclotomic polynomials are irreducible.
+\end{fact}
+
+First, we'll need to invoke the following sledgehammer.
+\begin{theorem}
+    [Dirichlet's theorem]
+    There are infinitely many primes $p \equiv a \pmod n$ as long as $\gcd(a,n) = 1$.
+\end{theorem}
+
+Funny one due to Schur: \href{https://www.lehigh.edu/~shw2/c-poly/several_proofs.pdf}{lehigh}.
+
+Sick. Now the discriminant of $x^n - 1$ is $\pm n^n$.
+
+Let $P$ be any divisor of $x^n - 1$.
+
+We claim that if $\zeta$ is a root,
+$\zeta^p$ is a root as well (as long as $p \nmid n$). This is enough by Dirichlet.
+
+\begin{theorem}[Theorem 4.8, ``Orders Modulo a Prime'']
+    Let $p$ be a prime, $n$ be a positive integer and $a$ any integer. If $p \mid \Phi_n(a)$, then
+    \begin{itemize}
+        \ii $a$ has order $n$ modulo $p$,
+        \ii $p \mid n$.
+    \end{itemize}
+\end{theorem}
+
+Sketch: Suppose $\ord_a(p) = m$ and suppose $m \neq n$. Then as $\Phi_n(x) \mid x^n - 1$,
+\[a^n - 1 \equiv 0 \pmod p,\]
+hence $m \mid n$. So $a$ is a double root of $x^n - 1$.
+Take the derivative to get $na^{n - 1} \equiv 0 \pmod p$, so $p \mid n$.
+
+TODO: Algebraically irreducible concepts in complex bashing.
+
+\end{document}

@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  17 MAY 2026 10:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  18 MAY 2026 12:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**/Users/roger/repos/knowingant.github.io/handouts/recursion/recursion
-(/Users/roger/repos/knowingant.github.io/handouts/recursion/recursion.tex
+**/Users/roger/repos/knowingant.github.io/handouts/algebraic-nt/algebraic-nt
+(/Users/roger/repos/knowingant.github.io/handouts/algebraic-nt/algebraic-nt.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrartcl.cls
@@ -217,7 +217,7 @@ Package: derivative 2024/02/08 v1.4 Nice and easy derivatives and differentials 
 \l__deriv_sort_max_int=\count290
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/asymptote/asymptote.sty
 Package: asymptote 2024/02/26 v1.38 Asymptote style file for LaTeX
- (./recursion.pre)
+ (./algebraic-nt.pre)
 \ASYbox=\box57
 \ASYdimen=\dimen151
 \c@asy=\count291
@@ -253,7 +253,7 @@ Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
 ) (/usr/local/texlive/2025/texmf-dist/tex/generic/etexcmds/etexcmds.sty
 Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
 ))
-\openout4 = `recursion.pre'.
+\openout4 = `algebraic-nt.pre'.
 
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
@@ -890,8 +890,8 @@ Package: ytableau 2021/06/12 v1.4 Many-featured Young tableaux and Young diagram
 Package: pgfopts 2014/07/10 v2.1a LaTeX package options with pgfkeys
 \pgfopts@list@add@a@toks=\toks59
 \pgfopts@list@add@b@toks=\toks60
-))) (./recursion.aux)
-\openout1 = `recursion.aux'.
+))) (./algebraic-nt.aux)
+\openout1 = `algebraic-nt.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
 LaTeX Font Info:    ... okay on input line 9.
@@ -940,9 +940,9 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 Package hyperref Info: Link coloring ON on input line 9.
- (./recursion.out) (./recursion.out)
+ (./algebraic-nt.out) (./algebraic-nt.out)
 \@outlinefile=\write7
-\openout7 = `recursion.out'.
+\openout7 = `algebraic-nt.out'.
 
 Class scrartcl Info: loading recommended package `bookmark'.
 (scrartcl)           Using `bookmark' together with `hyperref' is recommended,
@@ -1009,42 +1009,46 @@ LaTeX Font Info:    Trying to load font information for U+rsfs on input line 12.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
-Package hyperref Info: bookmark level for unknown example defaults to 0 on input line 15.
-Package hyperref Info: bookmark level for unknown exercise defaults to 0 on input line 44.
+Package hyperref Info: bookmark level for unknown fact defaults to 0 on input line 24.
+Package hyperref Info: bookmark level for unknown definition defaults to 0 on input line 59.
 
 
 [1
 
 
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Package hyperref Info: bookmark level for unknown problem defaults to 0 on input line 70.
+Package hyperref Info: bookmark level for unknown exercise defaults to 0 on input line 89.
+Package hyperref Info: bookmark level for unknown theorem defaults to 0 on input line 109.
+Package hyperref Info: bookmark level for unknown lemma defaults to 0 on input line 122.
 
 
-[2]
+[2{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+Package hyperref Info: bookmark level for unknown remark* defaults to 0 on input line 168.
+
 
 [3]
 
-[4] (./recursion.aux)
+[4] (./algebraic-nt.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2020/03/25>
  ***********
-Package rerunfilecheck Info: File `recursion.out' has not changed.
+Package rerunfilecheck Info: File `algebraic-nt.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 39464 strings out of 473190
- 829514 string characters out of 5715801
- 1400131 words of memory out of 5000000
- 61934 multiletter control sequences out of 15000+600000
- 575554 words of font info for 143 fonts, out of 8000000 for 9000
+ 39499 strings out of 473190
+ 830417 string characters out of 5715801
+ 1398155 words of memory out of 5000000
+ 61950 multiletter control sequences out of 15000+600000
+ 576454 words of font info for 149 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 118i,20n,132p,10990b,591s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on recursion.pdf (4 pages, 214429 bytes).
+ 118i,21n,132p,10990b,671s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
+Output written on algebraic-nt.pdf (4 pages, 188201 bytes).
 PDF statistics:
- 185 PDF objects out of 1000 (max. 8388607)
- 125 compressed objects within 2 object streams
- 26 named destinations out of 1000 (max. 500000)
- 30853 words of extra memory for PDF output out of 35830 (max. 10000000)
+ 184 PDF objects out of 1000 (max. 8388607)
+ 130 compressed objects within 2 object streams
+ 35 named destinations out of 1000 (max. 500000)
+ 34965 words of extra memory for PDF output out of 35830 (max. 10000000)
 
