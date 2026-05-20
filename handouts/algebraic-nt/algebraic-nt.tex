@@ -1,5 +1,6 @@
 \documentclass[11pt]{scrartcl}
-\usepackage[secthm]{evan}
+\usepackage{CJKutf8}
+\usepackage[sexy]{evan}
 \usepackage{mathteam}
 
 \author{Michael Luo}
@@ -11,43 +12,47 @@
 \maketitle
 
 \begin{abstract}
-    A compressed version of the Algebra and Number Theory course
-    I took at Yau Mathcamp under Prof.\ Olivier Fouquet in 2024.
-    Written for the last Math + Science Club lecture of the 2025-26 school year.
+	Notes on algebraic number theory, focusing on cyclotomic polynomials. Prerequisites: basic modular arithmetic, \href{https://knowingant.github.io/handouts/orders/orders.pdf}{orders}, and \href{https://knowingant.github.io/handouts/finite-fields/finite-fields.pdf}{finite fields}.
+
+	Written for the last Math + Science Club lecture of the 2025-26 school year.
+	Includes a particularly instructive proof that cyclotomic polynomials are irreducible.
 \end{abstract}
 
+\tableofcontents
+
+\pagebreak
+
 \section{Motivation}
+\label{sec:motivation}
 
 Let $f(\theta) = \cos(\theta)\cos(2\theta)\cos(4\theta)$.
 You might already know the following.
 \begin{fact}
-    [Morrie's law]
-    $f(20\dg) = \frac18$.
+	[Morrie's law]
+	$f(20\dg) = \frac18$.
 \end{fact}
-The proof for this is quite pretty: 
+The proof of this is quite pretty: 
 by three applications of sine double angle, we have
 \begin{align*}
-    \cos(20\dg)\cos(40\dg)\cos(80\dg) &=
-    \frac1{\sin(20\dg)}\sin(20\dg)\cos(20\dg)\cos(40\dg)\cos(80\dg) \\
-    &= \frac12 \cdot \frac1{\sin(20\dg)}\sin(40\dg)\cos(40\dg)\cos(80\dg) \\
-    &= \frac14 \cdot \frac1{\sin(20\dg)}\sin(80\dg)\cos(80\dg) \\
-    &= \frac18 \cdot \frac1{\sin(20\dg)}\sin(160\dg) \\
-    &= \frac18.
+	\cos(20\dg)\cos(40\dg)\cos(80\dg) &=
+	\frac1{\sin(20\dg)}\sin(20\dg)\cos(20\dg)\cos(40\dg)\cos(80\dg) \\
+	&= \frac12 \cdot \frac1{\sin(20\dg)}\sin(40\dg)\cos(40\dg)\cos(80\dg) \\
+	&= \frac14 \cdot \frac1{\sin(20\dg)}\sin(80\dg)\cos(80\dg) \\
+	&= \frac18 \cdot \frac1{\sin(20\dg)}\sin(160\dg) \\
+	&= \frac18.
 \end{align*}
 Similarly, one can show
-\[f(20\dg) = f(100\dg) = f(140\dg) = \frac18.\]
+\[f(100\dg) = f(140\dg) = \frac18.\]
 Why do $20\dg$, $100\dg$, and $140\dg$ give the same values?
 Of course, the same argument works, but \emph{why}?
 
 We will answer this question by developing some basic algebraic number theory.
 
-\section{Theory}
-
-\subsection{Rings and fields}
+\section{Rings and fields}
 
 We'll need some basic abstract algebra. I promise it's useful.
 
-Roughly, a field is a set where you can add, subtract, multiply, and divide.
+Roughly, a field is a set where you can add, subtract, multiply, and divide (except by zero).
 A ring is a set where you can add, subtract, and multiply.
 For example, $\QQ$, $\CC$, and $\ZZ/67\ZZ$ are fields,
 and $\ZZ$ and $\ZZ/12\ZZ$ are rings but not fields, since in both rings,
@@ -56,20 +61,20 @@ you can't divide by $2$ --- $\frac12$ is defined in neither $\ZZ$ nor $\ZZ/12\ZZ
 
 If this doesn't make sense, here's the actual definition.
 \begin{definition}
-    A \emph{ring} is a set $R$ along with two binary operations $F^2 \to F$
-    \emph{addition} and \emph{multiplication}, written $+$ and $\cdot$,
-    respectively, such that the following hold:
-    \begin{itemize}
-        \ii Addition and multiplication are commutative and associative.
-        \ii There exist two elements $0$ and $1$
-        such that $a + 0 = a$ and $a \cdot 1 = a$ for all $a \in R$.
-        \ii For any $a \in R$, there exists $-a \in R$ such that $a + (-a) = 0$.
-        \ii For any $a,b,c \in R$, $a \cdot (b + c) = a \cdot b + a \cdot c$.
-    \end{itemize}
-    We often omit the multiplication symbol, writing $ab$ instead of $a \cdot b$.
+	A \emph{ring} is a set $R$ along with two binary operations $R^2 \to R$,
+	\emph{addition} and \emph{multiplication}, written $+$ and $\cdot$,
+	respectively, such that the following hold:
+	\begin{itemize}
+		\ii Addition and multiplication are commutative and associative.
+		\ii There exist two elements $0$ and $1$
+		such that $a + 0 = a$ and $a \cdot 1 = a$ for all $a \in R$.
+		\ii For any $a \in R$, there exists $-a \in R$ such that $a + (-a) = 0$.
+		\ii For any $a,b,c \in R$, $a \cdot (b + c) = a \cdot b + a \cdot c$.
+	\end{itemize}
+	We often omit the multiplication symbol, writing $ab$ instead of $a \cdot b$.
 
-    A \emph{field} $k$ is a ring where $0 \neq 1$ and for all $a \neq 0$,
-    then there exists $a^{-1} \in k$ such that $a \cdot a^{-1} = 1$.
+	A \emph{field} $k$ is a ring where $0 \neq 1$ and for all $a \neq 0$,
+	there exists $a^{-1} \in k$ such that $a \cdot a^{-1} = 1$.
 \end{definition}
 
 Some authors say rings don't have to have commutative multiplication,
@@ -86,73 +91,94 @@ rational coefficients, and
 \[\QQ(\sqrt3) = \QQ[\sqrt 3] = \{a + b\sqrt 3 \mid a,b \in \QQ\}.\]
 
 \begin{exercise}
-    Verify $\QQ(\sqrt3) = \QQ[\sqrt 3]$ as above by showing $\QQ[\sqrt3]$ is a field.
-    You need to show $\frac1\alpha \in \QQ[\sqrt3]$ for any $\alpha \in \QQ[\sqrt3]$.
+	\label{exe:q-sqrt3}
+	Verify $\QQ(\sqrt3) = \QQ[\sqrt 3]$ as above by showing $\QQ[\sqrt3]$ is a field.
+	You'll need to show $\frac1\alpha \in \QQ[\sqrt3]$ for any $\alpha \in \QQ[\sqrt3]$.
 \end{exercise}
 
-\subsection{Algebraic numbers}
+\section{Algebraic numbers}
 
 \begin{definition}
-    Some $\alpha$ is an \emph{algebraic number} if it is the root of
-    some polynomial $P$ with rational coefficients.
-    Some $\alpha$ is an \emph{algebraic integer} if it is the root of
-    some monic polynomial $P$ with integer coefficients.
+	A number $\alpha$ is an \emph{algebraic number} if it is a root of
+	some polynomial $P$ with rational coefficients.
+	A number $\alpha$ is an \emph{algebraic integer} if it is a root of
+	some monic polynomial $P$ with integer coefficients.
 \end{definition}
+
+Here are some examples.
+\begin{itemize}
+	\ii The numbers $5$, $\sqrt3$ and $67i$ are algebraic integers, since they are roots of the polynomials $x - 5$, $x^2 - 3$, and $x^2 + 67^2$, respectively.
+	\ii The numbers $\frac12$ and $\sqrt{\frac 67}$ are algebraic numbers, but not algebraic integers. They are roots of the polynomials $x - \frac12$ and $7x^2 - 6$, respectively.
+	\ii The numbers $\pi$ and $e$ are not algebraic numbers, since they are not the root of any polynomial with rational coefficients. (They are still the root of the polynomials $x - \pi$ and $x - e$, though.) These numbers are called \emph{transcendental}.
+\end{itemize}
 
 The set of algebraic numbers is denoted $\ol\QQ$,
 and the set of algebraic integers is denoted $\ol\ZZ$.
 It is a fact that $\ol\QQ$ is a field and $\ol\ZZ$ is a ring.
+That means the sum and product of two algebraic integers (resp.\ numbers) is an algebraic integer (resp.\ number), and the reciprocal of a nonzero algebraic number is an algebraic number.
 
 We will now introduce the incredibly useful concept of a minimal polynomial.
 
 \begin{theorem}
-    [Existence and uniqueness of minimal polynomial]
-    For an algebraic integer $\alpha$, there exists a unique polynomial (up to scaling)
-    $P_\alpha$ of minimal degree such that $P_\alpha(\alpha) = 0$.
+	[Existence and uniqueness of minimal polynomial]
+	For an algebraic number $\alpha$, there exists a unique polynomial (up to scaling)
+	$P_\alpha$ of minimal degree such that $P_\alpha(\alpha) = 0$.
 \end{theorem}
 
 This $P_\alpha$ is called the \emph{minimal polynomial} of $\alpha$.
 The \emph{degree} of $\alpha$ is the degree of $P_\alpha$.
 For example, $P_{\sqrt3}(x) = x^2 - 3$.
 
-As $\alpha$ is a minimal polynomial, some $P_\alpha$ of minimal degree exists.
+As $\alpha$ is algebraic, some $P_\alpha$ of minimal degree exists.
 We need to prove $P_\alpha$ is unique. We will need the following.
 
 \begin{lemma}
-    Suppose $P(\alpha) = 0$. Then $P_\alpha \mid P$.
+	Suppose $P(\alpha) = 0$. Then $P_\alpha \mid P$.
 \end{lemma}
 
 \begin{proof}
-    By division algorithm, let $P = qP_\alpha + r$ for polynomials $q$ and $r$
-    where $\deg r < \deg P_\alpha$. Plugging in $\alpha$ yields $0 = r(\alpha)$.
-    Along with $\deg r < \deg P_\alpha$, this implies $r$ is the zero polynomial.
+	By the division algorithm, let $P = qP_\alpha + r$ for polynomials $q$ and $r$
+	where $\deg r < \deg P_\alpha$. Plugging in $\alpha$ yields $0 = r(\alpha)$.
+	Along with $\deg r < \deg P_\alpha$, this implies $r$ is the zero polynomial.
 \end{proof}
 
-The minimal polynomial $P_\alpha$ of an algebraic number $\alpha$ is irreducible,
-since if $P_\alpha = AB$, where $\deg A,\deg B < \deg\alpha$,
-$A(\alpha) = 0$ or $B(\alpha) = 0$, contradicting the assumption
-that $P_\alpha$ is a minimal polynomial.
+Now if there were two minimal polynomials $P_\alpha$ and $Q_\alpha$, then $P_\alpha \mid Q_\alpha$, and $Q_\alpha \mid P_\alpha$. Yet this implies $P_\alpha$ and $Q_\alpha$ are constant multiples of each other, so the minimal polynomial is unique up to scaling.
 
-In the previous section, we saw that by ``rationalizing denominators,''
+Another fact about minimal polynomials is that they are irreducible.
+\begin{theorem}
+	Let $\alpha$ be an algebraic number. If $P(\alpha) = 0$, then $P$ is the minimal polynomial of $\alpha$ if and only if $P$ is irreducible.
+\end{theorem}
+
+\begin{proof}
+	First suppose $P$ is the minimal polynomial of $\alpha$.
+	If $P = AB$ where $\deg A,\deg B < \deg P$, then
+	$A(\alpha) = 0$ or $B(\alpha) = 0$. But $P$ is minimal, impossible.
+
+	Now suppose $P$ is irreducible. Then $P_\alpha \mid P$, implying $P_\alpha$ is a constant multiple of $P$.
+\end{proof}
+
+In \Cref{exe:q-sqrt3}, we saw that by ``rationalizing denominators,''
 $\QQ(\sqrt3) = \QQ[\sqrt3]$, since $\QQ[\sqrt3]$ is a field.
-In fact, $\QQ[\alpha]$ is a field for any algebraic number $\alpha$.
-Let me show you why.
+In general, the following is true.
+\begin{theorem}
+	The ring $\QQ[\alpha]$ is a field for any algebraic number $\alpha$.
+\end{theorem}
 
-I claim that the ring $\QQ[\alpha]$ can be thought of as the set $\QQ[x]/(P_\alpha(x))$.
-For example, $\QQ[\sqrt3]$ can be thought of as the notation $\QQ[x]/(x^2 - 3)$.
+I'll justify this intuitively. I claim that the ring $\QQ[\alpha]$ can be thought of as the set $\QQ[x]/(P_\alpha(x))$.
+For example, $\QQ[\sqrt3]$ can be thought of as $\QQ[x]/(x^2 - 3)$.
 Wait, what does this notation mean? You know how $\ZZ/(5)$ is the integers modulo $5$?
 In the same way, $\QQ[x]/(x^2 - 3)$ is the set of polynomials with coefficients in $\QQ$,
 ``modulo $x^2 - 3$.'' This means we can add and subtract multiples of $x^2 - 3$ at will.
-For example, in $\QQ[x](x^2 - 3)$, we may compute
+For example, in $\QQ[x]/(x^2 - 3)$, we may compute
 \[x^3 = x^3 - x(x^2 - 3) = 3x.\]
 Why is this the same concept as above? This is best explained with an example.
 Look at these two parallel calculations:
 the left is $\QQ(\sqrt3)$, and the right is $\QQ[x]/(x^2 - 3)$.
 \begin{align*}
-    &\phantom{=}(3 + \sqrt3)(1 - \sqrt3) & &\phantom{=} (3 + x)(1 - x)\\
-    &= 3 - 2\sqrt3 - \sqrt3^2 & &= 3 - 2x - x^2 \\
-    &= 3 - 2\sqrt3 - \sqrt3^2 + (\sqrt3^2 - 3) & &= 3 - 2x - x^2 + (x^2 - 3) \\
-    &= -2\sqrt3 & &= -2x.
+	&\phantom{=}(3 + \sqrt3)(1 - \sqrt3) & &\phantom{=} (3 + x)(1 - x)\\
+	&= 3 - 2\sqrt3 - \sqrt3^2 & &= 3 - 2x - x^2 \\
+	&= 3 - 2\sqrt3 - \sqrt3^2 + (\sqrt3^2 - 3) & &= 3 - 2x - x^2 + (x^2 - 3) \\
+	&= -2\sqrt3 & &= -2x.
 \end{align*}
 As you can see, $x$ acts like $\sqrt3$.
 For the experienced reader, the relevant buzzword sequence is that
@@ -161,80 +187,320 @@ given by $1 \mapsto 1$ and $\sqrt3 \mapsto x$.
 
 Now let me convince you that $\QQ(\alpha) = \QQ[x]/(P_\alpha(x))$ is a field.
 Note that $\ZZ/(5)$ is a field, since $5$ is prime.
-Similarly, $P_\alpha(x)$ is ``prime'' in $\QQ(\alpha)$, as it's an irreducible polynomial.
+Similarly, $P_\alpha(x)$ is ``prime'' in $\QQ[x]$, as it's an irreducible polynomial.
 Therefore, $\QQ(\alpha) = \QQ[x]/(P_\alpha(x))$ is a field, just like $\ZZ/(5)$ is a field.
 
 \begin{remark*}
-    The above commentary was adapted from my handout
-    ``\href{https://knowingant.github.io/handouts/finite-fields/finite-fields.pdf}
-    {Demystifying finite fields}.''
+	The above commentary was adapted from my handout
+	``\href{https://knowingant.github.io/handouts/finite-fields/finite-fields.pdf}
+	{Demystifying finite fields}.''
 \end{remark*}
 
 \begin{exercise} 
-    Show that an algebraic number $\alpha$ is an algebraic integer iff $P_\alpha$
-    has integer coefficients.
+	Show that an algebraic number $\alpha$ is an algebraic integer iff $P_\alpha$
+	has integer coefficients.
 \end{exercise}
 
 The roots of $P_\alpha$ are called the \emph{Galois conjugates} of $\alpha$.
-For example, the Galois conjugates $2 + \sqrt3i$ are $\{2 + \sqrt3i, 2 - \sqrt3i\}$.
 A good general intuition to have is that it's often good to think
 of an algebraic number $\alpha$ in terms of its minimal polynomial $P_\alpha$
 and its Galois conjugates.
-More harshly, $\alpha$ is useless by itself. Bring in its brothers and sisters
+More bluntly, $\alpha$ is useless by itself. Bring in its brothers and sisters
 --- its Galois conjugates --- to fight with it.
+
+Here are a few examples of Galois conjugates.
+\begin{itemize}
+	\ii The Galois conjugate of $\frac67$ is $\frac67$.
+	\ii The Galois conjugates of $6 + \sqrt7i$ are $6 \pm \sqrt7i$.
+	\ii The Galois conjugates of $\sqrt 2$ and $\sqrt 3$ are $\pm \sqrt2$ and $\pm \sqrt3$. The Galois conjugates of $\sqrt2 - \sqrt3$ are $-\sqrt2 -\sqrt3$, $-\sqrt2 + \sqrt3$, $\sqrt2 - \sqrt3$, and $\sqrt2 + \sqrt3$.
+	\ii The Galois conjugates of $\cbrt2$ are $\cbrt2$, $\omega\cbrt2$ and $\omega^2\cbrt2$, where $\omega$ is a primitive third root of unity.
+\end{itemize}
+With the language of algebraic numbers and integers, we can now begin to discuss cyclotomic polynomials.
 
 \section{Cyclotomic polynomials}
 
+Some review: some complex number $\zeta$ is a \emph{root of unity} if there exists some $n$ such that $\zeta^n = 1$. The smallest such $n$ is called the \emph{order} of $\zeta$, and $\zeta$ is called a \emph{primitive $n$th root of unity}.
+
 \begin{definition}
-    The $n$th cyclotomic polynomial $\Phi_n$ is the monic polynomial with roots as the $n$th primitive roots of unity.
+	The $n$th cyclotomic polynomial $\Phi_n$ is the monic polynomial whose roots are the $n$th primitive roots of unity.
 \end{definition}
 
-Immediately, we see
-\[\prod_{d \mid n}\Phi_d(x) = x^n - 1.\]
-This implies the following.
+First of all, we have the following identity.
+\begin{proposition}
+	\label{prop:product-formula}
+	For all $n \ge 1$,
+	\[\prod_{d \mid n}\Phi_d(x) = x^n - 1,\]
+	where the product is taken over divisors $d$ of $n$.
+\end{proposition}
+This holds since both sides are monic polynomials whose roots are the $n$th roots of unity --- every $n$th root of unity is a primitive $d$th root of unity for exactly one $d$ dividing $n$. As shown in \Cref{fig:12th-roots-of-unity}, each $12$th root of unity is either a primitive $1$st, $2$nd, $3$rd, $4$th, $6$th, or $12$th root of unity. Hence
+\[x^{12} - 1 = \Phi_1(x)\Phi_2(x)\Phi_3(x)\Phi_4(x)\Phi_6(x)\Phi_{12}(x).\]
 
-\begin{fact}
-    Cyclotomic polynomials have integer coefficients.
-\end{fact}
+\begin{figure}
+	\centering
+	\begin{asy}
+		defaultpen(fontsize(11pt));
+		size(10cm);
+		import graph;
+		graph.xaxis("Re", -1.5, 1.5, Arrows);
+		graph.yaxis("Im", -1.5, 1.5, Arrows);
+		label("$0$", origin, dir(-45));
 
-Sketch: if $x^m - 1 = AB$ for polynomials $A$ and $B$ with $A \in \ZZ[x]$
-then $B \in \ZZ[x]$ as well. Then induct on $n$ to finish.
+		real markersize = 0.05;
 
-Funny story about $\Phi_{105}$: people used to think all cyclotomic polynomials
-had coefficients in $\{-1,0,1\}$, but $\Phi_{105}$ has a $-2$.
+		int roottype(int k) {
+			if (k == 0) return 1;
+			if (k == 6) return 2;
+			if (k == 4 || k == 8) return 3;
+			if (k == 3 || k == 9) return 4;
+			if (k == 2 || k == 10) return 5;
+			return 6;
+		}
 
-\begin{fact}
-    Cyclotomic polynomials are irreducible.
-\end{fact}
+		void mark(pair p, int t) {
+			pen drawpen = black + linewidth(0.8);
+			if (t == 1) {
+				filldraw(circle(p, markersize), white, drawpen);
+			} else if (t == 2) {
+				filldraw(circle(p, markersize), black, drawpen);
+			} else if (t == 3) {
+				pair[] tri = {
+					p + markersize * dir(90),
+					p + markersize * dir(210),
+					p + markersize * dir(330)
+				};
+				filldraw(tri[0] -- tri[1] -- tri[2] -- cycle, white, drawpen);
+			} else if (t == 4) {
+				pair[] tri = {
+					p + markersize * dir(90),
+					p + markersize * dir(210),
+					p + markersize * dir(330)
+				};
+				filldraw(tri[0] -- tri[1] -- tri[2] -- cycle, black, drawpen);
+			} else if (t == 5) {
+				filldraw(box(p - (markersize, markersize), p + (markersize, markersize)),
+						white, drawpen);
+			} else {
+				filldraw(box(p - (markersize, markersize), p + (markersize, markersize)),
+						black, drawpen);
+			}
+		}
 
-First, we'll need to invoke the following sledgehammer.
+		pair labeldir(int k) {
+		if (k == 0 || k == 3) return dir(45);
+		if (k == 6) return dir(135);
+		if (k == 9) return dir(-45);
+		return dir(30 * k);
+		}
+
+		draw(unitcircle);
+		pair[] z = new pair[12];
+		for (int k = 0; k < 12; ++k) {
+			z[k] = dir(30 * k);
+			mark(z[k], roottype(k));
+			label("$\zeta_{12}^{" + string(k) + "}$", 1.02 * z[k], labeldir(k));
+		}
+		int[] divisors = {1, 2, 3, 4, 6, 12};
+		for (int i = 0; i < divisors.length; ++i) {
+			pair p = (1.75, -0.4 - 0.2 * i);
+			mark(p, i + 1);
+			label("$\Phi_{" + string(divisors[i]) + "}$", p + (0.18, 0), dir(0));
+		}
+	\end{asy}
+	\caption{The $12$th roots of unity. As shown, each $12$th root of unity is either a primitive $1$st, $2$nd, $3$rd, $4$th, $6$th, or $12$th root of unity.}
+	\label{fig:12th-roots-of-unity}
+\end{figure}
+
+\Cref{prop:product-formula} allows us to compute the cyclotomic polynomials recursively via $\Phi_1(x) = x - 1$ and
+\[\Phi_n(x) = \frac{x^n - 1}{\prod_{d \mid n, d < n}\Phi_d(x)}.\]
+Let's use this to compute the first $10$ cyclotomic polynomials.
+\begin{align*}
+	\Phi_1(x) &= x - 1 \\
+	\Phi_2(x) &= x + 1 \\
+	\Phi_3(x) &= x^2 + x + 1 \\
+	\Phi_4(x) &= x^2 + 1 \\
+	\Phi_5(x) &= x^4 + x^3 + x^2 + x + 1 \\
+	\Phi_6(x) &= x^2 - x + 1 \\
+	\Phi_7(x) &= x^6 + x^5 + x^4 + x^3 + x^2 + x + 1 \\
+	\Phi_8(x) &= x^4 + 1 \\
+	\Phi_9(x) &= x^6 + x^3 + 1 \\
+	\Phi_{10}(x) &= x^4 - x^3 + x^2 - x + 1.
+\end{align*}
+Here are some observations:
+\begin{itemize}
+	\ii The degree of the polynomial $\Phi_n$ is $\varphi(n)$, since that's the number of primitive $n$th roots of unity.
+	\ii The polynomial $\Phi_n$ is a \emph{palindrome}: $\Phi_n(x) = x^{\varphi(n)}\Phi_n(x^{-1})$. Try proving this yourself.
+	\ii The coefficients of $\Phi_n$ seem to be in $\{-1,0,1\}$. Unfortunately, this is false: the $x^7$ and $x^{41}$-coefficients of $\Phi_{105}$ are $-2$. However, $\Phi_n$ always has integer coefficients.
+	
+	Here's a sketch: we claim that if $P$ is a monic polynomial with integer coefficients and $P = AB$ is a factorization of $P$ where $A$ is a monic polynomial with integer coefficients, then $B$ is a monic polynomial with integer coefficients. This is proved by backward induction on the coefficients of $B$. Now apply this claim inductively using $P(x) = x^n - 1$, $A(x) = \prod_{d \mid n,d < n}\Phi_d(x)$, and $B(x) = \Phi_n(x)$.
+	\ii The polynomial $\Phi_n$ is irreducible, which we will prove here.
+\end{itemize}
+
 \begin{theorem}
-    [Dirichlet's theorem]
-    There are infinitely many primes $p \equiv a \pmod n$ as long as $\gcd(a,n) = 1$.
+	Cyclotomic polynomials are irreducible.
 \end{theorem}
 
-Funny one due to Schur: \href{https://www.lehigh.edu/~shw2/c-poly/several_proofs.pdf}{lehigh}.
+We present a proof due to Schur from \url{https://www.lehigh.edu/~shw2/c-poly/several_proofs.pdf}.
 
-Sick. Now the discriminant of $x^n - 1$ is $\pm n^n$.
+\begin{proof}
+We will prove the following equivalent claim.
+\begin{claim*}
+	Let $n$ be a positive integer and $P,Q \in \ZZ[x]$ be polynomials such that $P(x)Q(x) = x^n - 1$. Then for all roots $\zeta$ of $P$ and primes $p$ not dividing $n$, $\zeta^p$ is a root of $P$ as well.
+\end{claim*}
 
-Let $P$ be any divisor of $x^n - 1$.
-
-We claim that if $\zeta$ is a root,
-$\zeta^p$ is a root as well (as long as $p \nmid n$). This is enough by Dirichlet.
-
-\begin{theorem}[Theorem 4.8, ``Orders Modulo a Prime'']
-    Let $p$ be a prime, $n$ be a positive integer and $a$ any integer. If $p \mid \Phi_n(a)$, then
-    \begin{itemize}
-        \ii $a$ has order $n$ modulo $p$,
-        \ii $p \mid n$.
-    \end{itemize}
+Why is this claim sufficient? First, we'll need to invoke the following sledgehammer.
+\begin{theorem}
+	[Dirichlet's theorem]
+	There are infinitely many primes $p \equiv a \pmod n$ as long as $\gcd(a,n) = 1$.
 \end{theorem}
+This is hard to prove, but it is pretty intuitive. It would be really dumb if there were only, like, five $8 \pmod{13}$ primes. In particular, there is at least one prime $p$ congruent to $a \pmod n$ for each $a$ with $\gcd(a,n) = 1$.
 
-Sketch: Suppose $\ord_a(p) = m$ and suppose $m \neq n$. Then as $\Phi_n(x) \mid x^n - 1$,
-\[a^n - 1 \equiv 0 \pmod p,\]
-hence $m \mid n$. So $a$ is a double root of $x^n - 1$.
-Take the derivative to get $na^{n - 1} \equiv 0 \pmod p$, so $p \mid n$.
+If cyclotomic polynomials are irreducible, that means if a divisor $P$ of $x^n - 1$ has a root at any primitive $d$th root of unity, $P$ has a root at all $\varphi(d)$ primitive $d$th roots of unity. In the language of \Cref{fig:12th-roots-of-unity}, if $P$ has one root of some shape, it must have all the roots of that shape. In the language of \emph{The Three Musketeers}, ``all for one and one for all.'' In the language of Chinese,
+\begin{CJK*}{UTF8}{gbsn}
+	如果圆分多项式是不可约的，那么这意味着：若 $x^n - 1$ 的一个因子 $P$ 在某个 $d$ 次本原单位根处有根，那么 $P$ 在所有 $\varphi(d)$ 个 $d$ 次本原单位根处都有根.
+\end{CJK*}
 
-TODO: Algebraically irreducible concepts in complex bashing.
+\begin{remark*}
+	This joke was inspired by the excellent YouTube channel Sheafification of G.
+\end{remark*}
+
+Look at \Cref{fig:12th-roots-of-unity}. By Dirichlet's theorem, there is some prime $p$ congruent to $a \pmod n$ for all $a$ with $\gcd(a,n) = 1$. For any $n$th root of unity $\zeta$, the roots of unity of the form $\zeta^p$ for primes $p$ not dividing $n$ are exactly those of the same shape as $\zeta$ --- the ones with the same order.\footnote{
+	For the experienced reader, the action of $(\ZZ/n\ZZ)^\times$ on the set of $d$th primitive roots of unity with $d \mid n$ by $\zeta \mapsto \zeta^p$ is transitive. This is since the group of $n$th roots of unity is isomorphic to the cyclic group of order $n$, and the action of $(\ZZ/n\ZZ)^\times$ on $\ZZ/n\ZZ$ by multiplication has orbits $\{a \mid \gcd(a,n) = d\}$ for each $d \mid n$.
+}
+
+For example, take $n = 12$ and $\zeta := \zeta_{12}^5$. By Dirichlet's theorem, there are primes $p_1 \equiv 1 \pmod{12}$, $p_5 \equiv 5 \pmod{12}$, $p_7 \equiv 7 \pmod{12}$, and $p_{11} \equiv 11 \pmod{12}$. If $\zeta$ is a root of $P$, then $\zeta^{p_1} = \zeta_{12}^5$, $\zeta^{p_5} = \zeta_{12}^1$, $\zeta^{p_7} = \zeta_{12}^{11}$, and $\zeta^{p_{11}} = \zeta_{12}^7$ are all roots of $P$ as well. These are exactly the primitive $12$th roots of unity: if $P$ has one primitive $12$th root of unity as a root, all of them are roots of $P$. This is the ``all for one and one for all'' claim we described earlier.
+
+Now we will actually prove the above claim. For algebraic integers $d$ and $n$, we say $d$ \emph{divides} $n$ as algebraic integers if $\frac nd$ is an algebraic integer. First, we will show the discriminant $\Delta$ of $x^n - 1$ is $\pm n^n$ for some choice of sign.
+
+\begin{remark*}
+	[Wait, what's the discriminant?]
+	You probably think the discriminant $\Delta$ of a quadratic $P(x) = ax^2 + bx + c$ is $b^2 - 4ac$. WRONG! In this handout, we use the convention that the discriminant of a polynomial $P$ with roots $r_1$, \dots, $r_n$ is
+	\[\prod_{i < j}(r_i - r_j)^2.\]
+	So the discriminant of a quadratic $P(x) = a(x - r_1)(x - r_2) = ax^2 + bx + c$ is actually
+	\[(r_1 - r_2)^2 = (r_1 + r_2)^2 - 4r_1r_2 = \frac{b^2 - 4ac}{a^2}.\]
+\end{remark*}
+
+We compute
+\begin{align*}
+	\Delta &= \prod_{i < j}(\zeta_n^i - \zeta_n^j)^2 \\
+	&= \pm\prod_{i \neq j}(\zeta_n^i - \zeta_n^j) \\
+	&= \pm\prod_{i \neq j}\zeta_n^i(1 - \zeta_n^{j - i}) \\
+	&= \pm\prod_i\zeta_n^{i(n - 1)}\prod_{d \neq 0}(1 - \zeta_n^d) \\
+	&= \pm\zeta_n^{(n - 1)^2n/2}\prod_in \\
+	&= \pm n^n,
+\end{align*}
+where index variables are assumed to run over $\{0,1,\dots,n - 1\}$.
+
+Now let $P$ and $Q$ be as in the claim. As $x^n - 1$ is monic, $P$ and $Q$ are either both monic or both have leading coefficient $-1$. Without loss of generality, suppose $P$ and $Q$ are both monic. Since the roots of $P$ are a subset of those of $x^n - 1$, we have $P(x) = (x - \xi_1) \dots (x - \xi_k)$ for some distinct $n$th roots of unity $\xi_1,\dots,\xi_k$.
+
+Now suppose by way of contradiction $P(\zeta) = 0$ but $P(\zeta^p) \neq 0$ for some prime $p \nmid n$. Then the quotient of $\Delta = \prod_{i < j}(\zeta_n^i - \zeta_n^j)^2$ with
+\[P(\zeta^p) = (\zeta^p - \xi_1) \dots (\zeta^p - \xi_k)\]
+is an algebraic integer, since it is the product of differences of $n$th roots of unity, and the sum and product of algebraic integers is an algebraic integer. Hence $P(\zeta^p)$ divides $\Delta$.
+
+For a ring $R$, let its characteristic $\opname{char}(R)$ be the smallest positive integer $n$ such that $n = 0$. (Here, $n$ is defined as $1 + \dots + 1$, where there are $n$ ones and $1$ is the multiplicative identity.) If no such $n$ exists, we say $\opname{char}(R) = 0$. Examples of characteristic $0$ rings include $\ZZ$, $\QQ$, $\RR$, $\CC$, and $\ZZ[x]/(6x - 7)$. The rings $\ZZ/p\ZZ = \FF_p$ and $\FF_{p^2}$ have characteristic $p$, while the ring $\ZZ/p^2\ZZ$ has characteristic $p^2$.
+
+Let $p$ be a prime and suppose $R$ is a ring of characteristic $p$. Observe that $R$ has a copy of $\FF_p$ inside it formed by $\{0,\dots,p - 1\}$. Let $\sigma: R \to R$ be the Frobenius endomorphism defined by $\sigma(r) = r^p$ for all $r \in R$. From ``\href{https://knowingant.github.io/handouts/finite-fields/finite-fields.pdf}{Demystifying finite fields},'' $\sigma(P(x)) = P(\sigma(x))$ for any $P \in \FF_p[x]$ in any finite field with characteristic $p$. Similarly, in $R$, $\sigma(P(x)) = P(\sigma(x))$. (The proof is exactly the same.)
+
+Now the ring $R := \ol\ZZ/p\ol\ZZ$ has characteristic $p$, hence $P(\zeta^p) = P(\zeta)^p$ in $R$. But $P(\zeta) = 0$ by assumption, so $P(\zeta^p) = 0$ in $R$, implying $p$ divides $P(\zeta^p)$ as algebraic integers. So this would imply $p \mid P(\zeta^p) \mid \Delta = \pm n^n$. But this is impossible since by assumption $p \nmid n$, so $\frac{n^n}p$ is not an algebraic integer! So we're finally done.
+\end{proof}
+
+Since cyclotomic polynomials are irreducible, this implies $\Phi_n$ is the minimal polynomial of the primitive $n$th roots of unity. So the Galois conjugates of a primitive $n$th root of unity are all the primitive $n$th roots of unity, and a primitive $n$th root of unity has degree $\deg \Phi_n = \varphi(n)$.
+
+Now we can finally resolve the mystery of Morrie's law from \Cref{sec:motivation}.
+If
+\[f(\theta) = \cos(\theta)\cos(2\theta)\cos(4\theta),\]
+we may apply the multiple-angle identities for $\cos$ to write
+\[f(\theta) = g(\cos(\theta))\]
+for some degree-$7$ polynomial $g$. Explicitly,
+\[\cos(2\theta) = 2\cos^2(\theta) - 1 \quad \text{and} \quad \cos(4\theta) = 2(2\cos^2(\theta) - 1)^2 - 1,\]
+so
+\[g(x) = x(2x^2 - 1)(2(2x^2 - 1)^2 - 1).\]
+We have $g(\cos(20\dg)) = \frac18$, and we want to know why $g(\cos(100\dg)) = g(\cos(140\dg)) = \frac18$ as well.
+
+We claim the minimal polynomial of $\cos(20\dg)$ is $P(x) := 4x^3 - 3x - \frac12$. First, observe that $\cos(20\dg)$ is a root of $P$, as
+\[P(\cos(20\dg)) = 4\cos^3(20\dg) - 3\cos(20\dg) - \frac12 = \cos(60\dg) - \frac12 = 0,\]
+by the triple-angle identity $\cos(3\theta) = 4\cos^3(\theta) - 3\cos(\theta)$. Similarly, $\cos(100\dg)$ and $\cos(140\dg)$ are roots of $P$, as
+\[P(\cos(100\dg)) = \cos(300\dg) - \frac12 = 0 \quad \text{and} \quad P(\cos(140\dg)) = \cos(420\dg) - \frac12 = 0.\]
+Now there are two ways to observe that $P$ is the minimal polynomial of $\cos(20\dg)$. The first is specialized to this case, while the second is more general.
+\begin{itemize}
+	\ii Observe that the roots of $P$, which are $\cos(20\dg)$, $\cos(100\dg)$, and $\cos(140\dg)$, are all irrational. If a cubic has no rational roots, it is irreducible. Hence $P$ is irreducible and hence the minimal polynomial of $\cos(20\dg)$.
+	\ii Let $\zeta = \cis(20\dg)$. Then as $\zeta$ is a primitive $18$th root of unity, it has degree $\varphi(18) = 6$. Now $\cos(20\dg) = \frac12(\zeta + \zeta^{-1})$. As $P(\cos(20\dg)) = P(\frac12(\zeta + \zeta^{-1})) = 0$, we have
+	\[4 \left( \frac12(\zeta + \zeta^{-1}) \right)^3 - 3 \left( \frac12(\zeta + \zeta^{-1}) \right) - \frac12 = 0.\]
+	Fully expanding and multiplying by $\zeta^3$, we see $\zeta$ is the root of some degree-$6$ polynomial with rational coefficients. This is fine, since the degree of $\zeta$ is $6$, but if instead the minimal polynomial $P_{\cos(20\dg)}$ had a smaller degree $d < 3$, plugging $\cos(20\dg) = \frac12(\zeta + \zeta^{-1})$ would show $\zeta$ is the root of some degree-$2d$ polynomial with rational coefficients. Yet the degree of $\zeta$ is $6$, so this is impossible.
+\end{itemize}
+
+Now consider the polynomial $h(x) := g(x) - \frac18$. Since $h$ has rational coefficients and has $\cos(20\dg)$ as a root, $P(x) \mid h(x)$. Now this implies the other roots of $P$ are roots of $h$ as well, so $h(\cos(100\dg)) = h(\cos(140\dg)) = 0$. So $f(100\dg) = f(140\dg) = \frac18$, as desired!
+
+\begin{exercise}[ARML 2025/I8]
+	The polynomial $f$ has integer coefficients, and
+	\[f(\sqrt{20} + \sqrt2 + 5) = 2025.\]
+	Compute the least possible positive value of $f(1)$.
+\end{exercise}
+
+\section{Geometry}
+
+We end with a surprising application to geometry. Consider the following problem.
+
+\begin{problem}[USAMO 2024/5]
+	Point $D$ is selected inside acute $\triangle ABC$ so that $\angle DAC = \angle ACB$ and $\angle BDC = 90^{\circ} + \angle BAC$. Point $E$ is chosen on ray $BD$ so that $AE = EC$. Let $M$ be the midpoint of $BC$.
+
+	Show that line $AB$ is tangent to the circumcircle of triangle $BEM$.
+\end{problem}
+
+\begin{center}
+\begin{asy}
+/*
+Converted from GeoGebra by User:Azjps using Evan's magic cleaner
+https://github.com/vEnhance/dotfiles/blob/main/py-scripts/export-ggb-clean-asy.py
+*/
+pair A = (2.91045,6.51950);
+pair B = (-0.67125,-8.05578);
+pair C = (16.4448,-8.06352);
+pair D = (1.93054,-6.67922);
+pair Dp = (-0.12974,-34.43009);
+pair E = (5.14541,-4.97830);
+pair Ep = (-0.62449,-10.33329);
+pair M = (7.88677,-8.05965);
+
+import graph;
+size(10cm);
+pen zzttqq = rgb(0.6,0.2,0.);
+pen cqcqcq = rgb(0.75294,0.75294,0.75294);
+pen svsvsv = rgb(0.14509,0.14509,0.14509);
+draw(A--B--C--cycle, linewidth(0.6) + zzttqq);
+
+draw(A--B, linewidth(0.6) + zzttqq);
+draw(B--C, linewidth(0.6) + zzttqq);
+draw(C--A, linewidth(0.6) + zzttqq);
+draw(circle((7.88089,-21.07290), 15.57513), linewidth(0.6));
+draw(A--Dp, linewidth(0.6));
+draw(Ep--(9.67762,-0.77200), linewidth(0.6));
+draw(B--Dp, linewidth(0.6));
+draw(B--E, linewidth(0.6));
+dot("$A$", A, dir(12));
+dot("$B$", B, dir(135));
+dot("$C$", C, dir(66));
+dot("$D$", D, dir(135));
+dot("$D'$", Dp, dir(30));
+dot("$E$", E, dir(135));
+dot("$E'$", Ep, dir(190));
+dot("$M$", M, dir(-90));
+\end{asy}
+\end{center}
+
+The condition that $\angle DAC = \angle ACB$ encodes that $D$ lies on some line $\ell$, and the condition that $\angle BDC = 90\dg + \angle BAC$ encodes that $D$ lies on some circle $\Gamma$. The intersection of this line and this circle determines two points: $D$ (inside $\triangle ABC$) and $D'$ (outside $\triangle ABC$). Let $E$ and $E'$ be the intersections of lines $BD$ and $BD'$ with the perpendicular bisector of $\ol{AC}$.
+
+Looking at the diagram, one sees that not only is $(BEM)$ tangent to line $AB$, but $(BE'M)$ is as well! Why?
+
+We will complex bash. Let $(ABC)$ be the unit circle and let $a$, $b$, and $c$ be the free variables. The line $\ell$ has the form $\ol Az + A\ol z + B = 0$ for some $A,B \in \QQ(a,b,c)$ with $A \neq 0$.\footnote{Here, $\QQ(a,b,c)$ denotes the field of rational functions in $a$, $b$, and $c$.} The circle $\Gamma$ has the form $z\ol z - \ol Cz - C\ol z + D = 0$, for $C,D \in \QQ(a,b,c)$. Substituting the formula for $\ol z$ from the equation for $\ell$ into the equation for $\Gamma$ yields $P(z) = 0$ for some quadratic $P \in \QQ(a,b,c)[z]$. The roots of this quadratic are the points $d$ and $d'$.
+
+Take for granted that $P$ is irreducible over $\QQ(a,b,c)$. So $P$ is the minimal polynomial of $d$ over $\QQ(a,b,c)$, and $d$ cannot be expressed as a rational function in $a$, $b$, and $c$.
+
+Since the problem is true, line $AB$ is tangent to circle $(BEM)$. Since $e$ is a function of $d$, this can be stated in terms of complex numbers as $Q(d) = 0$ for some polynomial $Q \in \QQ(a,b,c)[x]$ (since $a,b,m \in \QQ(a,b,c)$). As $P$ is the minimal polynomial of $d$, we have $P \mid Q$. Since $P$ has $d'$ as a root, $Q$ has $d'$ as a root as well. So the problem is true if $D$ was replaced with $D'$, as desired!
+
+% \section{Cyclotomic polynomials over finite fields}
+
+% TODO: YAU MATHCAMP PROJECT
+% THAT ONE HMMT PROBLEM LMAO
+% there are like multiple surely
 
 \end{document}

@@ -21,6 +21,9 @@ I haven't written an S tier handout yet.
 
 ### A tier
 
+- **Algebraic number theory**
+[(pdf)](algebraic-nt/algebraic-nt.pdf) [(tex)](algebraic-nt/algebraic-nt.tex)
+
 - **Complex bashing**
 [(pdf)](complex-bashing/complex-bashing.pdf) [(tex)](complex-bashing/complex-bashing.tex)
 
