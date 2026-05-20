@@ -24,6 +24,10 @@ I haven't written an S tier handout yet.
 - **Algebraic number theory**
 [(pdf)](algebraic-nt/algebraic-nt.pdf) [(tex)](algebraic-nt/algebraic-nt.tex)
 
+    Notes on basic algebraic number theory.
+    Written for the last Math + Science Club lecture of the 2025-26 school year.
+    Includes a geometry problem.
+
 - **Complex bashing**
 [(pdf)](complex-bashing/complex-bashing.pdf) [(tex)](complex-bashing/complex-bashing.tex)
 
