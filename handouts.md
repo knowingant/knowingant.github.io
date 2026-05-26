@@ -64,6 +64,8 @@ I haven't written an S tier handout yet.
 [(pdf)](quaternions/quaternions.pdf) [(tex)](quaternions/quaternions.tex)
 
     Number theory over the quaternions to prove Lagrange's four-square theorem.
+    As warmups, we prove the analagous facts in the integers and the Gaussian integers,
+    then finally move to the Hurwitz integers.
 
 ### C tier
 
