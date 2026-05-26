@@ -60,6 +60,11 @@ I haven't written an S tier handout yet.
     An anti-silly presentation I originally gave to Minnetonka Math Team.
     Includes scratch paper samples for you to analyze.
 
+- **Quaternions**
+[(pdf)](quaternions/quaternions.pdf) [(tex)](quaternions/quaternions.tex)
+
+    Number theory over the quaternions to prove Lagrange's four-square theorem.
+
 ### C tier
 
 - **erm what the** <script type="math/tex">\sigma</script>
