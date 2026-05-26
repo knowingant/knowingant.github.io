@@ -25,6 +25,7 @@ The list is a work in progress.
 
 On Monday, April 6, 2026, I started keeping a diary daily.
 These diaries are published once a week on Sunday nights.
+- [Week 7](/assets/diaries/week7/week7.pdf)
 - [Week 6](/assets/diaries/week6/week6.pdf)
 - [Week 5](/assets/diaries/week5/week5.pdf)
 - [Week 4](/assets/diaries/week4/week4.pdf)
@@ -35,6 +36,7 @@ These diaries are published once a week on Sunday nights.
 # Math events
 
 I also publish diaries for some of the math events I go to.
+- [AMM 2026](/assets/diaries/amm-2026/amm-2026.pdf)
 - [CMIMC 2026](/assets/diaries/cmimc-2026/cmimc-2026.pdf)
 - [PUMaC 2025](/assets/diaries/pumac-2025/pumac-2025.pdf)
 - [MOP 2025](/assets/diaries/mop-2025/mop-2025.pdf)
