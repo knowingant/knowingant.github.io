@@ -71,3 +71,13 @@
   slug: amm-2026
   date: '2026-05-25'
   summary: This PDF is password-protected.
+- title: ARML 2026
+  pdf: "/assets/diaries/arml-2026/arml-2026.pdf"
+  slug: arml-2026
+  date: '2026-06-01'
+  summary: This PDF is password-protected.
+- title: Week 8
+  pdf: "/assets/diaries/week8/week8.pdf"
+  slug: week8
+  date: '2026-06-01'
+  summary: This PDF is password-protected.
