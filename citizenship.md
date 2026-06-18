@@ -20,29 +20,25 @@ you must do all of the following.
 - Name the Minnesota state apple.
 - Name three cities in Minnesota.
 - Pronounce "bag" correctly.
-- Sing the [Minnesota state song][Hail! Minnesota].
+- Sing the [Minnesota state song](https://www.sos.mn.gov/about-minnesota/state-symbols/state-song-hail-minnesota/).
 You may use a copy of the lyrics.
+You may also use any resources to prepare,
+but you may not use the internet during the exam.
 
 Minnesotan citizenship grants the following benefits.
-- +15% enjoyment of [hotdish][hotdish].
+- +15% enjoyment of [hotdish](https://en.wikipedia.org/wiki/Hotdish).
 - +10% resistance to cold.
 - +3% hockey skill. +1% cross-country skiing skill.
-- +1% enjoyment of all foods found in the [Minnesota State Fair][state fair],
+- +1% enjoyment of all foods found in the [Minnesota State Fair](https://en.wikipedia.org/wiki/Minnesota_State_Fair),
 including but not limited to cheese curds, chocolate chip cookies,
 fried pickles, mini donuts, and any food on a stick.
 
 If you ever see me in-person, ask me to take a Minnesota citizenship exam.
 I currently live in Minnesota.
 I will also be traveling for the following events in the near future.
-- [ARML 2026](https://arml3.com/), Iowa City, May 29--30
 - I'm visiting MOP 2026 to take the TSTST,
 so I'll be in Greensboro, NC from June 19--24.
-- I'll be at MIT from June 28 to August 8 for [RSI 2026][rsi].
+- I'll be at MIT from June 28 to August 8 for RSI 2026.
 - I'll be at the PRIMES conference at MIT around October 2026.
 I will also likely be attending PUMaC 2026, HMMT Feb 2027,
 CMIMC 2027, AMM 2027, and ARML Iowa 2027.
-
-[rsi]: https://www.cee.org/programs/research-science-institute
-[Hail! Minnesota]: https://www.sos.mn.gov/about-minnesota/state-symbols/state-song-hail-minnesota/
-[hotdish]: https://en.wikipedia.org/wiki/Hotdish
-[state fair]: https://en.wikipedia.org/wiki/Minnesota_State_Fair

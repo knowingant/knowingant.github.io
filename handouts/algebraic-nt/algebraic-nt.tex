@@ -1,5 +1,4 @@
 \documentclass[11pt]{scrartcl}
-\usepackage{CJKutf8}
 \usepackage[sexy]{evan}
 \usepackage{mathteam}
 
@@ -354,10 +353,7 @@ Why is this claim sufficient? First, we'll need to invoke the following sledgeha
 \end{theorem}
 This is hard to prove, but it is pretty intuitive. It would be really dumb if there were only, like, five $8 \pmod{13}$ primes. In particular, there is at least one prime $p$ congruent to $a \pmod n$ for each $a$ with $\gcd(a,n) = 1$.
 
-If cyclotomic polynomials are irreducible, that means if a divisor $P$ of $x^n - 1$ has a root at any primitive $d$th root of unity, $P$ has a root at all $\varphi(d)$ primitive $d$th roots of unity. In the language of \Cref{fig:12th-roots-of-unity}, if $P$ has one root of some shape, it must have all the roots of that shape. In the language of \emph{The Three Musketeers}, ``all for one and one for all.'' In the language of Chinese,
-\begin{CJK*}{UTF8}{gbsn}
-	如果圆分多项式是不可约的，那么这意味着：若 $x^n - 1$ 的一个因子 $P$ 在某个 $d$ 次本原单位根处有根，那么 $P$ 在所有 $\varphi(d)$ 个 $d$ 次本原单位根处都有根.
-\end{CJK*}
+If cyclotomic polynomials are irreducible, that means if a divisor $P$ of $x^n - 1$ has a root at any primitive $d$th root of unity, $P$ has a root at all $\varphi(d)$ primitive $d$th roots of unity. In the language of \Cref{fig:12th-roots-of-unity}, if $P$ has one root of some shape, it must have all the roots of that shape. In the language of \emph{The Three Musketeers}, ``all for one and one for all.'' In the language of Chinese, \cn{如果圆分多项式是不可约的，那么这意味着：若 $x^n - 1$ 的一个因子 $P$ 在某个 $d$ 次本原单位根处有根，那么 $P$ 在所有 $\varphi(d)$ 个 $d$ 次本原单位根处都有根.}
 
 \begin{remark*}
 	This joke was inspired by the excellent YouTube channel Sheafification of G.
@@ -496,11 +492,5 @@ We will complex bash. Let $(ABC)$ be the unit circle and let $a$, $b$, and $c$ b
 Take for granted that $P$ is irreducible over $\QQ(a,b,c)$. So $P$ is the minimal polynomial of $d$ over $\QQ(a,b,c)$, and $d$ cannot be expressed as a rational function in $a$, $b$, and $c$.
 
 Since the problem is true, line $AB$ is tangent to circle $(BEM)$. Since $e$ is a function of $d$, this can be stated in terms of complex numbers as $Q(d) = 0$ for some polynomial $Q \in \QQ(a,b,c)[x]$ (since $a,b,m \in \QQ(a,b,c)$). As $P$ is the minimal polynomial of $d$, we have $P \mid Q$. Since $P$ has $d'$ as a root, $Q$ has $d'$ as a root as well. So the problem is true if $D$ was replaced with $D'$, as desired!
-
-% \section{Cyclotomic polynomials over finite fields}
-
-% TODO: YAU MATHCAMP PROJECT
-% THAT ONE HMMT PROBLEM LMAO
-% there are like multiple surely
 
 \end{document}
