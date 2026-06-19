@@ -25,6 +25,7 @@ The list is a work in progress.
 
 On Monday, April 6, 2026, I started keeping a diary daily.
 These diaries are published once a week on Sunday nights.
+- [Week 11](/assets/diaries/week11/week11.pdf)
 - [Week 10](/assets/diaries/week10/week10.pdf)
 - [Week 9](/assets/diaries/week9/week9.pdf)
 - [Week 8](/assets/diaries/week8/week8.pdf)
