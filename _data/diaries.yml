@@ -96,3 +96,8 @@
   slug: week11
   date: '2026-06-19'
   summary: This PDF is password-protected.
+- title: TSTST 2026
+  pdf: "/assets/diaries/tstst-2026/tstst-2026.pdf"
+  slug: tstst-2026
+  date: '2026-06-26'
+  summary: This PDF is password-protected.
