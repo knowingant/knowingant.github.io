@@ -1,6 +1,14 @@
 \documentclass{beamer}
 \usepackage[nosetup]{evan}
 \usepackage{slides}
+\usepackage{pdfpc}
+\setbeameroption{show notes on second screen=right}
+
+\renewcommand{\c}{$\clubsuit$}
+\renewcommand{\d}{$\diamondsuit$}
+\newcommand{\h}{$\heartsuit$}
+\newcommand{\s}{$\spadesuit$}
+
 \title{Tractor}
 \date{June 2026}
 
@@ -8,21 +16,598 @@
 
 \frame{\titlepage}
 
+% \begin{frame}
+% 	\frametitle{Author's note}
+% 	You should watch the \href{}{YouTube video} where I present these slides.
+% \end{frame}
+
 \begin{frame}
 	\frametitle{About}
 	\begin{itemize}
 		\ii Trick-taking card game popular in Chinese communities
-        \ii Goes by many names: \emph{tuo la ji} (\cn{拖拉机}, literally ``tractor''), \emph{sheng ji} (\cn{升级}, literally ``upgrade''), \emph{ba shi fen} (\cn{八十分}, literally ``eighty points'')
-		\ii Most commonly played with $4$ players and $2$ decks; we introduce variants later
+		\ii Goes by many names: \emph{tuo la ji} (\cn{拖拉机}, literally ``tractor''), \emph{sheng ji} (\cn{升级}, literally ``upgrade''), \emph{ba shi fen} (\cn{八十分}, literally ``eighty points'')
 	\end{itemize}
 \end{frame}
 
 \begin{frame}
-	\section{High-level summary}
+	\frametitle{This presentation}
 	\begin{itemize}
-		\ii 
+		\ii Meant to be concise, understandable, and include lots of examples
+		\ii Originally produced for RSI 2026
+		\ii Motivated by lots of requests for teaching
+	\end{itemize}
+
+	\note{First bullet: I won't go over things like the drawing order
+	
+	Second bullet: I probably taught around 20 people how to play, and I've unfortunately had to say no to people wanting to learn, it'd be nice to have a youtube video}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Conventions for experts}
+	\note{If you already know how to play, we use the following conventions.}
+	\begin{itemize}
+		\ii Two decks, four players.
+		\ii No throw penalty.
+		\ii Kitty points multiplied by $2^n$, where $n$ is the size of the largest component of the last trick.
+		\ii Subsequent throw must beat all cards to win.
+		\ii A must be defended, but 5, 10, and K do not need to be.
+		\ii J variation. Hehe.
 	\end{itemize}
 \end{frame}
 
+\begin{frame}
+	\frametitle{High-level summary}
+	\begin{itemize}
+		\ii 2v2 card game; four players and two decks (incl.\ low joker LJ, high joker HJ)
+		\ii Teammates sit across from each other
+		\ii Teams start at rank 2; they advance through the ranks 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A, NT (no trump) in order
+		\ii Winning rounds moves you up ranks, how many ranks you go up depends on ``how much you win''
+		\ii Whoever passes rank NT first wins the full game
+	\end{itemize}
+	\note{Distinction between high and low jokers. The red joker is high. Jane Street deck.
+	
+	Usually full games are not played due to length; but during all-nighters, ARML bus, etc.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{High-level summary}
+	\begin{itemize}
+		\ii In each of \c, \d, \h, \s{}: 5, 10, K worth $5$, $10$, $10$ points, respectively
+		\ii Everyone gets $25$ cards
+		\ii A \emph{trick}: the ``lead'' plays something, the players proceed counterclockwise \alert{matching format}. Whichever team plays the highest thing of that format wins all points played in that trick.
+		\ii Tricks proceed until everyone is out of cards
+		\ii Goal: maximize points scored by your team
+
+		\note{So there are $(5 + 10 + 10) \cdot 2 \cdot 4 = 200$ points total
+		
+		$54 \cdot 2 \neq 25 \cdot 4$, I'll explain the other 8 cards
+		
+		what does ``matching format'' mean? i'll clarify! this is the most important tractor rule}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	\begin{block}{Convention}
+		Examples have \textcolor{blue}{Obama} and \textcolor{blue}{Biden} (the \emph{Democrats}) play \textcolor{red}{Trump} and \textcolor{red}{Reagan} (the \emph{Republicans}).
+	\end{block}
+	
+	Here, \textcolor{blue}{Obama} is lead.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays A\c.
+		\ii \textcolor{red}{Trump} plays 4\c.
+		\ii \textcolor{blue}{Biden} plays 10\c.
+		\ii \textcolor{red}{Reagan} plays A\c.
+	\end{itemize}
+	\textcolor{blue}{Obama} wins the trick since his A\c{} takes precedence over \textcolor{red}{Reagan}'s. The Democrats win $10$ points from the 10\c.
+	
+	\note{i'll explain the card orders later}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Hosting}
+	The \emph{host} or \emph{landlord} has two advantages.
+	\begin{itemize}
+		\ii They make the first play.
+		\ii After everyone draws $25$ cards, the host picks up the $8$ remaining cards (the ``kitty'') and replaces it with their $8$ worst ones.
+	\end{itemize}
+
+	The host's team the \emph{defenders}, the other team is called the \emph{attackers}. Who's host?
+	\begin{itemize}
+		\ii Next person counterclockwise on the winning team is new host
+		\ii Host for first round is decided through bidding
+	\end{itemize}
+	\note{last two bullets:
+	
+	corollary, defending team and attacking team switch iff attacking team wins
+	
+	which i will explain later}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The trump suit}
+	The \emph{trump suit} is the \alert{highest suit}. Suits that are not the trump suit are called \alert{offsuits}.
+
+	\medskip
+	
+	Plays matching shape in the trump suit beat corresponding plays in offsuits (``trumping'').
+
+	\medskip
+
+	The trump suit consists of:
+	\begin{itemize}
+		\ii Every joker
+		\ii Every card in the trump rank
+		\ii Every card in either \c, \d, \h, \s, depending on bidding
+	\end{itemize}
+
+	\note{third bullet: again, i will explain bidding later
+		
+	for example, if the trump rank is 6, every 6 is a trump card.
+	the trump rank is the current rank of the host team.
+	so the trump rank always starts at 2.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	When the trump rank is 4 and the trump suit is \s{} (colloquially, when the trump suit is 4\s), the trump suit is 
+	\begin{center}
+		2\s3\s5\s6\s7\s8\s9\s10\s J\s Q\s K\s A\s 4\c 4\d 4\h 4\s LJHJ
+	\end{center}
+	and the heart suit is
+	\begin{center}
+		2\h 3\h 5\h 6\h 7\h 8\h 9\h 10\h J\h Q\h K\h A\h.
+	\end{center}
+	Above, the cards are in strictly increasing order in their suits, except 4\c, 4\d, and 4\h{} are equal. So generally, 2 is the lowest and A is the highest.
+\end{frame}
+
+\begin{frame}
+	\frametitle{A reminder}
+	When the trump suit is 4\s, the trump suit is
+	\begin{center}
+		2\s3\s5\s6\s7\s8\s9\s10\s J\s Q\s K\s A\s 4\c 4\d 4\h 4\s LJHJ
+	\end{center}
+	and the heart suit is
+	\begin{center}
+		2\h 3\h 5\h 6\h 7\h 8\h 9\h 10\h J\h Q\h K\h A\h.
+	\end{center}
+
+	\begin{center}
+		\alert{WHEN THE TRUMP SUIT IS 4\s, 4\h{} IS NOT IN THE HEART SUIT!!!} It is in the trump suit consisting of spades, 4s, and jokers.
+
+		\medskip
+
+		Slogan: ``4\h{} is a \s.''
+	\end{center}
+	\note{You will forget despite the triple exclamation point, and that's okay.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	4\s{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays 4\d.
+		\ii \textcolor{red}{Trump} plays 4\c.
+		\ii \textcolor{blue}{Biden} plays 10\s.
+		\ii \textcolor{red}{Reagan} plays 5\s.
+	\end{itemize}
+	The Democrats win the trick and $15$ points.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	4\s{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays 4\d.
+		\ii \textcolor{red}{Trump} plays 4\s.
+		\ii \textcolor{blue}{Biden} plays 10\s.
+		\ii \textcolor{red}{Reagan} plays 5\s.
+	\end{itemize}
+	The Republicans win the trick and $15$ points.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Types of plays}
+	\begin{quote}
+		\emph{the ``lead'' plays something\dots{}}
+	\end{quote}
+	What is ``something?''
+	\begin{itemize}
+		\ii A single
+		\ii A pair
+		\begin{itemize}
+			\ii Pairs: 9\d9\d. HJHJ.
+			\ii Not pairs: when 6\d{} trump, 2\c2\s, 6\c6\s, LJHJ.
+		\end{itemize}
+		\ii A tractor (sequences of consecutive pairs)
+		\begin{itemize}
+			\ii Tractors: when 6\d{} trump, 9\d9\d10\d10\d, 5\h5\h7\h7\h, A\d A\d6\s6\s6\d6\d LJLJHJHJ
+			\ii Not tractors: when 6\d{} trump, A\c A\c 2\c2\c, 6\c6\c6\s6\s
+		\end{itemize}
+	\end{itemize}
+	In particular, \emph{you cannot play straights}.
+
+	\note{Pairs must be completely identical. Tractors can't ``loop around.''}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Bidding}
+	Bidding occurs while drawing. Two purposes:
+	\begin{itemize}
+		\ii Decide host for first round
+		\ii Decide the \emph{trump suit}
+	\end{itemize}
+	In increasing order, the possible bids are a single of the trump rank, a pair of the trump rank, a pair LJ, and a pair HJ. You keep the cards you bid.
+
+	\medskip
+	
+	You can't overturn your own bid, but you can reinforce a bid of a single by making it into a pair.
+\end{frame}
+
+\begin{frame}
+	\frametitle{No trump}	
+	If a single/pair of the trump rank is bid, the suit of the winning bid is just the trump suit.
+	But if a pair of jokers is bid, the trump suit is \emph{no trump} (NT). This means there are \emph{five} suits: \c, \d, \h, \s, and the trump suit consisting of the cards of the trump rank and jokers.
+
+	\note{For example, if the trump rank is 6 and 6\s6\s is the winning bid, the trump suit will be 6\s.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	When the trump suit is 4NT, the trump suit is
+	\begin{center}
+		4\c4\d4\h4\s LJHJ
+	\end{center}
+	where $4\clubsuit = 4\diamondsuit = 4\heartsuit = 4\spadesuit < \text{LJ} < \text{HJ}$, and the club suit is
+	\begin{center}
+		2\c3\c5\c6\c7\c8\c9\c10\c J\c Q\c K\c A\c
+	\end{center}
+	in increasing order.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	Trump rank 2, first round.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} bids 2\c.
+		\ii \textcolor{red}{Reagan} overturns with 2\s2\s.
+	\end{itemize}
+	There are no more overturns. \textcolor{red}{Reagan} is host with trump suit 2\s.
+
+	\note{First bullet: If \textcolor{blue}{Obama} won at this point, the trump suit would be clubs
+	
+	Second bullet: \textcolor{red}{Reagan} could not have overturned with just a single 2\s.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	Trump rank 4.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} bids 4\c.
+		\ii \textcolor{blue}{Obama} reinforces with 4\c4\c.
+		\ii \textcolor{red}{Trump} bids LJLJ.
+		\ii \textcolor{blue}{Obama} bids HJHJ.
+	\end{itemize}
+	The trump suit is 4NT.
+
+	\note{Second bullet: \textcolor{blue}{Obama} drew another 4\c.
+	
+	The only point of \textcolor{blue}{Obama}'s bid is to tell the table that he has HJHJ.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Matching format}
+	\begin{quote}
+		\emph{the players proceed counterclockwise \alert{matching format}\dots{}}
+	\end{quote}
+	What is ``matching format?''
+	\begin{itemize}
+		\ii First priority: match suit
+		\ii Second priority: match shape
+	\end{itemize}
+
+	\alert{If you can't match suit, you don't need to match shape.} Players always play the same number of cards.
+
+	\note{The actual rules for matching format are rather complicated, so we instead just give a lot of examples.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	10\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays A\c.
+		\ii \textcolor{red}{Trump}'s \c: 5\c 5\c K\c. He plays 5\c.
+		\ii \textcolor{blue}{Biden} has no \c. He trumps it with K\d.
+		\ii \textcolor{red}{Reagan} has no \c. He trumps it with 10\c.
+	\end{itemize}
+	\textcolor{red}{Reagan}'s 10\c{} wins $25$ points for the Republicans.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	10\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays K\h.
+		\ii \textcolor{red}{Trump} plays 2\h.
+		\ii \textcolor{blue}{Biden} has no \h{} and plays A\s.
+		\ii \textcolor{red}{Reagan} plays 5\h.
+	\end{itemize}
+	\textcolor{blue}{Obama} wins the trick and $15$ points.
+	\note{Cards in different offsuits are not comparable, so \textcolor{blue}{Obama}'s K\h{} beats \textcolor{blue}{Biden}'s A\s.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	10\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays 4\d.
+		\ii \textcolor{red}{Trump} plays 4\d.
+		\ii \textcolor{blue}{Biden} has no \d{}, 10s, or jokers, and plays 7\h.
+		\ii \textcolor{red}{Reagan} plays 2\d.
+	\end{itemize}
+	\textcolor{blue}{Obama} wins the trick and $0$ points.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	8\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays K\h K\h.
+		\ii \textcolor{red}{Trump}'s \h: 2\h3\h5\h5\h9\h. He plays 5\h5\h.
+		\ii \textcolor{blue}{Biden}'s \h: 3\h7\h7\h10\h J\h. He plays 7\h7\h.
+		\ii \textcolor{red}{Reagan}'s \h: 6\h A\h. He plays 6\h A\h.
+	\end{itemize}
+	\textcolor{blue}{Obama} wins the trick and $30$ points.
+
+	\note{Second bullet: he's forced. Third bullet: he's also forced.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	8\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays K\h K\h.
+		\ii \textcolor{red}{Trump} has no \h{} and trumps it with 10\d 10\d.
+		\ii \textcolor{blue}{Biden} has exactly one \h{} left: the 10\h. He plays 10\h 8\s.
+		\ii \textcolor{red}{Reagan} is out of \h{} and plays 10\c10\s.
+	\end{itemize}
+	\textcolor{red}{Trump} wins the trick and $70$ points.
+
+	\note{Third bullet: \textcolor{blue}{Biden} is forced to play the 10\h. \textcolor{blue}{Biden}'s play does not win.
+	
+	\textcolor{red}{Reagan} has pairs left, but you no longer need to match shape once you can't match suit.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	8\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays K\h K\h.
+		\ii \textcolor{red}{Trump} has no \h{} and tries to trump it with 6\d 7\d.
+		\ii \textcolor{blue}{Biden}'s \h{}: 10\h. He plays 10\h 10\s.
+		\ii \textcolor{red}{Reagan} plays 2\c4\c.
+	\end{itemize}
+	\textcolor{blue}{Obama} wins the trick and $40$ points.
+
+	\note{Third bullet: \textcolor{blue}{Biden} is forced to play 10\h here.
+	
+	Fourth bullet: \textcolor{red}{Reagan} has pairs left, but you no longer need to match shape once you can't match suit.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	8\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays 7\h7\h9\h9\h.
+		\ii \textcolor{red}{Trump}'s \h: 6\h10\h K\h. He plays 6\h10\h K\h 4\s.
+		\ii \textcolor{blue}{Biden}'s \h: 2\h 3\h3\h10\h K\h A\h A\h. He plays 3\h3\h A\h A\h.
+		\ii \textcolor{red}{Reagan} has no \h{} and plays A\d A\d8\h8\h.
+	\end{itemize}
+	\textcolor{red}{Reagan} wins the trick and $20$ points.
+
+	\note{Fourth bullet: \textcolor{red}{Reagan} has pairs left, but you no longer need to match shape once you can't match suit.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	8\d{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} plays 2\s2\s.
+		\ii \textcolor{red}{Trump} plays 4\s Q\s.
+		\ii \textcolor{blue}{Biden} plays 6\s A\s.
+		\ii \textcolor{red}{Reagan} plays 3\s3\s.
+	\end{itemize}
+	\textcolor{red}{Reagan} wins the trick and $0$ points.
+	
+	\note{\textcolor{red}{Trump} must be out of spade pairs.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Scoring rules}
+	\begin{table}
+		\begin{tabular}{lll}
+			\hline
+			Attacker points & Name           & Result                           \\ \hline
+			$0$             & sweep          & \textcolor{red}{defenders $+3$}  \\
+			$[5,35]$        &                & \textcolor{red}{defenders $+2$}  \\
+			$[40,75]$       &                & \textcolor{red}{defenders $+1$}  \\ \hline
+			$[80,115]$      & stalemate      & \textcolor{blue}{no change}      \\
+			$[120,155]$     &                & \textcolor{blue}{attackers $+1$} \\
+			$[160,195]$     &                & \textcolor{blue}{attackers $+2$} \\
+			$[200,\infty)$  & attacker sweep & \textcolor{blue}{attackers $+3$} \\
+		\end{tabular}
+	\end{table}
+	Stalemate and above is considered a win for the attackers, in which case the attacking team becomes the new host.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Throwing}
+	\emph{Throwing} allows you to play multiple things at the same time, as long as nothing played can be beaten within the suit.
+
+	\medskip
+
+	After a throw is played, players affirm in counterclockwise order they can't defeat any component. If the throw's invalid, the component that can be defeated is played. If multiple components can be defeated, the first player (in counterclockwise order) which can defeat any component chooses which component they can defeat is played.
+
+	\medskip
+
+	In order to trump or re-trump a throw, you need to strictly beat every component.
+
+	\note{This choice option is not implemented online.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	4\h{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} throws A\s Q\s Q\s. Everyone affirms this throw is valid.
+		\ii \textcolor{red}{Trump} plays 10\s2\h2\h.
+		\ii \textcolor{blue}{Biden} plays 5\s6\s6\s.
+		\ii \textcolor{red}{Reagan} plays 3\s6\d7\d.
+	\end{itemize}
+	\textcolor{blue}{Obama} wins the trick and $15$ points.
+
+	\note{First bullet: \textcolor{blue}{Obama} is holding a K\s. if he played AKK, then there's no need to check.
+	
+	Second bullet: This doesn't win, since he didn't beat every component
+	
+	Third bullet: The original play draws pairs, as usual.
+	
+	The point is that throwing makes your stuff harder to trump.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	4\h{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} throws A\s 9\s9\s10\s10\s. \textcolor{red}{Trump} says the throw is invalid, so only the 9\s9\s10\s10\s{} goes through. \textcolor{blue}{Obama} takes back the A\s.
+		\ii \textcolor{red}{Trump} plays Q\s Q\s K\s K\s.
+		\ii \textcolor{blue}{Biden} plays 2\s 2\s 5\s 8\d.
+		\ii \textcolor{red}{Reagan} plays 5\s6\s6\s7\s.
+	\end{itemize}
+	\textcolor{red}{Trump} wins the trick and $50$ points.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	4\h{} is trump.
+	\begin{itemize}
+		\ii \textcolor{blue}{Obama} throws A\s K\s. Assume an A\s{} was already played, so this throw is valid.
+		\ii \textcolor{red}{Trump} plays 10\h K\h.
+		\ii \textcolor{blue}{Biden} plays K\h HJ.
+		\ii \textcolor{red}{Reagan} plays 6\d7\d.
+	\end{itemize}
+	\textcolor{blue}{Biden} wins the trick and $40$ points.
+
+	\note{Second bullet: \textcolor{red}{Trump} trumped it too low.
+	
+	Third bullet: Biden's K\h HJ is unbeatable.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Kitty multiplier}
+	\begin{quote}
+		\emph{After everyone draws $25$ cards, the host picks up the $8$ remaining cards (the ``kitty'') and replaces it with their $8$ worst ones.}
+	\end{quote}
+	\note{ Imagine the host puts $80$ points in the kitty. Then there are only $120$ points left for the attackers to win. What the hell?}
+
+	Whoever wins the last trick wins all the points in the kitty. Additionally, the points are multiplied by $2^n$, where $n$ is the size of the largest component of the last trick.
+	\begin{itemize}
+		\ii With a single, kitty points are $\times 2$'d.
+		\ii With a pair, kitty points are $\times 4$'d.
+		\ii With a tractor, kitty points are $\times 16$'d.
+	\end{itemize}
+
+	\note{Imagine the host puts $80$ points in the kitty. Then there are only $120$ points left for the attackers to win. What the hell?
+	
+	``cracking the kitty.''
+	
+	So you generally don't want to put points in the kitty, unless your trump is very strong.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Finding friends}
+	\begin{itemize}
+		\ii \emph{Zhao peng you} (\cn{找朋友}, literally ``finding friends''), also called ``zpy'' or ``ff:'' a variant allowing the game to be played with an odd number of players
+		\ii With $n$ players, landlord has $f := \lfloor \frac n2\rfloor - 1$ friends
+		\ii Make $f$ calls of the form ``$i$th card $c$ played is my teammate'' ($c$ can't be trump)
+		\begin{itemize}
+			\ii Examples: first A\c{} or second A\s
+		\end{itemize}
+		\ii Host and friends can join team multiple times
+		\ii Small team bonus: if this happens and host wins, their team goes up an extra rank
+		\ii Despite this, small teams suck
+		\ii 7p7d zpy is the greatest form of Tractor
+	\end{itemize}
+
+	\note[item]{You usually want to call aces and play like a king or something to transfer control.}
+	\note[item]{The teams are different each round, you just want to advance ranks personally.}
+	\note[item]{Teams are unusually small if self-join. You should try hard to not be your own friend.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example}
+	2NT is trump. 5p5d zpy. Host called 3rd A\s. First play.
+	\begin{itemize}
+		\ii Obama throws 3\d3\d4\d4\d5\d5\d6\d6\d7\d7\d8\d8\d A\d. Biden says the throw fails.
+		\ii Trump plays 3\d4\d4\d5\d7\d8\d9\d9\d10\d J\d Q\d A\d.
+		\ii Biden plays 8\d8\d9\d9\d10\d10\d J\d J\d Q\d Q\d K\d K\d.
+		\ii Reagan plays some 12 cards.
+		\ii Bush plays some 12 cards.
+	\end{itemize}
+	Biden wins the trick.
+\end{frame}
+
+\begin{frame}
+	\frametitle{SKISSY SQRT!}
+	The above \emph{actually happened}. The host was forced to self-friend and got swept.
+	\begin{figure}
+		\includegraphics[height=0.6\textheight]{skissy-sqrt.png}
+		\caption{SKISSY SQRT!}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Single J rule}
+	If the defenders are rank J and the attackers win the last trick with a single J, the defenders go back to rank 2. Any rank change from that round still occurs after the defenders go back to rank 2.
+
+	\note{Lots of people forget this rule.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Basic strategy}
+	\begin{itemize}
+		\ii Play offsuit aces, high pairs, then low pairs. If you have nothing, play low trump to try and transfer control to your teammate.
+		\ii Try to get rid of offsuits.
+		\ii Play suits your teammate is out of. Don't play suits your opponents are out of.
+		\ii Try not to break up pairs.
+		\ii Don't throw only singles in suits your opponents are out of.
+		\ii If opponents play points/aces in offsuits, they're likely almost out.
+	\end{itemize}
+
+	\note{Keep track of the suits people are out of.
+	
+	In general, you don't want to break up pairs, however, it's sometimes okay to break up pairs of points to feed. This heavily depends on the situation, though. For example, since king pairs, my king Daniel Ge.
+	
+	If you have a pair that's not 5, T, or K, try not to break it up. There's no point, literally and figuratively. The strategy is different in 4d, but whatever.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Play online!}
+	\begin{itemize}
+		\ii On \url{https://robertying.com/shengji/}, parts of this presentation are adapted from \url{https://robertying.com/shengji/rules.html}
+		\ii Forces you to follow the rules
+		\ii Has ``help'' button telling you what you're allowed to play
+		\ii Has ``BEEP'' button to tell others to hurry up
+		\ii Allows for 1v1s via splitscreen
+	\end{itemize}
+
+	\note{but you can just yell irl}
+\end{frame}
+
+\begin{frame}
+	\frametitle{An example game}
+	\url{https://robertying.com/shengji/}
+	\note{set autodraw speed to fast}
+\end{frame}
 
 \end{document}

@@ -40,6 +40,7 @@ These diaries are published once a week on Sunday nights.
 # Math events
 
 I also publish diaries for some of the math events I go to.
+- [TSTST 2026](/assets/diaries/tstst-2026/tstst-2026.pdf)
 - [ARML 2026](/assets/diaries/arml-2026/arml-2026.pdf)
 - [AMM 2026](/assets/diaries/amm-2026/amm-2026.pdf)
 - [CMIMC 2026](/assets/diaries/cmimc-2026/cmimc-2026.pdf)
