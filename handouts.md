@@ -17,7 +17,10 @@ Please let me know about any errors, if you have any questions, or if you want s
 
 ### S tier
 
-I haven't written an S tier handout yet.
+- **Tractor**
+[(pdf)](tractor/tractor.pdf) [(tex)](tractor/tractor.tex) [(youtube)](https://youtu.be/M2Z3jXubzKM)
+
+    Slides on how to play the card game Tractor, originally made for RSI 2026.
 
 ### A tier
 
