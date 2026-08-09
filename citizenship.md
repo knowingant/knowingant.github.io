@@ -36,9 +36,6 @@ fried pickles, mini donuts, and any food on a stick.
 If you ever see me in-person, ask me to take a Minnesota citizenship exam.
 I currently live in Minnesota.
 I will also be traveling for the following events in the near future.
-- I'm visiting MOP 2026 to take the TSTST,
-so I'll be in Greensboro, NC from June 19--24.
-- I'll be at MIT from June 28 to August 8 for RSI 2026.
 - I'll be at the PRIMES conference at MIT around October 2026.
 I will also likely be attending PUMaC 2026, HMMT Feb 2027,
 CMIMC 2027, AMM 2027, and ARML Iowa 2027.

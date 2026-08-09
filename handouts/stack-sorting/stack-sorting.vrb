@@ -1,0 +1,80 @@
+$n$th Motzkin counts:
+
+    \only<1>{
+    Ways to draw any \# of disjoint chords connecting $n$ points on a circle
+    \medskip
+
+    \begin{tikzpicture}[x=0.72cm,y=0.72cm,
+        chord/.style={red!80!black, line width=1.5pt},
+        dot/.style={circle, fill=black, inner sep=1.25pt}]
+        \tikzset{motzkin circle/.pic={
+            \filldraw[fill=gray!0, draw=gray!70, line width=0.7pt]
+                (0,0) circle[radius=0.72];
+        }}
+        \tikzset{motzkin dots/.pic={
+            \node[dot] at (-0.51, 0.51) {};
+            \node[dot] at ( 0.51, 0.51) {};
+            \node[dot] at ( 0.51,-0.51) {};
+            \node[dot] at (-0.51,-0.51) {};
+        }}
+
+        \node[anchor=west] at (0, 2.2) {$0$ chords:};
+        \node[anchor=west] at (0, 0)   {$1$ chord:};
+        \node[anchor=west] at (0,-2.2) {$2$ chords:};
+
+        % No chords.
+        \pic at (3.25,2.2) {motzkin circle};
+        \pic at (3.25,2.2) {motzkin dots};
+
+        % The six ways to choose one chord.
+        \foreach \x in {3.25,4.95,6.65,8.35,10.05,11.75}
+            \pic at (\x,0) {motzkin circle};
+        \draw[chord,shift={(3.25,0)}]  (-0.51, 0.51)--( 0.51, 0.51);
+        \draw[chord,shift={(4.95,0)}]  (-0.51, 0.51)--( 0.51,-0.51);
+        \draw[chord,shift={(6.65,0)}]  (-0.51, 0.51)--(-0.51,-0.51);
+        \draw[chord,shift={(8.35,0)}]  ( 0.51, 0.51)--( 0.51,-0.51);
+        \draw[chord,shift={(10.05,0)}] ( 0.51, 0.51)--(-0.51,-0.51);
+        \draw[chord,shift={(11.75,0)}] ( 0.51,-0.51)--(-0.51,-0.51);
+        \foreach \x in {3.25,4.95,6.65,8.35,10.05,11.75}
+            \pic at (\x,0) {motzkin dots};
+
+        % The two noncrossing perfect matchings.
+        \pic at (3.25,-2.2) {motzkin circle};
+        \pic at (4.95,-2.2) {motzkin circle};
+        \draw[chord,shift={(3.25,-2.2)}]
+            (-0.51,0.51)--(0.51,0.51)
+            (0.51,-0.51)--(-0.51,-0.51);
+        \draw[chord,shift={(4.95,-2.2)}]
+            (-0.51,0.51)--(-0.51,-0.51)
+            (0.51,0.51)--(0.51,-0.51);
+        \pic at (3.25,-2.2) {motzkin dots};
+        \pic at (4.95,-2.2) {motzkin dots};
+    \end{tikzpicture}
+    \blfootnote{\tiny Figure generated with AI assistance.}
+    }
+    \only<2>{
+    Number of \textcolor{sytcolor}{standard Young tableaux with width $\le 3$} (Regev 1981)
+    \[
+    % https://q.uiver.app/#q=WzAsMyxbMCwyXSxbMiwwXSxbMCwwXSxbMiwwLCJcXHRleHR7aW5jcmVhc2luZ30iLDJdLFsyLDEsIlxcdGV4dHtpbmNyZWFzaW5nfSJdXQ==
+    \begin{tikzcd}[ampersand replacement=\&]
+        {} \&\& {} \\
+        \\
+        {}
+        \arrow["{\text{increasing}}", from=1-1, to=1-3]
+        \arrow["{\text{increasing}}"', from=1-1, to=3-1]
+    \end{tikzcd}
+    {\color{sytcolor}\begin{matrix}
+        \tab{1 \\ 2 \\ 3 \\ 4} & \tab{1 & 2 \\ 3 \\ 4} & \tab{1 & 3 \\ 2 \\ 4} \vspace{0.5cm} \\
+        \tab{1 & 4 \\ 2 \\ 3} & \tab{1 & 2 \\ 3 & 4} & \tab{1 & 3 \\ 2 & 4} \vspace{0.5cm} \\
+        \tab{1 & 3 & 4 \\ 2} & \tab{1 & 2 & 4 \\ 3} & \tab{1 & 2 & 3 \\ 4}
+    \end{matrix}}\]
+
+    }
+    \only<3>{
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.49\linewidth]{Images/oeis1.png}
+        \includegraphics[width=0.49\linewidth]{Images/oeis2.png}
+    \end{figure}
+    \blfootnote{\tiny Online Encyclopedia of Integer Sequences, August 5, 2026}
+    }
