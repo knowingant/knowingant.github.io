@@ -101,3 +101,8 @@
   slug: tstst-2026
   date: '2026-06-26'
   summary: This PDF is password-protected.
+- title: rsi-2026
+  pdf: "/assets/diaries/rsi-2026/rsi-2026.pdf"
+  slug: rsi-2026
+  date: '2026-08-09'
+  summary: This PDF is password-protected.

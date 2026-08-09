@@ -37,9 +37,11 @@ These diaries are published once a week on Sunday nights.
 - [Week 2](/assets/diaries/week2/week2.pdf)
 - [Week 1](/assets/diaries/week1/week1.pdf)
 
-# Math events
+# Events
 
-I also publish diaries for some of the math events I go to.
+I also publish diaries for some of the events I go to.
+In that case, the diary replaces the usual daily diary.
+- [RSI 2026](/assets/diaries/rsi-2026/rsi-2026.pdf)
 - [TSTST 2026](/assets/diaries/tstst-2026/tstst-2026.pdf)
 - [ARML 2026](/assets/diaries/arml-2026/arml-2026.pdf)
 - [AMM 2026](/assets/diaries/amm-2026/amm-2026.pdf)

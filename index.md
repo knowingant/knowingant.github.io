@@ -24,7 +24,6 @@ followed by my dad's hong shao pig feet.
 - Favorite riichi mahjong yaku: ryuuiisou (all greens).
 - Favorite Taylor Swift album: Speak Now.
 - Favorite ice cream flavor: asparagus.
-- Favorite Greek letter: <script type="math/tex">\gamma</script>.
 - Favorite color: red.
 
 [mtka]: https://www.minnetonkaschools.org
