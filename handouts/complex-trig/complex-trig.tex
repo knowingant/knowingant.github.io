@@ -1,0 +1,150 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage{mathteam}
+
+\title{Complex From Trig}
+\author{Michael Luo}
+
+\begin{document}
+
+\maketitle
+
+\epigraph{this explains so much about angie}{aster after finding out that math prize for girls is 90 percent trig}
+
+\section{Theory}
+
+Complex numbers are vectors.
+\begin{example}[HMMT Algebra 2018/6]
+    If
+    \[\cos\alpha + \cos\beta + \cos\gamma = \sin\alpha + \sin\beta + \sin\gamma = 1,\]
+    compute the smallest possible value of $\cos\alpha$.
+\end{example}
+
+\begin{example}[2025 AIME I/8]
+    Let $k$ be a real number such that the system
+    \begin{align*}
+        \lvert 25+20i-z\rvert &= 5 \\
+        \lvert z-4-k\rvert &= \lvert z-3i-k\rvert
+    \end{align*}
+    has exactly one complex solution $z$. Compute the sum of all possible values of $k$.
+\end{example}
+
+The great thing about complex numbers is that multiplication is angle addition, so they're better than normal vectors.
+
+\begin{example}[Machin's formula]
+    $\frac{\pi}4 = 4\arctan\frac15 - \arctan\frac1{239}$.
+\end{example}
+
+\begin{example}
+    Compute
+    \[\sin 1\dg + \sin 2\dg + \dots + \sin 179\dg.\]
+\end{example}
+
+\begin{example}[CMIMC Algebra 2018/7]
+    Compute
+    \[\sum_{k = 0}^{2017}\frac{5 + \cos(\frac{\pi k}{1009})}{26 + 10\cos(\frac{\pi k}{1009})}.\]
+\end{example}
+
+\section{Extras}
+
+If we have extra time, we can do this stuff I guess.
+
+\begin{lemma}[EGMO 6.28]
+    Let $ABC$ be a triangle. It is equilateral if and only if $a^2 + b^2 + c^2 = ab + bc + ca$.
+\end{lemma}
+
+\begin{example}[CMIMC Algebra 2016/6]
+    For some complex number $\omega$ with $\lvert \omega\rvert = 2016$, there is some real $\lambda > 1$ such that $\omega$, $\omega^2$, and $\lambda\omega$ form an equilateral triangle in the complex plane. Find $\lambda$.
+\end{example}
+
+Now let's have some fun.
+
+\begin{definition}
+    A \emph{cline} is a circle or a line.
+\end{definition}
+
+This definition kind of makes sense if you view a line as a circle with infinite radius and center at infinity.
+
+\begin{definition}
+    A function $f$ is called a \emph{M\"obius transformation} if it is of the form
+    \[f(z) = \frac{az + b}{cz + d},\]
+    and $f$ is nonconstant (or $ad - bc \neq 0$).
+\end{definition}
+
+Note that any M\"obius transformation is bijective. Now what do these two above definitions have anything to do with each other? Well, we have the following nuclear weapon.
+
+\begin{theorem}
+    M\"obius transformations take clines to clines. In other words, if $f$ is a M\"obius transformation and $C$ is a cline, then the image of $C$ under $f$ is a cline.
+\end{theorem}
+
+In algebraic geometry, the M\"obius transformations are ``morphisms of $\PP^1$.'' Don't worry, I don't know what that means either. We have another fun fact.
+\begin{theorem}
+    Given complex numbers $A$, $B$, $C$, $X$, $Y$, and $Z$ such that $A$, $B$, and $C$ are pairwise distinct and $X$, $Y$, and $Z$ are pairwise distinct, there's exactly one M\"obius transformation sending $A$ to $X$, $B$ to $Y$, and $C$ to $Z$.
+\end{theorem}
+
+This is rarely applicable, but when it is, it's so, so powerful.
+
+\begin{example}[Prize 2023/13]
+    Let
+    \[f(t) = \frac{(10 + 9i)t - 10 + 9i}{t + i},\]
+    where $i=\sqrt{-1}$. Let $P = f(0)$, $Q = f(2023)$, and $R = f(1)$. Determine $\sin^2(m\angle PQR)$.
+\end{example}
+
+\begin{example}[HMMT Team 2022/6]
+    Let $P(x) = x^4 + ax^3 + bx^2 + x$ be a polynomial with four distinct roots that lie on a circle in the complex plane. Prove that $ab \neq 9$.
+\end{example}
+
+Out of $99$ teams and around $600$ competitors, only \emph{one} team solved the above problem in-contest, making it the hardest problem on the team round that year, despite its placement.
+
+\section{Problems}
+
+\begin{problem}[Prize 2025/8] % 3/2
+    Compute
+    \[\sum_{n = 0}^\infty \frac{\cos(\frac{\pi n}6)}{\sqrt3^n}.\]
+\end{problem}
+
+\begin{problem}[Prize 2025/13] % 89
+    Compute $A$ if $-90 \le A \le 90$ and
+    \[\sin(A\dg) = \frac{\frac12 + \sum_{k = 0}^{44}\sin(2k\dg)}{\sum_{k = 0}^{44}\sin((2k + 1)\dg)}.\]
+\end{problem}
+
+\begin{problem}[CMIMC 2019/8] % -(1 + 3^2019)/2^2018
+    The roots of the polynomial $P(z) = z^{2019} - 1$ can be written in the form $z_k = x_k + iy_k$ for $1 \le k \le 2019$. Let $Q$ denote the monic polynomial with roots equal to $2x_k + iy_k$ for $1 \le k \le 2019$. Compute $Q(-2)$.
+\end{problem}
+
+\begin{problem}[Prize 2019/16] % sqrt(7)/2
+    The figure shows a regular heptagon with sides of length $1$.
+    \begin{center}
+        \begin{asy}
+        import geometry;
+        unitsize(5);
+        real R = 1/(2 sin(pi/7));
+        pair A = (0, R);
+        pair B = rotate(360/7) * A;
+        pair C = rotate(360/7) * B;
+        pair D = rotate(360/7) * C;
+        pair E = rotate(360/7) * D;
+        pair F = rotate(360/7) * E;
+        pair G = rotate(360/7) * F;
+        pair X = B + G - A;
+        pair Y = (D + E) / 2;
+        draw(A -- B -- C -- D -- E -- F -- G -- cycle);
+        draw("$1$", B -- X);
+        draw("$1$", X -- G);
+        draw("$d$", X -- Y);
+        dot(A);
+        dot(B);
+        dot(C);
+        dot(D);
+        dot(E);
+        dot(F);
+        dot(G);
+        dot(X);
+        dot(Y);
+        perpendicular(Y, NW, Y - A);
+        \end{asy}
+    \end{center}
+    Determine the indicated length $d$. Express your answer in simplified radical form.
+\end{problem}
+
+\end{document}

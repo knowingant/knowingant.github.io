@@ -5,6 +5,6 @@
 - Run publish_diary.sh. Example:
 Example:
 ```sh
-./scripts/publish_diary.sh private/diaries/week2/week2.tex "PASSWORD" "Week 2" --slug week2
+./scripts/publish_diary.sh private/diaries/daily/week2/week2.tex "PASSWORD" "Week 2" --slug week2
 ```
 - Run ./scripts/build_site.sh.

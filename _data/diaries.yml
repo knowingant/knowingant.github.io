@@ -106,3 +106,8 @@
   slug: rsi-2026
   date: '2026-08-09'
   summary: This PDF is password-protected.
+- title: Week 12
+  pdf: "/assets/diaries/week12/week12.pdf"
+  slug: week12
+  date: '2026-08-18'
+  summary: This PDF is password-protected.

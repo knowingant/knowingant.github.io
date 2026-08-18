@@ -1,0 +1,151 @@
+\documentclass[11pt]{scrartcl}
+\usepackage{evan}
+\usepackage{mathteam}
+
+\author{Michael Luo}
+\title{The geometric interpretation}
+\date{\today}
+
+\begin{document}
+
+Turn algebra problems into geometry! I usually do the reverse\dots.
+
+Thanks to Jeff Zhou for contributing Problems \ref{pro:jeff_1}, \ref{pro:jeff_2}, and \ref{pro:jeff_3}. Thanks for Addison Shi and Andreas Walexon for contributing Problems \ref{pro:masc_1} and \ref{pro:masc_2}. Thanks to Jessica Cao for suggestions.
+
+\section{Formula sheet}
+
+These formulas should be useful for the following problems.
+
+\begin{itemize}
+    \ii Pythagorean theorem:
+    \[a^2 + b^2 = c^2 \quad \text{ or } \quad \sqrt{a^2 + b^2} = c \quad \text{or} \quad \sqrt{c^2 - a^2} = b.\]
+    \ii Law of cosines: $c^2 = a^2 + b^2 - 2ab\cos C$.
+    \ii Heron's formula:
+    \begin{align*}
+        [ABC] &= \sqrt{s(s - a)(s - b)(s - c)} \\
+        &= \frac14\sqrt{(a + b + c)(a + b - c)(a - b + c)(-a + b + c)} \\
+        &= \frac14\sqrt{(a^2 + b^2 + c^2)^2 - 2(a^4 + b^4 + c^4)}.
+    \end{align*}
+    \ii $[ABC] = \frac12 ab\sin C$.
+    \ii Stewart's theorem: $a(d^2 + mn) = b^2m + c^2n$.
+\end{itemize}
+
+\section{Problems}
+
+Don't be afraid to ask for hints, these problems are \emph{hard}. Good luck!
+
+\begin{problem}[AHSME 1961/40]\label{pro:jeff_1}
+    Find the minimum possible value of $\sqrt{x^2 + y^2}$ if $5x + 12y = 60$.
+\end{problem}
+
+\begin{problem}[AoPS Intermediate Algebra 12.75]\label{pro:jeff_2}
+    Prove that for all real numbers $a,b,x,y$,
+    \[\sqrt{a^2+b^2} + \sqrt{x^2+y^2} \ge \sqrt{(a-x)^2 + (b-y)^2}.\]
+\end{problem}
+
+\begin{problem}[Baltic Way]
+    Let $a$, $b$, and $c$ be positive reals. Show that
+    \[\sqrt{a^2 - ab + b^2} + \sqrt{b^2 - bc + c^2} \ge \sqrt{a^2 + ac + c^2}.\]
+\end{problem}
+
+\begin{problem}[RAMC 2023/15]
+    For positive real numbers $a,b,c$,
+    \begin{align*}
+        a^2 - ab + b^2 &= 121 \\
+        a^2 - ac + c^2 &= 484 \\
+        b^2 + bc + c^2 &= 1089.
+    \end{align*}
+    Compute $bc$.
+\end{problem}
+
+\begin{problem}[Inspired by Angie]
+    Over positive reals $a$ and $b$, compute the maximum possible value of
+    \[\frac1{a^2b^2}\bigl((a + b)^2 - 2025\bigr)\bigl(2025 - (a - b)^2\bigr).\]
+\end{problem}
+
+\begin{problem}[Prize 2022/1]
+    Compute the value of $t$ such that
+    \[\sqrt{t^2 + (t^2 - 1)^2} + \sqrt{(t - 14)^2 + (t^2 - 46)^2}.\]
+\end{problem}
+
+\begin{problem}[AIME 1991/15]\label{pro:jeff_3}
+    For positive integer $n$, let $S_n$ be the minimum value of the sum
+    \[\sum_{k = 1}^n \sqrt{(2k - 1)^2 + a_k^2},\]
+    where $a_1,a_2,\dots,a_n$ are positive real numbers whose sum is $17$. There is a unique positive integer $n$ for which $S_n$ is an integer. Find this $n$.
+\end{problem}
+
+\begin{problem}[2025 AIME I/8]\label{pro:masc_1}
+    Let $k$ be a real number such that the system
+    \begin{align*}
+        \lvert 25+20i-z\rvert &= 5 \\
+        \lvert z-4-k\rvert &= \lvert z-3i-k\rvert
+    \end{align*}
+    has exactly one complex solution $z$. Compute the sum of all possible values of $k$.
+\end{problem}
+
+\begin{problem}[CMIMC Algebra 2016/6]\label{pro:masc_2}
+    For some complex number $\omega$ with $\lvert \omega\rvert = 2016$, there is some real $\lambda > 1$ such that $\omega$, $\omega^2$, and $\lambda\omega$ form an equilateral triangle in the complex plane. Find $\lambda$.
+\end{problem}
+
+\begin{problem}[AIME II 2006/15]
+    Solve over real numbers the system of equations
+    \begin{align*}
+        x &= \sqrt{y^2-\frac{1}{16}}+\sqrt{z^2-\frac{1}{16}} \\
+        y &= \sqrt{z^2-\frac{1}{25}}+\sqrt{x^2-\frac{1}{25}} \\
+        z &= \sqrt{x^2-\frac{1}{36}}+\sqrt{y^2-\frac{1}{36}}.
+    \end{align*}
+\end{problem}
+
+\begin{problem}[HMMT Algebra 2014/9]
+    Given that $a$, $b$, and $c$ are complex numbers satisfying
+    \begin{align*}
+        a^2 + ab + b^2 &= 1 + i \\
+        b^2 + bc + c^2 &= -2 \\
+        c^2 + ca + a^2 &= 1,
+    \end{align*}
+    compute $(ab + bc + ca)^2$.
+\end{problem}
+
+\begin{problem}[AIME II 2013/15]
+    In obtuse triangle $ABC$ with $\angle B > 90\dg$ we have
+    \begin{align*}
+        \cos^2 A + \cos^2 B + 2 \sin A \sin B \cos C &= \frac{15}{8} \\
+        \cos^2 B + \cos^2 C + 2 \sin B \sin C \cos A &= \frac{14}{9}.
+    \end{align*}
+    Compute
+    \[\cos^2 C + \cos^2 A + 2 \sin C \sin A \cos B.\]
+\end{problem}
+
+\begin{problem}[OTIS Mock AIME I 2025/12]
+    There exists a unique tuple of positive real numbers $(a,b,c,d)$ such that
+    \begin{align*}
+        (49 + ab)(a + b) &= 81a + 25b \\
+        (81 + bc)(b + c) &= 121b + 49c \\
+        (121 + cd)(c + d) &= 169c + 81d \\
+        a + b + c + d &= 12.
+    \end{align*}
+    Compute $d$.
+\end{problem}
+
+\begin{problem}[Math Prize 2022/18]
+    Let $A$ be the locus of points $(\alpha, \beta, \gamma)$ in the $\alpha\beta\gamma$-coordinate space that satisfy the following properties:
+
+    \begin{itemize}
+        \ii We have $\alpha$, $\beta$, $\gamma > 0$ and $\alpha + \beta + \gamma = \pi$.
+        \ii The intersection of the three cylinders in the $xyz$-coordinate space given by the equations
+        \begin{align*}
+            y^2 + z^2 &= \sin^2 \alpha \\
+            z^2 + x^2 &= \sin^2 \beta \\
+            x^2 + y^2 &= \sin^2 \gamma
+        \end{align*}
+        is nonempty.
+    \end{itemize}
+
+    Determine the area of $A$.
+\end{problem}
+
+\begin{problem}[HMMT Team 2022/6]
+    Let $a,b \in \CC$. The roots of $x^4 + ax^3 + bx^2 + x$ lie on a circle in the complex plane. Prove $ab \neq 9$.
+\end{problem}
+
+\end{document}
