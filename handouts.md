@@ -142,3 +142,8 @@ Please let me know about any errors, if you have any questions, or if you want s
 
     Everyone and their grandma wrote a Vieta handout at some point.
     Here's mine, which I originally presented at Math + Science Club in 2023.
+
+- **Trig from Complex**
+[(pdf)](complex-trig/complex-trig.pdf) [(tex)](complex-trig/complex-trig.tex)
+
+    A lecture I gave to MN Youth Math Outreach in 2026.
