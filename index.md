@@ -3,7 +3,7 @@ layout: page
 title: About
 ---
 
-Hi! I'm Michael Luo, a junior at [Minnetonka High School][mtka].
+Hi! I'm Michael Luo, a senior at [Minnetonka High School][mtka].
 I'm the current leader of Math + Science Club and Minnetonka Math Team.
 I enjoy bedwars, complex bashing, fight the landlord, poker,
 riichi mahjong, and tractor.
