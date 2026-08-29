@@ -3,31 +3,22 @@ layout: page
 title: About
 ---
 
+<div style="float: right; margin-right: 15px;">
+    <img src="/assets/images/michael.jpg" style="max-height: 220px; width: auto; height: auto;">
+</div>
+
 Hi! I'm Michael Luo, a senior at [Minnetonka High School][mtka].
-I'm the current leader of Math + Science Club and Minnetonka Math Team.
+I'm the current leader of Math + Science Club, Minnetonka Math Team,
+and Minnesota Youth Math Outreach.
 I enjoy bedwars, complex bashing, fight the landlord, poker,
-riichi mahjong, and tractor.
+riichi mahjong, tractor, and telling dumb jokes.
+I attended [MOP][mop] in 2025 and [RSI][rsi] in 2026.
 
-I used to grind math olympiads, but mostly stopped after attending MOP in 2025
-to focus on research (and riichi mahjong).
-My subject distribution is CCNAG, where the first C denotes complex bashing
-and the second C denotes combinatorics. The G denotes synthetic geometry.
-
-I like telling dumb jokes. If you see me in-person, ask me to tell you
-the joke about Boris and the joke about the miners.
-They are too good to waste online.
-
-Here are a few fun facts about myself, in decreasing order of importance.
-- Favorite state: Minnesota.
-- Favorite food: My grandmother's Chinese steamed fish,
-followed by my dad's hong shao pig feet.
-- Favorite riichi mahjong yaku: ryuuiisou (all greens).
-- Favorite Taylor Swift album: Speak Now.
-- Favorite ice cream flavor: asparagus.
-- Favorite color: red.
+I am proudly Minnesotan. My favorite riichi mahjong yaku is ryuuiisou (all greens) and my favorite Taylor Swift album is Speak Now.
 
 [mtka]: https://www.minnetonkaschools.org
 [mop]: https://web.evanchen.cc/mop.html
+[rsi]: https://www.cee.org/programs/research-science-institute
 
 ## Socials
 

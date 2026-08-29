@@ -46,9 +46,10 @@ Please let me know about any errors, if you have any questions, or if you want s
 - **Penguins**
 [(pdf)](stack-sorting/stack-sorting.pdf) [(tex)](stack-sorting/stack-sorting.tex) [(youtube)](https://youtu.be/4Pg7ZQRtXYY)
 
-    A ten-minute RSI talk on stack-sorting meant for an audience without a math background.
-    You should watch the YouTube video; credits to Tristan Sun for filming.
-    Watch the YouTube video instead of reading the slides.
+    A ten-minute RSI talk on stack-sorting
+    meant for an audience without a math background.
+    You should watch the YouTube video instead of reading the slides;
+    credits to Tristan Sun for filming.
 
 ### B tier
 
