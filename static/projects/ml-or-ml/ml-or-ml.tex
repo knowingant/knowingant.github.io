@@ -1,0 +1,83 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[sexy]{evan}
+\usepackage{mathteam}
+
+\title{Michael Luo or Machine Learning?}
+\author{Michael Luo}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    I asked Fable to generate jokes in my style and asked people to differentiate between them. Here are the results.
+\end{abstract}
+
+\section{Numerical results}
+
+TODO
+
+\section{ai is funny?}
+
+Here are the two jokes from Fable I think have positive funniness.
+\begin{joke}
+    my parents spent 17 years forcing me. that's how i proved my independence
+\end{joke}
+\begin{joke}
+    why do olympiad kids refuse to wear jean shorts? bad history with cutoffs
+\end{joke}
+This is obviously subjective. Out of the people who named favorite jokes, I won $13$ of the favorites, while Fable won $6$ of them, not counting Fable's own response. So I still have better one-line jokes, for now.
+
+This is a big improvement over GPT --- I asked 5.6 for a joke, and it said the following.
+\begin{joke}
+    Call me a functor the way I change the subject without changing the structure of the argument.
+\end{joke}
+Straight ass.
+
+\section{Confounding factors}
+
+\subsection{People don't get jokes}
+
+Lots of people probably didn't get some of my jokes. For example, lots of people who took thie quiz likely didn't know much about mahjong, so they didn't understand the following joke.
+\begin{joke}
+    what do you call gosling and reynolds waiting on both sides of the street? ryanmen
+\end{joke}
+So they just put down Michael Luo for the mahjong reference. However, if you \emph{do} understand mahjong, you realize this is not funny, so you click ``machine learning.'' I think this happened with the AI-generated other mahjong jokes as well, which are easy to find as soon as you hear the phrases ``ron,'' ``all simples,'' and ``kan,'' respectively.
+\begin{joke}
+    why does hermione fold every time weasley riichis? she refuses to deal into ron
+\end{joke}
+\begin{joke}
+    why do group theorists refuse to play anything but tanyao? all simples
+\end{joke}
+\begin{joke}
+    the category theorist at our table calls kan on literally every fourth tile. she says all concepts are kan extensions
+\end{joke}
+It's easy to ``automatically generate'' puns like this with nearly every mahjong term. For example, I came up with the following five jokes in fifteen minutes by repeatedly clicking ``random page'' on the riichi wiki.
+\begin{joke}
+    How do Japanese people see? Closed kan.
+\end{joke}
+\begin{joke}
+    Winning sanankou leaves a bitter taste in your mouth, since you know you might've won a yakuman with better draws, but suuankou leaves a suan kou.
+\end{joke}
+\begin{joke}
+    Black MOP keeps getting yakumans, 'cause they're ten hous.
+\end{joke}
+\begin{joke}
+    Doctor said I'm a tanki and have a hell weight. It's an honor.
+\end{joke}
+\begin{joke}
+    if you don't riichi pinfu dora1 first row you're a damahh
+\end{joke}
+These are all not \emph{that} good, but you can't tell unless you play mahjong. So these are indistinguishable from ``good'' mahjong jokes, whatever those are.
+
+Some other jokes were also not understood. For example, around a third of people said the following joke was AI. When I asked two of them, they said they did not realize that you bounce chalk on a blackboard to obtain a periodic sequence of dots, so it just sounds like stock.
+\begin{joke}
+    she bounce on my chalk till i release a periodic sequence of dots
+\end{joke}
+
+\subsection{No context}
+
+A lot of the sentence structure and other variables of the human-generated jokes were written to match that of a certain scenario, after which I dropped them essentially verbatim into the survey. Jokes in-context are automatically funnier, since they're harder to find --- to find a generic joke, you can search through the set of all possible contexts, but for a specific joke, your space is reduced since you can only exploit a single context.
+
+
+\end{document}

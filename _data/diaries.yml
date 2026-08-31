@@ -116,3 +116,8 @@
   slug: week13
   date: '2026-08-24'
   summary: This PDF is password-protected.
+- title: Week 14
+  pdf: "/assets/diaries/week14/week14.pdf"
+  slug: week14
+  date: '2026-08-30'
+  summary: This PDF is password-protected.
