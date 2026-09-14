@@ -35,7 +35,7 @@ My style of geometry is to complex bash. Let me show you how. First, here is som
 	\ii Keep everything factored for as long as possible. When checking if something is real or complex, factor it first.
 	\ii Troubleshoot often.
 	\begin{itemize}
-		\ii Expressions must always be homogenous (i.e., of the same degree). For example, $bc(a^2\ol z + b + c)$ is homogenous of degree $3$, since each term has degree $3$. If you ever see something like $bc(a^2\ol z + 1)$, something has gone horribly wrong.
+		\ii Expressions must always be homogeneous (i.e., of the same degree). For example, $bc(a^2\ol z + b + c)$ is homogeneous of degree $3$, since each term has degree $3$. If you ever see something like $bc(a^2\ol z + 1)$, something has gone horribly wrong.
 		\ii Plug in $b = c$ or all ones to make sure your expression stays the same from step to step.
 		\ii Any points you construct that are symmetric in $B$ and $C$ better have coordinates that are symmetric in $b$ and $c$.
 	\end{itemize}
@@ -45,7 +45,7 @@ My style of geometry is to complex bash. Let me show you how. First, here is som
 	\[f\left( \frac{(a - b)(a - c)(b + c)}{(a^2 + bc)(b - c)} \right) = \frac{(-ab) \cdot (-ac) \cdot bc}{a^2bc \cdot (-bc)} = -1.\]
 \end{itemize}
 
-Again: checking is the MOST important thing when bashing. Slow and steady really does win the race. Many times, I've had to redo a bash because I wasn't careful enough the first time, and I was using the wrong coordinate for a certain point the whole time. Check often. Check thoroughly. Any checking procedure short of doing every computation twice is acceptable. Check more often if you are low on sleep, using a rougher setup, or if (god forbid) you are breaking homogenity.
+Again: checking is the MOST important thing when bashing. Slow and steady really does win the race. Many times, I've had to redo a bash because I wasn't careful enough the first time, and I was using the wrong coordinate for a certain point the whole time. Check often. Check thoroughly. Any checking procedure short of doing every computation twice is acceptable. Check more often if you are low on sleep, using a rougher setup, or if (god forbid) you are breaking homogeneity.
 
 \pagebreak
 
@@ -87,7 +87,7 @@ We also include some less useful formulas.
         2(de + ef + fd)x^2 - ((d + e)(e + f)(f + d) + 4def)x + 2def(d + e + f) &= 0 \\
         \ol a(2d + a)x^2 - (d^2\ol a + 2d + a + 2da\ol a)x + da(d\ol a + 2) &= 0
     \end{align*}
-    \ii Let $f,g \in \CC[x]$ and let $h$ be an irreducible quadratic with roots $r$ and $s$. Let $n = \max(\deg f,\deg g)$. Then $\frac{f(r)}{g(r)} = \frac{f(s)}{g(s)}$ iff $\alpha f(x) + \beta g(x) + C(x)h(x) = 0$. Interpreting $\CC[x]$ as a vector space, this holds iff the determinant of the $n \times n$ matrix with one row as the coefficients of $f$, one row as the coefficients of $g$, and $n - 2$ rows as the coefficients of $x^ih(x)$ for $0 \le i < n - 2$ is zero. This is probably trivial by resultants or something but I don't know resultants.
+    \ii Let $f,g \in \CC[x]$ and let $h$ be an irreducible quadratic with roots $r$ and $s$. Let $n = \max(\deg f,\deg g) + 1$. Then $\frac{f(r)}{g(r)} = \frac{f(s)}{g(s)}$ iff $\alpha f(x) + \beta g(x) + C(x)h(x) = 0$ for some $\alpha$, $\beta$, and $C$ not all zero. Interpreting $\CC[x]$ as a vector space, this holds iff the determinant of the $n \times n$ matrix with one row as the coefficients of $f$, one row as the coefficients of $g$, and $n - 2$ rows as the coefficients of $x^ih(x)$ for $0 \le i < n - 2$ is zero. This is probably trivial by resultants or something but I don't know resultants.
     \ii Let $ABCD$ be a convex quadrilateral inscribed in the unit circle of the complex plane. It is possible to choose complex numbers $a$, $b$, $c$, and $d$ such that $A = a^2$, $B = b^2$, $C = c^2$, $D = d^2$, and the midpoints of $\arc{AB}$, $\arc{BC}$, $\arc{CD}$, $\arc{DA}$, $\arc{ABC}$, $\arc{BCD}$ are $-ab$, $-bc$, $-cd$, $+da$, $+ac$, and $+bd$.
     \begin{remark*}
         [A stupid-ass way to remember this]
@@ -107,20 +107,20 @@ We'll need some theory. A partition $\lambda = \lambda_1\lambda_2\lambda_3 \dots
 	3 & 5 & 8 & 8 & \none \\
 	1 & 2 & 2 & 7 & 8
 \end{ytableau}\]
-If $\lambda$ and $\mu$ are two partitions of $n$, define the Kostka number $K_{\lambda\mu}$ to be the number of semistandard Young tableau of shape $\lambda$ and content $\mu$.
+If $\lambda$ and $\mu$ are two partitions of $n$, define the Kostka number $K_{\lambda\mu}$ to be the number of semistandard Young tableaux of shape $\lambda$ and content $\mu$.
 
-Observe that $S_n$ acts $\CC[x_1,\dots,x_n]$ by permutation of variables. So for a partition $\lambda$, define
+Observe that $S_n$ acts on $\CC[x_1,\dots,x_n]$ by permutation of variables, so for a partition $\lambda$, define
 \[a_\lambda = \sum_{w \in S_n}\sgn(w)w(x_1^{\lambda_1}\cdots x_n^{\lambda_n}) = \det(x_i^{\lambda_j})_{1 \le i,j \le n}.\]
-We will now define the monomial symmetric functions. Let $\lambda$ be a partition with at most $n$ nonzero entries and let $m_i$ be the number of times $i$ appears in $\lambda$. Then
-\[m_\lambda(x_1,\dots,x_n) := \frac1{m_1!\cdots m_n!}\sum_{w \in S_n}w(x_1^{\lambda_1} \dots x_n^{\lambda_n}).\]
+We will now define the monomial symmetric functions. Let $\lambda$ be a partition of length $n$ and let $m_i$ be the number of times $i$ appears in $\lambda$. Then
+\[m_\lambda(x_1,\dots,x_n) := \frac1{m_0!\cdots m_n!}\sum_{w \in S_n}w(x_1^{\lambda_1} \dots x_n^{\lambda_n}).\]
 For example, $m_{211}(x_1,x_2,x_3) = x_1x_2x_3(x_1 + x_2 + x_3)$. Also, define the Schur function
 \[s_\lambda = \sum_\tau x_1^{\gamma(\tau)_1}\cdots x_n^{\gamma(\tau)_n},\]
-where the sum is taken over semistandard tableau $\tau$ on $\lambda$ with entries in $\{1,\dots,n\}$. This is equivalent to taking every semistandard tableau $\tau$, replacing each $i$ with $x_i$, multiplying the elements of $\tau$, and summing.
+where the sum is taken over semistandard tableaux $\tau$ on $\lambda$ with entries in $\{1,\dots,n\}$. This is equivalent to taking every semistandard tableau $\tau$, replacing each $i$ with $x_i$, multiplying the elements of $\tau$, and summing.
 
-It is a fact that the Schur functions are symmetric, i.e., they are invariant under any permutation of variables. We will sketch the proof, for completeness. The idea is that any permutation is a composition of adjacent transpositions, so it's enough to show $s_\lambda(x_1,\dots,x_i,x_{i + 1},\dots,x_n) = s_\lambda(x_1,\dots,x_{i + 1},x_i,\dots,x_n)$. For this, it's enough to show the number of semistandard tableau with content $(m_1,\dots,m_i,m_{i + 1},\dots,m_n)$ is equal to the number of semistandard tableau with content $(m_1,\dots,m_{i + 1},m_i,\dots,m_n)$ for all $(m_1,\dots,m_n)$. To show this, there's a bijection.
+It is a fact that the Schur functions are symmetric, i.e., they are invariant under any permutation of variables. We will sketch the proof, for completeness. The idea is that any permutation is a composition of adjacent transpositions, so it's enough to show $s_\lambda(x_1,\dots,x_i,x_{i + 1},\dots,x_n) = s_\lambda(x_1,\dots,x_{i + 1},x_i,\dots,x_n)$. For this, it's enough to show the number of semistandard tableaux with content $(m_1,\dots,m_i,m_{i + 1},\dots,m_n)$ is equal to the number of semistandard tableaux with content $(m_1,\dots,m_{i + 1},m_i,\dots,m_n)$ for all $(m_1,\dots,m_n)$. To show this, there's a bijection.
 
 \begin{definition}
-	For each $k$, the Bender-Knuth involution $\sigma_k$ is an involution on the set of semistandard tableau fixing shape and content except for swapping the number of occurrences of $k$ and $k + 1$. Specifically, the Bender-Knuth involution $\sigma_k$ is the composition of the following three operations.
+	For each $k$, the Bender--Knuth involution $\sigma_k$ is an involution on the set of semistandard tableaux fixing shape and content except for swapping the number of occurrences of $k$ and $k + 1$. Specifically, the Bender--Knuth involution $\sigma_k$ is the composition of the following three operations.
 	\begin{enumerate}
 		\ii Simultaneously replace every $k$ with a $k + 1$ and replace every $k + 1$ with a $k$.
 		\ii If there is a cell containing $k + 1$ above a cell containing $k$, swap them. This can happen at most once in each column.
@@ -197,7 +197,7 @@ These problems are relatively straightforward and should be tried before the wal
 \begin{problem}[ToT Spring 2018 J-A4]
 	Let $ABC$ be a triangle with circumcenter $O$
 	and let $H$ be the foot of the $A$-altitude.
-	Let $P$ be the foot the perpendicular from $A$ to line $CO$.
+	Let $P$ be the foot of the perpendicular from $A$ to line $CO$.
 	Prove that line $HP$ bisects side $AB$.
 \end{problem}
 
@@ -286,7 +286,7 @@ These problems are relatively straightforward and should be tried before the wal
 \begin{walkthrough}
 	This is the first problem I solved using complex numbers in-contest.
 
-	Let $\omega$ be the unit circle, and let $BC$, $CA$, and $AB$ be tangent to $\omega$ and $X$, $Y$, and $Z$, respectively.
+	Let $\omega$ be the unit circle, and let $BC$, $CA$, and $AB$ be tangent to $\omega$ at $X$, $Y$, and $Z$, respectively.
 	\begin{walk}
 		\ii Compute $a$, $d$, $m$, $b$, and $c$ using ice cream cone.
 		\ii We need to show
@@ -336,7 +336,7 @@ These problems are relatively straightforward and should be tried before the wal
 \begin{walkthrough}
 	I solved this problem on a MOP 2025 team contest. I presented my solution to Carl. After I was done, he said my setup was clean. We went on to win the contest.
 
-	Let $\omega$ be the unit circle. Let $\Gamma$ have radius $r$ and be centered at $k \in \RR$. Let $\ell$ meet $\omega$ at $Z$.
+	Let $\omega$ be the unit circle. Let $\Gamma$ have radius $r$ and be centered at $k \in \RR$. Let $\ell$ be tangent to $\omega$ at $Z$.
 	\begin{walk}
 		\ii Use the fact that $p$ lies on $\Gamma$ to obtain $p\ol p = k(p + \ol p) + r^2 - k^2$.
 		\ii Use the fact that $p$ lies on $\ell$ to get $\ol p = \frac{2z - p}{z^2}$.
@@ -399,7 +399,7 @@ These problems are relatively straightforward and should be tried before the wal
 		\[m = \frac{3yz + x(y + z) - x^2}{2(y + z)}.\]
 		\ii Show that
 		\[\phi(p) = \frac{p(x^2 + yz) - x^2(y + z)}{(y + z)(p - x)}.\]
-		\ii Let $p$ be either $f$ or $g$. Use the facts that $p$, $a$, $b$, and $c$ are concyclic and $p$ is unit to get a quadratic with roots $f$ and $g$. Obtain $f + g$ and $fg$ with Vieta's formulas. You do not need to solve for $f$ and $g$, in fact, you will not be able to, as this quadratic is irreducible. You should get
+		\ii Let $p$ be either $f$ or $g$. Use the facts that $p$, $a$, $b$, and $c$ are concyclic and $p$ is unit to get a quadratic with roots $f$ and $g$. Obtain $f + g$ and $fg$ with Vieta's formulas. You do not need to solve for $f$ and $g$; in fact, you will not be able to, as this quadratic is irreducible. You should get
 		\[f + g = \frac{4xyz + (x + y)(y + z)(z + x)}{2(xy + yz + zx)} \qquad fg = \frac{xyz(x + y + z)}{xy + yz + zx}.\]
 		\ii Using the above expressions for $f + g$ and $fg$, show that $\phi(f) + \phi(g) = 2m$. (This computation is not short.)
 	\end{walk}
@@ -527,7 +527,7 @@ These problems are relatively straightforward and should be tried before the wal
 \begin{walkthrough}
 	At MOP, Razzi (the LeBron of complex bashing) presented a solution to this problem after a MOP test. Revisiting this setup a few months later, I found a further insight to work in terms of $pq$ instead of just $p$ from the beginning. This makes the computation noticeably nicer and (in my opinion) more motivated. Anyway.
 
-	We will set $\Gamma$ as the unit circle. Let $j$ represent $I$.
+	We will set $\Omega$ as the unit circle. Let $j$ represent $I$.
 	\begin{center}
 		\begin{asy}
 		/*
@@ -613,7 +613,7 @@ These problems are relatively straightforward and should be tried before the wal
 \end{example}
 
 \begin{walkthrough}
-	Evan has a $15$-minute computation that requires guessing a homothety, however, this is black magic to me. We present three solutions that all require little synthetic insight. The solutions are of increasing order of instructiveness.
+	Evan has a $15$-minute computation that requires guessing a homothety; however, this is black magic to me. We present three solutions that all require little synthetic insight. The solutions are of increasing order of instructiveness.
 
 	Let $P$ be the tangency point of $\ell$ to $(ABC)$. Let $X = \ell_b \cap \ell_c$ and define $Y$ and $Z$ similarly. We complex bash with $(ABC)$ as the unit circle. The first step is the same in all three solutions.
 	\begin{walk}
@@ -658,7 +658,7 @@ These problems are relatively straightforward and should be tried before the wal
 		A cline is either a circle or a line.\footnote{A line is a circle passing through the point at infinity.} A M\"obius transformation is one of the form $z \mapsto \frac{az + b}{cz + d}$ where $a,b,c,d \in \CC$ and $ad - bc \neq 0$. Then
 		\begin{itemize}
 			\ii M\"obius transformations send clines to clines, and
-			\ii for any two clines $X$ and $Y$, there is exactly one M\"obius transform sending $X$ to $Y$.
+			\ii given complex numbers $A$, $B$, $C$, $X$, $Y$, and $Z$ such that $A$, $B$, and $C$ are pairwise distinct and $X$, $Y$, and $Z$ are pairwise distinct, there's exactly one M\"obius transformation sending $A$ to $X$, $B$ to $Y$, and $C$ to $Z$.
 		\end{itemize}
 	\end{theorem*}
 	\begin{walk}[resume]
@@ -769,7 +769,7 @@ These problems are relatively straightforward and should be tried before the wal
 		Expand to show it is $a_{521} - a_{431} - a_{530}$. This should not be hard: although there are sixteen terms, any of the form $p^aq^br^c$ where $a$, $b$, and $c$ are not all distinct should cancel, so you can just ignore them. (Why?)
 		\ii Apply the Jacobi bialternant formula to obtain
 		\[\left\lvert \frac{s_{311} - s_{221} - s_{32}}{(p + q)(q + r)(r + p)}\right\rvert.\]
-		\ii Expand in in terms of $m_\lambda$ to obtain
+		\ii Expand in terms of $m_\lambda$ to obtain
 		\[1 = \left\lvert \frac{m_{32} + 2m_{221}}{m_{21} + 2m_{111}}\right\rvert.\]
 		Square to get
 		\[1 = \frac{(m_{32} + 2m_{221})(m_{2,-1} + 2m_1)}{(m_{21} + 2m_{111})^2},\]

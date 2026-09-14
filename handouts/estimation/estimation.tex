@@ -54,7 +54,7 @@ Use of logarithms allows one to quickly compute otherwise-difficult expressions,
 	We have $\log 2 \approx 0.69$, $\log 3 \approx 1.10$, $\log 5 \approx 1.61$, $\log 7 \approx 1.95$. In particular, $\log 10 \approx 2.30$.
 \end{theorem}
 
-Here are two nice applications of Stirling's approximations:
+Here are two nice applications of Stirling's approximation:
 
 \begin{example}[MNYMO Guts 2024 Shortlist]
 	Ryan Niu flips $1000$ coins. Estimate the probability he gets between $490$ and $510$ heads, inclusive.
@@ -78,7 +78,7 @@ Here are two nice applications of Stirling's approximations:
 
 \begin{solution}
     In this solution, $\log$ denotes the base $10$ logarithm. We will estimate $\log\binom{1000}{100}$ and multiply by $4.5$, assuming the digits are random. Let $a = 100$ and $b = 900$. We compute
-    \[\log(n!) \approx \log\left(\frac1{\sqrt{2\pi n}}\left(\frac ne\right)^n\right) \approx \log\left(\left(\frac ne\right)^n\right) = n(\log n - \log e),\]
+    \[\log(n!) \approx \log\left(\sqrt{2\pi n}\left(\frac ne\right)^n\right) \approx \log\left(\left(\frac ne\right)^n\right) = n(\log n - \log e),\]
     so
     \begin{align*}
         \log\binom{a + b}{a} &\approx (a + b)(\log(a + b) - \log e) - a(\log a - \log e) - b(\log b - \log e) \\
@@ -92,8 +92,8 @@ Here are two nice applications of Stirling's approximations:
 
 \begin{remark*}
     Notice how, when estimating $\log(n!)$, we made the very rough estimate
-    \[\frac1{\sqrt{2\pi n}}\left(\frac ne\right)^n \approx \left(\frac ne\right)^n.\]
-    This looks terrible, but it's all inside a $\log$, so we are really only dropping the $\log\left(\frac1{\sqrt{2\pi n}}\right)$ term, which is pretty small.
+    \[\sqrt{2\pi n}\left(\frac ne\right)^n \approx \left(\frac ne\right)^n.\]
+    This looks terrible, but it's all inside a $\log$, so we are really only dropping the $\log\left(\sqrt{2\pi n}\right)$ term, which is pretty small.
 \end{remark*}
 
 \begin{remark*}
@@ -130,14 +130,14 @@ Along with your general toolkit (switching orders of summation, generating funct
 	\[\frac11 + \dots + \frac1n \approx \int_1^n\frac1x \odif x = \log n. \qedhere\]
 \end{solution}
 
-This estimate can actually be improved, a better approximation is $\log n + \gamma$, where $\gamma \approx 0.577$ is the Euler-Mascheroni constant. Here's a nice application:
+This estimate can actually be improved: a better approximation is $\log n + \gamma$, where $\gamma \approx 0.577$ is the Euler--Mascheroni constant. Here's a nice application:
 
 \begin{example}[Coupon collector]
 	Michael is reading Big Nate comics. Every second, he clicks the ``random'' button to view a random comic. Suppose there are $n$ comics. Estimate the expected number of seconds it will take for him to view all of them at least once.
 \end{example}
 
 \begin{solution}
-	Let $X_i$ be the expected number of seconds between his $i - 1$th and $i$th distinct comics. Clearly $X_1 = 1$, otherwise,
+	Let $X_i$ be the expected number of seconds between his $(i - 1)$th and $i$th distinct comics. Clearly $X_1 = 1$; otherwise,
 	\[X_i = 1 + \frac{n - i + 1}n \cdot 0 + \frac{i - 1}nX_i,\]
 	so $X_i = \frac n{n - i + 1}$. So the answer is
 	\[X_1 + \dots + X_n = \frac nn + \dots + \frac n1 = nH_n \approx n \log n. \qedhere\]
@@ -160,7 +160,7 @@ Our next example uses a logarithm to turn a product into a sum.
 	The exact answer is $8282580$, so we earn $18$ points.
 \end{solution}
 
-This example shows the importance of \emph{looking at the scoring}: the expression $\floor{22\min(A/E,E/A)}$ is much more forgiving than, say $\floor{22\min(A/E,E/A)^4}$. So we could use very rough estimates such as $16 \approx 10\log 5$ in the exponent of $e$.
+This example shows the importance of \emph{looking at the scoring}: the expression $\floor{22\min(A/E,E/A)}$ is much more forgiving than, say, $\floor{22\min(A/E,E/A)^4}$. So we could use very rough estimates such as $16 \approx 10\log 5$ in the exponent of $e$.
 
 \begin{example}[HMMT Guts 2015/34]
 	For an integer $n$, let $f(n)$ denote the number of pairs of integers $(x,y)$ such that $x^2 + xy + y^2 = n$. Compute
@@ -198,7 +198,7 @@ We have the following estimates on the number of primes:
 	There are approximately $\frac n{\log n}$ primes below $n$.
 \end{theorem}
 
-It's often useful to think of the primes as being ``random'': the ``probability'' of $n$ being prime can be thought of $\frac1{\log n}$.
+It's often useful to think of the primes as being ``random'': the ``probability'' of $n$ being prime can be thought of as $\frac1{\log n}$.
 
 \begin{theorem}[Prime number theorem for arithmetic progressions]\label{thm:pntap}
 	The primes are evenly distributed in the coprime residue classes modulo $n$.
@@ -216,7 +216,7 @@ Here's a cute application:
 
 \begin{solution}
 	Let $p = 2027$ and $n = p - 1 = 2026$. We assume each prime has probability $\frac1n$ of being $1,\dots,n$ modulo $p$, so by coupon collector, the expected number of primes needed to cover every nonzero residue class modulo $p$ is $n \log n$. And since the $m$th prime is approximately $m \log m$, our estimate is
-	\[n\log n\log(n \log n) = n\log n(\log n + \log \log n) \approx 2026 \cdot 7.6 \cdot (7.6 + 2.02) \approx 150000.\]
+	\[n\log n\log(n \log n) = n\log n(\log n + \log \log n) \approx 2026 \cdot 7.6 \cdot (7.6 + 2.02) \approx 150000,\]
 	where we have estimated
 	\[\log n \approx \log 2048 = 11 \log 2 \approx 7.6\]
 	and
@@ -231,9 +231,9 @@ Here's a cute application:
     \[n\log n\log(n \log n) \approx n\log^2 n \approx 117488,\]
     which earns $19$ points.
 
-    It feels somewhat weird to ``rig'' the solution this way. It's a much better decision to keep the $n \log n \log \log n$ term, because the scoring has an exponent of $8$, which is extremely unforgiving. But as it turns out, dropping the term yields a much better estimate, due to luck. If instead the answer had instead been closer to $150000$, would the organizers still use the above estimate? On a contest, you are not given the luxury of knowing what the answer is. Contest organizers should write solutions for estimations before they compute the exact answer.
+    It feels somewhat weird to ``rig'' the solution this way. It's a much better decision to keep the $n \log n \log \log n$ term, because the scoring has an exponent of $8$, which is extremely unforgiving. But as it turns out, dropping the term yields a much better estimate, due to luck. If instead the answer had been closer to $150000$, would the organizers still use the above estimate? On a contest, you are not given the luxury of knowing what the answer is. Contest organizers should write solutions for estimations before they compute the exact answer.
 
-	The astute reader may note that the first $\frac{2027}{\log 2027} \approx 266$ primes less than $2027$ will all be in distinct residue classes modulo $2027$, therefore, our assumption that the primes are randomly distributed modulo $2027$ is not accurate. However, this effect is far too small to cause a meaningful change in our answer. Indeed, taking into account this would make our answer the $k$th prime, where
+	The astute reader may note that the first $\frac{2027}{\log 2027} \approx 266$ primes less than $2027$ will all be in distinct residue classes modulo $2027$; therefore, our assumption that the primes are randomly distributed modulo $2027$ is not accurate. However, this effect is far too small to cause a meaningful change in our answer. Indeed, taking this into account would make our answer the $k$th prime, where
 	\[k = 266 + \frac n{n - 267} + \dots + \frac n1 \approx 266 + n\log(n - 267) \approx 15405,\]
 	giving an answer of $k \log k \approx 148545$. So we really did just get unlucky.
 \end{remark*}
@@ -394,12 +394,12 @@ Let's see a problem from an actual contest (although to be fair, I wrote this pr
 \end{example}
 
 \begin{solution}
-	Assume the birthdays are randomly chosen integers from $1$ to $13000000$. Let $N = 13000000$, we compute the expected $\gcd$ of two integers chosen randomly from $1$ to $N$. Since the probability of two integers chosen from $\{1,2,\dots,N\}$ being relatively prime is approximately $\frac{6}{\pi^2}$, so the probability of the $\gcd$ being $k$ for some $k \le N$ is $\frac{6}{(k\pi)^2}$. Therefore we estimate the expected value
+	Assume the birthdays are randomly chosen integers from $1$ to $13000000$. Let $N = 13000000$; we compute the expected $\gcd$ of two integers chosen randomly from $1$ to $N$. Since the probability of two integers chosen from $\{1,2,\dots,N\}$ being relatively prime is approximately $\frac{6}{\pi^2}$, the probability of the $\gcd$ being $k$ for some $k \le N$ is $\frac{6}{(k\pi)^2}$. Therefore we estimate the expected value
 	\[\sum_{k \le N}\frac{6}{k\pi^2} = \frac{6}{\pi^2}\sum_{k \le N}\frac 1k \approx \frac{6}{\pi^2}\log N \approx 10.\]
 	Since there are $\binom{7}{2}$ possible pairs, our estimate is $210$. Since the answer is $390$, we earned $10$ points.
 \end{solution}
 
-\begin{example}[HMNT 2023/36]
+\begin{example}[HMNT Guts 2023/36]
 	Isabella writes the expression $\sqrt d$ for each positive integer $d$ not exceeding $8!$ on the board. Seeing that these expressions might not be worth points on HMMT, Vidur simplifies each expression to the form $a\sqrt b$, where $a$ and $b$ are integers such that $b$ is not divisible by the square of a prime number. (For example, $\sqrt{20}$, $\sqrt{16}$, and $\sqrt6$ become $2\sqrt5$, $4\sqrt1$, and $1\sqrt6$, respectively.) Compute the sum of $a + b$ across all expressions that Vidur writes.
 
 	You will earn $\max\left(0,\ceil{20\left(1 - \abs{\log_{10}(A/E)}^{1/5}\right)}\right)$ points.
@@ -420,7 +420,7 @@ Let's see a problem from an actual contest (although to be fair, I wrote this pr
 
 \section{Combinatorics}
 
-When you're doing an estimation problem, you have a \emph{massive advantage} compared to a standard short-answer problem: you are given a hint of the solution method just from the problem statement itself. This is the most relevant in combinatorics, when there are basically two types of estimation problem: \emph{skill-based}, and \emph{intuition spam}. If a problem is skill-based, you have to actually do some math to solve the problem, whereas for intuition spam problems, you can usually just go with your gut\footnote{haha, see what I did there?} and still earn some points.
+When you're doing an estimation problem, you have a \emph{massive advantage} compared to a standard short-answer problem: you are given a hint of the solution method just from the problem statement itself. This is the most relevant in combinatorics, where there are basically two types of estimation problem: \emph{skill-based}, and \emph{intuition spam}. If a problem is skill-based, you have to actually do some math to solve the problem, whereas for intuition spam problems, you can usually just go with your gut\footnote{haha, see what I did there?} and still earn some points.
 
 \subsection{Skill-based}
 
@@ -439,15 +439,15 @@ Along with your standard combinatorics skills, we will also need some statistics
 
 	Let $X_i$ for $1 \le i \le 1000$ be random variables evaluating to $1$ if the $i$-th flip is heads and $-1$ if the $i$-th flip is tails. We want the probability
 	\[X := X_1 + \dots + X_{1000}\]
-	is between $-20$ and $20$, inclusive.
+	is between $-20$ and $20$, inclusive. We're going to approximate $X$ as a continuous variable; since $X$ can only take even values, we're going to fudge the interval $[-20,20]$ to $[-21,21]$.
 
-	Let $X$ be a random variable. From AP Statistics, recall the following definitions:
+	Let $Y$ be any random variable. From AP Statistics, recall the following definitions:
 	\begin{itemize}
-    	\ii The \emph{expected value} or \emph{mean} of a random variable $\mu \defeq \EE(X)$.
-    	\ii The \emph{variance} of a random variable $\Var(X) \defeq \EE\big((X - \EE(X))^2\big) = \EE(X^2) - \EE(X)^2$.
+    	\ii The \emph{expected value} or \emph{mean} of a random variable $\mu \defeq \EE(Y)$.
+    	\ii The \emph{variance} of a random variable $\Var(Y) \defeq \EE\big((Y - \EE(Y))^2\big) = \EE(Y^2) - \EE(Y)^2$.
             \ii The \emph{standard deviation} $\sigma$ of a random variable is the square root of its variance.
 	\end{itemize}
-    Additionally, recall that variance is linear: if $X$ and $Y$ are independent random variables, $\Var(X + Y) = \Var(X) + \Var(Y)$. (The proof is just linearity of expectation.)
+    Additionally, recall that variance is additive: if $X$ and $Y$ are independent random variables, $\Var(X + Y) = \Var(X) + \Var(Y)$. (The proof is just linearity of expectation.)
 
 	Since each of the $X_i$ have variance $1$, $X$ has variance $1000$, so $X$ has standard deviation $\sigma = \sqrt{1000}$. Also $\mu = 0$. It turns out this is already enough information to approximate the probability of $X$ being between $-21$ and $21$, because:
 	\begin{theorem}[Central limit theorem]
@@ -465,7 +465,7 @@ Along with your standard combinatorics skills, we will also need some statistics
 	Back to the problem: here, the standard deviation isn't $1$, so we cannot directly approximate like above. However: we may define the $Z$-value of a random variable $X$ to be
 	\[Z = \frac{X - \mu}{\sigma}.\]
 	Basically, $Z$ scales $X$ to have mean $0$ and standard deviation $1$. Now if $X$ is normal, then $Z$ is standard normal! So the probability is
-	\[\int_{\frac{-21 - \mu}{\sigma}}^{\frac{21 - \mu}{\sigma}}\normalpdf(x) \, \mathrm dx\]
+	\[\int_{\frac{-21 - \mu}{\sigma}}^{\frac{21 - \mu}{\sigma}}\normalpdf(x) \, \mathrm dx.\]
 	But since $\normalpdf(x)$ is approximately $\frac1{\sqrt{2\pi}}$ when $x$ is close to $0$, this is approximately
 	\[\frac{(21 - \mu) - (-21 - \mu)}{\sigma} \cdot \frac{1}{\sqrt{2\pi}} = \frac{21}{\sqrt{500\pi}}. \qedhere\]
 \end{solution}
@@ -479,7 +479,7 @@ You are allowed to use a scientific calculator for the next example.
 \end{example}
 
 \begin{solution}
-	Let $X_i$ be a random variable that chooses $\cbrt{F_i},-\cbrt{F_i}$ at random. Let $X = X_2 + \dots + X_{31}$, we want to find the probability $X$ is in the interval $[-1,1]$. By central limit theorem, $X$ is approximately normal. Now by Binet the variance of $X$ is
+	Let $X_i$ be a random variable that chooses $\cbrt{F_i},-\cbrt{F_i}$ at random. Let $X = X_2 + \dots + X_{31}$; we want to find the probability $X$ is in the interval $[-1,1]$. By the central limit theorem, $X$ is approximately normal. Now by Binet the variance of $X$ is
 	\[\sum_{i = 2}^{31}\Var(X_i) \approx \sum_{i = 2}^{31}\frac{\varphi^{2i/3}}{\cbrt 5} = \frac{\varphi^{20} - 1}{\varphi^{2/3} - 1} \cdot \varphi^{4/3}5^{-1/3}.\]
 	Therefore the probability is approximately
 	\[\frac1{\sqrt{2\pi}} \cdot \frac{1 - (-1)}{\sqrt{\Var(X)}},\]
@@ -505,7 +505,7 @@ This is an example of a problem that's just a straight-up combinatorics problem,
     Therefore, there are
     \[\frac{(2^{23} - 2^0)(2^{23} - 2^1)\cdots(2^{23} - 2^{n - 1})}{(2^n - 1)(2^n - 2) \cdots (2^n - 2^{n - 1})}.\]
     subspaces of $\FF_2^{23}$ with dimension $n$. We can multiply this by constant factors since we are calculating a ratio, so we may approximate this as $\frac{2^{23n}}{2^{n^2}} = 2^{23n - n^2}$. Again scaling by a constant, this is $f(n) \defeq 2^{\frac14 -(n - \frac{23}2)^2}$. Since this decays quickly when $n$ is not close to $11$ or $12$, the ratio is approximately
-    \[\frac{f(11)}{\sum_{i = 0}^{23}f(n)} \approx \frac{f(11)}{\sum_{i = 9}^{14}f(i)} = \frac1{2(1 + 2^{-2} + 2^{-6})} = \frac{32}{81} \approx 0.395.\]
+    \[\frac{f(11)}{\sum_{i = 0}^{23}f(i)} \approx \frac{f(11)}{\sum_{i = 9}^{14}f(i)} = \frac1{2(1 + 2^{-2} + 2^{-6})} = \frac{32}{81} \approx 0.395.\]
     Since the answer is about $0.395020305$, we earned $25$ points.
 \end{solution}
 
@@ -543,12 +543,12 @@ Here are two nice applications of the idea of averaging upper and lower bounds:
 		by casework on the location of the first string.
 		\ii \textbf{Upper bound.} Suppose any two different sequences can overlap, then there are $\binom{11}2 = 55$ sequences.
 	\end{itemize}
-	So take we take the average $38$, which gives an estimate
+	So we take the average $38$, which gives an estimate
 	\[\left(1 - \frac1{3^5}\right)^{38} \approx 1 - \frac{38}{3^5} \approx 0.844.\]
 	Since the answer is about $0.85531769$, we earned $19$ points.
 \end{solution}
 
-\begin{example}[HMNT 2020/35]
+\begin{example}[HMNT Guts 2020/35]
 	Alice is trying to cross a $400$-foot wide river. She can jump at most $4$ feet, but she has many stones she can throw into the river. She will stop throwing stones and cross the river once she has placed enough stones to be able to do so. She can throw straight, but she can't judge distance very well, so each stone ends up being placed uniformly at random along the width of the river. Estimate the expected number of stones she must throw before she can get across the river.
 
 	You will earn $\floor{20\min(A/E,E/A)^3}$ points.

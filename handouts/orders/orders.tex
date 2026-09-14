@@ -57,10 +57,10 @@ Here are some non-examples of groups.
 
 Now, how can we tell if two groups are the same?
 \begin{definition}
-	A \emph{isomorphism} between two groups $(G,\star)$ and $(H,\circ)$ is essentially a structure-preserving bijection. That is, a function $f: G \to H$ is an isomorphism if:
+	An \emph{isomorphism} between two groups $(G,\star)$ and $(H,\circ)$ is essentially a structure-preserving bijection. That is, a function $f: G \to H$ is an isomorphism if:
 	\begin{itemize}
 		\ii $f$ is bijective.
-		\ii For all $g_1,g_2 \in G_1$, $f(g_1 \star g_2) = f(g_1) \circ f(g_2)$.
+		\ii For all $g_1,g_2 \in G$, $f(g_1 \star g_2) = f(g_1) \circ f(g_2)$.
 	\end{itemize}
 	If there exists an isomorphism between $(G,\star)$ and $(H,\circ)$, we say $(G,\star)$ and $(H,\circ)$ are \emph{isomorphic}, denoted $(G,\star) \cong (H,\circ)$.
 \end{definition}
@@ -136,7 +136,7 @@ From Fermat's little theorem, we have
 Now it is time to introduce the notion of orders.
 
 \begin{definition}
-	The \emph{order} of an element $a \in (\ZZ/p\ZZ)^\ast$, denoted $\ord_p(a)$, is the smallest $m$ such that $a^m \equiv 1 \pmod{p}$.
+	The \emph{order} of an element $a \in (\ZZ/p\ZZ)^\times$, denoted $\ord_p(a)$, is the smallest positive integer $m$ such that $a^m \equiv 1 \pmod{p}$.
 \end{definition}
 
 \begin{theorem}[Fundamental theorem of orders]
@@ -144,7 +144,7 @@ Now it is time to introduce the notion of orders.
 \end{theorem}
 
 \begin{proof}
-	Suppose otherwise, then write $n = q\ord_p(a) + r$ where $0 < r < \ord_p(a)$. Now
+	Suppose otherwise, and write $n = q\ord_p(a) + r$ where $0 < r < \ord_p(a)$. Now
 	\[a^n \equiv \left(a^{\ord_p(a)}\right)^q \cdot a^r \equiv a^r \equiv 1 \pmod{p}\text{,}\]
 	but this is impossible since $r < \ord_p(a)$.
 \end{proof}
@@ -201,10 +201,10 @@ Let's see a few examples. I strongly encourage you to try the examples yourself 
 	For how many integers $a$ with $1 \le a \le 41$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant $\pmod{41}$?
 \end{example}
 
-We see $41$ works, now we count the $a \in (\ZZ/41\ZZ)^\times$. Let $a = g^k$. We want the sequence $g^k,g^{2k},g^{4k},\dots$ to eventually converge, which is equivalent to the exponents $k,2k,4k,\dots$ converging $\pmod{40}$. This occurs iff $k$ is a multiple of $5$, of which there are $8$. Therefore, the asnwer is $9$.
+We see $41$ works; now we count the $a \in (\ZZ/41\ZZ)^\times$. Let $a = g^k$. We want the sequence $g^k,g^{2k},g^{4k},\dots$ to eventually converge, which is equivalent to the exponents $k,2k,4k,\dots$ converging $\pmod{40}$. This occurs iff $k$ is a multiple of $5$, of which there are $8$. Therefore, the answer is $9$.
 
 \begin{example}[$n^2 + 1$ lemma]
-	Let $p$ be a prime. Then there exists an $n$ such that $p \mid n^2 + 1$ iff $p \equiv 1 \pmod{4}$.
+	Let $p$ be an odd prime. Then there exists an $n$ such that $p \mid n^2 + 1$ iff $p \equiv 1 \pmod{4}$.
 \end{example}
 
 Note the condition $p \mid n^2 + 1$ rearranges to $n^2 \equiv -1 \pmod{p}$, which becomes $\ord_p(n) = 4$. If $p \equiv 1 \pmod{4}$, then taking $n = g^{\frac{p - 1}{4}}$ where $g$ is a primitive root works. If $p \mid n^2 + 1$, $\ord_p(n) = 4 \mid p - 1$ so $p \equiv 1 \pmod{4}$, as desired.
@@ -223,7 +223,7 @@ We'll first need the following claim, which is sometimes known as Fermat's Chris
 	Suppose $a,b$ are relatively prime and $p$ is an odd prime dividing $a^2 + b^2$. We show $p \equiv 1 \pmod{4}$, which is enough. The condition rearranges to $a^2 + b^2 \equiv 0 \pmod{p}$, or $(ab^{-1})^2 + 1 \equiv 0 \pmod{p}$, where $b^{-1}$ is the multiplicative inverse of $b \pmod{p}$. But by the $n^2 + 1$ lemma this implies $p \equiv 1 \pmod{4}$, and we are done.
 \end{proof}
 
-Since $2024^2 = 2^6 \cdot 11^2 \cdot 23^2$, the only primes dividing $a^2 + b^2$ are $2,11,23$, so there are no $1 \pmod{4}$ primes. If $a$ and $b$ are relatively prime, the only possible pairs are $(1,1)$, $(2,2)$, and $(4,4)$. You can multiply these pairs by $1$, $11$, $23$, and $11 \cdot 23$ for a total of $4 \cdot 3 = 12$ pairs.
+Since $2024^2 = 2^6 \cdot 11^2 \cdot 23^2$, the only primes dividing $a^2 + b^2$ are $2$, $11$, and $23$. Let $a = xd$ and $b = yd$ with $x$ and $y$ relatively prime. Then $x = y = 1$, else there's a $1 \bmod 4$ prime dividing $x^2 + y^2$ and hence $2024$. Then $2d^2 \mid 2024^2$, so $d \mid 4 \cdot 11 \cdot 23$, so the answer is $12$.
 
 \begin{example}
 	How many primitive roots are there $\pmod{p}$?
@@ -266,18 +266,18 @@ Intuitively, this means prime powers \emph{don't interact}. I think the only way
 
 Let $x_n$ denote a power tower composed of $n$ copies of $2022$, we want to compute $x_{2022}$ modulo $111$. Since $111 = 3 \cdot 37$, by the Chinese remainder theorem, it's enough to compute the expression modulo $3$ and $37$. Since $3 \mid 2022$, $3 \mid x_{2022}$, so $x_{2022} \equiv 0 \pmod{3}$. Now since $6 \mid 2022$, $36 \mid x_{2021}$, so by Fermat's little theorem, $x_{2022} \equiv 1 \pmod{37}$.
 
-So now we must determine $x_{2022} \pmod{111}$. We know $x_{2022}$ is of the form $37k + 1$, and we want this to be $0 \pmod{3}$. In other words, we want $37k + 1 \equiv k + 1 \equiv 0 \pmod{3}$, so $k = 2 \pmod{3}$, so $x_{2022} \equiv 37 \cdot 2 + 1 \equiv 75 \pmod{111}$.
+So now we must determine $x_{2022} \pmod{111}$. We know $x_{2022}$ is of the form $37k + 1$, and we want this to be $0 \pmod{3}$. In other words, we want $37k + 1 \equiv k + 1 \equiv 0 \pmod{3}$, so $k \equiv 2 \pmod{3}$, so $x_{2022} \equiv 37 \cdot 2 + 1 \equiv 75 \pmod{111}$.
 
 \begin{example}[HMMT Guts 2019/28]
 	How many positive integers $2 \le a \le 101$ have the property that there exists a positive integer $N$ for which the last two digits in the decimal representation of $a^{2^n}$ is the same for all $n \ge N$?
 \end{example}
 
-This is the same as the earlier problems but asking for $100$ instead of $41$ or $25$. The key insight here is that we can split $\ZZ/100\ZZ$ into $\ZZ/4\ZZ$ and $\ZZ/25\ZZ$ by Chinese remainder theorem:
+This is the same as the earlier problems but asking for $100$ instead of $41$ or $25$. The key insight here is that we can split $\ZZ/100\ZZ$ into $\ZZ/4\ZZ$ and $\ZZ/25\ZZ$ by the Chinese remainder theorem:
 \begin{itemize}
 	\ii In $\ZZ/25\ZZ$, there are $9$ working residues by \Cref{ex:weak_hmmt}.
 	\ii In $\ZZ/4\ZZ$, clearly all $4$ residues work.
 \end{itemize}
-Each pair of working residues in $\ZZ/25\ZZ$ and $\ZZ/4\ZZ$ uniquely correspond to a working residue in $\ZZ/100\ZZ$, again by Chinese remainder theorem, so the answer is $9 \cdot 4 = 36$.
+Each pair of working residues in $\ZZ/25\ZZ$ and $\ZZ/4\ZZ$ uniquely corresponds to a working residue in $\ZZ/100\ZZ$, again by the Chinese remainder theorem, so the answer is $9 \cdot 4 = 36$.
 
 \begin{example}[OTIS Mock AIME 2024/13]
 	Compute the sum of all integers $n$ such that $1 \le n \le 2024$ and exactly one of $n^{22} - 1$ and $n^{40} - 1$ is divisible by $2024$.
@@ -298,10 +298,10 @@ Let this set be $S$. Observe $a$ is the number of elements $s \in S$ such that $
 	For how many integers $n$ with $2017 \le n \le 2017^2$ do we have $n^n \equiv 1 \pmod{2017}$?
 \end{example}
 
-Observe $p = 2017$ is prime. Observe the value of $n^n \pmod{p}$ is uniquely determined by $n \pmod{p}$ and $n \pmod{p - 1}$, and that $n$ takes on each ordered pair $(r_1,r_2) \pmod{p - 1,p}$ exactly once. Therefore we just want the number of ordered pairs $(a,b) \in \ZZ/p\ZZ \times \ZZ/(p - 1)\ZZ$ such that $a^b \equiv 1 \pmod{p}$.
+Observe $p = 2017$ is prime. Since $n = 2017^2$ fails, we replace the interval with $S = [2017,2017^2) \cap \ZZ$. Now the value of $n^n \pmod{p}$ is uniquely determined by $n \pmod{p}$ and $n \pmod{p - 1}$. Also, as $n$ ranges over $S$, its remainders modulo $p - 1$ and $p$ take every value $(r_1,r_2) \in \ZZ/(p - 1)\ZZ \times \ZZ/p\ZZ$ exactly once. Therefore, we just want the number of ordered pairs $(a,b) \in \ZZ/p\ZZ \times \ZZ/(p - 1)\ZZ$ such that $a^b \equiv 1 \pmod{p}$.
 
-By \Cref{ex:num_order}, there are $\varphi(d)$ elements of order $d$ for each $d \mid n$. For each element $a \in (\ZZ/p\ZZ)^\times$, there are $\frac{p}{\ord_p(a)}$ possible $b$ such that $a^b \equiv 1 \pmod{p}$. Summing over $a$, our answer is
-\[\sum_{a = 0}^{p - 1}\frac{p - 1}{\ord_p(a)}\text{.}\]
+By \Cref{ex:num_order}, there are $\varphi(d)$ elements of order $d$ for each $d \mid p - 1$. For each element $a \in (\ZZ/p\ZZ)^\times$, there are $\frac{p - 1}{\ord_p(a)}$ possible $b$ such that $a^b \equiv 1 \pmod{p}$. Summing over $a$, our answer is
+\[\sum_{a = 1}^{p - 1}\frac{p - 1}{\ord_p(a)}\text{.}\]
 By casework on $\ord_p(a)$, this becomes
 \[\sum_{d \mid p - 1}\varphi(d)\frac{p - 1}{d}\text{.}\]
 Note this sum is just $(\varphi \ast \id)(p - 1)$, where $\ast$ is the Dirichlet convolution. Since $\varphi \ast \id$ is multiplicative, the sum is just

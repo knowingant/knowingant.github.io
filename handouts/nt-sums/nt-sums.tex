@@ -36,7 +36,7 @@
 	Compute the number of divisors of $2024$ and find their sum.
 \end{example}
 
-Let $d(n)$ be the number of divisors of $n$, and let $\sigma(n)$ be the sum of the divisors of $n$. We seek to compute $d(2024)$ and $\sigma(2024)$. Let $\mathbf 1$ and $\id$ be functions with $\mathbf 1(n) = 1$ and let $\id(n) = n$, which are both clearly multiplicative. Now we see
+Let $d(n)$ be the number of divisors of $n$, and let $\sigma(n)$ be the sum of the divisors of $n$. We seek to compute $d(2024)$ and $\sigma(2024)$. Let $\mathbf 1$ and $\id$ be functions with $\mathbf 1(n) = 1$ and $\id(n) = n$, which are both clearly multiplicative. Now we see
 \[d(n) = \sum_{d \mid n}1 = \sum_{d \mid n}\mathbf 1(d)\mathbf 1\left(\frac{n}{d}\right) = (\mathbf 1 \ast \mathbf 1)(n).\]
 Since $d(n)$ may be written as the Dirichlet convolution of two multiplicative functions, it is itself multiplicative. Similarly, observe that
 \[\sigma(n) = \sum_{d \mid n}d = \sum_{d \mid n}\id(d)\mathbf 1\left(\frac{n}{d}\right) = (\id \ast \mathbf 1)(n)\text{,}\]
@@ -45,7 +45,7 @@ so $\sigma$ is multiplicative as well.
 So how do we use the multiplicativity to actually compute $d(2024)$ and $\sigma(2024)$? Well, observe that if $f$ is a multiplicative function and $n$ is a positive integer whose prime factorization is $p_1^{\alpha_1}p_2^{\alpha_2}\dots p_k^{\alpha_k}$, we have $f(n) = f(p_1^{\alpha_1})f(p_2^{\alpha_2})\dots f(p_k^{\alpha_k})$. This fact is very important---if we want to compute $f$ for arbitrary $n$, we only need to compute $f$ for prime powers, and if we want to prove two multiplicative functions $f$ and $g$ are equal, we only need to show they are equal for prime powers. So factoring $2024 = 2^3 \cdot 11 \cdot 23$, we find
 \[d(2024) = d(2^3)d(11)d(23) = (3 + 1)(1 + 1)(1 + 1) = 16\]
 and
-\[\sigma(2024) = d(2^3)d(11)d(23) = (1 + 2 + 2^2 + 2^3)(1 + 11)(1 + 23) = 4320.\]
+\[\sigma(2024) = \sigma(2^3)\sigma(11)\sigma(23) = (1 + 2 + 2^2 + 2^3)(1 + 11)(1 + 23) = 4320.\]
 This is another way to find the ``standard'' formulas for the number and sum of divisors.
 
 \begin{problem}
@@ -67,7 +67,7 @@ We want the minimum $n$ such that $35$ divides this product, which is achieved w
 \section{Euler's totient function}
 
 \begin{definition}
-    Euler's totient function, denoted $\varphi$, returns the number of positive integers less than a given positive integer relatively prime to it.
+    Euler's totient function, denoted $\varphi$, returns the number of positive integers at most a given positive integer relatively prime to it.
 \end{definition}
 
 \begin{theorem}
@@ -75,7 +75,7 @@ We want the minimum $n$ such that $35$ divides this product, which is achieved w
 \end{theorem}
 
 \begin{proof}
-	By the Chinese Remainder Theorem, we have
+	By the Chinese remainder theorem, we have
     \[\varphi(mn) = \abs{(\ZZ/mn\ZZ)^\times} = \abs{(\ZZ/m\ZZ)^\times \times (\ZZ/n\ZZ)^\times} = \varphi(m)\varphi(n).\]
 \end{proof}
 
@@ -91,7 +91,7 @@ We want the minimum $n$ such that $35$ divides this product, which is achieved w
 We present two proofs of this fact.
 \begin{proof}[Proof with prime powers]
 	Since both sides are multiplicative, it's enough to show the equality for $n = 1$, which is clear, and prime powers $n = p^\alpha$. We have
-	\[\sum_{d \mid p^\alpha}\varphi(d) = \varphi(1) + \varphi(p) + \dots + \varphi(p^n) = 1 + (p - 1) + \dots + \left(p^\alpha - p^{\alpha - 1}\right) = p^\alpha\text{,}\]
+	\[\sum_{d \mid p^\alpha}\varphi(d) = \varphi(1) + \varphi(p) + \dots + \varphi(p^\alpha) = 1 + (p - 1) + \dots + \left(p^\alpha - p^{\alpha - 1}\right) = p^\alpha\text{,}\]
 	as desired.
 \end{proof}
 
@@ -170,7 +170,7 @@ Just like $\mathbf 1$ can be inverted, all arithmetic functions with $f(1) \neq 
 	We claim the function $g$ given by the recursive formula
 	\[g(n) = \begin{cases}
 		\frac{1}{f(1)} & n = 1 \\
-		-\frac{1}{f(1)}\sum_{d \mid n, d < n}f(n)g\left( \frac{n}{d} \right) & n > 1
+		-\frac{1}{f(1)}\sum_{d \mid n, d < n}f(d)g(n/d) & n > 1
 	\end{cases}\]
 	works. We show $(f \ast g)(n) = \varepsilon(n)$ for all $n$. If $n = 1$, we see
 	\[(f \ast g)(1) = f(1)g(1) = f(1) \cdot \frac{1}{f(1)} = 1 = \varepsilon(1).\]
@@ -197,7 +197,7 @@ with pointwise addition and multiplication given by the Dirichlet convolution.
 \begin{problem}[Brilliant]
 	\label{pro:brilliant}
 	Show that
-	\[\sum_{d \mid n}\sigma\left(\frac nd\right)\varphi(n) = nd(n).\]
+	\[\sum_{d \mid n}\sigma(\tfrac nd)\varphi(d) = nd(n).\]
 \end{problem}
 
 \begin{problem}[SMT Team 2024/14]
@@ -231,15 +231,21 @@ with pointwise addition and multiplication given by the Dirichlet convolution.
 \begin{solution}{\Cref{pro:cmimc-2023}}
 	Let
 	\[f(n) = \frac 1n\sum_{k = 1}^{n}\gcd(n,k).\]
-	We want to find $f(\varphi(2023))$. If $d \mid n$, observe that there are $\varphi(\frac{n}{d})$ solutions $1 \le k \le n$ to $\gcd(k,n) = d$. Therefore, by casework on $\gcd(n,k)$,
-	\[f(n) = \frac 1n\sum_{d \mid n}d \cdot \frac{n}{d} = \sum_{d \mid n}1 = d(n).\]
-	Observing $\varphi(2023) = \varphi(7 \cdot 17^2) = \varphi(7)\varphi(17^2) = (7 - 1)(17^2 - 17) = 2^5 \cdot 3 \cdot 17$, we see $f(\varphi(2023)) = d(\varphi(2023)) = (5 + 1)(1 + 1)(1 + 1) = 24$.
+	We want to find $f(\varphi(2023))$. If $d \mid n$, observe that there are $\varphi(\frac nd)$ solutions $1 \le k \le n$ to $\gcd(k,n) = d$. Therefore, by casework on $\gcd(n,k)$,
+	\[f(n) = \frac 1n\sum_{d \mid n}d\varphi(n/d).\]
+	Let $g(n) = nf(n)$. Then $g = \id \ast \varphi$, so $g$ is multiplicative. We compute
+	\[\varphi(2023) = \varphi(7 \cdot 17^2) = \varphi(7)\varphi(17^2) = (7 - 1)(17^2 - 17) = 2^5 \cdot 3 \cdot 17.\]
+	For a prime power $p^\alpha$, we compute
+	\[g(p^\alpha) = p^\alpha - p^{\alpha - 1} + p(p^{\alpha - 1} - p^{\alpha - 2}) + \dots + p^{\alpha} = (\alpha + 1)p^\alpha - \alpha p^{\alpha - 1}.\]
+	Therefore,
+	\[g(\varphi(2023)) = g(2^5)g(3)g(17) = 112 \cdot 5 \cdot 33\]
+	and $f(\varphi(2023)) = \frac{g(\varphi(2023))}{\varphi(2023)} = \frac{385}{34}$.
 \end{solution}
 
 \begin{solution}{\Cref{pro:pumac-2016}}
-	Note $n = 2017^2$ does not work. Observe the set of positive integers between $2017$ and $2017^2 - 1$ are in bijection with the set of equivalence classes of ordered pairs $(a \mod{2017},b \mod{2016})$. Therefore, it's equivalent to find the number of ordered pairs $(a,b)$ with $0 \le a \le 2016$ and $0 \le b \le 2015$ with $a^b \equiv 0 \pmod{2017}$.
+	Note $n = 2017^2$ does not work. Observe the set of positive integers between $2017$ and $2017^2 - 1$ are in bijection with the set of equivalence classes of ordered pairs $(a \mod{2017},b \mod{2016})$. Therefore, it's equivalent to find the number of ordered pairs $(a,b)$ with $0 \le a \le 2016$ and $0 \le b \le 2015$ with $a^b \equiv 1 \pmod{2017}$.
 	
-	Observe $2017$ is prime, so for all $d \mid 2016$, there are $\varphi(d)$ $a$ with order $d$, and if $a$ has order $d$, there are $\frac{2016}d$ choices for $b$.
+	Observe $2017$ is prime, so for all $d \mid 2016$, there are $\varphi(d)$ $a$ with order $d$, and if $a$ has order $d$, there are $\frac{2016}d$ choices for $b$. Hence the answer is
 	\[\sum_{d \mid 2016}\varphi(d)\frac{2016}{d}.\]
 	Let
 	\[f(n) = \sum_{d \mid n}\varphi(d)\frac{n}{d} = (\varphi \ast \id)(n).\]
@@ -295,7 +301,7 @@ with pointwise addition and multiplication given by the Dirichlet convolution.
 		9F(N) &= 9\sum_{d \mid N}f(d) \\
 		&= 9\sum_{a \mid A}\sum_{b \mid B}\sum_{c \mid C}f(abc) \\
 		&= 9\sum_{a \mid A}\sum_{b \mid B}\sum_{c \mid C}f(a)f(b)f(c) + f(a)g(b)g(c) + g(a)f(b)g(c) + g(a)g(b)f(c) \\
-		&= 9(F(A)F(B)F(C) + F(A)G(B)G(C) + G(A)F(B)G(C) + G(A)G(B)G(C)).
+		&= 9(F(A)F(B)F(C) + F(A)G(B)G(C) + G(A)F(B)G(C) + G(A)G(B)F(C)).
 	\end{align*}
 	But since $29 \equiv 1 \pmod{4}$, $A$ has no $3 \pmod{4}$ divisors, so $g(a) = 0$ for all $a \mid A$, so $G(A) = 0$. Therefore, the expression becomes
 	\[9F(A)(F(B)F(C) + G(B)G(C)).\]
@@ -309,16 +315,16 @@ with pointwise addition and multiplication given by the Dirichlet convolution.
 	\[\sum_{d \mid n}g(d) = 0\]
 	for non-prime $n$, and we'd like to maximize the number of nonzero values of $n$.
 
-	Although we do know something about the summation function of $g$, we don't know much about $g$ itself. Therefore, we're motivated to use M\"obius inversion. Define $G(n) = \sum_{g \mid n}g(d)$, so $G(n) = 0$ for all non-prime $n$. Now we see
+	Although we do know something about the summation function of $g$, we don't know much about $g$ itself. Therefore, we're motivated to use M\"obius inversion. Define $G(n) = \sum_{d \mid n}g(d)$, so $G(n) = 0$ for all non-prime $n$. Now we see
 	\[g(n) = (G \ast \mu)(n) = \sum_{d \mid n}G(d)\mu\left(\frac{n}{d}\right).\]
 	Noting that $G(d)$ is zero if $d$ is not prime, the sum becomes
 	\[\sum_{p \mid n}G(p)\mu\left(\frac{n}{p}\right).\]
 
 	Note that $g(1) = 0$. We disregard it in the following discussion.
 
-	Call an integer $n$ \emph{nice} if it is in the forms $p_1\dots p_k$ or $p_1^2p_2\dots p_k$, and call one \emph{mean} if it is not nice. To ensure $g(n)$ is nonzero, $\mu\left(\frac{n}{p}\right)$ must be nonzero for at least one $p$, so $\frac{n}{p}$ must be squarefree for at least one $p$, so $n$ must be nice. Additionally, we may choose values of $g(2),g(3),g(5),\dots$ such that every nice $n$ has $g(n)$ nonzero. For example, $g(p) = \sqrt{p}$ for primes $p$ guarantees all nice $n$ have $g(n)$ nonzero since all $\sqrt{p}$ are linearly independent over $\QQ$. Therefore, the answer is the number of nice $n$ at most $100$.
+	Call an integer $n$ \emph{nice} if it is of the form $p_1\dots p_k$ or $p_1^2p_2\dots p_k$, and call one \emph{mean} if it is not nice. To ensure $g(n)$ is nonzero, $\mu\left(\frac{n}{p}\right)$ must be nonzero for at least one $p$, so $\frac{n}{p}$ must be squarefree for at least one $p$, so $n$ must be nice. Additionally, we may choose values of $g(2),g(3),g(5),\dots$ such that every nice $n$ has $g(n)$ nonzero. For example, $g(p) = \sqrt{p}$ for primes $p$ guarantees all nice $n$ have $g(n)$ nonzero since all $\sqrt{p}$ are linearly independent over $\QQ$. Therefore, the answer is the number of nice $n$ at most $100$.
 
-	We complementary count. We want the number of mean integers less than $100$. Note that an integer is mean iff a perfect cube not equal to $1$ or the square of a composite number divides it. Since we are only considering integers at most $100$, we only need to check for divisibility by $8$, $27$, $36$, and $100$. The mean integers are the multiples of $8$ between $8$ and $96$, $27$, $54$, $81$, $36$, and $100$, for a total of $17$ mean integers. Remembering to count $1$, the number of integers satisfying the condition is $82$.
+	We complementary count. We want the number of mean integers at most $100$. Note that an integer is mean iff a perfect cube not equal to $1$ or the square of a composite number divides it. Since we are only considering integers at most $100$, we only need to check for divisibility by $8$, $27$, $36$, and $100$. The mean integers are the multiples of $8$ between $8$ and $96$, $27$, $54$, $81$, $36$, and $100$, for a total of $17$ mean integers. Remembering to exclude $1$, the number of integers satisfying the condition is $82$.
 \end{solution}
 
 \end{document}

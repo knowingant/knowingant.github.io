@@ -81,10 +81,10 @@ instead calling what we just defined above ``commutative rings.''
 These people work with weird things like quaternions.
 
 We can make rings from rings! For a ring $R$, let $R[x]$ be the smallest ring
-containing $x$. For example, $\ZZ[x]$ is the set of polynomials in $x$
+containing $R$ and $x$. For example, $\ZZ[x]$ is the set of polynomials in $x$
 with integer coefficients, and 
 \[\ZZ[\sqrt 2] = \{a + b\sqrt2 \mid a,b \in \ZZ\}.\]
-For a field $K$, let $K(x)$ be the smallest field containing $x$.
+For a field $K$, let $K(x)$ be the smallest field containing $K$ and $x$.
 For example, $\QQ(x)$ is the set of quotients of polynomials with
 rational coefficients, and
 \[\QQ(\sqrt3) = \QQ[\sqrt 3] = \{a + b\sqrt 3 \mid a,b \in \QQ\}.\]
@@ -218,10 +218,10 @@ With the language of algebraic numbers and integers, we can now begin to discuss
 
 \section{Cyclotomic polynomials}
 
-Some review: some complex number $\zeta$ is a \emph{root of unity} if there exists some $n$ such that $\zeta^n = 1$. The smallest such $n$ is called the \emph{order} of $\zeta$, and $\zeta$ is called a \emph{primitive $n$th root of unity}.
+Some review: a complex number $\zeta$ is a \emph{root of unity} if there exists some $n$ such that $\zeta^n = 1$. The smallest such $n$ is called the \emph{order} of $\zeta$, and $\zeta$ is called a \emph{primitive $n$th root of unity}.
 
 \begin{definition}
-	The $n$th cyclotomic polynomial $\Phi_n$ is the monic polynomial whose roots are the $n$th primitive roots of unity.
+	The $n$th cyclotomic polynomial $\Phi_n$ is the monic polynomial whose roots are the primitive $n$th roots of unity.
 \end{definition}
 
 First of all, we have the following identity.
