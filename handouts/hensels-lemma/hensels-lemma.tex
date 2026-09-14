@@ -30,7 +30,7 @@ Let's try and generalize the previous method. Try to prove the identity by yours
     where $P'(x)$ is the \emph{derivative} of $P(x)$ (!!).
 \end{exercise}
 
-A corollary is Hensel's lemma, which allows us to ``lift'' a root $r$ of a polynomial from $\ZZ/(p^k)$ to a unique root in $\ZZ/(p^{k + m})$ (where $m \le k$), as long as $P'(r) \neq 0$. Hensel's lemma is most often used when $m = 1$, so we just lift from $\ZZ/(p^k)$ to $\ZZ/(p^{k + 1})$. I'll introduce this concrete example, which makes the general case clear.
+A corollary is Hensel's lemma, which allows us to ``lift'' a root $r$ of a polynomial from $\ZZ/(p^k)$ to a unique root in $\ZZ/(p^{k + m})$ (where $m \le k$), as long as $P'(r) \not\equiv 0 \pmod p$. Hensel's lemma is most often used when $m = 1$, so we just lift from $\ZZ/(p^k)$ to $\ZZ/(p^{k + 1})$. Here's a concrete example, which makes the general case clear.
 
 \begin{example}[A concrete example]\label{exa:hensel_example}
 	Let $P(x) = x^2 - 2$. Use \Cref{equ:identity} to convince yourself that $P(7^2\lambda + 10)$ hits all multiples of $7^2$ modulo $7^3$ as $\lambda$ ranges from $0$ to $6$, and so in particular there is exactly one value of $\lambda$ that makes $P(7^2\lambda + 10)$ zero modulo $7^3$.
@@ -91,16 +91,16 @@ Suppose you want to compute the roots of a polynomial $P$ modulo $p^k$.
 
 	First, the square roots of $2$ modulo $7$ are $3$ and $4$, by guessing.
 
-	Now let's try to compute the square roots of $2$ modulo $7^2$. Clearly, if $x^2 \equiv 2 \pmod{7^2}$, $x^2 \equiv 2 \pmod 7$, so $x = 3,4 \pmod 7$. WLOG let $x \equiv 3 \pmod 7$, the computations for $x \equiv 4 \pmod 7$ are analogous (just take the negative of everything). So let $x = 7\lambda + 3$ for some $\lambda$ with $0 \le \lambda < 6$, then we have
+	Now let's try to compute the square roots of $2$ modulo $7^2$. Clearly, if $x^2 \equiv 2 \pmod{7^2}$, $x^2 \equiv 2 \pmod 7$, so $x = 3,4 \pmod 7$. WLOG let $x \equiv 3 \pmod 7$; the computations for $x \equiv 4 \pmod 7$ are analogous (just take the negative of everything). So let $x = 7\lambda + 3$ for some $\lambda$ with $0 \le \lambda < 7$, then we have
 	\[2 \equiv x^2 = (7\lambda + 3)^2 \equiv (7\lambda)^2 + 2 \cdot 7 \cdot 3 + 3^2 \equiv 7 \cdot 6\lambda + 9\pmod{7^2}.\]
-	Note how the $(7\lambda)^2$ term disappears modulo $7^2$, this allows us to solve a linear equation for $\lambda$, instead of a quadratic one. Solving the linear equation shows $\lambda \equiv 1 \pmod 7$, so $\lambda= 1$, giving $x = 10$.
+	Note how the $(7\lambda)^2$ term disappears modulo $7^2$; this allows us to solve a linear equation for $\lambda$, instead of a quadratic one. Solving the linear equation shows $\lambda \equiv 1 \pmod 7$, so $\lambda= 1$, giving $x = 10$.
 
 	Our final breadcrumb: we now try to compute the square roots of $2$ modulo $7^3$! As before, let $x = 7^2\lambda + 10$ with $0 \le \lambda < 7$, then we have
 	\[2 \equiv x^2 = (7^2\lambda + 10)^2 = (7^2\lambda)^2 + 2 \cdot 7^2\lambda \cdot 10 + 10^2 \equiv 7^2 \cdot 20\lambda + 100 \pmod{7^3}.\]
 	Solving gives $\lambda \equiv 2 \pmod 7$, so $\lambda = 2$, giving $x = 108$.
 
 	Now we find our way home: finally, we compute the square roots of $2$ modulo $7^4$! Again, let $x = 7^3\lambda + 108$ for some $0 \le \lambda < 7$, then
-	\[2 \equiv x^2 = (7^3\lambda + 108)^2 \equiv (7^3k)^2 + 2 \cdot 7^3\lambda \cdot 108 + 108^2 \equiv 7^3 \cdot 216\lambda + 108^2 \pmod{7^4}.\]
+	\[2 \equiv x^2 = (7^3\lambda + 108)^2 \equiv (7^3\lambda)^2 + 2 \cdot 7^3\lambda \cdot 108 + 108^2 \equiv 7^3 \cdot 216\lambda + 108^2 \pmod{7^4}.\]
 	Solving gives $\lambda \equiv 6 \pmod 7$, so $\lambda = 6$, giving $x = 2166$. The other square root is $-2166 \equiv 235 \pmod{7^4}$.
 
 	Alternatively, we could entirely skip the modulo $7^3$ step and go directly from $7^2$ to $7^4$: instead, write $x = 7^2\lambda + 10$ for some $0 \le \lambda < 7^2$. Then
@@ -136,11 +136,11 @@ Suppose you want to compute the roots of a polynomial $P$ modulo $p^k$.
 	\[m^4 + 1 \equiv m^4 - 16 = (m^2 - 4)(m^2 + 4) \equiv (m - 2)(m - 8)(m - 9)(m - 15) \pmod{17},\]
 	we see $m \equiv 2,8,9,15 \pmod{17}$.
 
-	Observe that if $m^4 + 1 \equiv 0 \pmod{17^2}$, then $(-m)^4 + 1 \equiv 0 \pmod{17^2}$ as well. So we only need to consider the residues $2$ and $8$ modulo $17$, and take negatives to get the corresponding ones for $9$ and $15$. Obviously, $P'(m) = 4m^3 \not\equiv 0 \pmod{17}$, so we may Hensel lift. Applying \Cref{exa:explicit_formula} to lift from modulo $\ZZ/(17)$ to $\ZZ/(17^2)$, we see $2$ lifts to
+	Observe that if $m^4 + 1 \equiv 0 \pmod{17^2}$, then $(-m)^4 + 1 \equiv 0 \pmod{17^2}$ as well. So we only need to consider the residues $2$ and $8$ modulo $17$, and take negatives to get the corresponding ones for $9$ and $15$. Obviously, $P'(m) = 4m^3 \not\equiv 0 \pmod{17}$, so we may Hensel lift. Applying \Cref{exa:explicit_formula} to lift from $\ZZ/(17)$ to $\ZZ/(17^2)$, we see $2$ lifts to
 	\[2 - \frac{2^4 + 1}{4 \cdot 2^3} \equiv 155 \pmod{17^2}\]
 	and $8$ lifts to
 	\[8 - \frac{8^4 + 1}{4 \cdot 8^3} \equiv 110 \pmod{17^2}.\]
-	(To simplify the computation, note that we only need to compute the modular inverses of $4 \cdot 2^3$ and $4 \cdot 8^3$ modulo $17$, since $17 \mid 2^4 + 1,8^4 + 1$.) The possible $m$ are $\{155,110,289 - 110,289 - 110\}$, the smallest of which is $110$.
+	(To simplify the computation, note that we only need to compute the modular inverses of $4 \cdot 2^3$ and $4 \cdot 8^3$ modulo $17$, since $17 \mid 2^4 + 1,8^4 + 1$.) The possible $m$ are $\{155,110,289 - 155,289 - 110\}$, the smallest of which is $110$.
 \end{solution}
 
 \begin{solution}{\Cref{exe:cubic_with_four_roots}}

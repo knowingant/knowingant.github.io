@@ -14,7 +14,7 @@
 
 \begin{example}[Binet's formula]
     Let $F$ be the Fibonacci sequence satisfying $F_0 = 0$, $F_1 = 1$ and $F_n = F_{n - 1} + F_{n - 2}$. Show
-    \[F_{n} = \frac{1}{\sqrt{5}}\left(\left(\frac{\sqrt{5} + 1}{2}\right)^n - \left(\frac{\sqrt{5} - 1}{2}\right)^n\right).\]
+    \[F_{n} = \frac{1}{\sqrt{5}}\left(\left(\frac{1 + \sqrt5}2\right)^n - \left(\frac{1 - \sqrt5}2\right)^n\right).\]
 \end{example}
 
 We could prove this formula using induction or something similar, but we will instead show how this was derived.
@@ -44,7 +44,7 @@ It's not a coincidence that the coefficients of the characteristic polynomial co
     What is the characteristic polynomial of the recurrence relation $a_n = 4a_{n - 2} - a_{n - 3}$?
 \end{exercise}
 
-The roots of the characteristic polynomial correspond to the geometric sequences that satisfy the recurrence relation. Going back to the Fibonacci sequence, the roots of the characteristic polynomial $\lambda^2 - \lambda - 1$ are $\alpha = \frac{\sqrt{5} + 1}{2}$ and $\beta = \frac{\sqrt{5} - 1}{2}$ from the quadratic formula. Therefore $u_n = \alpha^n$ and $v_n = \beta^n$.
+The roots of the characteristic polynomial correspond to the geometric sequences that satisfy the recurrence relation. Going back to the Fibonacci sequence, the roots of the characteristic polynomial $\lambda^2 - \lambda - 1$ are $\alpha = \frac{1 + \sqrt5}2$ and $\beta = \frac{1 - \sqrt5}2$ from the quadratic formula. Therefore $u_n = \alpha^n$ and $v_n = \beta^n$.
 
 Now we want to find $a$ and $b$ such that the initial conditions are satisfied. In other words, we want
 \begin{align*}
@@ -57,7 +57,7 @@ The system of equations becomes
     a\left( \frac{1 + \sqrt{5}}{2} \right) + b\left( \frac{1 - \sqrt{5}}{2} \right) &= 1.
 \end{align*}
 Solving, we see $a = \frac{1}{\sqrt{5}}$ and $b = -\frac{1}{\sqrt{5}}$, so
-\[F_n = au_n + bv_n = \frac{1}{\sqrt{5}}\left(\left(\frac{\sqrt{5} + 1}{2}\right)^n + \left(\frac{\sqrt{5} - 1}{2}\right)^n\right),\]
+\[F_n = au_n + bv_n = \frac{1}{\sqrt{5}}\left(\left(\frac{1 + \sqrt5}2\right)^n + \left(\frac{1 - \sqrt5}2\right)^n\right),\]
 as desired.
 
 \begin{exercise}
@@ -78,7 +78,7 @@ as desired.
 
 \begin{problem}
     \label{pro:grid-classic}
-    Find the number of ways to color each cell of a $2 \times 6$ grid such that no $2 \times 2$ square is completely black.
+    Find the number of ways to color each cell of a $2 \times 6$ grid black or white such that no $2 \times 2$ square is completely black.
 \end{problem}
 
 \begin{problem}[CMIMC ANT 2023/Estimation]
@@ -103,17 +103,17 @@ as desired.
 \begin{solution}{\Cref{pro:trivial}}
     We can't write down the characteristic polynomial for this sequence immediately because of the pesky $+1$ term. Therefore, we are motivated to \emph{shift the sequence} to cancel out the $+ 1$ term.
     
-    Define the sequence $b$ such that $a_n = b_n + c$ for some constant $c$. Now the condition becomes $b_n + c = 3(b_{n - 1} + c) + 1$, which rearranges to $b_n = 3b_{n - 1} + 2c + 1$. Since we want to yeet (cancel out) the constant term, we set $c = -\frac12$. Now $b_0 = a_0 + \frac12 = \frac12$ and $b_n = 3b_{n - 1}$. This is a geometric sequence, we see $b_n = \frac{3^n}{2}$, and $a_n = \frac{3^n}{2} - \frac{1}{2}$.
+    Define the sequence $b$ such that $a_n = b_n + c$ for some constant $c$. Now the condition becomes $b_n + c = 3(b_{n - 1} + c) + 1$, which rearranges to $b_n = 3b_{n - 1} + 2c + 1$. Since we want to yeet (cancel out) the constant term, we set $c = -\frac12$. Now $b_0 = a_0 + \frac12 = \frac12$ and $b_n = 3b_{n - 1}$. This is a geometric sequence, so $b_n = \frac{3^n}{2}$, and $a_n = \frac{3^n}{2} - \frac{1}{2}$.
 \end{solution}
 
 \begin{solution}{\Cref{pro:hmmt-guts}}
-    Computing the first few terms $a_0 = \frac21$, $a_1 = \frac23$, $a_2 = \frac25$, and $a_3 = \frac27$, it's pretty clear $a_n = \frac{2}{2n + 1}$, so $a_{2012} = \frac{2}{4049}$. You could also prove this by induction or whatever.
+    Computing the first few terms $a_0 = \frac21$, $a_1 = \frac23$, $a_2 = \frac25$, and $a_3 = \frac27$, it's pretty clear $a_n = \frac{2}{2n + 1}$, so $a_{2012} = \frac{2}{4025}$. You could also prove this by induction or whatever.
 \end{solution}
 
 \begin{solution}{\Cref{pro:grid-classic}}
     Casework on this thing would be absolutely disgusting, so we use recursion. Call a coloring ``good'' if it contains no $2 \times 2$ blocks that are completely black. Call a coloring ``xooks'' if its rightmost edge is black-black, and ``rbo'' otherwise. Let $a_n$ be the number of good xooks colorings of a $2 \times n$ grid, and let $b_n$ be the number of good rbo colorings of a $2 \times n$ grid. We want $a_6 + b_6$.
 
-    We observe $a_n = b_{n - 1}$ since you can add a black-black edge to any rbo $2 \times n - 1$ grid to make a xooks $2 \times n$ grid, and $b_n = 3(a_{n - 1} + b_{n - 1})$ since you can add a white-white, white-black, or black-white edge to any xooks or rbo $2 \times n - 1$ grid to make an rbo $2 \times n$ grid.
+    We observe $a_n = b_{n - 1}$ since you can add a black-black edge to any rbo $2 \times (n - 1)$ grid to make a xooks $2 \times n$ grid, and $b_n = 3(a_{n - 1} + b_{n - 1})$ since you can add a white-white, white-black, or black-white edge to any xooks or rbo $2 \times (n - 1)$ grid to make an rbo $2 \times n$ grid.
 
     Our initial conditions are $a_0 = 0$ and $b_0 = 1$. We compute everything recursively as shown below.
 
@@ -151,7 +151,7 @@ as desired.
         -a + 2b + 2c &= 0 \\
         a + 4b + 8c &= 3.
     \end{align*}
-    Solving, we see $(a,b,c) = (\frac13,-\frac13,\frac12)$, so $\frac13(-1)^n - \frac132^n + \frac12n2^n$, and
+    Solving, we see $(a,b,c) = (\frac13,-\frac13,\frac12)$, so $Q_n = \frac13(-1)^n - \frac13 \cdot 2^n + \frac12 n \cdot 2^n$, and
     \[3Q_{100} = (-1)^{100} - 2^{100} + \frac32 \cdot 100 \cdot 2^{100} = 149 \cdot 2^{100} + 1. \qedhere\]
 \end{solution}
 

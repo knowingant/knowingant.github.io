@@ -1,9 +1,10 @@
 \documentclass{beamer}
+\usepackage[nosetup]{evan}
 \usepackage{slides}
 
 \newcommand{\rdiv}{\mid_\rightarrow}
 \newcommand{\ldiv}{\mid_\leftarrow}
-\newcommand{\mat}[1]{\begin{pmatrix} #1 \end{pmatrix}}
+\newcommand{\HH}{\mathbb H}
 
 \title{Quaternions}
 \date{October 2024}
@@ -114,7 +115,7 @@
 	\begin{block}{}
 		For all $m,n \in \ZZ$ and $n \neq 0$, there is some $k \in \ZZ$ such that $\abs{m - kn} < \abs n$.
 	\end{block}
-	Let $x = \frac mn$, there is some $k \in \ZZ$ such that $\abs{\frac mn - k} < 1$. Multiplying by $\abs n$ gives $\abs{m - kn} < \abs n$.
+	Let $x = \frac mn$; there is some $k \in \ZZ$ such that $\abs{\frac mn - k} < 1$. Multiplying by $\abs n$ gives $\abs{m - kn} < \abs n$.
 \end{frame}
 
 \begin{frame}
@@ -128,7 +129,7 @@
 	\begin{itemize}
 		\ii Start with integers $m$ and $n$ (WLOG $\abs m \ge \abs n$).
 		\ii Let $(m_0,n_0) = (m,n)$.
-		\ii For $i \ge 1$, let $(m_{i + 1},n_{i + 1}) = (n_i,m_i - k_in_i)$ where $k_i$ is chosen such that $\abs{m_i - k_in_i} < \abs n$.
+        \ii For $i \ge 0$, let $(m_{i + 1},n_{i + 1}) = (n_i,m_i - k_in_i)$ where $k_i$ is chosen such that $\abs{m_i - k_in_i} < \lvert n_i\rvert$.
 		\ii Let $\gcd(m,n)$ be the value of $m_i$ when $n_i$ first reaches $0$.
 		\ii There are integers $a$ and $b$ such that $\gcd(m,n) = am + bn$.
 	\end{itemize}
@@ -202,12 +203,12 @@
 	\begin{block}{}
 		For all $x \in \CC$, there is some $k \in \ZZ[i]$ such that $\abs{x - k} < 1$.
 	\end{block}
-	Let $x = x_1 + x_2i$ and $k = k_1 + k_2i$, we may force $\abs{x_1 - k_1} \le \frac12$ and $\abs{x_2 - k_2} \le \frac12$, then $\abs{x - k} = \sqrt{(x_1 - k_1)^2 + (x_2 - k_2)^2} \le \frac{\sqrt 2}2 < 1$.
+	Let $x = x_1 + x_2i$ and $k = k_1 + k_2i$; we may force $\abs{x_1 - k_1} \le \frac12$ and $\abs{x_2 - k_2} \le \frac12$, then $\abs{x - k} = \sqrt{(x_1 - k_1)^2 + (x_2 - k_2)^2} \le \frac{\sqrt 2}2 < 1$.
 	
 	\begin{block}{}
 		For all $m,n \in \ZZ[i]$ and $n \neq 0$, there is some $k \in \ZZ[i]$ such that $\abs{m - kn} < \abs n$.
 	\end{block}
-	Let $x = \frac mn$, there is some $k \in \ZZ[i]$ such that $\abs{\frac mn - k} < 1$. Multiplying by $\abs n$ gives $\abs{m - kn} < \abs n$.
+	Let $x = \frac mn$; there is some $k \in \ZZ[i]$ such that $\abs{\frac mn - k} < 1$. Multiplying by $\abs n$ gives $\abs{m - kn} < \abs n$.
 \end{frame}
 
 \begin{frame}
@@ -215,7 +216,7 @@
 	\begin{itemize}
 		\ii Start with $m,n \in \ZZ[i]$ (WLOG $\abs m \ge \abs n$).
 		\ii Let $(m_0,n_0) = (m,n)$.
-		\ii For $i \ge 1$, let $(m_{i + 1},n_{i + 1}) = (n_i,m_i - k_in_i)$ where $k_i$ is chosen such that $\abs{m_i - k_in_i} < \abs n$.
+		\ii For $i \ge 0$, let $(m_{i + 1},n_{i + 1}) = (n_i,m_i - k_in_i)$ where $k_i$ is chosen such that $\abs{m_i - k_in_i} < \lvert n_i\rvert$.
 		\ii Let $\gcd(m,n)$ be the value of $m_i$ when $n_i$ first reaches $0$.
 		\ii There are $a,b \in \ZZ[i]$ such that $\gcd(m,n) = am + bn$.
 	\end{itemize}
@@ -247,7 +248,7 @@
 	\end{lemma}
 	
 	\begin{proof}
-		Suppose $p \mid mn$ and $p \nmid m$. Then $\abs{\gcd(p,m)} = 1$, so by B\'ezout's identity there are Gaussian integers $a$ and $b$ such that $ap + bm = \gcd(p,m)$, or equivalently, multiplying by $\overline{\gcd(p,m)}$, there are Gaussian integers $a'$ and $b'$ such that $a'p + b'm = 1$. So $apn + bmn = n$, but since $p \mid apn + bmn$, $p \mid n$.
+		Suppose $p \mid mn$ and $p \nmid m$. Then $\abs{\gcd(p,m)} = 1$, so by B\'ezout's identity there are Gaussian integers $a$ and $b$ such that $ap + bm = \gcd(p,m)$, or equivalently, multiplying by $\overline{\gcd(p,m)}$, there are Gaussian integers $a'$ and $b'$ such that $a'p + b'm = 1$. So $a'pn + b'mn = n$, but since $p \mid a'pn + b'mn$, $p \mid n$.
 	\end{proof}
 \end{frame}
 
@@ -313,13 +314,13 @@
 \begin{frame}
 	\frametitle{The same definitions}
 	\begin{itemize}
-		\ii For $h,n \in H$, we say $d$ \emph{right divides} $h$, written $d \rdiv h$, if $h = ad$ for some $a \in H$. We say $d$ \emph{left divides} $h$, written $d \ldiv h$, if $h = db$ for some $b \in H$.\footnote{I just made up the notation $\rdiv$ and $\ldiv$ for right and left divisibility. I'm not sure if any standard notation exists.}
-		\ii A Hurwitz integer $p$ is called \emph{prime} if $d \rdiv p$ implies $\abs d = 1$ or $d = \abs p$.
+		\ii For $d,h \in H$, we say $d$ \emph{right divides} $h$, written $d \rdiv h$, if $h = ad$ for some $a \in H$. We say $d$ \emph{left divides} $h$, written $d \ldiv h$, if $h = db$ for some $b \in H$.\footnote{I just made up the notation $\rdiv$ and $\ldiv$ for right and left divisibility. I'm not sure if any standard notation exists.}
+		\ii A Hurwitz integer $p$ is called \emph{prime} if $d \rdiv p$ implies $\abs d = 1$ or $\abs d = \abs p$.
 	\end{itemize}
 
 	We require two notions of divisibility because multiplication is not commutative.
 
-	We will prove the following. Looks familiar?
+	We will prove the following. Look familiar?
 
 	\begin{lemma}[Weak Euclid's lemma]
 		Let $p \in H$ be a real Hurwitz prime. Then if $p \mid mn$, $p \mid m$ or $p \mid n$.
@@ -334,14 +335,14 @@
 	Let $m = ad$ and $n = bd$, then $m - hn = ad - hbd = (a - hb)d$.
 
 	\begin{block}{}
-		For all $x \in \HH$, there is some $h \in H$ such that $\abs{x - k} < 1$.
+		For all $x \in \HH$, there is some $h \in H$ such that $\abs{x - h} < 1$.
 	\end{block}
 	Write $x = x_1 + x_2i + x_3j + x_4k$ and $h = h_1 + h_2i + h_3j + h_4k$. We may force $\abs{x_1 - h_1} \le \frac14$ and $\abs{x_i - h_i} \le \frac12$ for $i = 2,3,4$. Then $\abs{x - h} = \sqrt{(x_1 - h_1)^2 + \sum_{i = 2}^4(x_i - h_i)^2} \le \sqrt{\left(\frac14\right)^2 + 3\left(\frac12\right)^2} < 1$, as desired.
 	
 	\begin{block}{}
 		For all $m,n \in H$ and $n \neq 0$, there is some $h \in H$ such that $\abs{m - hn} < \abs n$.
 	\end{block}
-	Let $x = mn^{-1}$, then there is some $h \in H$ such that $\abs{mn^{-1} - h} < 1$. Right multiplying by $\abs n$, $\abs{m - hn} < \abs n$, as desired.
+	Let $x = mn^{-1}$; then there is some $h \in H$ such that $\abs{mn^{-1} - h} < 1$. Right multiplying by $\abs n$, $\abs{m - hn} < \abs n$, as desired.
 \end{frame}
 
 \begin{frame}
@@ -349,7 +350,7 @@
 	\begin{itemize}
 		\ii Start with $m,n \in H$ (WLOG $\abs m \ge \abs n$).
 		\ii Let $(m_0,n_0) = (m,n)$.
-		\ii For $i \ge 1$, let $(m_{i + 1},n_{i + 1}) = (n_i,m_i - k_in_i)$ where $k_i$ is chosen such that $\abs{m_i - k_in_i} < \abs n$.
+		\ii For $i \ge 0$, let $(m_{i + 1},n_{i + 1}) = (n_i,m_i - k_in_i)$ where $k_i$ is chosen such that $\abs{m_i - k_in_i} < \lvert n_i\rvert$.
 		\ii Let $\gcd(m,n)$ be the value of $m_i$ when $n_i$ first reaches $0$.
 		\ii There are $a,b \in H$ such that $\gcd(m,n) = am + bn$.
 	\end{itemize}
@@ -362,7 +363,7 @@
 	\end{lemma}
 
 	\begin{proof}
-		Suppose $p \mid mn$ and $p \nmid m$. Then $\abs{\gcd(p,m)} = 1$, so by B\'ezout's identity there are Hurwitz integers $a$ and $b$ such that $ap + bm = \gcd(p,m)$, or equivalently, left multiplying by $\gcd(p,m)^*$, there are Hurwitz integers $a'$ and $b'$ such that $a'p + b'm = 1$. So $apn + bmn = n$, but since $p \mid apn + bmn$, $p \mid n$.
+		Suppose $p \mid mn$ and $p \nmid m$. Then $\abs{\gcd(p,m)} = 1$, so by B\'ezout's identity there are Hurwitz integers $a$ and $b$ such that $ap + bm = \gcd(p,m)$, or equivalently, left multiplying by $\gcd(p,m)^*$, there are Hurwitz integers $a'$ and $b'$ such that $a'p + b'm = 1$. So $a'pn + b'mn = n$, but since $p \mid a'pn + b'mn$, $p \mid n$.
 	\end{proof}
 \end{frame}
 
@@ -435,10 +436,10 @@
 
 \begin{frame}
 	\frametitle{The cross product and quaternions}
-	Consider the quaternions with no real part $x = x_1i + x_2j + x_3k$ and $y = y_1i + y_2j + y_3k$. Then if $xy = z_1i + z_2j + z_3k$, then
+	Consider the quaternions with no real part $x = x_1i + x_2j + x_3k$ and $y = y_1i + y_2j + y_3k$. Then if the imaginary part of $xy$ is $z_1i + z_2j + z_3k$, then
 	\[\mat{x_1 \\ x_2 \\ x_3} \times \mat{y_1 \\ y_2 \\ y_3} = \mat{z_1 \\ z_2 \\ z_3}.\]
 	
-	Observe that the \emph{right-hand rule} implies there are two ways to define the cross product. Similarly, there are two ways to define quaternion multiplication, one may define $ij = -k$ instead.
+	Observe that the \emph{right-hand rule} implies there are two ways to define the cross product. Similarly, there are two ways to define quaternion multiplication: one may define $ij = -k$ instead.
 \end{frame}
 
 \begin{frame}
