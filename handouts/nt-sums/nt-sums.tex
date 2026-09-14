@@ -39,7 +39,7 @@
 Let $d(n)$ be the number of divisors of $n$, and let $\sigma(n)$ be the sum of the divisors of $n$. We seek to compute $d(2024)$ and $\sigma(2024)$. Let $\mathbf 1$ and $\id$ be functions with $\mathbf 1(n) = 1$ and $\id(n) = n$, which are both clearly multiplicative. Now we see
 \[d(n) = \sum_{d \mid n}1 = \sum_{d \mid n}\mathbf 1(d)\mathbf 1\left(\frac{n}{d}\right) = (\mathbf 1 \ast \mathbf 1)(n).\]
 Since $d(n)$ may be written as the Dirichlet convolution of two multiplicative functions, it is itself multiplicative. Similarly, observe that
-\[\sigma(n) = \sum_{d \mid n}d = \sum_{d \mid n}\id(d)\mathbf 1\left(\frac{n}{d}\right) = (\id \ast \mathbf 1)(n)\text{,}\]
+\[\sigma(n) = \sum_{d \mid n}d = \sum_{d \mid n}\id(d)\mathbf 1\left(\frac{n}{d}\right) = (\id \ast \mathbf 1)(n),\]
 so $\sigma$ is multiplicative as well.
 
 So how do we use the multiplicativity to actually compute $d(2024)$ and $\sigma(2024)$? Well, observe that if $f$ is a multiplicative function and $n$ is a positive integer whose prime factorization is $p_1^{\alpha_1}p_2^{\alpha_2}\dots p_k^{\alpha_k}$, we have $f(n) = f(p_1^{\alpha_1})f(p_2^{\alpha_2})\dots f(p_k^{\alpha_k})$. This fact is very important---if we want to compute $f$ for arbitrary $n$, we only need to compute $f$ for prime powers, and if we want to prove two multiplicative functions $f$ and $g$ are equal, we only need to show they are equal for prime powers. So factoring $2024 = 2^3 \cdot 11 \cdot 23$, we find
@@ -91,7 +91,7 @@ We want the minimum $n$ such that $35$ divides this product, which is achieved w
 We present two proofs of this fact.
 \begin{proof}[Proof with prime powers]
 	Since both sides are multiplicative, it's enough to show the equality for $n = 1$, which is clear, and prime powers $n = p^\alpha$. We have
-	\[\sum_{d \mid p^\alpha}\varphi(d) = \varphi(1) + \varphi(p) + \dots + \varphi(p^\alpha) = 1 + (p - 1) + \dots + \left(p^\alpha - p^{\alpha - 1}\right) = p^\alpha\text{,}\]
+	\[\sum_{d \mid p^\alpha}\varphi(d) = \varphi(1) + \varphi(p) + \dots + \varphi(p^\alpha) = 1 + (p - 1) + \dots + \left(p^\alpha - p^{\alpha - 1}\right) = p^\alpha,\]
 	as desired.
 \end{proof}
 
@@ -143,7 +143,7 @@ Why is $\mu$ useful? Well, it turns out that it has a very special property:
 		0 & \text{otherwise}
 	\end{cases}\]
 	for all positive integers $n$. Since both sides are multiplicative, it's enough to show the equality for $n = 1$, which is clear, and prime powers $n = p^\alpha$. We see
-	\[\sum_{d \mid p^\alpha}\mu(d) = \mu(1) + \mu(p) + \mu(p^2) + \dots + \mu(p^\alpha) = 1 + (-1) + 0 + \dots + 0 = 0 = \varepsilon(p^\alpha)\text{,}\]
+	\[\sum_{d \mid p^\alpha}\mu(d) = \mu(1) + \mu(p) + \mu(p^2) + \dots + \mu(p^\alpha) = 1 + (-1) + 0 + \dots + 0 = 0 = \varepsilon(p^\alpha),\]
 	as desired.
 \end{proof}
 
@@ -175,7 +175,7 @@ Just like $\mathbf 1$ can be inverted, all arithmetic functions with $f(1) \neq 
 	works. We show $(f \ast g)(n) = \varepsilon(n)$ for all $n$. If $n = 1$, we see
 	\[(f \ast g)(1) = f(1)g(1) = f(1) \cdot \frac{1}{f(1)} = 1 = \varepsilon(1).\]
 	Now if $n > 1$, the definition of $g(n)$ becomes
-	\[g(n) = -\frac{1}{f(1)}\left((f \ast g)(n) - f(1)g(n)\right)\text{,}\]
+	\[g(n) = -\frac{1}{f(1)}\left((f \ast g)(n) - f(1)g(n)\right),\]
 	which rearranges to $(f \ast g)(n) = 0 = \varepsilon(n)$, so $f \ast g = \varepsilon$, as desired.
 \end{proof}
 
@@ -306,7 +306,7 @@ with pointwise addition and multiplication given by the Dirichlet convolution.
 	But since $29 \equiv 1 \pmod{4}$, $A$ has no $3 \pmod{4}$ divisors, so $g(a) = 0$ for all $a \mid A$, so $G(A) = 0$. Therefore, the expression becomes
 	\[9F(A)(F(B)F(C) + G(B)G(C)).\]
 	We compute $F(A) = T_{60}$, $F(B) = 2T_{40}$, $F(C) = 2T_{15}$, $G(B) = 2T_{40} - 40 = 40^2$, and $G(C) = 2T_{15} - 15 = 15^2$, where $T_n$ denotes the $n$th triangular number. Since $T_n = \frac{n(n + 1)}{2}$, the expression then becomes
-	\[9 \cdot \frac{60 \cdot 61}{2}\left(40 \cdot 41 \cdot 15 \cdot 16 + 40^2 \cdot 15^2\right) = 2^7 \cdot 3^4 \cdot 5^3 \cdot 61 \cdot 157\text{,}\]
+	\[9 \cdot \frac{60 \cdot 61}{2}\left(40 \cdot 41 \cdot 15 \cdot 16 + 40^2 \cdot 15^2\right) = 2^7 \cdot 3^4 \cdot 5^3 \cdot 61 \cdot 157,\]
 	which has $640$ factors.
 \end{solution}
 

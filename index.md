@@ -8,14 +8,16 @@ title: About
 </div>
 
 Hi! I'm Michael Luo, a senior at [Minnetonka High School][mtka].
-I'm the current leader of Math + Science Club, Minnetonka Math Team,
-and Minnesota Youth Math Outreach.
+I'm the current leader of [Math + Science Club][masc],
+Minnetonka Math Team, and [Minnesota Youth Math Outreach][mnymo].
 I enjoy bedwars, complex bashing, fight the landlord, poker,
 riichi mahjong, tractor, and telling dumb jokes.
 I attended [MOP][mop] in 2025 and [RSI][rsi] in 2026.
 
 I am proudly Minnesotan. My favorite riichi mahjong yaku is ryuuiisou (all greens) and my favorite Taylor Swift album is Speak Now.
 
+[masc]: https://www.mathscienceclub.org/
+[mnymo]: https://www.mnyouthmathoutreach.org/
 [mtka]: https://www.minnetonkaschools.org
 [mop]: https://web.evanchen.cc/mop.html
 [rsi]: https://www.cee.org/programs/research-science-institute

@@ -34,7 +34,7 @@ I think it's best if you know what a group is.
 
 \begin{definition}
 	We define $\ZZ/n\ZZ$ to be the residue classes $\pmod{n}$, and $(\ZZ/n\ZZ)^\times$ to be the set of residue classes $\pmod{n}$ relatively prime to $n$. For example,
-	\[\ZZ/20\ZZ = \{0,1,\dots,19\} \text{ and } (\ZZ/20\ZZ)^\times = \{1,3,7,9,11,13,17,19\}\text{.}\]
+	\[\ZZ/20\ZZ = \{0,1,\dots,19\} \text{ and } (\ZZ/20\ZZ)^\times = \{1,3,7,9,11,13,17,19\}.\]
 \end{definition}
 
 Here are some examples of groups.
@@ -75,17 +75,17 @@ Now, how can we tell if two groups are the same?
 \end{remark*}
 
 If two groups are isomorphic, they are basically ``the same thing with different names''. For example, $(\ZZ,+) \cong (10\ZZ,+)$ where $10\ZZ$ is the set of multiples of $10$ with the isomorphism $f(x) = 10x$. Also, $(\RR^+,\cdot) \cong (\RR,+)$ with the isomorphism $f(x) = \log x$ (any base), since
-\[\log(a \cdot b) = \log(a) + \log(b)\text{.}\]
+\[\log(a \cdot b) = \log(a) + \log(b).\]
 Group isomorphisms are important since if we understand a group, we automatically understand all isomorphic groups.
 
 \begin{definition}
 	The \emph{direct product} of two groups $(G,\star)$ and $(H,\circ)$, denoted $(G,\star) \times (H,\circ)$, is the group defined on the set $G \times H$ and the operation $\ast$ defined by
-	\[(g_1,h_1) \ast (g_2,h_2) = (g_1 \star g_2,h_1 \circ h_2)\text{.}\]
+	\[(g_1,h_1) \ast (g_2,h_2) = (g_1 \star g_2,h_1 \circ h_2).\]
 	We use exponents to denote a group's direct product with itself.
 \end{definition}
 
 For example, $((\ZZ/8\ZZ)^\times,\cdot) \cong (\ZZ/2\ZZ,+)^2$ under the isomorphism $f$, where
-\[f(1) = (0,0)\text{, }f(3) = (1,0)\text{, }f(5) = (0,1)\text{, and }f(7) = (1,1)\text{.}\]
+\[f(1) = (0,0)\text{, }f(3) = (1,0)\text{, }f(5) = (0,1)\text{, and }f(7) = (1,1).\]
 
 \begin{exercise}
 	Verify that $f$ above is indeed an isomorphism.
@@ -107,7 +107,7 @@ Our goal here is to understand the structure of the group $((\ZZ/p\ZZ)^\times,\c
 
 \begin{proof}
 	We claim the set equivalence
-	\[\{a,2a,\dots,(p - 1)a\} = \{1,2,\dots,p - 1\}\text{,}\]
+	\[\{a,2a,\dots,(p - 1)a\} = \{1,2,\dots,p - 1\},\]
 	which implies the conclusion. Clearly $a,2a,\dots,(p - 1)a$ are all nonzero $\pmod{p}$. We claim they are also distinct, which finishes the proof by pigeonhole. Suppose $ma \equiv na \pmod{p}$ with $m < n$. But this implies $(n - m)a \equiv 0 \pmod{p}$, or $p \mid a$ or $p \mid n - m$, impossible since $0 < a, n - m < p$.
 \end{proof}
 
@@ -115,14 +115,14 @@ We can now prove the famous Fermat's little theorem:
 
 \begin{theorem}[Fermat's little theorem]
 	For any $a \in (\ZZ/p\ZZ)^\times$, we have
-	\[a^{p - 1} \equiv 1 \pmod{p}\text{.}\]
+	\[a^{p - 1} \equiv 1 \pmod{p}.\]
 \end{theorem}
 
 \begin{proof}
 	Since
-	\[\{a,2a,\dots,(p - 1)a\} = \{1,2,\dots,p - 1\}\text{,}\]
+	\[\{a,2a,\dots,(p - 1)a\} = \{1,2,\dots,p - 1\},\]
 	$(a)(2a)\dots((p - 1)a) \equiv (1)(2)\dots(p - 1) \pmod{p}$. Therefore
-	\[a^{p - 1}(p - 1)! \equiv (p - 1)! \pmod{p}\text{,}\]
+	\[a^{p - 1}(p - 1)! \equiv (p - 1)! \pmod{p},\]
 	which implies the conclusion.
 \end{proof}
 
@@ -131,7 +131,7 @@ We can now prove the famous Fermat's little theorem:
 \end{example}
 
 From Fermat's little theorem, we have
-\[3^{1000} \equiv 3^{22 \cdot 45 + 10} \equiv (3^{22})^{45} \cdot 3^{10} \equiv 3^{10} \equiv 2 \pmod{23}\text{.}\]
+\[3^{1000} \equiv 3^{22 \cdot 45 + 10} \equiv (3^{22})^{45} \cdot 3^{10} \equiv 3^{10} \equiv 8 \pmod{23}.\]
 
 Now it is time to introduce the notion of orders.
 
@@ -145,7 +145,7 @@ Now it is time to introduce the notion of orders.
 
 \begin{proof}
 	Suppose otherwise, and write $n = q\ord_p(a) + r$ where $0 < r < \ord_p(a)$. Now
-	\[a^n \equiv \left(a^{\ord_p(a)}\right)^q \cdot a^r \equiv a^r \equiv 1 \pmod{p}\text{,}\]
+	\[a^n \equiv \left(a^{\ord_p(a)}\right)^q \cdot a^r \equiv a^r \equiv 1 \pmod{p},\]
 	but this is impossible since $r < \ord_p(a)$.
 \end{proof}
 
@@ -169,7 +169,7 @@ This definition might seem a bit arbitrary. However, primitive roots have the fo
 
 \begin{theorem}[Primitive roots generate $(\ZZ/p\ZZ)^\times$]\label{thm:prim_roots_generate}
 	For all primitive roots $g$ modulo $p$, we have the set equivalence
-	\[(\ZZ/p\ZZ)^\times = \{1,2,\dots,p - 1\} = \{g^0,g^1,\dots,g^{p - 2}\}\text{.}\]
+	\[(\ZZ/p\ZZ)^\times = \{1,2,\dots,p - 1\} = \{g^0,g^1,\dots,g^{p - 2}\}.\]
 \end{theorem}
 
 \begin{proof}
@@ -186,7 +186,7 @@ This is incredibly useful. In fact, this is enough to imply the following:
 
 \begin{theorem}\label{thm:cyclic}
 	We have
-	\[((\ZZ/p\ZZ)^\times,\cdot) \cong (\ZZ/(p - 1)\ZZ,+)\text{.}\]
+	\[((\ZZ/p\ZZ)^\times,\cdot) \cong (\ZZ/(p - 1)\ZZ,+).\]
 \end{theorem}
 
 \begin{proof}
@@ -238,7 +238,7 @@ Translating the problem into $\ZZ/(p - 1)\ZZ$, we want to count the $a \in \ZZ/(
 \section{The composite case}
 
 Groups that are isomorphic to $(\ZZ/n\ZZ,+)$ for some $n$ are called \emph{cyclic}. We saw previously that $((\ZZ/p\ZZ)^\times,\cdot)$ is cyclic. It turns out there exist primitive roots modulo $n$ iff $n$ is of the form $2,4,p^k,2p^k$ where $p$ is an odd prime and $k$ is a positive integer. In other words, $(\ZZ/n\ZZ)^\times$ is cyclic, or,
-\[((\ZZ/n\ZZ)^\times,\cdot) \cong (\ZZ/\varphi(n)\ZZ,+)\text{.}\]
+\[((\ZZ/n\ZZ)^\times,\cdot) \cong (\ZZ/\varphi(n)\ZZ,+).\]
 Here, the idea of a primitive root is generalized to mean
 \[g^1,g^2,\dots,g^{\varphi(n) - 1}\]
 are all not congruent to $1 \pmod{n}$.
@@ -290,7 +290,7 @@ We study the structure of the group $(\ZZ/2024\ZZ)^\times$ under multiplication.
 	(\ZZ/2024\ZZ)^\times &\cong (\ZZ/8\ZZ)^\times \times (\ZZ/11\ZZ)^\times \times (\ZZ/23\ZZ)^\times \\
 	&\cong (\ZZ/2\ZZ)^2 \times \ZZ/10\ZZ \times \ZZ/22\ZZ \\
 	&\cong (\ZZ/2\ZZ)^2 \times \ZZ/2\ZZ \times \ZZ/5\ZZ \times \ZZ/2\ZZ \times \ZZ/11\ZZ \\
-	&\cong (\ZZ/2\ZZ)^4 \times \ZZ/5\ZZ \times \ZZ/11\ZZ\text{.}
+	&\cong (\ZZ/2\ZZ)^4 \times \ZZ/5\ZZ \times \ZZ/11\ZZ.
 \end{align*}
 Let this set be $S$. Observe $a$ is the number of elements $s \in S$ such that $22s = (0,0,0,0,0,0)$, so counting component-wise shows $a = 2^4 \cdot 1 \cdot 11 = 176$. Similarly, $b$ is the number of elements such that $40s = (0,0,0,0,0,0)$, so $b = 2^4 \cdot 5 \cdot 1 = 80$. Finally, $c$ is the number of elements such that $2s = (0,0,0,0,0,0)$, so $c = 2^4 \cdot 1 \cdot 1 = 16$, so the answer is $1012(176 + 80 - 2 \cdot 16) = 226688$.
 
@@ -301,10 +301,10 @@ Let this set be $S$. Observe $a$ is the number of elements $s \in S$ such that $
 Observe $p = 2017$ is prime. Since $n = 2017^2$ fails, we replace the interval with $S = [2017,2017^2) \cap \ZZ$. Now the value of $n^n \pmod{p}$ is uniquely determined by $n \pmod{p}$ and $n \pmod{p - 1}$. Also, as $n$ ranges over $S$, its remainders modulo $p - 1$ and $p$ take every value $(r_1,r_2) \in \ZZ/(p - 1)\ZZ \times \ZZ/p\ZZ$ exactly once. Therefore, we just want the number of ordered pairs $(a,b) \in \ZZ/p\ZZ \times \ZZ/(p - 1)\ZZ$ such that $a^b \equiv 1 \pmod{p}$.
 
 By \Cref{ex:num_order}, there are $\varphi(d)$ elements of order $d$ for each $d \mid p - 1$. For each element $a \in (\ZZ/p\ZZ)^\times$, there are $\frac{p - 1}{\ord_p(a)}$ possible $b$ such that $a^b \equiv 1 \pmod{p}$. Summing over $a$, our answer is
-\[\sum_{a = 1}^{p - 1}\frac{p - 1}{\ord_p(a)}\text{.}\]
+\[\sum_{a = 1}^{p - 1}\frac{p - 1}{\ord_p(a)}.\]
 By casework on $\ord_p(a)$, this becomes
-\[\sum_{d \mid p - 1}\varphi(d)\frac{p - 1}{d}\text{.}\]
+\[\sum_{d \mid p - 1}\varphi(d)\frac{p - 1}{d}.\]
 Note this sum is just $(\varphi \ast \id)(p - 1)$, where $\ast$ is the Dirichlet convolution. Since $\varphi \ast \id$ is multiplicative, the sum is just
-\[\left(2^5 + 5(2^5 - 2^4)\right)\left(3^2 + 2(3^2 - 3)\right)\left(7 + 7 - 1\right) = 30576\text{.}\]
+\[\left(2^5 + 5(2^5 - 2^4)\right)\left(3^2 + 2(3^2 - 3)\right)\left(7 + 7 - 1\right) = 30576.\]
 
 \end{document}
