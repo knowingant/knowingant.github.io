@@ -1,12 +1,12 @@
-\documentclass[10pt]{scrartcl}
+\documentclass[11pt]{scrartcl}
 \usepackage[secthm]{evan}
-\usepackage[print]{mathteam}
+\usepackage{mathteam}
 
 \renewenvironment{solution}{\renewcommand\qedsymbol{$\blacksquare$}\begin{proof}[Solution]}{\end{proof}}
 
 \title{Estimation}
 \author{Michael Luo}
-\date{\today}
+\date{September 2024}
 
 \begin{document}
 
@@ -14,11 +14,11 @@
 
 \begin{abstract}
 	\sffamily\small
-	arml estimathon was the second time at a competition where my team loses first place to minnesota in the last $\sim10$ minutes with the first being cmimc
+	arml estimathon was the second time at a competition where my team loses first place to minnesota in the last \til10 minutes with the first being cmimc
 
 	\medskip
 
-	---MathWizard10 on AoPS
+	---\href{https://artofproblemsolving.com/community/q3h3332858p30875431}{MathWizard10 on AoPS}
 \end{abstract}
 
 \tableofcontents
@@ -27,7 +27,7 @@
 
 In this handout, we discuss the ``mathematical'' sort of estimation problems found on Guts sets. There are also meta-problems and a few weird ones involving convex hulls of the schools of the organizers, but we shall ignore those. To get better at those, try Fermi questions (rip).
 
-Throughout, we use the convention that $A$ is the actual answer and $E$ is the estimate. Additionally, $\log$ denotes the natural logarithm.
+Throughout, we use the convention that $A$ is the actual answer and $E$ is the estimate. Additionally, $\log$ denotes the natural logarithm unless explicitly stated.
 
 \subsection{How to read this handout}
 
@@ -48,7 +48,7 @@ We have the following useful approximations (in descending order of importance):
     \ii $\sin\eps \approx \eps$ if $\eps^3$ is negligible, $\cos\eps \approx 1 - \frac{\eps^2}2$ if $\eps^4$ is small
 \end{itemize}
 
-Use of logarithms allows one to quickly compute otherwise-difficult expressions, especially large products. A quote often attributed to Laplace says logarithms ``by shortening the labors, doubled the life of an astronomer.'' You should memorize at least $\log 2$ and $\log 10$:
+Use of logarithms allows one to quickly compute otherwise-difficult expressions, especially large products. A quote often attributed to Laplace: logarithms, ``by shortening the labors, doubled the life of an astronomer.'' You should memorize at least $\log 2$ and $\log 10$:
 
 \begin{theorem}[Logarithms]
 	We have $\log 2 \approx 0.69$, $\log 3 \approx 1.10$, $\log 5 \approx 1.61$, $\log 7 \approx 1.95$. In particular, $\log 10 \approx 2.30$.
@@ -160,7 +160,7 @@ Our next example uses a logarithm to turn a product into a sum.
 	The exact answer is $8282580$, so we earn $18$ points.
 \end{solution}
 
-This example shows the importance of \emph{looking at the scoring}: the expression $\floor{22\min(A/E,E/A)}$ is much more forgiving than, say, $\floor{22\min(A/E,E/A)^4}$. So we could use very rough estimates such as $16 \approx 10\log 5$ in the exponent of $e$.
+This example shows the importance of \emph{looking at the scoring}. The scoring function $\floor{22\min(A/E,E/A)}$ is much more forgiving than, say, $\floor{22\min(A/E,E/A)^4}$. So we could use very rough estimates such as $16 \approx 10\log 5$ in the exponent of $e$.
 
 \begin{example}[HMMT Guts 2015/34]
 	For an integer $n$, let $f(n)$ denote the number of pairs of integers $(x,y)$ such that $x^2 + xy + y^2 = n$. Compute
@@ -241,7 +241,7 @@ Here's a cute application:
 \begin{example}[SMT Guts 2024/26]
 	A prime number is said to be \emph{toothless} if none of its digits are $2$, $4$, or $6$. Compute the number of toothless primes with at most $8$ digits.
 
-	You will earn $\max(0,25 - \ceil{\frac1{4000}\abs{E - A}})$ points.
+	You will earn $\max(0,25 - \lceil\frac1{4000}\abs{E - A}\rceil)$ points.
 \end{example}
 
 \begin{solution}
@@ -296,14 +296,14 @@ Most of the problems in this section are from the OTIS unit \verb|ZNW-analyticnt
 
 Integrals work fine when you're faced with functions like $\frac1x$ and $\frac1{x \log x}$, but for number-theoretic functions like $\varphi$, this doesn't work.
 
-This section is pretty technical. For background, skim ``erm, what the $\sigma$,'' which can be found on \href{https://sites.google.com/view/tonkamath/manifestos}{the Minnetonka Math Team website}. Make sure you know what the following mean:
+This section is pretty technical. For background, skim ``\href{https://knowingant.github.io/handouts/nt-sums/nt-sums.pdf}{erm what the $\sigma$}.'' Make sure you know what the following mean:
 \begin{itemize}
 	\ii The Dirichlet convolution and the fact that it preserves multiplicativity.
-	\ii The multiplicative arithmetic functions $\boldsymbol1$, $\id$, $d$, $\sigma$, $\varphi$, and $\mu$.
+	\ii The multiplicative arithmetic functions $\mathbf1$, $\id$, $d$, $\sigma$, $\varphi$, and $\mu$.
 	\ii The Riemann zeta function $\zeta$ and the Euler product formula. In particular, you should know $\zeta(2) = \frac{\pi^2}{6}$.
 \end{itemize}
 
-Now let's try some examples.
+Let's try some examples!
 
 \begin{example}
 	For all $s > 1$, show that
@@ -312,7 +312,7 @@ Now let's try some examples.
 
 \begin{solution}
 	We have
-	\[\sum_{n \ge 1}\frac{\mu(n)}{n^s}\sum_{m \ge 1}\frac1{m^s} = \sum_{k \ge 1}\frac{(\mu \ast \boldsymbol1)(k)}{k^s} = 1\]
+	\[\sum_{n \ge 1}\frac{\mu(n)}{n^s}\sum_{m \ge 1}\frac1{m^s} = \sum_{k \ge 1}\frac{(\mu \ast \mathbf1)(k)}{k^s} = 1\]
 	by summing over $k = mn$.
 \end{solution}
 
@@ -335,18 +335,16 @@ The above is quite useful, particularly when partial sums of $h$ are easy to est
 \end{solution}
 
 \begin{example}
-	Two integers are randomly selected from $\{1,2,\dots,n\}$. Estimate the probability they are coprime.
+	Let $n = 10^{100}$. Two integers are randomly selected from $\{1,2,\dots,n\}$. Estimate the probability they are coprime.
 \end{example}
 
 \begin{solution}
 	We compute
-	\[
-		\sum_{x,y \le n,(x,y) = 1}1 = \sum_{x \le n}\sum_{y \le n}\sum_{d \mid (x,y)}\mu(d)
-		= \sum_{d \le n}\sum_{x,y \le n/d}\mu(d)
-		= \sum_{d \le n}\floor{\frac nd}^2\mu(d)
-		\approx \sum_{d \le n}\frac{n^2}{d^2}\mu(d)
-		= \frac{6}{\pi^2}n^2,
-	\]
+	\begin{align*}
+		\sum_{x,y \le n,(x,y) = 1}1 &= \sum_{x \le n}\sum_{y \le n}\sum_{d \mid (x,y)}\mu(d) \\
+		&= \sum_{d \le n}\sum_{x,y \le n/d}\mu(d) \\
+		&= \sum_{d \le n}\left\lfloor \frac nd\right\rfloor^2\mu(d) \approx \sum_{d \le n}\frac{n^2}{d^2}\mu(d) = \frac{6}{\pi^2}n^2,
+	\end{align*}
 	so the answer is $\frac 6{\pi^2}$.
 \end{solution}
 
@@ -356,17 +354,17 @@ The above is quite useful, particularly when partial sums of $h$ are easy to est
 \end{example}
 
 \begin{solution}
-	Write $d = \boldsymbol1 \ast \boldsymbol1$, then the sum becomes
+	Write $d = \mathbf1 \ast \mathbf1$, then the sum becomes
 	\[
 		\sum_{ab \le x}1
-		= \sum_{a \le \sqrt x}\floor{\frac xa} + \sum_{b \le \sqrt x}\floor{\frac xb} - \sum_{a,b \le \sqrt x}1
-		\approx 2\left(\half x \log x + \gamma x\right) - x
+		= \sum_{a \le \sqrt x}\left\lfloor \frac xa\right\rfloor + \sum_{b \le \sqrt x}\left\lfloor \frac xb\right\rfloor - \sum_{a,b \le \sqrt x}1
+		\approx 2\left(\frac12 x \log x + \gamma x\right) - x
 		= x \log x + (2\gamma - 1)x. \qedhere
 	\]
 \end{solution}
 
 In the above example, we also could have simply evaluated the sum
-\[\sum_{ab \le x}1 = \sum_{a \le x}\sum_{b \le x/a}1 = \sum_{a \le x}\floor{\frac xa} \approx x \log x.\]
+\[\sum_{ab \le x}1 = \sum_{a \le x}\sum_{b \le x/a}1 = \sum_{a \le x}\left\lfloor \frac xa\right\rfloor \approx x \log x.\]
 This estimate is slightly less precise though, since here you have to delete $x$ floors, while above you only have to delete $2\floor{\sqrt x}$ floors.
 
 Warning: the next problem is hard.
@@ -402,7 +400,7 @@ Let's see a problem from an actual contest (although to be fair, I wrote this pr
 \begin{example}[HMNT Guts 2023/36]
 	Isabella writes the expression $\sqrt d$ for each positive integer $d$ not exceeding $8!$ on the board. Seeing that these expressions might not be worth points on HMMT, Vidur simplifies each expression to the form $a\sqrt b$, where $a$ and $b$ are integers such that $b$ is not divisible by the square of a prime number. (For example, $\sqrt{20}$, $\sqrt{16}$, and $\sqrt6$ become $2\sqrt5$, $4\sqrt1$, and $1\sqrt6$, respectively.) Compute the sum of $a + b$ across all expressions that Vidur writes.
 
-	You will earn $\max\left(0,\ceil{20\left(1 - \abs{\log_{10}(A/E)}^{1/5}\right)}\right)$ points.
+	You will earn $\max\left(0,\left\lceil{20\left(1 - \lvert\log_{10}(A/E)\rvert^{1/5}\right)}\right\rceil\right)$ points.
 \end{example}
 
 \begin{solution}
@@ -424,7 +422,7 @@ When you're doing an estimation problem, you have a \emph{massive advantage} com
 
 \subsection{Skill-based}
 
-If the problem statement is complicated or the scoring is unforgiving, like $\floor{25\min(A/E,E/A)^4}$, it's probably skill-based. Fortunately, if you can solve these types of problems, you will earn a lot of points.
+If the scoring function is unforgiving, like $\floor{25\min(A/E,E/A)^4}$, it's probably skill-based. Fortunately, if you can solve these types of problems, you will earn a lot of points.
 
 Along with your standard combinatorics skills, we will also need some statistics. We will motivate this with the following example, which we already solved by Stirling.
 
@@ -532,7 +530,7 @@ Here are two nice applications of the idea of averaging upper and lower bounds:
 \begin{example}[SMT Guts 2024/25]
 	Frank composes a random $15$-note melody where each note is either A, B, or C. Compute the probability no sequence of $5$ consecutive notes occurs more than once in the melody he composes. (For example, in the melody ABCABCABCABCABC the sequence ABCAB occurs more than once.)
 	
-	You will earn $\max(0,25 - \ceil{500\abs{E - A}})$ points.
+	You will earn $\max(0,25 - \lceil 500\abs{E - A}\rceil)$ points.
 \end{example}
 
 \begin{solution}
@@ -632,8 +630,8 @@ The solutions are on the next page. Don't look at them until you've spent at lea
 
 \begin{proof}[Solution to \Cref{pro:bmt_3}]
 	We assume everything but the first (Benford's law) and last (must be even) digits cancel. The last digit contributes $2019$ to the difference. From Benford, the ``probability'' the first digit is odd is
-    \[\frac{(\log 2 - \log 1) + (\log 4 - \log 3) + \dots + (\log 10 - \log 9)}{\log 10} \approx \frac{0.69 + 0.28 + 0.18 + 0.12 + 0.1}{2.3} \approx 0.596.\]
-    Therefore the difference between the number of even and odd digits is around $2021((1 - 0.596) - 0.596) \approx -388$, so our estimate is $2019 - 388 = 1631$. Since the answer is $1776$, we earned $22$ points.
+    \[\frac{(\log 2 - \log 1) + (\log 4 - \log 3) + \dots + (\log 10 - \log 9)}{\log 10} \approx 0.596.\]
+    The difference between the number of even and odd digits is around $2021((1 - 0.596) - 0.596) \approx -388$, so our estimate is $2019 - 388 = 1631$. Since the answer is $1776$, we earned $22$ points.
 \end{proof}
 
 \end{document}
