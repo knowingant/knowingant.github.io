@@ -12,7 +12,7 @@
 \maketitle
 
 \begin{abstract}
-	This handout is intended for intermediate complex bashers. You should be able to complete BGW-complex or solve most of the problems in \Cref{sec:warm-ups}. The main content of this handout is \Cref{sec:walkthroughs}, which contains eleven walkthroughs in rough order of increasing difficulty. You should try these walkthroughs yourself before reading them.
+	This handout is intended for intermediate complex bashers. You should be able to complete \verb|BGW-complex| or solve most of the problems in \Cref{sec:warm-ups}. The main content of this handout is \Cref{sec:walkthroughs}, which contains 11 walkthroughs in rough order of increasing difficulty. You should try these walkthroughs yourself before reading them.
 \end{abstract}
 
 \begin{quote}
@@ -41,7 +41,7 @@ My style of geometry is to complex bash. Let me show you how. First, here is som
 	\end{itemize}
 	\ii Multiplication with a complex number is a dilation and a rotation, while addition with a complex number is a translation. So you can spam linear functions (compositions of multiplications and additions) to simplify computations.
 	\ii Your scratch paper should be in landscape mode.
-	\ii Let $f(z) = \frac z{\ol z}$. Then $f(z) = 1$ iff $z$ is real and $f(z) = -1$ iff $z$ is pure imaginary. A lot of the time, $f$ is pretty easy to compute, since if $a$ and $b$ are on the unit circle, then $f(a + b) = ab$ and $f(a - b) = -ab$. Also, $f(zw) = f(z)f(w)$. So if $a$, $b$, and $c$ are on the unit circle, you can do things like
+	\ii Let $f(z) = \frac z{\ol z}$. Then $f(z) = 1$ if and only if $z$ is real and $f(z) = -1$ if and only if $z$ is pure imaginary. A lot of the time, $f$ is pretty easy to compute, since if $a$ and $b$ are on the unit circle, then $f(a + b) = ab$ and $f(a - b) = -ab$. Also, $f(zw) = f(z)f(w)$. So if $a$, $b$, and $c$ are on the unit circle, you can do things like
 	\[f\left( \frac{(a - b)(a - c)(b + c)}{(a^2 + bc)(b - c)} \right) = \frac{(-ab) \cdot (-ac) \cdot bc}{a^2bc \cdot (-bc)} = -1.\]
 \end{itemize}
 
@@ -85,9 +85,9 @@ We also include some less useful formulas.
     \ii Let $\triangle ABC$ have incircle (or $A$-excircle) contact points $D$, $E$, and $F$. If $(DEF)$ is the unit circle, the center of $(ABC)$ is $\frac{2(d + e + f)def}{(d + e)(e + f)(f + d)}$. The two intersections between $(DEF)$ and $(ABC)$ are the roots of the following two equivalent quadratics.
     \begin{align*}
         2(de + ef + fd)x^2 - ((d + e)(e + f)(f + d) + 4def)x + 2def(d + e + f) &= 0 \\
-        \ol a(2d + a)x^2 - (d^2\ol a + 2d + a + 2da\ol a)x + da(d\ol a + 2) &= 0
+        \ol a(2d + a)x^2 - (d^2\ol a + 2d + a + 2da\ol a)x + da(d\ol a + 2) &= 0.
     \end{align*}
-    \ii Let $f,g \in \CC[x]$ and let $h$ be an irreducible quadratic with roots $r$ and $s$. Let $n = \max(\deg f,\deg g) + 1$. Then $\frac{f(r)}{g(r)} = \frac{f(s)}{g(s)}$ iff $\alpha f(x) + \beta g(x) + C(x)h(x) = 0$ for some $\alpha$, $\beta$, and $C$ not all zero. Interpreting $\CC[x]$ as a vector space, this holds iff the determinant of the $n \times n$ matrix with one row as the coefficients of $f$, one row as the coefficients of $g$, and $n - 2$ rows as the coefficients of $x^ih(x)$ for $0 \le i < n - 2$ is zero. This is probably trivial by resultants or something but I don't know resultants.
+    \ii Let $f,g \in \CC[x]$ and let $h$ be an irreducible quadratic with roots $r$ and $s$. Let $n = \max(\deg f,\deg g) + 1$. Then $\frac{f(r)}{g(r)} = \frac{f(s)}{g(s)}$ if and only if $\alpha f(x) + \beta g(x) + C(x)h(x) = 0$ for some $\alpha$, $\beta$, and $C$ not all zero. Interpreting $\CC[x]$ as a vector space, this holds if and only if the determinant of the $n \times n$ matrix with one row as the coefficients of $f$, one row as the coefficients of $g$, and $n - 2$ rows as the coefficients of $x^ih(x)$ for $0 \le i < n - 2$ is zero. This is probably trivial by resultants or something but I don't know resultants.
     \ii Let $ABCD$ be a convex quadrilateral inscribed in the unit circle of the complex plane. It is possible to choose complex numbers $a$, $b$, $c$, and $d$ such that $A = a^2$, $B = b^2$, $C = c^2$, $D = d^2$, and the midpoints of $\arc{AB}$, $\arc{BC}$, $\arc{CD}$, $\arc{DA}$, $\arc{ABC}$, $\arc{BCD}$ are $-ab$, $-bc$, $-cd$, $+da$, $+ac$, and $+bd$.
     \begin{remark*}
         [A stupid-ass way to remember this]
@@ -185,7 +185,7 @@ Bang.
 \section{Warm-ups}
 \label{sec:warm-ups}
 
-These problems are relatively straightforward and should be tried before the walkthroughs. Many of these are taken from the OTIS unit BGW-complex.
+These problems are relatively straightforward and should be tried before the walkthroughs. Many of these are taken from the OTIS unit \verb|BGW-complex|.
 
 \begin{problem}
 	In triangle $ABC$ with circumcenter $O$,
@@ -194,14 +194,14 @@ These problems are relatively straightforward and should be tried before the wal
 	Prove that $AX$, $BY$, $CZ$ are concurrent.
 \end{problem}
 
-\begin{problem}[ToT Spring 2018 J-A4]
+\begin{problem}[ToT Spring 2018/J-A4]
 	Let $ABC$ be a triangle with circumcenter $O$
 	and let $H$ be the foot of the $A$-altitude.
 	Let $P$ be the foot of the perpendicular from $A$ to line $CO$.
 	Prove that line $HP$ bisects side $AB$.
 \end{problem}
 
-\begin{problem}[PUMaC Finals 2016 A3]
+\begin{problem}[PUMaC 2016/Finals A3]
 	On a cyclic quadrilateral $ABCD$, let $M$ and $N$ denote
 	the midpoints of $\ol{AB}$ and $\ol{CD}$.
 	Let $E$ be the projection of $C$ onto $\ol{AB}$
@@ -269,7 +269,7 @@ These problems are relatively straightforward and should be tried before the wal
 \end{problem}
 
 \begin{problem}[IMO 2023/2]
-	Let $ABC$ be an acute-angled triangle with $AB < AC$. Let $\Omega$ be the circumcircle of $ABC$. Let $S$ be the midpoint of the arc $CB$ of $\Omega$ containing $A$. The perpendicular from $A$ to $BC$ meets $BS$ at $D$ and meets $\Omega$ again at $E \neq A$. The line through $D$ parallel to $BC$ meets line $BE$ at $L$. Denote the circumcircle of triangle $BDL$ by $\omega$. Let $\omega$ meet $\Omega$ again at $P \neq B$. Prove that the line tangent to $\omega$ at $P$ meets line $BS$ on the internal angle bisector of $\angle BAC$.
+	Let $ABC$ be an acute triangle with $AB < AC$. Let $\Omega$ be the circumcircle of $ABC$. Let $S$ be the midpoint of the arc $CB$ of $\Omega$ containing $A$. The perpendicular from $A$ to $BC$ meets $BS$ at $D$ and meets $\Omega$ again at $E \neq A$. The line through $D$ parallel to $BC$ meets line $BE$ at $L$. Denote the circumcircle of triangle $BDL$ by $\omega$. Let $\omega$ meet $\Omega$ again at $P \neq B$. Prove that the line tangent to $\omega$ at $P$ meets line $BS$ on the internal angle bisector of $\angle BAC$.
 \end{problem}
 
 \pagebreak
@@ -303,7 +303,7 @@ These problems are relatively straightforward and should be tried before the wal
 \subsection{ISL 2023 G5}
 
 \begin{example}[ISL 2023 G5]
-	Let $ABC$ be an acute-angled triangle with circumcircle $\omega$ and circumcentre $O$. Points $D\neq B$ and $E\neq C$ lie on $\omega$ such that $BD\perp AC$ and $CE\perp AB$. Let $CO$ meet $AB$ at $X$, and $BO$ meet $AC$ at $Y$.
+	Let $ABC$ be an acute triangle with circumcircle $\omega$ and circumcenter $O$. Points $D\neq B$ and $E\neq C$ lie on $\omega$ such that $BD\perp AC$ and $CE\perp AB$. Let $CO$ meet $AB$ at $X$, and $BO$ meet $AC$ at $Y$.
 
 	Prove that the circumcircles of triangles $BXD$ and $CYE$ have an intersection on line $AO$.
 \end{example}
@@ -436,7 +436,7 @@ These problems are relatively straightforward and should be tried before the wal
 \subsection{RMM 2026/5}
 
 \begin{example}[RMM 2026/5]
-	Let $ABC$ be a triangle with $AB < AC$, let $O$ be its circumcentre and let $XYZT$ be a parallelogram inside triangle $ABC$ such that
+	Let $ABC$ be a triangle with $AB < AC$, let $O$ be its circumcenter and let $XYZT$ be a parallelogram inside triangle $ABC$ such that
 	\begin{align*}
 		\angle AXB = \angle AZC, \quad & \quad \angle AZB = \angle AXC, \\
 		\angle AYB = \angle ATC, \quad & \quad \angle ATB = \angle AYC.
@@ -470,7 +470,7 @@ These problems are relatively straightforward and should be tried before the wal
 \subsection{ISL 2024 G6}
 
 \begin{example}[ISL 2024 G6]
-	Let $ABC$ be an acute triangle with $AB < AC$, and let $\Gamma$ be the circumcircle of $ABC$. Points $X$ and $Y$ lie on $\Gamma$ so that $XY$ and $BC$ meet on the external angle bisector of $\angle BAC$. Suppose that the tangents to $\Gamma$ at $X$ and $Y$ intersect at a point $T$ on the same side of $BC$ as $A$, and that $TX$ and $TY$ intersect $BC$ at $U$ and $V$, respectively. Let $J$ be the centre of the excircle of triangle $TUV$ opposite the vertex $T$.
+	Let $ABC$ be an acute triangle with $AB < AC$, and let $\Gamma$ be the circumcircle of $ABC$. Points $X$ and $Y$ lie on $\Gamma$ so that $XY$ and $BC$ meet on the external angle bisector of $\angle BAC$. Suppose that the tangents to $\Gamma$ at $X$ and $Y$ intersect at a point $T$ on the same side of $BC$ as $A$, and that $TX$ and $TY$ intersect $BC$ at $U$ and $V$, respectively. Let $J$ be the center of the excircle of triangle $TUV$ opposite the vertex $T$.
 
 	Prove that $AJ$ bisects $\angle BAC$.
 \end{example}
@@ -519,7 +519,7 @@ These problems are relatively straightforward and should be tried before the wal
 \subsection{ISL 2024 G5}
 
 \begin{example}[ISL 2024 G5]
-	Let $ABC$ be a triangle with incentre $I$, and let $\Omega$ be the circumcircle of triangle $BIC$. Let $K$ be a point in the interior of segment $BC$ such that $\angle BAK < \angle KAC$. The angle bisector of $\angle BKA$ intersects $\Omega$ at points $W$ and $X$ such that $A$ and $W$ lie on the same side of $BC$, and the angle bisector of $\angle CKA$ intersects $\Omega$ at points $Y$ and $Z$ such that $A$ and $Y$ lie on the same side of $BC$.
+	Let $ABC$ be a triangle with incenter $I$, and let $\Omega$ be the circumcircle of triangle $BIC$. Let $K$ be a point in the interior of segment $BC$ such that $\angle BAK < \angle KAC$. The angle bisector of $\angle BKA$ intersects $\Omega$ at points $W$ and $X$ such that $A$ and $W$ lie on the same side of $BC$, and the angle bisector of $\angle CKA$ intersects $\Omega$ at points $Y$ and $Z$ such that $A$ and $Y$ lie on the same side of $BC$.
 
 	Prove that $\angle WAY = \angle ZAX$.
 \end{example}
@@ -609,11 +609,11 @@ These problems are relatively straightforward and should be tried before the wal
 \subsection{IMO 2011/6}
 
 \begin{example}[IMO 2011/6]
-	Let $ABC$ be an acute triangle with circumcircle $\Gamma$. Let $\ell$ be a tangent line to $\Gamma$, and let $\ell_a, \ell_b$ and $\ell_c$ be the lines obtained by reflecting $\ell$ in the lines $BC$, $CA$ and $AB$, respectively. Show that the circumcircle of the triangle determined by the lines $\ell_a, \ell_b$ and $\ell_c$ is tangent to the circle $\Gamma$.
+	Let $ABC$ be an acute triangle with circumcircle $\Gamma$. Let $\ell$ be a tangent line to $\Gamma$, and let $\ell_a$, $\ell_b$, and $\ell_c$ be the lines obtained by reflecting $\ell$ in the lines $BC$, $CA$, and $AB$, respectively. Show that the circumcircle of the triangle determined by the lines $\ell_a$, $\ell_b$, and $\ell_c$ is tangent to the circle $\Gamma$.
 \end{example}
 
 \begin{walkthrough}
-	Evan has a $15$-minute computation that requires guessing a homothety; however, this is black magic to me. We present three solutions that all require little synthetic insight. The solutions are of increasing order of instructiveness.
+	Evan has a 15-minute computation that requires guessing a homothety; however, this is black magic to me. We present three solutions that all require little synthetic insight. The solutions are of increasing order of instructiveness.
 
 	Let $P$ be the tangency point of $\ell$ to $(ABC)$. Let $X = \ell_b \cap \ell_c$ and define $Y$ and $Z$ similarly. We complex bash with $(ABC)$ as the unit circle. The first step is the same in all three solutions.
 	\begin{walk}
@@ -634,7 +634,7 @@ These problems are relatively straightforward and should be tried before the wal
 	The second solution is by \texttt{malcolm} and makes use of Casey's theorem.
 	\begin{theorem*}
 		[Casey's theorem]
-		Four circles $c_1$, $c_2$, $c_3$, and $c_4$ are tangent to a fifth circle iff for some choice of signs,
+		Four circles $c_1$, $c_2$, $c_3$, and $c_4$ are tangent to a fifth circle if and only if for some choice of signs,
 		\[T_{12}T_{34} \pm T_{13}T_{42} \pm T_{14}T_{23} = 0\]
 		where $T_{ij}$ is the length of a common tangent to circles $c_i$ and $c_j$.
 	\end{theorem*}
@@ -644,13 +644,13 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii Compute
 		\begin{align*}
 			\Pow_\Gamma(X) = x\ol x - 1 &= \frac{(p - a)^2((ab + bc + ca)p^2 - 2abcp + abc(a + b + c))}{a^2p^2(b + c)^2} \\
-			y - z &= \frac{(b - c)(-2pabc + abc(a + b + c))}{p^2(a + b)(a + c)}
+			y - z &= \frac{(b - c)(-2pabc + abc(a + b + c))}{p^2(a + b)(a + c)}.
 		\end{align*}
 		\ii Divide by unit and symmetric terms to obtain
 		\[\lvert a - p\rvert\lvert b - c\rvert \pm \lvert b - p\rvert\lvert c - a\rvert \pm \lvert c - p\rvert\lvert a - b\rvert = 0.\]
 		Conclude by Ptolemy's theorem.
 	\end{walk}
-	Why should we have expected to use Ptolemy's theorem \emph{a priori}?
+	Why should we have expected to use Ptolemy's theorem a priori?
 
 	The third solution is by \texttt{pieater314159}. We will need the following fact.
 	\begin{theorem*}
@@ -679,7 +679,7 @@ These problems are relatively straightforward and should be tried before the wal
 \subsection{IMO 2013/3}
 
 \begin{example}[IMO 2013/3]
-    Let the excircle of triangle $ABC$ opposite the vertex $A$ be tangent to the side $BC$ at the point $A_1$. Define the points $B_1$ on $CA$ and $C_1$ on $AB$ analogously, using the excircles opposite $B$ and $C$, respectively. Suppose that the circumcentre of triangle $A_1B_1C_1$ lies on the circumcircle of triangle $ABC$. Prove that triangle $ABC$ is right-angled.
+    Let the excircle of triangle $ABC$ opposite the vertex $A$ be tangent to the side $BC$ at the point $A_1$. Define the points $B_1$ on $CA$ and $C_1$ on $AB$ analogously, using the excircles opposite $B$ and $C$, respectively. Suppose that the circumcenter of triangle $A_1B_1C_1$ lies on the circumcircle of triangle $ABC$. Prove that triangle $ABC$ is right.
 \end{example}
 
 \begin{walkthrough}

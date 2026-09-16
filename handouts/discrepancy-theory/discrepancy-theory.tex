@@ -9,7 +9,7 @@
 
 The goal of this lecture is to prove the following beautiful theorem, which was one of the first results in the field of \emph{discrepancy theory}, which studies how ``evenly distributed'' sequences are.
 
-\begin{theorem}[Roth 1954, \href{https://doi.org/10.1112/S0025579300000541}{On irregularities of distribution}]
+\begin{theorem}[Roth 1954, \href{https://doi.org/10.1112/S0025579300000541}{``On Irregularities of Distribution''}]
     \label{thm:sqrt-log-N}
     There exists a constant $c > 0$ such that the following condition holds: for all sequences $(P_i)_{1 \le i \le N}$ with $P_i \in [0,1)$ for all $i$, there exists $n$ with $1 \le n \le N$ and $x \in [0,1)$ such that
     \[\lvert \#\{i \mid i \le n,P_i < x\} - nx\rvert > c\sqrt{\log N}.\]
@@ -34,12 +34,12 @@ Let $c = c_1$ be some constant to be determined later. We begin with some defini
 \[C(x) = \#\{i \mid P_i \in [0,x_1) \times [0,x_2)\} \quad \text{and} \quad D(x) = C(x) - Nx_1x_2.\]
 Hence we need to show $\lvert D(x)\rvert > c_1\sqrt{\log N}$ for some $x$.
 
-Let $R = [0,1)^2$. A \emph{rectangle} is a subset of $R$ of the form $[a,b) \times [c,d)$ for some real $a,b,c,d$ with $a < b$ and $c < d$. For a rectangle $r = [a,b) \times [c,d)$, we define the four sub-rectangles
+Let $R = [0,1)^2$. A \emph{rectangle} is a subset of $R$ of the form $[a,b) \times [c,d)$ for some real $a,b,c,d$ with $a < b$ and $c < d$. For a rectangle $r = [a,b) \times [c,d)$, we define the four subrectangles
 \[
     \begin{array}{cc}
         r_{01} = [a,\frac{a + b}2) \times [\frac{c + d}2,d) & r_{11} = [\frac{a + b}2,b) \times [\frac{c + d}2,d) \\
         r_{00} = [a,\frac{a + b}2) \times [c,\frac{c + d}2) & r_{10} = [\frac{a + b}2,b) \times [c,\frac{c + d}2) \\
-    \end{array}
+    \end{array}.
 \]
 In other words, let $r_{00},r_{10},r_{01},r_{11}$ denote its bottom-left, bottom-right, top-left, and top-right quadrants, respectively. Additionally, we say a rectangle is \emph{bad} if it contains an element of $P$, and \emph{good} otherwise. 
 

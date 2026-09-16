@@ -31,7 +31,7 @@ You might already know the following.
 	$f(20\dg) = \frac18$.
 \end{fact}
 The proof of this is quite pretty: 
-by three applications of sine double angle, we have
+by three applications of the sine double-angle identity, we have
 \begin{align*}
 	\cos(20\dg)\cos(40\dg)\cos(80\dg) &=
 	\frac1{\sin(20\dg)}\sin(20\dg)\cos(20\dg)\cos(40\dg)\cos(80\dg) \\
@@ -55,7 +55,7 @@ Roughly, a field is a set where you can add, subtract, multiply, and divide (exc
 A ring is a set where you can add, subtract, and multiply.
 For example, $\QQ$, $\CC$, and $\ZZ/67\ZZ$ are fields,
 and $\ZZ$ and $\ZZ/12\ZZ$ are rings but not fields, since in both rings,
-you can't divide by $2$ --- $\frac12$ is defined in neither $\ZZ$ nor $\ZZ/12\ZZ$.
+you can't divide by $2$---$\frac12$ is defined in neither $\ZZ$ nor $\ZZ/12\ZZ$.
 (However, $\frac12$ is defined in $\ZZ/67\ZZ$: it's $34$, since $2 \cdot 34 \equiv 1 \pmod{67}$.)
 
 If this doesn't make sense, here's the actual definition.
@@ -106,7 +106,7 @@ rational coefficients, and
 
 Here are some examples.
 \begin{itemize}
-	\ii The numbers $5$, $\sqrt3$ and $67i$ are algebraic integers, since they are roots of the polynomials $x - 5$, $x^2 - 3$, and $x^2 + 67^2$, respectively.
+	\ii The numbers $5$, $\sqrt3$, and $67i$ are algebraic integers, since they are roots of the polynomials $x - 5$, $x^2 - 3$, and $x^2 + 67^2$, respectively.
 	\ii The numbers $\frac12$ and $\sqrt{\frac 67}$ are algebraic numbers, but not algebraic integers. They are roots of the polynomials $x - \frac12$ and $7x^2 - 6$, respectively.
 	\ii The numbers $\pi$ and $e$ are not algebraic numbers, since they are not the root of any polynomial with rational coefficients. (They are still the root of the polynomials $x - \pi$ and $x - e$, though.) These numbers are called \emph{transcendental}.
 \end{itemize}
@@ -196,7 +196,7 @@ Therefore, $\QQ(\alpha) = \QQ[x]/(P_\alpha(x))$ is a field, just like $\ZZ/(5)$ 
 \end{remark*}
 
 \begin{exercise} 
-	Show that an algebraic number $\alpha$ is an algebraic integer iff
+	Show that an algebraic number $\alpha$ is an algebraic integer if and only if
 	when $P_\alpha$ is scaled to be monic, it has integer coefficients.
 \end{exercise}
 
@@ -204,15 +204,14 @@ The roots of $P_\alpha$ are called the \emph{Galois conjugates} of $\alpha$.
 A good general intuition to have is that it's often good to think
 of an algebraic number $\alpha$ in terms of its minimal polynomial $P_\alpha$
 and its Galois conjugates.
-More bluntly, $\alpha$ is useless by itself. Bring in its brothers and sisters
---- its Galois conjugates --- to fight with it.
+More bluntly, $\alpha$ is useless by itself. Bring in its brothers and sisters---its Galois conjugates---to fight with it.
 
 Here are a few examples of Galois conjugates.
 \begin{itemize}
 	\ii The Galois conjugate of $\frac67$ is $\frac67$.
 	\ii The Galois conjugates of $6 + \sqrt7i$ are $6 \pm \sqrt7i$.
 	\ii The Galois conjugates of $\sqrt 2$ and $\sqrt 3$ are $\pm \sqrt2$ and $\pm \sqrt3$. The Galois conjugates of $\sqrt2 - \sqrt3$ are $-\sqrt2 -\sqrt3$, $-\sqrt2 + \sqrt3$, $\sqrt2 - \sqrt3$, and $\sqrt2 + \sqrt3$.
-	\ii The Galois conjugates of $\cbrt2$ are $\cbrt2$, $\omega\cbrt2$ and $\omega^2\cbrt2$, where $\omega$ is a primitive third root of unity.
+	\ii The Galois conjugates of $\cbrt2$ are $\cbrt2$, $\omega\cbrt2$, and $\omega^2\cbrt2$, where $\omega$ is a primitive third root of unity.
 \end{itemize}
 With the language of algebraic numbers and integers, we can now begin to discuss cyclotomic polynomials.
 
@@ -231,7 +230,7 @@ First of all, we have the following identity.
 	\[\prod_{d \mid n}\Phi_d(x) = x^n - 1,\]
 	where the product is taken over divisors $d$ of $n$.
 \end{proposition}
-This holds since both sides are monic polynomials whose roots are the $n$th roots of unity --- every $n$th root of unity is a primitive $d$th root of unity for exactly one $d$ dividing $n$. As shown in \Cref{fig:12th-roots-of-unity}, each $12$th root of unity is either a primitive $1$st, $2$nd, $3$rd, $4$th, $6$th, or $12$th root of unity. Hence
+This holds since both sides are monic polynomials whose roots are the $n$th roots of unity---every $n$th root of unity is a primitive $d$th root of unity for exactly one $d$ dividing $n$. As shown in \Cref{fig:12th-roots-of-unity}, each $12$th root of unity is either a primitive $1$st, $2$nd, $3$rd, $4$th, $6$th, or $12$th root of unity. Hence
 \[x^{12} - 1 = \Phi_1(x)\Phi_2(x)\Phi_3(x)\Phi_4(x)\Phi_6(x)\Phi_{12}(x).\]
 
 \begin{figure}
@@ -328,7 +327,7 @@ Here are some observations:
 \begin{itemize}
 	\ii The degree of the polynomial $\Phi_n$ is $\varphi(n)$, since that's the number of primitive $n$th roots of unity.
 	\ii The polynomial $\Phi_n$ is a \emph{palindrome}: $\Phi_n(x) = x^{\varphi(n)}\Phi_n(x^{-1})$. Try proving this yourself.
-	\ii The coefficients of $\Phi_n$ seem to be in $\{-1,0,1\}$. Unfortunately, this is false: the $x^7$ and $x^{41}$-coefficients of $\Phi_{105}$ are $-2$. However, $\Phi_n$ always has integer coefficients.
+	\ii The coefficients of $\Phi_n$ seem to be in $\{-1,0,1\}$. Unfortunately, this is false: the $x^7$- and $x^{41}$-coefficients of $\Phi_{105}$ are $-2$. However, $\Phi_n$ always has integer coefficients.
 	
 	Here's a sketch: we claim that if $P$ is a monic polynomial with integer coefficients and $P = AB$ is a factorization of $P$ where $A$ is a monic polynomial with integer coefficients, then $B$ is a monic polynomial with integer coefficients. This is proved by backward induction on the coefficients of $B$. Now apply this claim inductively using $P(x) = x^n - 1$, $A(x) = \prod_{d \mid n,d < n}\Phi_d(x)$, and $B(x) = \Phi_n(x)$.
 	\ii The polynomial $\Phi_n$ is irreducible, which we will prove here.
@@ -359,7 +358,7 @@ If cyclotomic polynomials are irreducible, that means if a divisor $P$ of $x^n -
 	This joke was inspired by the excellent YouTube channel Sheafification of G.
 \end{remark*}
 
-Look at \Cref{fig:12th-roots-of-unity}. By Dirichlet's theorem, there is some prime $p$ congruent to $a \pmod n$ for all $a$ with $\gcd(a,n) = 1$. For any $n$th root of unity $\zeta$, the roots of unity of the form $\zeta^p$ for primes $p$ not dividing $n$ are exactly those of the same shape as $\zeta$ --- the ones with the same order.\footnote{
+Look at \Cref{fig:12th-roots-of-unity}. By Dirichlet's theorem, there is some prime $p$ congruent to $a \pmod n$ for all $a$ with $\gcd(a,n) = 1$. For any $n$th root of unity $\zeta$, the roots of unity of the form $\zeta^p$ for primes $p$ not dividing $n$ are exactly those of the same shape as $\zeta$---the ones with the same order.\footnote{
 	For the experienced reader, the action of $(\ZZ/n\ZZ)^\times$ on the set of $d$th primitive roots of unity with $d \mid n$ by $\zeta \mapsto \zeta^p$ is transitive. This is since the group of $n$th roots of unity is isomorphic to the cyclic group of order $n$, and the action of $(\ZZ/n\ZZ)^\times$ on $\ZZ/n\ZZ$ by multiplication has orbits $\{a \mid \gcd(a,n) = d\}$ for each $d \mid n$.
 }
 
@@ -386,7 +385,7 @@ We compute
 \end{align*}
 where index variables are assumed to run over $\{0,1,\dots,n - 1\}$.
 
-Now let $P$ and $Q$ be as in the claim. As $x^n - 1$ is monic, $P$ and $Q$ are either both monic or both have leading coefficient $-1$. Without loss of generality, suppose $P$ and $Q$ are both monic. Since the roots of $P$ are a subset of those of $x^n - 1$, we have $P(x) = (x - \xi_1) \dots (x - \xi_k)$ for some distinct $n$th roots of unity $\xi_1,\dots,\xi_k$.
+Now let $P$ and $Q$ be as in the claim. As $x^n - 1$ is monic, $P$ and $Q$ are either both monic or both have leading coefficient $-1$. WLOG suppose $P$ and $Q$ are both monic. Since the roots of $P$ are a subset of those of $x^n - 1$, we have $P(x) = (x - \xi_1) \dots (x - \xi_k)$ for some distinct $n$th roots of unity $\xi_1,\dots,\xi_k$.
 
 Now suppose by way of contradiction $P(\zeta) = 0$ but $P(\zeta^p) \neq 0$ for some prime $p \nmid n$. Then the quotient of $\Delta = \prod_{i < j}(\zeta_n^i - \zeta_n^j)^2$ with
 \[P(\zeta^p) = (\zeta^p - \xi_1) \dots (\zeta^p - \xi_k)\]

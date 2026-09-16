@@ -28,79 +28,109 @@
   pdf: "/handouts/algebraic-nt/algebraic-nt.pdf"
   source: "/handouts/algebraic-nt/algebraic-nt.tex"
   slug: algebraic-nt
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: avoiding-sillies
   pdf: "/handouts/avoiding-sillies/avoiding-sillies.pdf"
   source: "/handouts/avoiding-sillies/avoiding-sillies.tex"
   slug: avoiding-sillies
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: bijections
   pdf: "/handouts/bijections/bijections.pdf"
   source: "/handouts/bijections/bijections.tex"
   slug: bijections
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: complex-bashing
   pdf: "/handouts/complex-bashing/complex-bashing.pdf"
   source: "/handouts/complex-bashing/complex-bashing.tex"
   slug: complex-bashing
-  date: '2026-05-18'
+  date: '2026-09-16'
+- title: complex-trig
+  pdf: "/handouts/complex-trig/complex-trig.pdf"
+  source: "/handouts/complex-trig/complex-trig.tex"
+  slug: complex-trig
+  date: '2026-09-16'
 - title: discrepancy-theory
   pdf: "/handouts/discrepancy-theory/discrepancy-theory.pdf"
   source: "/handouts/discrepancy-theory/discrepancy-theory.tex"
   slug: discrepancy-theory
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: dynamic-planet
   pdf: "/handouts/dynamic-planet/dynamic-planet.pdf"
   source: "/handouts/dynamic-planet/dynamic-planet.tex"
   slug: dynamic-planet
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: estimation
   pdf: "/handouts/estimation/estimation.pdf"
   source: "/handouts/estimation/estimation.tex"
   slug: estimation
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: finite-fields
   pdf: "/handouts/finite-fields/finite-fields.pdf"
   source: "/handouts/finite-fields/finite-fields.tex"
   slug: finite-fields
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: genfunc
   pdf: "/handouts/genfunc/genfunc.pdf"
   source: "/handouts/genfunc/genfunc.tex"
   slug: genfunc
-  date: '2026-05-18'
+  date: '2026-09-16'
+- title: geometric-interpretation
+  pdf: "/handouts/geometric-interpretation/geometric-interpretation.pdf"
+  source: "/handouts/geometric-interpretation/geometric-interpretation.tex"
+  slug: geometric-interpretation
+  date: '2026-09-16'
 - title: hensels-lemma
   pdf: "/handouts/hensels-lemma/hensels-lemma.pdf"
   source: "/handouts/hensels-lemma/hensels-lemma.tex"
   slug: hensels-lemma
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: interpolate
   pdf: "/handouts/interpolate/interpolate.pdf"
   source: "/handouts/interpolate/interpolate.tex"
   slug: interpolate
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: modular-arithmetic
   pdf: "/handouts/modular-arithmetic/modular-arithmetic.pdf"
   source: "/handouts/modular-arithmetic/modular-arithmetic.tex"
   slug: modular-arithmetic
-  date: '2026-05-18'
+  date: '2026-09-16'
+- title: notes
+  pdf: "/handouts/notes/notes.pdf"
+  source: "/handouts/notes/notes.tex"
+  slug: notes
+  date: '2026-09-16'
 - title: nt-sums
   pdf: "/handouts/nt-sums/nt-sums.pdf"
   source: "/handouts/nt-sums/nt-sums.tex"
   slug: nt-sums
-  date: '2026-05-18'
+  date: '2026-09-16'
 - title: orders
   pdf: "/handouts/orders/orders.pdf"
   source: "/handouts/orders/orders.tex"
   slug: orders
-  date: '2026-05-18'
+  date: '2026-09-16'
+- title: quaternions
+  pdf: "/handouts/quaternions/quaternions.pdf"
+  source: "/handouts/quaternions/quaternions.tex"
+  slug: quaternions
+  date: '2026-09-16'
 - title: recursion
   pdf: "/handouts/recursion/recursion.pdf"
   source: "/handouts/recursion/recursion.tex"
   slug: recursion
-  date: '2026-05-18'
+  date: '2026-09-16'
+- title: stack-sorting
+  pdf: "/handouts/stack-sorting/stack-sorting.pdf"
+  source: "/handouts/stack-sorting/stack-sorting.tex"
+  slug: stack-sorting
+  date: '2026-09-16'
+- title: tractor
+  pdf: "/handouts/tractor/tractor.pdf"
+  source: "/handouts/tractor/tractor.tex"
+  slug: tractor
+  date: '2026-09-16'
 - title: vieta
   pdf: "/handouts/vieta/vieta.pdf"
   source: "/handouts/vieta/vieta.tex"
   slug: vieta
-  date: '2026-05-18'
+  date: '2026-09-16'
