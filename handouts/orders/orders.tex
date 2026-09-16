@@ -45,7 +45,7 @@ Here are some examples of groups.
 	\ii $((\ZZ/20\ZZ)^\times,\cdot)$: it has identity $1$, and the inverses of $1,3,7,9,11,13,17,19$ are $1,7,3,9,11,17,13,19$, respectively. In fact, $((\ZZ/n\ZZ)^\times,\cdot)$ is always a group.
 \end{itemize}
 
-Here are some non-examples of groups.
+Here are some nonexamples of groups.
 \begin{itemize}
 	\ii $(\RR,\cdot)$, since $0$ has no inverse.
 	\ii $(\ZZ/20\ZZ,\cdot)$, since $0,2,4,5,6,8,10,12,14,15,16,18$ all have no inverse. (Can you see why?)
@@ -74,7 +74,7 @@ Now, how can we tell if two groups are the same?
 	\end{itemize}
 \end{remark*}
 
-If two groups are isomorphic, they are basically ``the same thing with different names''. For example, $(\ZZ,+) \cong (10\ZZ,+)$ where $10\ZZ$ is the set of multiples of $10$ with the isomorphism $f(x) = 10x$. Also, $(\RR^+,\cdot) \cong (\RR,+)$ with the isomorphism $f(x) = \log x$ (any base), since
+If two groups are isomorphic, they are basically ``the same thing with different names.'' For example, $(\ZZ,+) \cong (10\ZZ,+)$ where $10\ZZ$ is the set of multiples of $10$ with the isomorphism $f(x) = 10x$. Also, $(\RR^+,\cdot) \cong (\RR,+)$ with the isomorphism $f(x) = \log x$ (any base), since
 \[\log(a \cdot b) = \log(a) + \log(b).\]
 Group isomorphisms are important since if we understand a group, we automatically understand all isomorphic groups.
 
@@ -153,7 +153,7 @@ Now it is time to introduce the notion of orders.
 	Find the least odd prime factor of $2019^8 + 1$.
 \end{example}
 
-Suppose $p \mid 2019^8 + 1$, now we see $2019^8 \equiv -1 \pmod{p}$, therefore $2019^{16} \equiv 1 \pmod{p}$. This implies $\ord_p(2019) = 16$ since the order divides $16$ but not $8$. But by Fermat's little theorem we have $2019^{p - 1} \equiv 1 \pmod{p}$, so $16 \mid p - 1$ or $p \equiv 1 \pmod{16}$. Testing the second $1 \pmod{16}$ prime $97$ works.
+Suppose $p \mid 2019^8 + 1$; now we see $2019^8 \equiv -1 \pmod{p}$, therefore $2019^{16} \equiv 1 \pmod{p}$. This implies $\ord_p(2019) = 16$ since the order divides $16$ but not $8$. But by Fermat's little theorem we have $2019^{p - 1} \equiv 1 \pmod{p}$, so $16 \mid p - 1$ or $p \equiv 1 \pmod{16}$. Testing the second $1 \pmod{16}$ prime $97$ works.
 
 \section{Primitive roots}
 
@@ -197,19 +197,19 @@ Invoking \Cref{thm:cyclic} to turn multiplication into addition is very powerful
 
 Let's see a few examples. I strongly encourage you to try the examples yourself before reading the solutions.
 
-\begin{example}[Weakest HMMT Guts 2019/28]
+\begin{example}[Weakest HMMT 2019/Guts 28]
 	For how many integers $a$ with $1 \le a \le 41$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant $\pmod{41}$?
 \end{example}
 
-We see $41$ works; now we count the $a \in (\ZZ/41\ZZ)^\times$. Let $a = g^k$. We want the sequence $g^k,g^{2k},g^{4k},\dots$ to eventually converge, which is equivalent to the exponents $k,2k,4k,\dots$ converging $\pmod{40}$. This occurs iff $k$ is a multiple of $5$, of which there are $8$. Therefore, the answer is $9$.
+We see $41$ works; now we count the $a \in (\ZZ/41\ZZ)^\times$. Let $a = g^k$. We want the sequence $g^k,g^{2k},g^{4k},\dots$ to eventually converge, which is equivalent to the exponents $k,2k,4k,\dots$ converging $\pmod{40}$. This occurs if and only if $k$ is a multiple of $5$, of which there are $8$. Therefore, the answer is $9$.
 
 \begin{example}[$n^2 + 1$ lemma]
-	Let $p$ be an odd prime. Then there exists an $n$ such that $p \mid n^2 + 1$ iff $p \equiv 1 \pmod{4}$.
+	Let $p$ be an odd prime. Then there exists an $n$ such that $p \mid n^2 + 1$ if and only if $p \equiv 1 \pmod{4}$.
 \end{example}
 
 Note the condition $p \mid n^2 + 1$ rearranges to $n^2 \equiv -1 \pmod{p}$, which becomes $\ord_p(n) = 4$. If $p \equiv 1 \pmod{4}$, then taking $n = g^{\frac{p - 1}{4}}$ where $g$ is a primitive root works. If $p \mid n^2 + 1$, $\ord_p(n) = 4 \mid p - 1$ so $p \equiv 1 \pmod{4}$, as desired.
 
-\begin{example}[SMT Team 2024/8]
+\begin{example}[SMT 2024/T8]
 	Find the number of ordered pairs $(a,b)$ of positive integers such that $a^2 + b^2 \mid 2024^2$.
 \end{example}
 
@@ -229,7 +229,7 @@ Since $2024^2 = 2^6 \cdot 11^2 \cdot 23^2$, the only primes dividing $a^2 + b^2$
 	How many primitive roots are there $\pmod{p}$?
 \end{example}
 
-Translating the problem into $\ZZ/(p - 1)\ZZ$, we want to count the $a \in \ZZ/(p - 1)\ZZ$ such that $a,2a,\dots,(p - 2)a$ are nonzero $\pmod{p - 1}$. This occurs iff $a$ is relatively prime to $p - 1$, so there are $\varphi(p - 1)$ primitive roots.
+Translating the problem into $\ZZ/(p - 1)\ZZ$, we want to count the $a \in \ZZ/(p - 1)\ZZ$ such that $a,2a,\dots,(p - 2)a$ are nonzero $\pmod{p - 1}$. This occurs if and only if $a$ is relatively prime to $p - 1$, so there are $\varphi(p - 1)$ primitive roots.
 
 \begin{exercise}\label{ex:num_order}
 	For each $d \mid p - 1$, prove there are $\varphi(d)$ elements of order $d$.
@@ -237,13 +237,13 @@ Translating the problem into $\ZZ/(p - 1)\ZZ$, we want to count the $a \in \ZZ/(
 
 \section{The composite case}
 
-Groups that are isomorphic to $(\ZZ/n\ZZ,+)$ for some $n$ are called \emph{cyclic}. We saw previously that $((\ZZ/p\ZZ)^\times,\cdot)$ is cyclic. It turns out there exist primitive roots modulo $n$ iff $n$ is of the form $2,4,p^k,2p^k$ where $p$ is an odd prime and $k$ is a positive integer. In other words, $(\ZZ/n\ZZ)^\times$ is cyclic, or,
+Groups that are isomorphic to $(\ZZ/n\ZZ,+)$ for some $n$ are called \emph{cyclic}. We saw previously that $((\ZZ/p\ZZ)^\times,\cdot)$ is cyclic. It turns out there exist primitive roots modulo $n$ if and only if $n$ is of the form $2,4,p^k,2p^k$ where $p$ is an odd prime and $k$ is a positive integer. In other words, $(\ZZ/n\ZZ)^\times$ is cyclic, or,
 \[((\ZZ/n\ZZ)^\times,\cdot) \cong (\ZZ/\varphi(n)\ZZ,+).\]
 Here, the idea of a primitive root is generalized to mean
 \[g^1,g^2,\dots,g^{\varphi(n) - 1}\]
 are all not congruent to $1 \pmod{n}$.
 
-\begin{example}[Weak HMMT Guts 2019/28]\label{ex:weak_hmmt}
+\begin{example}[Weak HMMT 2019/Guts 28]\label{ex:weak_hmmt}
 	For how many integers $a$ with $0 \le a \le 24$ is the sequence $a^1,a^2,a^4,a^8,\dots$ eventually constant $\pmod{25}$?
 \end{example}
 
@@ -258,17 +258,17 @@ We've seen the structure of $((\ZZ/p^k\ZZ)^\times,\cdot)$ is remarkably simple. 
 
 Intuitively, this means prime powers \emph{don't interact}. I think the only way you can really get a feel for this theorem is doing problems with it. Let's see a few examples:
 
-\begin{example}[CMIMC ANT 2023/3]
+\begin{example}[CMIMC 2023/A3]
 	Compute
 	\[2022^{\left(2022^{\cdot^{\cdot^{\cdot^{2022}}}}\right)} \pmod{111}\]
 	where there are $2022$ $2022$s.
 \end{example}
 
-Let $x_n$ denote a power tower composed of $n$ copies of $2022$, we want to compute $x_{2022}$ modulo $111$. Since $111 = 3 \cdot 37$, by the Chinese remainder theorem, it's enough to compute the expression modulo $3$ and $37$. Since $3 \mid 2022$, $3 \mid x_{2022}$, so $x_{2022} \equiv 0 \pmod{3}$. Now since $6 \mid 2022$, $36 \mid x_{2021}$, so by Fermat's little theorem, $x_{2022} \equiv 1 \pmod{37}$.
+Let $x_n$ denote a power tower composed of $n$ copies of $2022$; we want to compute $x_{2022}$ modulo $111$. Since $111 = 3 \cdot 37$, by the Chinese remainder theorem, it's enough to compute the expression modulo $3$ and $37$. Since $3 \mid 2022$, $3 \mid x_{2022}$, so $x_{2022} \equiv 0 \pmod{3}$. Now since $6 \mid 2022$, $36 \mid x_{2021}$, so by Fermat's little theorem, $x_{2022} \equiv 1 \pmod{37}$.
 
 So now we must determine $x_{2022} \pmod{111}$. We know $x_{2022}$ is of the form $37k + 1$, and we want this to be $0 \pmod{3}$. In other words, we want $37k + 1 \equiv k + 1 \equiv 0 \pmod{3}$, so $k \equiv 2 \pmod{3}$, so $x_{2022} \equiv 37 \cdot 2 + 1 \equiv 75 \pmod{111}$.
 
-\begin{example}[HMMT Guts 2019/28]
+\begin{example}[HMMT 2019/Guts 28]
 	How many positive integers $2 \le a \le 101$ have the property that there exists a positive integer $N$ for which the last two digits in the decimal representation of $a^{2^n}$ is the same for all $n \ge N$?
 \end{example}
 
@@ -294,7 +294,7 @@ We study the structure of the group $(\ZZ/2024\ZZ)^\times$ under multiplication.
 \end{align*}
 Let this set be $S$. Observe $a$ is the number of elements $s \in S$ such that $22s = (0,0,0,0,0,0)$, so counting component-wise shows $a = 2^4 \cdot 1 \cdot 11 = 176$. Similarly, $b$ is the number of elements such that $40s = (0,0,0,0,0,0)$, so $b = 2^4 \cdot 5 \cdot 1 = 80$. Finally, $c$ is the number of elements such that $2s = (0,0,0,0,0,0)$, so $c = 2^4 \cdot 1 \cdot 1 = 16$, so the answer is $1012(176 + 80 - 2 \cdot 16) = 226688$.
 
-\begin{example}[PUMaC NT 2016/7]
+\begin{example}[PUMaC A 2016/N7]
 	For how many integers $n$ with $2017 \le n \le 2017^2$ do we have $n^n \equiv 1 \pmod{2017}$?
 \end{example}
 

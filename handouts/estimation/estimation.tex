@@ -12,20 +12,20 @@
 
 \maketitle
 
-\begin{abstract}
+\begin{quote}
 	\sffamily\small
 	arml estimathon was the second time at a competition where my team loses first place to minnesota in the last \til10 minutes with the first being cmimc
 
 	\medskip
 
 	---\href{https://artofproblemsolving.com/community/q3h3332858p30875431}{MathWizard10 on AoPS}
-\end{abstract}
+\end{quote}
 
 \tableofcontents
 
 \section{Introduction}
 
-In this handout, we discuss the ``mathematical'' sort of estimation problems found on Guts sets. There are also meta-problems and a few weird ones involving convex hulls of the schools of the organizers, but we shall ignore those. To get better at those, try Fermi questions (rip).
+In this handout, we discuss the ``mathematical'' sort of estimation problems found on Guts sets. There are also metaproblems and a few weird ones involving convex hulls of the schools of the organizers, but we shall ignore those. To get better at those, try Fermi Questions (rip).
 
 Throughout, we use the convention that $A$ is the actual answer and $E$ is the estimate. Additionally, $\log$ denotes the natural logarithm unless explicitly stated.
 
@@ -56,7 +56,7 @@ Use of logarithms allows one to quickly compute otherwise-difficult expressions,
 
 Here are two nice applications of Stirling's approximation:
 
-\begin{example}[MNYMO Guts 2024 Shortlist]
+\begin{example}[MNYMO 2024/Guts Shortlist]
 	Ryan Niu flips $1000$ coins. Estimate the probability he gets between $490$ and $510$ heads, inclusive.
 
 	You will earn $\floor{20\min(A/E,E/A)^4}$ points.
@@ -70,7 +70,7 @@ Here are two nice applications of Stirling's approximation:
 	The actual answer is about $0.513$, so we earned $17$ points.
 \end{solution}
 
-\begin{example}[HMMT Guts 2015/33]
+\begin{example}[HMMT 2015/Guts 33]
 	Estimate the sum of the decimal digits of $\binom{1000}{100}$.
 
 	You will earn $25(0.99)^{\abs{A - E}}$ points.
@@ -133,7 +133,7 @@ Along with your general toolkit (switching orders of summation, generating funct
 This estimate can actually be improved: a better approximation is $\log n + \gamma$, where $\gamma \approx 0.577$ is the Euler--Mascheroni constant. Here's a nice application:
 
 \begin{example}[Coupon collector]
-	Michael is reading Big Nate comics. Every second, he clicks the ``random'' button to view a random comic. Suppose there are $n$ comics. Estimate the expected number of seconds it will take for him to view all of them at least once.
+	Michael is reading \emph{Big Nate} comics. Every second, he clicks the ``random'' button to view a random comic. Suppose there are $n$ comics. Estimate the expected number of seconds it will take for him to view all of them at least once.
 \end{example}
 
 \begin{solution}
@@ -145,7 +145,7 @@ This estimate can actually be improved: a better approximation is $\log n + \gam
 
 Our next example uses a logarithm to turn a product into a sum.
 
-\begin{example}[HMMT Guts 2020/33]
+\begin{example}[HMMT 2020/Guts 33]
 	Estimate
 	\[\prod_{n = 1}^{\infty}n^{n^{-1.25}}.\]
 
@@ -162,7 +162,7 @@ Our next example uses a logarithm to turn a product into a sum.
 
 This example shows the importance of \emph{looking at the scoring}. The scoring function $\floor{22\min(A/E,E/A)}$ is much more forgiving than, say, $\floor{22\min(A/E,E/A)^4}$. So we could use very rough estimates such as $16 \approx 10\log 5$ in the exponent of $e$.
 
-\begin{example}[HMMT Guts 2015/34]
+\begin{example}[HMMT 2015/Guts 34]
 	For an integer $n$, let $f(n)$ denote the number of pairs of integers $(x,y)$ such that $x^2 + xy + y^2 = n$. Compute
 	\[\sum_{n = 1}^{10^6}nf(n).\]
 	
@@ -238,7 +238,7 @@ Here's a cute application:
 	giving an answer of $k \log k \approx 148545$. So we really did just get unlucky.
 \end{remark*}
 
-\begin{example}[SMT Guts 2024/26]
+\begin{example}[SMT 2024/Guts 26]
 	A prime number is said to be \emph{toothless} if none of its digits are $2$, $4$, or $6$. Compute the number of toothless primes with at most $8$ digits.
 
 	You will earn $\max(0,25 - \lceil\frac1{4000}\abs{E - A}\rceil)$ points.
@@ -251,7 +251,7 @@ Here's a cute application:
 	Since the exact answer is $478256$, we earned $23$ points.
 \end{solution}
 
-\begin{example}[HMMT Guts 2020/34]
+\begin{example}[HMMT 2020/Guts 34]
 	For odd primes $p$, let $f(p)$ denote the smallest integer $a$ such that there does not exist an integer $n$ satisfying $p \mid n^2 - a$. Estimate the sum of $f(p)^2$ over the first $10^5$ odd primes $p$.
 
 	You will earn $\floor{22\min(A/E,E/A)^3}$ points.
@@ -263,7 +263,7 @@ Here's a cute application:
 	by taking the first few terms and bounding, so our estimate is $2300000$. Since the actual answer was $2266067$, we earned $21$ points.
 \end{solution}
 
-\begin{example}[HMMT Guts 2024/34]
+\begin{example}[HMMT 2024/Guts 34]
 	Estimate the number of positive integers $n \le 10^6$
 	such that $n^2 + 1$ has a prime factor greater than $n$.
 
@@ -274,7 +274,7 @@ Here's a cute application:
 \end{example}
 
 \begin{solution}
-	Let $N = 10^6$, we sum over primes $p \mid n^2 + 1$. For an odd prime $p$, there are $2$ solutions to $p \mid n^2 + 1$ with $n < p$ if $p \equiv 1 \pmod 4$ and no solutions otherwise. Now let $p$ be a $1 \bmod 4$ prime.
+	Let $N = 10^6$. We sum over primes $p \mid n^2 + 1$. For an odd prime $p$, there are $2$ solutions to $p \mid n^2 + 1$ with $n < p$ if $p \equiv 1 \pmod 4$ and no solutions otherwise. Now let $p$ be a $1 \bmod 4$ prime.
 
 	If $p \le N$, $p$ contributes two solutions. Otherwise, assume that the solutions to $n^2 \equiv -1 \pmod p$ are uniformly distributed modulo $p$, so if $p > N$, there are on average $\frac{2N}p$ solutions to $p \mid n^2 + 1$ with $n \le N$. And if $p > N^2$, there are zero solutions, full stop. Therefore, the answer is
 	\[\sum_{p \le N}2 + \sum_{N < p < N^2}\frac{2N}p.\]
@@ -384,8 +384,8 @@ Warning: the next problem is hard.
 
 Let's see a problem from an actual contest (although to be fair, I wrote this problem).
 
-\begin{example}[MNYMO Guts 2024/27]
-	The MN Youth Math Outreach Board has birthdays $B_1,B_2,\dots,B_7$ when written in MMDDYYYY form. For example, if Taylor Swift was the eighth member of the MN Youth Math Outreach Board, $B_8$ would be $12131989$, since her birthday is December 13th, 1989. Estimate the sum of the pairwise $\gcd$s of the $B_i$, or
+\begin{example}[MNYMO 2024/Guts 27]
+	The MN Youth Math Outreach Board has birthdays $B_1,B_2,\dots,B_7$ when written in MMDDYYYY form. For example, if Taylor Swift was the eighth member of the MN Youth Math Outreach Board, $B_8$ would be $12131989$, since her birthday is December 13, 1989. Estimate the sum of the pairwise $\gcd$s of the $B_i$, or
 	\[\sum_{1 \le i < j \le 7}\gcd(B_i,B_j).\]
 	
 	You will earn $\floor{20\min(A/E,E/A)}$ points.
@@ -397,7 +397,7 @@ Let's see a problem from an actual contest (although to be fair, I wrote this pr
 	Since there are $\binom{7}{2}$ possible pairs, our estimate is $210$. Since the answer is $390$, we earned $10$ points.
 \end{solution}
 
-\begin{example}[HMNT Guts 2023/36]
+\begin{example}[HMNT 2023/Guts 36]
 	Isabella writes the expression $\sqrt d$ for each positive integer $d$ not exceeding $8!$ on the board. Seeing that these expressions might not be worth points on HMMT, Vidur simplifies each expression to the form $a\sqrt b$, where $a$ and $b$ are integers such that $b$ is not divisible by the square of a prime number. (For example, $\sqrt{20}$, $\sqrt{16}$, and $\sqrt6$ become $2\sqrt5$, $4\sqrt1$, and $1\sqrt6$, respectively.) Compute the sum of $a + b$ across all expressions that Vidur writes.
 
 	You will earn $\max\left(0,\left\lceil{20\left(1 - \lvert\log_{10}(A/E)\rvert^{1/5}\right)}\right\rceil\right)$ points.
@@ -407,7 +407,7 @@ Let's see a problem from an actual contest (although to be fair, I wrote this pr
 	We assume $n$ contributes $n$ to the sum if it is squarefree, and $0$ otherwise. This underestimates the sum on two counts:
 	\begin{itemize}
 		\ii Drops all $a$. This is acceptable since each $a$ is at most $\sqrt n$.
-		\ii Drops all $b$ from non-squarefree $n$. This is larger but still relatively insignificant.
+		\ii Drops all $b$ from nonsquarefree $n$. This is larger but still relatively insignificant.
 	\end{itemize}
 	For large $n$, $n$ has ``probability'' $1 - \frac1{p^2}$ of being nonzero modulo $p^2$ for fixed $p$, so the probability $n$ is squarefree is
 	\[\prod_p\left( 1 - \frac1{p^2} \right) = \zeta(2)^{-1} = \frac6{\pi^2}.\]
@@ -426,7 +426,7 @@ If the scoring function is unforgiving, like $\floor{25\min(A/E,E/A)^4}$, it's p
 
 Along with your standard combinatorics skills, we will also need some statistics. We will motivate this with the following example, which we already solved by Stirling.
 
-\begin{example}[MNYMO Guts 2024 Shortlist]\label{exa:ryan_stats}
+\begin{example}[MNYMO 2024/Guts Shortlist]\label{exa:ryan_stats}
 	Ryan Niu flips $1000$ coins. Estimate the probability he gets between $490$ and $510$ heads, inclusive.
 
 	You will earn $\floor{20\min(A/E,E/A)^4}$ points.
@@ -435,7 +435,7 @@ Along with your standard combinatorics skills, we will also need some statistics
 \begin{solution}
 	For now, pretend you don't know Stirling. We will obtain the estimate $\frac{21}{\sqrt{500\pi}} \approx 0.53$ (earning $17$ points) with statistics.
 
-	Let $X_i$ for $1 \le i \le 1000$ be random variables evaluating to $1$ if the $i$-th flip is heads and $-1$ if the $i$-th flip is tails. We want the probability
+	Let $X_i$ for $1 \le i \le 1000$ be random variables evaluating to $1$ if the $i$th flip is heads and $-1$ if the $i$th flip is tails. We want the probability
 	\[X := X_1 + \dots + X_{1000}\]
 	is between $-20$ and $20$, inclusive. We're going to approximate $X$ as a continuous variable; since $X$ can only take even values, we're going to fudge the interval $[-20,20]$ to $[-21,21]$.
 
@@ -470,7 +470,7 @@ Along with your standard combinatorics skills, we will also need some statistics
 
 You are allowed to use a scientific calculator for the next example.
 
-\begin{example}[HMMT Guts 2023/35]
+\begin{example}[HMMT 2023/Guts 35]
 	The Fibonacci numbers are defined recursively by $F_0 = 0$, $F_1 = 1$, and $F_i = F_{i - 1} + F_{i - 2}$ for $i \ge 2$. Given $30$ wooden blocks of weights $\cbrt{F_2},\cbrt{F_3},\dots,\cbrt{F_{31}}$, estimate the number of ways to paint each block either red or blue such that the total weight of the red blocks and the total weight of the blue blocks differ by at most $1$.
 
 	You will earn $\floor{25\min(A/E,E/A)^8}$ points.
@@ -486,7 +486,7 @@ You are allowed to use a scientific calculator for the next example.
 
 This is an example of a problem that's just a straight-up combinatorics problem, but the answer extraction requires a bit of estimation.
 
-\begin{example}[HMMT Guts 2015/35]
+\begin{example}[HMMT 2015/Guts 35]
 	Let $P$ denote the set of all subsets of $\{1,\dots,23\}$. A subset $S \subseteq P$ is called \emph{good} if whenever $A$ and $B$ are sets in $S$, $A \triangle B$ is in $S$, where $A \triangle B$ is the set consisting of the elements belonging to exactly one of $A$ and $B$. Estimate the fraction of the good subsets of $P$ with between $2015$ and $3015$ elements, inclusive.
 
 	You will earn $\max(0,25 - \floor{1000\abs{A - E}})$ points.
@@ -501,7 +501,7 @@ This is an example of a problem that's just a straight-up combinatorics problem,
 		\ii Each subspace of dimension $n$ has $(2^n - 1)(2^n - 2)\cdots(2^n - 2^{n - 1})$ bases, with ordering.
     \end{itemize}
     Therefore, there are
-    \[\frac{(2^{23} - 2^0)(2^{23} - 2^1)\cdots(2^{23} - 2^{n - 1})}{(2^n - 1)(2^n - 2) \cdots (2^n - 2^{n - 1})}.\]
+    \[\frac{(2^{23} - 2^0)(2^{23} - 2^1)\cdots(2^{23} - 2^{n - 1})}{(2^n - 1)(2^n - 2) \cdots (2^n - 2^{n - 1})}\]
     subspaces of $\FF_2^{23}$ with dimension $n$. We can multiply this by constant factors since we are calculating a ratio, so we may approximate this as $\frac{2^{23n}}{2^{n^2}} = 2^{23n - n^2}$. Again scaling by a constant, this is $f(n) \defeq 2^{\frac14 -(n - \frac{23}2)^2}$. Since this decays quickly when $n$ is not close to $11$ or $12$, the ratio is approximately
     \[\frac{f(11)}{\sum_{i = 0}^{23}f(i)} \approx \frac{f(11)}{\sum_{i = 9}^{14}f(i)} = \frac1{2(1 + 2^{-2} + 2^{-6})} = \frac{32}{81} \approx 0.395.\]
     Since the answer is about $0.395020305$, we earned $25$ points.
@@ -513,7 +513,7 @@ These types of problems are completely unapproachable using the ``standard'' met
 
 Even though it isn't combo, I think the following problem is pretty representative of the philosophy we will apply in this section.
 
-\begin{example}[HMMT Guts 2013/33]
+\begin{example}[HMMT 2013/Guts 33]
 	Compute $1^{25} + 2^{24} + \dots + 25^1$.
 	
 	You will earn $\floor{25\min(A/E,E/A)^2}$ points.
@@ -527,7 +527,7 @@ Even though it isn't combo, I think the following problem is pretty representati
 
 Here are two nice applications of the idea of averaging upper and lower bounds:
 
-\begin{example}[SMT Guts 2024/25]
+\begin{example}[SMT 2024/Guts 25]
 	Frank composes a random $15$-note melody where each note is either A, B, or C. Compute the probability no sequence of $5$ consecutive notes occurs more than once in the melody he composes. (For example, in the melody ABCABCABCABCABC the sequence ABCAB occurs more than once.)
 	
 	You will earn $\max(0,25 - \lceil 500\abs{E - A}\rceil)$ points.
@@ -546,8 +546,8 @@ Here are two nice applications of the idea of averaging upper and lower bounds:
 	Since the answer is about $0.85531769$, we earned $19$ points.
 \end{solution}
 
-\begin{example}[HMNT Guts 2020/35]
-	Alice is trying to cross a $400$-foot wide river. She can jump at most $4$ feet, but she has many stones she can throw into the river. She will stop throwing stones and cross the river once she has placed enough stones to be able to do so. She can throw straight, but she can't judge distance very well, so each stone ends up being placed uniformly at random along the width of the river. Estimate the expected number of stones she must throw before she can get across the river.
+\begin{example}[HMNT 2020/Guts 35]
+	Alice is trying to cross a $400$-foot-wide river. She can jump at most $4$ feet, but she has many stones she can throw into the river. She will stop throwing stones and cross the river once she has placed enough stones to be able to do so. She can throw straight, but she can't judge distance very well, so each stone ends up being placed uniformly at random along the width of the river. Estimate the expected number of stones she must throw before she can get across the river.
 
 	You will earn $\floor{20\min(A/E,E/A)^3}$ points.
 \end{example}
@@ -565,7 +565,7 @@ Here are two nice applications of the idea of averaging upper and lower bounds:
 
 Here's our last example!
 
-\begin{example}[HMNT Guts 2023/35]
+\begin{example}[HMNT 2023/Guts 35]
 	Dorothea has a $3 \times 4$ grid of dots. She colors each dot red, blue, or dark gray. Compute the number of ways Dorothea can color the grid such that there is no rectangle whose sides are parallel to the grid lines and whose vertices all have the same color.
 
 	You will earn $\floor{20\min(A/E,E/A)^2}$ points.
@@ -583,21 +583,21 @@ Here's our last example!
 
 \subsection{Problems}
 
-The following three problems form a complete estimation set from BMT 2021. Try them and see how you'd perform on an actual contest. Give yourself $20$ minutes, then if you aren't finished, continue working until you have submittable answers.
+The following three problems form a complete estimation set from BMT 2021. Try them and see how you'd perform on an actual contest. Give yourself 20 minutes, then if you aren't finished, continue working until you have submittable answers.
 
-\begin{problem}[BMT Guts 2021/25]\label{pro:bmt_1}
+\begin{problem}[BMT 2021/Guts 25]\label{pro:bmt_1}
 	For any $q \in \QQ$, we define its \emph{nonrepeating length} as the length of its nonrepeating part in its decimal expansion. For example, the nonrepeating length of $12$ is $2$, the nonrepeating length of $12.\overline{2024}$ is $2$, and the nonrepeating length of $12.1434\overline{2024}$ is $6$. If $n = 2021$, compute the nonrepeating length of $\frac{n^n}{n!}$.
 
 	You will earn $\max(0,\floor{25 - \frac1{10}\abs{E - A}})$ points.
 \end{problem}
 
-\begin{problem}[BMT Guts 2021/26]\label{pro:bmt_2}
+\begin{problem}[BMT 2021/Guts 26]\label{pro:bmt_2}
 	Alice has infinitely many cookies. Every second, she flips a coin. If it is heads, she eats one cookie, and if it is tails, she eats two cookies simultaneously. If at any point, the total number of cookies she has eaten is a perfect square, she stops. Compute the expected number of cookies she eats.
 
 	You will earn $\floor{25e^{-\frac{5\abs{E - A}}{2}}}$ points.
 \end{problem}
 
-\begin{problem}[BMT Guts 2021/27]\label{pro:bmt_3}
+\begin{problem}[BMT 2021/Guts 27]\label{pro:bmt_3}
 	Let $S = \{2^0,2^1,2^2,\dots,2^{2021}\}$. Totaled over all numbers in $S$ (without leading zeros), let $E$ and $O$ be the number of even and odd digits in base $10$, respectively. Compute $E - O$.
 
 	You will earn $\max\left(0,\floor{25 - \frac1{2 \cdot 10^8}\abs{E - A}^4}\right)$ points.

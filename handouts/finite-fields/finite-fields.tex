@@ -16,7 +16,7 @@
 
 \section*{Introduction}
 
-Finite fields are a pretty advanced topic, but they come up in short-answer contests surprisingly often. My first exposure to a finite field of non-prime order was \Cref{exa:cubic_discriminant}. The solution was not understandable to me, since I barely knew what a field was. I asked Evan Chen, whose answer was essentially ``read section 60 of Napkin,'' which was not so helpful since section 60 depends on sections 1, 3 through 5, and 53 through 59, for a total of 12 sections.
+Finite fields are a pretty advanced topic, but they come up in short-answer contests surprisingly often. My first exposure to a finite field of nonprime order was \Cref{exa:cubic_discriminant}. The solution was not understandable to me, since I barely knew what a field was. I asked Evan Chen, whose answer was essentially ``read section 60 of \emph{Napkin},'' which was not so helpful since section 60 depends on sections 1, 3 through 5, and 53 through 59, for a total of 12 sections.
 
 Later, I attended a five-week course at the \href{https://mathcamp.simis.cn/2024/}{Yau Mathcamp}, finally answering my original question. But you definitely \emph{do not} need five weeks of classes to understand finite fields if you just want to solve contest problems. In fact, I explained \Cref{exa:motivation} to one of my friends in just fifteen minutes today, which inspired this handout.
 
@@ -41,7 +41,7 @@ See? I told you it's boring.
 
 \section{A motivating example}
 
-\begin{example}[BMT General 2021/21]\label{exa:motivation}
+\begin{example}[BMT 2021/General 21]\label{exa:motivation}
 	There exist integers $a$ and $b$ such that $(1 + \sqrt 2)^{12} = a + b\sqrt2$. Compute $ab$ modulo $13$.
 \end{example}
 
@@ -123,7 +123,7 @@ We continue with examples!
 
 Try the examples below before reading the solutions.
 
-\begin{example}[BMT Discrete 2023/10]\label{exa:bprp}
+\begin{example}[BMT 2023/Discrete 10]\label{exa:bprp}
 	Let $\alpha$ be the positive real root of $x^2 - 3x - 2$. Compute $\floor{\alpha^{1000}}$ modulo $997$.
 \end{example}
 
@@ -151,7 +151,7 @@ Try the examples below before reading the solutions.
     so all odd $p$ below $100$ work. So the answer is $24$.
 \end{solution}
 
-\begin{example}[HMMT Algebra and Number Theory 2017/9]\label{exa:fibonacci}
+\begin{example}[HMMT 2017/A9]\label{exa:fibonacci}
     Compute the period of the Fibonacci sequence modulo $127$.
 \end{example}
 
@@ -170,7 +170,7 @@ Try the examples below before reading the solutions.
     so the period divides $256$ but not $128$, so it is exactly $256$.
 \end{solution}
 
-\begin{example}[HMMT Guts 2023/31]\label{exa:cubic_discriminant}
+\begin{example}[HMMT 2023/Guts 31]\label{exa:cubic_discriminant}
     Note that $2017$ is prime. Compute
     \[\prod_{i = 0}^{2016}(i^3 - i - 1)^2 \pmod{2017}\]
     given it's not zero.
@@ -182,7 +182,7 @@ Try the examples below before reading the solutions.
     Also, since everything is squared, signs don't matter. Since $(x - 0)(x - 1)\dots(x - (p - 1)) = x^p - x$, we want
     \[\biggl(\prod_{i \in \FF_p}(i - a)(i - b)(i - c)\biggr)^2 = \bigl((a^p - a)(b^p - b)(c^p - c)\bigr)^2.\]
     Since $a,b,c \not\in \FF_p$ and they are all roots of $P$, $(a^p,b^p,c^p)$ is a nontrivial cyclic permutation of $(a,b,c)$, so this becomes
-    \[\bigl((a - b)(b - c)(c - a)\bigr)^2\]
+    \[\bigl((a - b)(b - c)(c - a)\bigr)^2.\]
 
     This is the discriminant of $x^3 - x - 1$, which is $-4 \cdot (-1)^3 - 27(-1)^2 = -23 \equiv 1994 \pmod p$. Alternatively, we may take the derivative: a double application of product rule gives
     \[P'(x) = 3x^2 - 1 = (x - a)(x - b) + (x - b)(x - c) + (x - c)(x - a),\]
@@ -213,21 +213,21 @@ How does the above solution break if $p = 3$?
 
 \section{Exercises}
 
-\begin{exercise}[HMMT Algebra and Number Theory 2015/8]
+\begin{exercise}[HMMT 2015/A8]
     Find the number of ordered pairs of integers $(a,b) \in \{1,2,\dots,35\}^2$ (not necessarily distinct) such that there exist polynomials $f$, $P$, and $Q$ with integer coefficients such that
     \[f(x)^2 - (ax + b) = (x^2 + 1)P(x) + 35Q(x).\]
 \end{exercise}
 
-\begin{exercise}[BMT Discrete 2022/8]
+\begin{exercise}[BMT 2022/Discrete 8]
     Define the two sequences $a_0,a_1,a_2,\dots$ and $b_0,b_1,b_2,\dots$ by $a_0 = 3$ and $b_0 = 1$ with the recurrence relations $a_{n + 1} = 3a_n + b_n$ and $b_{n + 1} = 3b_n - a_n$ for all nonnegative integers $n$. Compute $a_{32}$ and $b_{32}$ modulo $31$.
 \end{exercise}
 
-\begin{exercise}[BMT Individual 2017/20]
+\begin{exercise}[BMT 2017/I20]
     Compute
     \[\sum_{k = 0}^{15}(-1)^k\left(2\cos\left( \frac{k\pi}{16} \right)\right)^{560} \pmod{17}.\]
 \end{exercise}
 
-\begin{exercise}[HMMT Algebra and Number Theory 2020/10]
+\begin{exercise}[HMMT 2020/A10]
     Let $p = 101$. We say $f \in \FF_p[x]$ is \emph{lucky} if it has degree at most $1000$ and there exist $g,h \in \FF_p[x]$ such that
     \[f(x) = g(x)(x^{1001} - 1) + h(x)^p - h(x)\]
     in $\FF_{101}[x]$. Compute the number of lucky polynomials.
