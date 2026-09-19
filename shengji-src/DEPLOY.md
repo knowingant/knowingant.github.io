@@ -7,7 +7,8 @@ Two halves:
    `scripts/build_shengji.sh` and committed.
 2. **Backend** — a single Rust binary (game server, accounts, ratings) with
    a SQLite file. Runs anywhere that supports WebSockets and a persistent
-   disk; the config here targets [Fly.io](https://fly.io).
+   disk. Section 1 targets [Fly.io](https://fly.io); section 1b is the
+   same thing on a VM you run yourself (free on Oracle).
 
 The frontend finds the backend through `runtime.js` (`window._API_HOST`).
 The source is `shengji-src/frontend/static/runtime.js`; the build script
@@ -32,7 +33,7 @@ From the repo root (where `fly.toml` lives), in this order:
 fly auth login
 fly launch --no-deploy --copy-config --name knowingant-shengji   # reads fly.toml as is
 fly volumes create shengji_data --size 1 --region sjc # must match primary_region in fly.toml
-fly secrets set GOOGLE_CLIENT_ID=<client id>.apps.googleusercontent.com   # optional, see below
+fly secrets set GOOGLE_CLIENT_ID=<client id>.apps.googleusercontent.com   # required, see below
 fly deploy
 ```
 
@@ -90,6 +91,95 @@ fly status
 curl https://knowingant-shengji.fly.dev/stats
 curl 'https://knowingant-shengji.fly.dev/api/leaderboard?mode=team'
 ```
+
+## 1b. Backend on a VM instead (Oracle Always Free, or any Linux box)
+
+Same binary, same Docker image, but you run it yourself behind
+[Caddy](https://caddyserver.com) for HTTPS. More steps than Fly, no monthly
+bill. Files: `shengji-src/deploy/vm/` (`compose.yaml`, `Caddyfile`,
+`.env.example`). The image is built by GitHub Actions on every push to
+`main` that touches `shengji-src/` or `shengji/`
+(`.github/workflows/backend-image.yml`) and published as
+`ghcr.io/knowingant/shengji:latest` (amd64 only).
+
+Cost notes, checked 2026-09-19: Oracle's Always Free tier includes the public
+IP and 10 TB/month of traffic, so it is genuinely free, but Oracle may
+reclaim an Always Free instance that stays under 20% CPU and network for 7
+days, which an idle game server does. Upgrading the account to Pay As You
+Go keeps the free allowances (Oracle: "Oracle doesn't charge for Always Free
+resources after you upgrade") and is the usual way to avoid that. Google
+Cloud's free e2-micro is not free for this: every external IPv4 address on a
+VM costs $0.005/hour (about $3.60/month), which is roughly Fly's price.
+
+### Before the VM
+
+1. Pick a hostname. Free option: [DuckDNS](https://www.duckdns.org): sign
+   in, add a subdomain such as `knowingant-shengji.duckdns.org`; the IP can
+   be filled in later.
+2. Add `https://<hostname>` to the Google OAuth client's authorized
+   JavaScript origins (only needed for the fallback UI the backend serves
+   at its own address).
+3. Put `https://<hostname>` in `shengji-src/frontend/static/runtime.js`
+   (`_API_HOST`), rebuild (`./scripts/build_shengji.sh`), commit, push.
+   The push publishes the frontend and starts the image build (Actions
+   tab, roughly 10–15 minutes). If GitHub created the package as private,
+   make it public: `github.com/knowingant?tab=packages` → shengji → Package
+   settings → Change visibility → Public. Otherwise the VM's `docker pull`
+   is denied.
+
+### Oracle Cloud
+
+1. Sign up at `oracle.com/cloud/free`. A card is required for identity
+   verification; nothing is charged. The home region is permanent and
+   Always Free compute only runs there, so pick one near the players.
+2. Compute → Instances → Create instance. Image: Canonical Ubuntu 24.04.
+   Shape: Virtual machine → Specialty and previous generation →
+   `VM.Standard.E2.1.Micro` (Always Free; x86, which the image needs).
+   Networking: new VCN with a public subnet, assign a public IPv4 address.
+   SSH keys: paste your public key (`cat ~/.ssh/id_ed25519.pub`; run
+   `ssh-keygen -t ed25519` first if you have none). Create and wait for
+   Running.
+3. Open ports: instance → Primary VNIC → subnet → Default Security List →
+   Add Ingress Rules: source `0.0.0.0/0`, protocol TCP, destination port
+   `80`; add a second rule for `443`.
+4. Make the IP permanent: instance → Attached VNICs → the VNIC → IPv4
+   addresses → Edit → Reserved public IP. Put the resulting IP into DuckDNS.
+
+### On the VM
+
+```sh
+ssh ubuntu@<ip>
+
+# Oracle's Ubuntu image rejects everything but SSH in iptables.
+sudo iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT
+sudo iptables -I INPUT 1 -p tcp --dport 443 -j ACCEPT
+sudo netfilter-persistent save
+
+curl -fsSL https://get.docker.com | sudo sh
+
+mkdir -p ~/shengji && cd ~/shengji
+B=https://raw.githubusercontent.com/knowingant/knowingant.github.io/main/shengji-src/deploy/vm
+curl -fsSLO $B/compose.yaml && curl -fsSLO $B/Caddyfile && curl -fsSL $B/.env.example -o .env
+nano .env                    # DOMAIN and GOOGLE_CLIENT_ID
+sudo docker compose up -d
+```
+
+Check: `curl https://<hostname>/api/auth/config` prints the client ID.
+`sudo docker compose logs -f` shows both containers; Caddy fetches the
+certificate on first start, so DNS must already point at the VM.
+
+Update after a push: `sudo docker compose pull && sudo docker compose up -d`
+(the backend dumps room state on shutdown and reloads it, so a restart costs
+players a reconnect, not their game). Data lives in `~/shengji/data/`
+(SQLite plus the room dump). Backup:
+`sudo docker compose exec shengji sqlite3 /data/shengji.db '.backup /data/backup.db'`,
+then copy `~/shengji/data/backup.db` off the machine.
+
+Google Cloud instead: same VM steps. In the console pick e2-micro in
+us-west1, us-central1 or us-east1, boot disk type *Standard* persistent disk
+(30 GB or less), tick Allow HTTP and HTTPS traffic, and reserve the external
+IP under VPC network → IP addresses. Its Ubuntu image has no iptables rules
+to fix, and the IP is billed as noted above.
 
 ## 2. Environment variables (any host)
 
