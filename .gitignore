@@ -30,3 +30,10 @@ private
 **.synctex
 
 .DS_Store
+# shengji fork build artifacts (see shengji-src/.gitignore too)
+shengji-src/target
+shengji-src/frontend/node_modules
+shengji-src/frontend/dist
+shengji-src/frontend/shengji-wasm/pkg
+*.db
+*.db-*

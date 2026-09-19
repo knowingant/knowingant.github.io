@@ -1,0 +1,166 @@
+# Deploying
+
+Two halves:
+
+1. **Frontend** — static files in `../shengji/`, served by GitHub Pages at
+   `https://knowingant.github.io/shengji/`. Rebuilt with
+   `scripts/build_shengji.sh` and committed.
+2. **Backend** — a single Rust binary (game server, accounts, ratings) with
+   a SQLite file. Runs anywhere that supports WebSockets and a persistent
+   disk; the config here targets [Fly.io](https://fly.io).
+
+The frontend finds the backend through `runtime.js` (`window._API_HOST`).
+The source is `shengji-src/frontend/static/runtime.js`; the build script
+copies it to `shengji/runtime.js`, so edit the source (not the generated
+copy) if you host the backend somewhere other than
+`https://knowingant-shengji.fly.dev`, then rebuild.
+
+## 0. Tools (once)
+
+```sh
+brew install rustup node yarn wasm-pack flyctl
+rustup default stable
+rustup target add wasm32-unknown-unknown
+```
+
+## 1. Backend on Fly.io (once)
+
+From the repo root (where `fly.toml` lives), in this order:
+
+```sh
+./scripts/build_shengji.sh                            # frontend first (section 3); the image needs ./shengji
+fly auth login
+fly launch --no-deploy --copy-config --name knowingant-shengji   # reads fly.toml as is
+fly volumes create shengji_data --size 1 --region sjc # must match primary_region in fly.toml
+fly secrets set GOOGLE_CLIENT_ID=<client id>.apps.googleusercontent.com   # optional, see below
+fly deploy
+```
+
+`fly deploy` builds `shengji-src/deploy/Dockerfile` with the repo root as
+context. The image bundles `./shengji` (the built frontend) as a fallback UI
+served at `/` and fails to build without it, so `scripts/build_shengji.sh`
+has to run before the first deploy. GitHub Pages is still the real UI.
+`fly launch` may ask whether to tweak the settings; say no. The volume must
+exist before `fly deploy` (`[[mounts]]` in `fly.toml`) and in the same region
+as `primary_region`.
+
+The app will be at `https://knowingant-shengji.fly.dev`. If you picked a
+different app name, put the new backend URL in
+`shengji-src/frontend/static/runtime.js` (`_API_HOST`) and rebuild the
+frontend (step 3). `CORS_ALLOWED_ORIGINS` in `fly.toml` is the *frontend*
+origin (`https://knowingant.github.io`) and stays as is.
+
+### Google sign-in (required)
+
+Google is the only way to sign in on a real deployment (no passwords are
+stored anywhere).
+
+1. Google Cloud Console → APIs & Services → Credentials → Create credentials
+   → OAuth client ID → Web application.
+2. Authorized JavaScript origins: `https://knowingant.github.io` and
+   `https://knowingant-shengji.fly.dev` (and `http://localhost:3030` for
+   local dev). No redirect URIs are needed (Google Identity Services popup).
+3. `fly secrets set GOOGLE_CLIENT_ID=<client id>.apps.googleusercontent.com`
+
+Without the secret nobody can sign in. Never set `DEV_LOGIN` on the
+deployed app: it lets anyone sign in as anyone.
+
+### Data
+
+Everything persistent is on the volume at `/data`: `shengji.db` (accounts,
+sessions, ratings, round history; SQLite in WAL mode) plus the room-state
+dump and header messages (`shengji_state.json`, `shengji_messages.json`).
+Back up the database with a consistent snapshot (the image ships `sqlite3`
+for this):
+
+```sh
+fly ssh console -C "sqlite3 /data/shengji.db '.backup /data/backup.db'"
+fly sftp get /data/backup.db
+```
+
+Do not copy `shengji.db` on its own: in WAL mode recent writes sit in
+`shengji.db-wal` until a checkpoint, so `fly sftp get /data/shengji.db`
+without the `-wal`/`-shm` files can lose them.
+
+### Logs / status
+
+```sh
+fly logs
+fly status
+curl https://knowingant-shengji.fly.dev/stats
+curl 'https://knowingant-shengji.fly.dev/api/leaderboard?mode=team'
+```
+
+## 2. Environment variables (any host)
+
+| Var | Meaning | Default |
+|---|---|---|
+| `DATABASE_PATH` | SQLite file | `./shengji.db` |
+| `SESSION_TTL_DAYS` | sign-in token lifetime | `180` |
+| `GOOGLE_CLIENT_ID` | OAuth web client ID; nobody can sign in without it (or `DEV_LOGIN`) | unset |
+| `DEV_LOGIN` | `1` enables `POST /api/auth/dev_login` (any username, no password). Local testing only. | unset |
+| `CORS_ALLOWED_ORIGINS` | comma list of frontend origins | localhost dev origins |
+| `TRUST_PROXY_HEADERS` | `1` to read `Fly-Client-IP` for rate limiting | unset |
+| `STATIC_DIR` | directory of built frontend to serve at `/` | unset |
+| `DUMP_PATH`, `MESSAGE_PATH` | room-state dump / header messages files | `/tmp/...` |
+| `PORT` | listen port | `3030` |
+
+The binary does not terminate TLS; put it behind Fly, Caddy, nginx, etc.
+
+## 3. Frontend to GitHub Pages
+
+```sh
+./scripts/build_shengji.sh          # or --check to run tests/lints first
+git add shengji
+git commit -m "rebuild shengji"
+git push
+```
+
+`shengji/` is plain static output, including `shengji/runtime.js`, which is
+regenerated from `shengji-src/frontend/static/runtime.js` on every build
+(Jekyll copies `shengji/` through untouched; `shengji-src/` is excluded from
+the Jekyll build in `_config.yml`).
+
+## 4. Local development
+
+```sh
+cd shengji-src/frontend && yarn watch                                  # rebuilds ../frontend/dist
+cd shengji-src/backend && DEV_LOGIN=1 cargo run --features dynamic     # serves ../frontend/dist at :3030
+open http://localhost:3030/
+```
+
+With the `dynamic` feature the backend serves the frontend itself, its own
+`/runtime.js` sets `_API_HOST=""` (same origin), and the SQLite file is
+`./shengji.db` in `backend/`. `DEV_LOGIN=1` adds a "dev sign-in" box to the
+landing page: type any username and you are signed in as it (so you can be
+several players at once in different browsers or private windows). To test
+the real Google button locally, also set `GOOGLE_CLIENT_ID` and add
+`http://localhost:3030` to the client's authorized JavaScript origins.
+
+Tests and lints:
+
+```sh
+cd shengji-src && cargo test --all && cargo clippy --all -- -D warnings
+cd shengji-src/frontend && yarn lint && yarn prettier --check && yarn test
+```
+
+Type sync after changing Rust message types:
+
+```sh
+cd shengji-src/frontend && yarn types
+```
+
+End-to-end smoke test (signs in through the dev login, joins a room over
+the websocket and plays whole matches for every seat it controls; see
+`tools/bot/README.md`). The backend must run with `DEV_LOGIN=1`:
+
+```sh
+cd shengji-src/tools/bot && npm install
+node bot.js --host http://localhost:3030 --room 0123456789abcdef \
+  --users alice,bob --room-type OneVsOne --matches 1 --first-to 3
+node bot.js --host http://localhost:3030 --room fedcba9876543210 \
+  --users carol,dave,erin,frank --room-type Standard --matches 1 --first-to 3
+```
+
+It cannot run against a real deployment (no dev login there); use it
+locally. Note the account-creation rate limit (20 per hour per IP).

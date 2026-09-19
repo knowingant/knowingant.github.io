@@ -1,0 +1,10 @@
+/target
+**/target
+.DS_Store
+node_modules
+dist/
+pkg/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
