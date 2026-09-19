@@ -1,0 +1,15 @@
+[workspace]
+members = [
+  "backend",
+  "rating",
+  "frontend/json-schema-bin",
+  "frontend/shengji-wasm",
+  "wasm-rpc-impl"
+]
+resolver = "2"
+
+[profile.release]
+lto = true
+
+[profile.release.package.shengji-wasm]
+debug = true

@@ -1,0 +1,826 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.dark-mode {
+  background: #000;
+}
+
+.dark-mode #root {
+  color: #fff;
+}
+
+button.big {
+  padding: 10px;
+  cursor: pointer;
+  margin: 10px;
+  line-height: 1em;
+}
+
+button.normal {
+  padding: 2px;
+  cursor: pointer;
+  margin: 2px;
+  line-height: 1em;
+}
+
+.dark-mode .icon-button {
+  color: #fff;
+}
+
+.header-message {
+  background-color: rgba(255, 255, 0, 0.7);
+  position: fixed;
+  width: 100%;
+  left: 0;
+  top: 0;
+  text-align: center;
+  border-bottom: 1px #000 solid;
+  cursor: pointer;
+}
+
+.emoji-picker-react button {
+  margin: 0;
+}
+
+.players button {
+  padding: 2.5px;
+  margin: 0 5px;
+}
+
+.player {
+  border: 1px #000 solid;
+  padding: 10px;
+  line-height: 1em;
+}
+
+.dark-mode .player {
+  border-color: #fff;
+}
+
+.errors {
+  position: fixed;
+  z-index: 100;
+  background: #f00;
+  color: #fff;
+  padding: 0 10px;
+}
+
+.trick {
+  padding: 10px;
+}
+
+.card {
+  display: inline-block;
+  cursor: pointer;
+  background: transparent;
+  user-select: none;
+  font-family:
+    "Apple Symbols", "Segoe UI Symbol", "Symbola", "DejaVu Sans", system;
+  position: relative;
+  margin-top: 20px;
+}
+
+.card.highlighted {
+  border-bottom: 1px solid;
+  margin-bottom: -1px;
+}
+
+.card > svg {
+  background: #fff;
+  margin-left: 1px;
+}
+
+.dark-mode .card > svg {
+  background: #000;
+}
+
+.card:first-child > svg {
+  padding: 0;
+}
+
+.unknown,
+.card.unknown {
+  cursor: default;
+  color: #aaa;
+}
+
+.card .card-label {
+  display: none;
+  position: absolute;
+  font-size: initial;
+  left: 0.35em;
+  z-index: 1;
+  background: #fff;
+  width: 1.5em;
+}
+
+.dark-mode .card .card-label {
+  background: #000;
+}
+
+.more .card .card-label {
+}
+
+.hand .unselected-cards.unclickable .card {
+  cursor: default;
+}
+
+.hand .unselected-cards .card {
+  margin-top: 30px;
+}
+
+.hand .unselected-cards .card:hover svg {
+  transform: translateY(-20px);
+}
+
+.hand .unselected-cards .card:hover .card-label {
+  transform: translateY(-20px);
+}
+
+.card .card-icon {
+  position: absolute;
+  font-size: initial;
+  left: 0.35em;
+  z-index: 1;
+}
+
+.hand .unselected-cards .card:hover .card-icon {
+  transform: translateY(-20px);
+}
+
+.kitty {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.always-show-labels .card .card-label,
+.card:hover .card-label {
+  display: inline-block;
+}
+
+.ReactModal__Overlay {
+  z-index: 2;
+}
+
+.notify .card,
+.card.notify {
+  animation: blinkingText 1.5s 1;
+  color: #000;
+}
+
+@keyframes blinkingText {
+  0% {
+    color: #000;
+  }
+  50% {
+    color: #aaa;
+  }
+  100% {
+    color: #000;
+  }
+}
+
+@keyframes blinkingTextDark {
+  0% {
+    color: #fff;
+  }
+  50% {
+    color: #555;
+  }
+  100% {
+    color: #fff;
+  }
+}
+
+.dark-mode .notify .card,
+.dark-mode .card.notify {
+  animation: blinkingTextDark 1.5s 1;
+  color: #fff;
+}
+
+.♢ {
+  color: #bb0313;
+}
+
+.♡ {
+  color: #bb0313;
+}
+
+.♤ {
+  color: #000;
+}
+
+.♧ {
+  color: #000;
+}
+
+.🃟 {
+  color: #000;
+}
+
+.🃏 {
+  color: #bb0313;
+}
+
+.points .card {
+  cursor: default;
+}
+
+.four-color .♢,
+.four-color.♢ {
+  color: #1933f9;
+}
+
+.four-color .♡,
+.four-color.♡ {
+  color: #bb0313;
+}
+
+.four-color .♤,
+.four-color.♤ {
+  color: #000;
+}
+
+.four-color .♧,
+.four-color.♧ {
+  color: #477e1b;
+}
+
+.four-color .🃟,
+.four-color.🃟 {
+  color: #000;
+}
+
+.four-color .🃏,
+.four-color.🃏 {
+  color: #bb0313;
+}
+
+.dark-mode .♧,
+.dark-mode.♧ {
+  color: #fff;
+}
+
+.dark-mode .♤,
+.dark-mode.♤,
+.dark-mode .four-color .♤,
+.dark-mode .four-color.♤ {
+  color: #fff;
+}
+
+.dark-mode .🃟,
+.dark-mode.🃟,
+.dark-mode .four-color .🃟,
+.dark-mode .four-color.🃟,
+.darkmode.four-color.🃟 {
+  color: #fff;
+}
+
+.hand p {
+  margin: 0;
+  text-align: center;
+}
+
+.hand .unselected-cards {
+  padding: 0 10px;
+}
+
+.hand .selected-cards {
+  padding: 0 10px;
+}
+
+.next {
+  color: #1933f9;
+  font-weight: bold;
+}
+
+.dark-mode .next {
+  color: #96a2fa;
+}
+
+.landlord {
+  background: #ddd;
+}
+
+.landlord .card svg {
+  background: #ddd;
+}
+
+.dark-mode .landlord,
+.dark-mode .landlord .card svg {
+  background: #333;
+}
+
+.observer {
+  border: 1px #222 dashed;
+  color: #222;
+}
+
+.chat {
+  min-width: 225px;
+  width: 20%;
+  border: 1px #eee solid;
+  float: right;
+  margin-top: 20px;
+}
+
+.dark-mode .chat {
+  border: #222;
+}
+
+.game {
+  min-width: 690px;
+  min-height: 660px;
+  padding: 0 20px;
+  width: 70%;
+  display: inline-block;
+}
+
+.hide-chat-box .game {
+  width: 95%;
+}
+
+.messages {
+  padding-top: 10px;
+  padding-left: 10px;
+  height: 400px;
+  overflow-y: auto;
+  overflow-anchor: none;
+}
+
+.chat-anchor {
+  overflow-anchor: auto;
+  height: 1px;
+}
+
+.message {
+  margin: 0;
+}
+
+.game-message {
+  color: #00f;
+}
+
+.labeled-play {
+  display: inline-block;
+  padding: 10px;
+  border: 1px solid #000;
+  margin-bottom: 20px;
+}
+
+.dark-mode .labeled-play {
+  border-color: #fff;
+}
+
+.labeled-play .label {
+  text-align: center;
+  line-height: 1em;
+}
+
+.labeled-play .card-group {
+  display: inline-block;
+}
+
+.labeled-play .card {
+  cursor: default;
+}
+
+.labeled-play.clickable .card {
+  cursor: pointer;
+}
+
+.labeled-play.winning {
+  box-shadow: inset 0px 0px 0px 2px #bb0313;
+}
+
+.always-show-labels .more .card.svg .card-label,
+.more .card.svg:hover .card-label {
+  bottom: 1.8em;
+}
+
+.labeled-play .play {
+  display: inline-block;
+  padding-bottom: 20px;
+}
+
+.labeled-play .play + .play {
+  margin-left: 10px;
+}
+
+.trump {
+  margin: 10px 0;
+}
+
+.pending-friends p {
+  margin: 0;
+}
+
+.pending-friends {
+  margin: 10px;
+}
+
+.reset-block {
+  float: right;
+  text-align: center;
+  width: 200px;
+}
+
+.reset-block p {
+  margin-block: 0;
+}
+
+.red {
+  color: #bb0313;
+}
+
+.join-room div {
+  padding: 5px;
+}
+
+.join-room span {
+  cursor: pointer;
+}
+
+.join-room h2 input {
+  font-size: 24px;
+}
+
+.kicker button {
+  padding: 3px;
+  margin: 3px;
+}
+
+label {
+  line-height: 25px;
+}
+
+/* used by rules.html */
+.rules .card {
+  font-size: 8em;
+  margin-right: -0.4em;
+}
+.rules .card:last-child {
+  margin-right: 0;
+}
+
+/* --- in-game/1v1 --- */
+.rated-banner {
+  display: inline-block;
+  margin: 8px 0 4px;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: bold;
+  border: 1px solid #1933f9;
+  color: #1933f9;
+}
+
+.rated-banner.unrated {
+  border-color: #888;
+  color: #555;
+  font-weight: normal;
+}
+
+.dark-mode .rated-banner {
+  border-color: #96a2fa;
+  color: #96a2fa;
+}
+
+.dark-mode .rated-banner.unrated {
+  border-color: #777;
+  color: #aaa;
+}
+
+/* One block per seat this connection controls (1v1 rooms). */
+.seat {
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 0 8px 8px;
+  margin: 8px 0;
+}
+
+.seat.seat-active {
+  border-color: #1933f9;
+  background: rgba(25, 51, 249, 0.04);
+}
+
+.dark-mode .seat.seat-active {
+  border-color: #96a2fa;
+  background: rgba(150, 162, 250, 0.08);
+}
+
+.seat-heading {
+  margin: 6px 0 4px;
+  font-size: 1.1em;
+}
+
+.seat-active .seat-heading {
+  color: #1933f9;
+}
+
+.dark-mode .seat-active .seat-heading {
+  color: #96a2fa;
+}
+
+.seat-turn {
+  font-weight: normal;
+  font-size: 0.85em;
+}
+
+/* Rating change messages in chat. */
+.ratings-update ul {
+  margin: 2px 0 2px 1em;
+  padding-left: 1em;
+}
+
+.ratings-update-delta.up {
+  color: #1a7f37;
+}
+
+.ratings-update-delta.down {
+  color: #bb0313;
+}
+
+.dark-mode .ratings-update-delta.up {
+  color: #7ee787;
+}
+
+.dark-mode .ratings-update-delta.down {
+  color: #ff7b72;
+}
+
+/* --- landing/auth --- */
+.auth,
+.account-bar,
+.leaderboard {
+  max-width: 760px;
+}
+
+.auth-form label {
+  display: block;
+  margin: 6px 0;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+  font-size: 1em;
+  padding: 4px;
+  min-width: 240px;
+}
+
+.auth-form input[type="submit"] {
+  margin-top: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.auth-warning {
+  border: 2px solid #bb0313;
+  background: rgba(187, 3, 19, 0.08);
+  padding: 6px 12px;
+  margin: 10px 0;
+}
+
+.auth-warning p,
+.auth-rule p {
+  margin: 6px 0;
+}
+
+.auth-rule {
+  border-left: 4px solid #bb0313;
+  padding: 2px 12px;
+  margin: 10px 0;
+}
+
+.auth-error {
+  color: #bb0313;
+  font-weight: bold;
+}
+
+.dark-mode .auth-error {
+  color: #ff6b6b;
+}
+
+.auth-notice {
+  color: #1a7f37;
+  font-weight: bold;
+}
+
+.dark-mode .auth-notice {
+  color: #7ee787;
+}
+
+.auth-hint {
+  opacity: 0.8;
+  font-size: 0.9em;
+  margin: 4px 0;
+}
+
+.auth-or {
+  text-align: center;
+  margin: 12px 0 6px;
+  opacity: 0.7;
+}
+
+.google-button {
+  min-height: 44px;
+  margin: 6px 0;
+}
+
+.account-bar {
+  border: 1px solid currentColor;
+  padding: 8px 12px;
+  margin: 10px 0;
+}
+
+.account-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+}
+
+.account-ratings {
+  display: inline-flex;
+  gap: 16px;
+  cursor: help;
+}
+
+.account-actions {
+  margin-left: auto;
+}
+
+.account-settings {
+  border-top: 1px dashed currentColor;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.account-settings h4 {
+  margin: 8px 0 4px;
+}
+
+.account-google,
+.account-danger {
+  margin-top: 12px;
+}
+
+.room-type {
+  border: 1px solid currentColor;
+  margin: 5px;
+  padding: 5px 10px;
+}
+
+.room-type label {
+  display: block;
+  cursor: pointer;
+}
+
+.room-type p {
+  margin: 4px 0 0;
+}
+
+.join-room .join-room-name,
+.join-room .auth-hint {
+  cursor: default;
+}
+
+.join-room-name {
+  font-weight: bold;
+}
+
+.leaderboard-tables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.ladder {
+  flex: 1 1 300px;
+  min-width: 280px;
+}
+
+.ladder h4 {
+  margin: 6px 0 2px;
+}
+
+.leaderboard-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.4);
+  padding: 3px 8px;
+  text-align: left;
+}
+
+.leaderboard-table th:first-child,
+.leaderboard-table td:first-child,
+.leaderboard-table th:nth-child(n + 3),
+.leaderboard-table td:nth-child(n + 3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-table tr.me td {
+  font-weight: bold;
+  background: rgba(187, 3, 19, 0.08);
+}
+
+.ladder-footnote {
+  font-size: 0.85em;
+  opacity: 0.8;
+  margin: 6px 0;
+}
+
+.credits {
+  padding: 0 20px;
+}
+
+.credits .donate {
+  border: 2px solid #bb0313;
+  padding: 6px 12px;
+}
+
+.auth-dev {
+  border: 1px dashed currentColor;
+  padding: 4px 12px 10px;
+  margin: 10px 0;
+}
+
+.auth-dev h4 {
+  margin: 8px 0 4px;
+}
+
+/* --- account page (#user/<username>) --- */
+.account-page {
+  max-width: 760px;
+}
+
+.account-page h3 {
+  margin: 16px 0 4px;
+}
+
+.account-ladders,
+.account-stats {
+  max-width: 480px;
+}
+
+.account-matches {
+  list-style: none;
+  margin: 6px 0;
+  padding: 0;
+}
+
+.account-match {
+  border-left: 3px solid rgba(128, 128, 128, 0.5);
+  padding: 2px 0 2px 10px;
+  margin: 10px 0;
+}
+
+.account-match-header {
+  font-size: 0.9em;
+}
+
+.account-match-players {
+  margin: 4px 0 4px 1em;
+  padding-left: 1em;
+}
+
+.account-match-players li.me {
+  font-weight: bold;
+}
+
+.account-match-outcome {
+  font-size: 0.9em;
+}
+
+/* --- match progress / summary --- */
+.match-in-progress {
+  font-weight: bold;
+  margin: 8px 0 4px;
+}
+
+.game-ended-early {
+  font-style: italic;
+  margin: 8px 0 4px;
+}
+
+.match-finished ul,
+.match-standings,
+.match-rating-changes {
+  margin: 4px 0 4px 1em;
+  padding-left: 1em;
+}
+
+.match-finished li.winner,
+.match-standings li.winner {
+  font-weight: bold;
+}

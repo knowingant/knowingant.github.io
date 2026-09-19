@@ -1,0 +1,11 @@
+[package]
+name = "shengji-rating"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Rating math for the knowingant shengji fork (weighted Glicko-2 with margin of victory and team support)"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]

@@ -1,0 +1,11 @@
+# Docker build context is the repo root (see shengji-src/deploy/Dockerfile);
+# keep everything unrelated to the backend out of it.
+*
+!shengji-src/
+!shengji/
+shengji-src/target
+shengji-src/frontend/node_modules
+shengji-src/frontend/dist
+shengji-src/frontend/shengji-wasm/pkg
+shengji-src/**/*.db
+shengji-src/**/*.db-*
