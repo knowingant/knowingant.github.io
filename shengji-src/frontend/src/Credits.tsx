@@ -52,8 +52,8 @@ const ChangeLog = (): JSX.Element => {
         </p>
         <p>
           There are a wide variety of game settings which may suit the way you
-          normally play, e.g. changing how many decks, how scoring works, etc.
-          These can be changed before every round.
+          normally play, e.g. changing the number of decks, how scoring works,
+          etc. These can be changed before every round.
         </p>
         <p>
           There are also a bunch of UI customizations that you may want to turn
@@ -64,9 +64,8 @@ const ChangeLog = (): JSX.Element => {
         <p>9/18/2026 (this fork):</p>
         <ul>
           <li>
-            Accounts: you sign in with Google, and your in-game name is always
-            your account name. There are no passwords here at all. One account
-            per person; no alts.
+            Accounts: Sign in with Google, and your in-game name is always your
+            account name. There are no passwords here at all.
           </li>
           <li>
             Matches: a room plays &ldquo;first to rank N&rdquo; matches (5 by
@@ -546,7 +545,7 @@ const Credits = (): JSX.Element => (
         rel="noreferrer"
       >
         Robert Ying&apos;s shengji
-      </a>{" "}
+      </a>
       . All of the real work is Robert Ying (
       <a href="mailto:me@robertying.com">me@robertying.com</a>), Abra Shen and
       other{" "}
@@ -568,16 +567,14 @@ const Credits = (): JSX.Element => (
       .
     </p>
     <p className="donate">
-      <strong>
-        If you enjoy this, please donate to Robert Ying: Venmo @Robert-Ying
-      </strong>
-      , or via{" "}
+      If you enjoy this, please donate to Robert Ying: Venmo @Robert-Ying, or
+      via{" "}
       <a
         href="https://donate.stripe.com/aEU8x982f3oj4Ja7ss"
         target="_blank"
         rel="noreferrer"
       >
-        <strong>other payment methods</strong>
+        other payment methods
       </a>
       .
       <span style={{ float: "right" }}>

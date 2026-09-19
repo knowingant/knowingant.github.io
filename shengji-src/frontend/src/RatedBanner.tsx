@@ -87,7 +87,7 @@ const RatedBanner = (): JSX.Element | null => {
       })}
       title={
         rated
-          ? `The ${oneVsOne ? "1v1" : "team"} ratings of everyone at the table move once, when this match ends.`
+          ? `This ${oneVsOne ? "1v1" : "team"} match is rated.`
           : "This match does not affect ratings."
       }
     >
