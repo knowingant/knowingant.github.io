@@ -432,6 +432,12 @@ button.normal {
   margin-block: 0;
 }
 
+/* "Leave room" link, top right next to the reset block. */
+.leave-block {
+  float: right;
+  margin-left: 16px;
+}
+
 .red {
   color: #bb0313;
 }
@@ -494,22 +500,39 @@ label {
   color: #aaa;
 }
 
-/* One block per seat this connection controls (1v1 rooms). */
+/* 1v1: the shared board is rendered once above this; the two seats the
+   connection controls sit side by side under it, separated by a rule so the
+   two hands don't run into each other. */
+.seats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* One block per seat this connection controls (1v1 rooms). The seat whose
+   turn it is only gets a coloured heading (below), no box. */
 .seat {
-  border: 2px solid transparent;
-  border-radius: 6px;
-  padding: 0 8px 8px;
   margin: 8px 0;
+  min-width: 0;
 }
 
-.seat.seat-active {
-  border-color: #1933f9;
-  background: rgba(25, 51, 249, 0.04);
+.seat + .seat {
+  border-left: 1px solid rgba(128, 128, 128, 0.5);
+  padding-left: 24px;
 }
 
-.dark-mode .seat.seat-active {
-  border-color: #96a2fa;
-  background: rgba(150, 162, 250, 0.08);
+@media (max-width: 1000px) {
+  .seats {
+    grid-template-columns: 1fr;
+  }
+
+  .seat + .seat {
+    border-left: none;
+    border-top: 1px solid rgba(128, 128, 128, 0.5);
+    padding-left: 0;
+    padding-top: 12px;
+  }
 }
 
 .seat-heading {
@@ -578,14 +601,6 @@ label {
   font-size: 1em;
 }
 
-.auth-warning {
-  border: 2px solid #bb0313;
-  background: rgba(187, 3, 19, 0.08);
-  padding: 6px 12px;
-  margin: 10px 0;
-}
-
-.auth-warning p,
 .auth-rule p {
   margin: 6px 0;
 }
@@ -742,11 +757,6 @@ label {
 
 .credits {
   padding: 0 20px;
-}
-
-.credits .donate {
-  border: 2px solid #bb0313;
-  padding: 6px 12px;
 }
 
 .auth-dev {

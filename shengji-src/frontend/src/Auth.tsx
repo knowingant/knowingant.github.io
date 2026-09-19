@@ -258,26 +258,9 @@ function usernameProblem(username: string): string | null {
   return null;
 }
 
-/// Why there is no password field anywhere on this site.
-export const VibecodedNotice = (): JSX.Element => (
-  <div className="auth-warning" role="note">
-    <p>
-      <strong>Heads up:</strong> this site is <strong>vibecoded</strong> and run
-      by an <strong>idiot</strong>. That is exactly why there are no passwords:
-      Google handles signing in, and nothing secret is stored here. All this
-      site keeps is your username, your ratings and your game history.
-    </p>
-  </div>
-);
-
 export const NoAltsRule = (): JSX.Element => (
   <div className="auth-rule">
-    <p>
-      <strong>One account per person. Do not make alts.</strong> Matches are
-      rated, and the site records which browser each account signs in from: a
-      match between accounts that have shared a device is not rated, and it is
-      obvious. Two accounts means both get removed.
-    </p>
+    <p>Please don't make alts. I'll ban you.</p>
   </div>
 );
 
@@ -372,9 +355,8 @@ const Auth = (): JSX.Element => {
       <div className="auth">
         <h2>Almost there</h2>
         <p>
-          Your Google account is verified. Pick the username other players will
-          see (3&ndash;20 characters: letters, digits, underscores). You cannot
-          change it later.
+          Your Google account is verified. Pick a username other players will
+          see (3&ndash;20 characters). You can't change it later.
         </p>
         <form className="auth-form" onSubmit={handleComplete}>
           <label>
@@ -411,11 +393,7 @@ const Auth = (): JSX.Element => {
 
   return (
     <div className="auth">
-      <p>
-        You need an account to play: in-game names are account names, and
-        matches are rated. Sign in with Google below.
-      </p>
-      <VibecodedNotice />
+      <p>You need an account to play. Sign in with Google below.</p>
 
       {googleClientId !== null && (
         <div className="auth-google">
@@ -427,8 +405,8 @@ const Auth = (): JSX.Element => {
             text="continue_with"
           />
           <p className="auth-hint">
-            The first time you sign in you pick the username other players will
-            see. There is nothing else to set up, and no password to forget.
+            The first time you sign in, you pick the username other players will
+            see. There is nothing else to set up.
           </p>
         </div>
       )}

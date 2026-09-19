@@ -1,7 +1,7 @@
 import * as React from "react";
 import ReactModal from "react-modal";
 import classNames from "classnames";
-import { AppStateContext } from "./AppStateProvider";
+import { AppStateContext, leaveRoom } from "./AppStateProvider";
 import { formatDelta } from "./api";
 
 import type { JSX } from "react";
@@ -75,12 +75,19 @@ const MatchSummaryModal = (): JSX.Element | null => {
         </>
       ) : (
         <p className="auth-hint">
-          Ratings only move at the end of a rated match; if this one was rated,
-          the changes will appear here in a moment.
+          Ratings only update at the end of a rated match; if this one was
+          rated, the changes will appear here in a moment.
         </p>
       )}
       <button className="normal" onClick={close}>
         Close
+      </button>{" "}
+      <button
+        className="normal"
+        onClick={leaveRoom}
+        title="Leave this room and go back to the lobby"
+      >
+        Back to lobby
       </button>
     </ReactModal>
   );

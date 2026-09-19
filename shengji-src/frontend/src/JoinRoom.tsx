@@ -2,7 +2,6 @@ import * as React from "react";
 import { WebsocketContext } from "./WebsocketProvider";
 import { AppStateContext } from "./AppStateProvider";
 import { TimerContext } from "./TimerProvider";
-import LabeledPlay from "./LabeledPlay";
 import PublicRoomsPane from "./PublicRoomsPane";
 import { isWasmAvailable } from "./detectWasm";
 import * as api from "./api";
@@ -93,11 +92,6 @@ const JoinRoom = (props: IProps): JSX.Element => {
 
   return (
     <div>
-      <LabeledPlay
-        cards={["🃟", "🃟", "🃏", "🃏"]}
-        trump={{ NoTrump: {} }}
-        label={null}
-      ></LabeledPlay>
       <form className="join-room" onSubmit={handleSubmit}>
         <div>
           <h2>
@@ -118,9 +112,7 @@ const JoinRoom = (props: IProps): JSX.Element => {
           <span className="join-room-name" title="Your account username">
             {props.name}
           </span>{" "}
-          <span className="auth-hint">
-            (your account name; sign out to change)
-          </span>
+          <span className="auth-hint">(account name)</span>
         </div>
         <fieldset className="room-type">
           <legend>
@@ -144,11 +136,10 @@ const JoinRoom = (props: IProps): JSX.Element => {
               checked={roomType === "OneVsOne"}
               onChange={() => setRoomType("OneVsOne")}
             />{" "}
-            1v1 (two people, each plays both hands of a team)
+            1v1 (each player controls two hands)
           </label>
           <p className="auth-hint">
-            The room type only matters when you are creating a new room; joining
-            an existing room uses whatever type it already has.
+            Joining an existing room uses its existing type.
           </p>
         </fieldset>
         <div>
@@ -161,44 +152,29 @@ const JoinRoom = (props: IProps): JSX.Element => {
       </form>
       <div>
         <p>
-          Welcome to the game! Pick a room code above (or roll the dice) to
-          create a new room, or enter the code of an existing room to (re-)join
-          it. If you were in the middle of a game, joining the same room with
-          the same account picks up where you left off.
+          Pick a room code above (or roll the dice) to create a new room, or
+          enter the code of an existing room to (re-)join it.
         </p>
         <p>
           Rooms are <strong>rated by default</strong>, and they play{" "}
           <strong>matches</strong>: a match is &ldquo;first to rank N&rdquo; (5
-          by default) and is rated once, when it ends, for everyone at the table
-          (team rooms on the team ladder, 1v1 rooms on the 1v1 ladder).
-          Individual rounds never move ratings. You can change the target rank,
-          or turn rating off entirely, in the game settings before the match
-          starts.
-        </p>
-        <p>
-          <strong>1v1 rooms</strong> are for exactly two people: each of you
-          plays both seats of one team, so you see and control two hands. They
-          are always Tractor (no Finding Friends).
+          by default). You can change N or turn rating off entirely in settings
+          before the match starts.
         </p>
         <p>
           If you&apos;re unfamiliar with the game, it might be helpful to{" "}
           <a href="rules.html" target="_blank">
             read the rules
           </a>{" "}
-          first. Your in-game name is always your account name, so you can no
-          longer shadow another player by joining under their name; join as an
-          observer instead and watch.
+          first.
         </p>
         <p>
           Once you are in the game, share the room link with at least three
           friends (or one friend, for 1v1) to start playing!
         </p>
         <p>
-          This is a game with many house rules, so be sure to check out the game
-          settings to see if your favorite rules are implemented. There&apos;s
-          also a settings gear at the top, which can change how the game looks
-          to you. Compared to upstream, the defaults here are fast autodraw and
-          no taking back bids or plays.
+          Compared to the robertying site, the defaults here are fast autodraw
+          and no taking back bids or plays.
         </p>
       </div>
       <PublicRoomsPane setRoomName={props.setRoomName} />

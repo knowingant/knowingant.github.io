@@ -22,6 +22,7 @@ import ArrayUtils from "./util/array";
 import AutoPlayButton from "./AutoPlayButton";
 import BeepButton from "./BeepButton";
 import { WebsocketContext } from "./WebsocketProvider";
+import { PhasePart, showsBoard, showsFooter, showsSeat } from "./phasePart";
 import { SettingsContext } from "./AppStateProvider";
 import { useEngine } from "./useEngine";
 import InlineCard from "./InlineCard";
@@ -46,11 +47,9 @@ interface IProps {
   showLastTrick: boolean;
   unsetAutoPlayWhenWinnerChanges: boolean;
   showTrickInPlayerOrder: boolean;
-  /// Hide the shared board (header, players, trump, friends, points, tricks,
-  /// kitty) and only render this seat's controls and hand. Used for the
-  /// second seat in 1v1 rooms; the per-seat selection state stays local to
-  /// each instance.
-  compact?: boolean;
+  /// Which slice to render (default `all`), see `PhasePart`. The per-seat
+  /// selection state stays local to each instance.
+  part?: PhasePart;
 }
 
 const Play = (props: IProps): JSX.Element => {
@@ -286,12 +285,14 @@ const Play = (props: IProps): JSX.Element => {
       : [];
   };
 
-  const compact = props.compact === true;
+  const board = showsBoard(props.part);
+  const seat = showsSeat(props.part);
+  const footer = showsFooter(props.part);
 
   return (
     <div>
-      {shouldBeBeeping ? <Beeper /> : null}
-      {!compact && (
+      {shouldBeBeeping && seat ? <Beeper /> : null}
+      {board && (
         <>
           <Header
             gameMode={playPhase.propagated.game_mode}
@@ -344,45 +345,61 @@ const Play = (props: IProps): JSX.Element => {
           />
         </>
       )}
-      <AutoPlayButton
-        onSubmit={playCards}
-        playDescription={
-          grouping.length === 1 && lastPlay === undefined
-            ? grouping[0].description
-            : null
-        }
-        canSubmit={canPlay!}
-        currentWinner={playPhase.trick.current_winner!}
-        unsetAutoPlayWhenWinnerChanges={props.unsetAutoPlayWhenWinnerChanges}
-        isCurrentPlayerTurn={isCurrentPlayerTurn}
-      />
-      {playPhase.propagated.play_takeback_policy === "AllowPlayTakeback" && (
-        <button className="big" onClick={takeBackCards} disabled={!canTakeBack}>
-          Take back last play
-        </button>
+      {seat && (
+        <>
+          <AutoPlayButton
+            onSubmit={playCards}
+            playDescription={
+              grouping.length === 1 && lastPlay === undefined
+                ? grouping[0].description
+                : null
+            }
+            canSubmit={canPlay!}
+            currentWinner={playPhase.trick.current_winner!}
+            unsetAutoPlayWhenWinnerChanges={
+              props.unsetAutoPlayWhenWinnerChanges
+            }
+            isCurrentPlayerTurn={isCurrentPlayerTurn}
+          />
+          {playPhase.propagated.play_takeback_policy ===
+            "AllowPlayTakeback" && (
+            <button
+              className="big"
+              onClick={takeBackCards}
+              disabled={!canTakeBack}
+            >
+              Take back last play
+            </button>
+          )}
+          <button
+            className="big"
+            onClick={endTrick}
+            disabled={
+              playPhase.trick.player_queue.length > 0 ||
+              playPhase.game_ended_early
+            }
+          >
+            Finish trick
+          </button>
+        </>
       )}
-      <button
-        className="big"
-        onClick={endTrick}
-        disabled={
-          playPhase.trick.player_queue.length > 0 || playPhase.game_ended_early
-        }
-      >
-        Finish trick
-      </button>
-      {playPhase.game_ended_early && (
+      {board && playPhase.game_ended_early && (
         <p className="game-ended-early">
           The remaining cards can&apos;t change the result, so this round is
           over
         </p>
       )}
-      {canFinish && (
-        <button className="big" onClick={startNewGame}>
-          Finish game
-        </button>
+      {seat && (
+        <>
+          {canFinish && (
+            <button className="big" onClick={startNewGame}>
+              Finish game
+            </button>
+          )}
+          <BeepButton />
+        </>
       )}
-      <BeepButton />
-      {!compact && canFinish && !noCardsLeft && (
+      {footer && canFinish && !noCardsLeft && (
         <div>
           <p>Cards remaining (that were not played):</p>
           {playPhase.propagated.players.map((p) => (
@@ -395,7 +412,7 @@ const Play = (props: IProps): JSX.Element => {
           ))}
         </div>
       )}
-      {!canFinish && (
+      {seat && !canFinish && (
         <>
           {playPhase.trick.trick_format !== null &&
           !isSpectator &&
@@ -453,7 +470,7 @@ const Play = (props: IProps): JSX.Element => {
           />
         </>
       )}
-      {!compact &&
+      {footer &&
       playPhase.last_trick !== undefined &&
       playPhase.last_trick !== null &&
       props.showLastTrick ? (
@@ -470,7 +487,7 @@ const Play = (props: IProps): JSX.Element => {
           />
         </div>
       ) : null}
-      {!compact && playPhase.propagated.game_scoring_parameters ? (
+      {footer && playPhase.propagated.game_scoring_parameters ? (
         <Points
           points={playPhase.points}
           penalties={playPhase.penalties}
@@ -486,7 +503,7 @@ const Play = (props: IProps): JSX.Element => {
           smallerTeamSize={smallerTeamSize}
         />
       ) : null}
-      {!compact && (
+      {footer && (
         <LabeledPlay
           trump={playPhase.trump}
           className="kitty"

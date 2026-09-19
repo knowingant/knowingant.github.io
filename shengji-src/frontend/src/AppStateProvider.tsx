@@ -57,6 +57,13 @@ export const roomNameFromHash = (hash: string): string => {
   return trimmed.startsWith("user/") ? "" : trimmed.slice(0, 16);
 };
 
+/// Leave the current room and show the lobby (the landing page). This is a
+/// full navigation to the page without its hash, so the websocket closes and
+/// the server frees the seat; the stored sign-in token survives it.
+export const leaveRoom = (): void => {
+  window.location.assign(window.location.pathname + window.location.search);
+};
+
 export interface AppState {
   settings: Settings;
   gameStatistics: GameStatistics;

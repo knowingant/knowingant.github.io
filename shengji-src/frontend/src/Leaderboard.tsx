@@ -17,7 +17,6 @@ const initial: Loadable = { loading: true, error: null, data: null };
 interface ILadderProps {
   mode: RatingMode;
   title: string;
-  blurb: string;
   state: Loadable;
   highlight: string | null;
 }
@@ -74,7 +73,6 @@ const Ladder = (props: ILadderProps): JSX.Element => {
   return (
     <div className="ladder">
       <h4>{props.title}</h4>
-      <p className="auth-hint">{props.blurb}</p>
       {body}
     </div>
   );
@@ -124,26 +122,9 @@ const Leaderboard = (): JSX.Element => {
           {refreshing ? "Refreshing…" : "Refresh"}
         </button>
       </h3>
-      <p className="auth-hint">
-        Everyone who has finished at least one rated match on a ladder is listed
-        on it, and ratings only move at the end of a match (see the
-        project&apos;s RATINGS.md).
-      </p>
       <div className="leaderboard-tables">
-        <Ladder
-          mode="team"
-          title="Team ladder"
-          blurb="Standard rooms with four or more players."
-          state={team}
-          highlight={me}
-        />
-        <Ladder
-          mode="1v1"
-          title="1v1 ladder"
-          blurb="1v1 rooms: two people, each playing both seats of a team."
-          state={oneVsOne}
-          highlight={me}
-        />
+        <Ladder mode="team" title="Team ladder" state={team} highlight={me} />
+        <Ladder mode="1v1" title="1v1 ladder" state={oneVsOne} highlight={me} />
       </div>
     </div>
   );

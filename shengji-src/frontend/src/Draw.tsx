@@ -8,6 +8,7 @@ import BeepButton from "./BeepButton";
 import BidArea from "./BidArea";
 import InlineCard from "./InlineCard";
 import { WebsocketContext } from "./WebsocketProvider";
+import { PhasePart, showsBoard, showsFooter, showsSeat } from "./phasePart";
 
 import type { JSX } from "react";
 
@@ -18,9 +19,9 @@ interface IDrawProps {
   name: string;
   setTimeout: (fn: () => void, timeout: number) => number;
   clearTimeout: (id: number) => void;
-  /// Hide the shared board (header, player list, kitty) and only render this
-  /// seat's bid area, buttons and hand. Used for the second seat in 1v1.
-  compact?: boolean;
+  /// Which slice to render (default `all`), see `PhasePart`. Only a `seat`
+  /// (or `all`) instance autodraws.
+  part?: PhasePart;
 }
 
 interface IDrawInnerProps extends IDrawProps {
@@ -105,7 +106,14 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
   /// already sent a draw for uses a longer delay, so a re-render while the
   /// draw is in flight does not fire a duplicate.
   private armAutodraw(): void {
-    if (!this.canDraw() || !this.state.autodraw) {
+    if (
+      !showsSeat(this.props.part) ||
+      !this.canDraw() ||
+      !this.state.autodraw
+    ) {
+      // Nothing to draw (any more): drop a pending retry timer, otherwise it
+      // could fire once it is our turn again with the deck already empty.
+      this.cancelTimer();
       return;
     }
     const key = this.drawKey();
@@ -130,9 +138,7 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
   }
 
   drawCard(): void {
-    const canDraw =
-      this.props.state.propagated.players[this.props.state.position].name ===
-      this.props.name;
+    const canDraw = this.canDraw();
     this.cancelTimer();
     if (canDraw) {
       this.lastSentKey = this.drawKey();
@@ -203,7 +209,7 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
     }
     return (
       <div>
-        {this.props.compact ? null : (
+        {showsBoard(this.props.part) && (
           <>
             <Header
               gameMode={this.props.state.game_mode}
@@ -218,116 +224,118 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
             />
           </>
         )}
-        <BidArea
-          bids={this.props.state.bids}
-          autobid={this.props.state.autobid!}
-          hands={this.props.state.hands}
-          epoch={0}
-          name={this.props.name}
-          trump={trump}
-          landlord={landlord!}
-          players={this.props.state.propagated.players}
-          bidPolicy={this.props.state.propagated.bid_policy!}
-          bidReinforcementPolicy={
-            this.props.state.propagated.bid_reinforcement_policy!
-          }
-          jokerBidPolicy={this.props.state.propagated.joker_bid_policy!}
-          numDecks={this.props.state.num_decks}
-          header={
-            <>
-              <h2>
-                Bids ({this.props.state.deck.length} cards remaining in the
-                deck)
-              </h2>
-              {!this.props.compact &&
-              this.props.state.removed_cards!.length > 0 ? (
-                <p>
-                  Note:{" "}
-                  {this.props.state.removed_cards!.map((c) => (
-                    <InlineCard key={c} card={c} />
-                  ))}{" "}
-                  have been removed from the deck
-                </p>
-              ) : null}
-            </>
-          }
-          prefixButtons={
-            <>
-              <button
-                onClick={(evt: React.SyntheticEvent) => {
-                  evt.preventDefault();
-                  this.drawCard();
-                }}
-                disabled={!canDraw}
-                className="big"
-              >
-                Draw card
-              </button>
-              <label>
-                auto-draw
-                <input
-                  type="checkbox"
-                  name="autodraw"
-                  checked={this.state.autodraw}
-                  onChange={this.onAutodrawClicked}
-                />
-              </label>
-            </>
-          }
-          suffixButtons={
-            <>
-              <button
-                onClick={this.pickUpKitty}
-                disabled={
-                  this.props.state.deck.length > 0 ||
-                  (this.props.state.bids.length === 0 &&
-                    this.props.state.autobid === null &&
-                    !(
-                      landlord !== null &&
+        {showsSeat(this.props.part) && (
+          <BidArea
+            bids={this.props.state.bids}
+            autobid={this.props.state.autobid!}
+            hands={this.props.state.hands}
+            epoch={0}
+            name={this.props.name}
+            trump={trump}
+            landlord={landlord!}
+            players={this.props.state.propagated.players}
+            bidPolicy={this.props.state.propagated.bid_policy!}
+            bidReinforcementPolicy={
+              this.props.state.propagated.bid_reinforcement_policy!
+            }
+            jokerBidPolicy={this.props.state.propagated.joker_bid_policy!}
+            numDecks={this.props.state.num_decks}
+            header={
+              <>
+                <h2>
+                  Bids ({this.props.state.deck.length} cards remaining in the
+                  deck)
+                </h2>
+                {showsBoard(this.props.part) &&
+                this.props.state.removed_cards!.length > 0 ? (
+                  <p>
+                    Note:{" "}
+                    {this.props.state.removed_cards!.map((c) => (
+                      <InlineCard key={c} card={c} />
+                    ))}{" "}
+                    have been removed from the deck
+                  </p>
+                ) : null}
+              </>
+            }
+            prefixButtons={
+              <>
+                <button
+                  onClick={(evt: React.SyntheticEvent) => {
+                    evt.preventDefault();
+                    this.drawCard();
+                  }}
+                  disabled={!canDraw}
+                  className="big"
+                >
+                  Draw card
+                </button>
+                <label>
+                  auto-draw
+                  <input
+                    type="checkbox"
+                    name="autodraw"
+                    checked={this.state.autodraw}
+                    onChange={this.onAutodrawClicked}
+                  />
+                </label>
+              </>
+            }
+            suffixButtons={
+              <>
+                <button
+                  onClick={this.pickUpKitty}
+                  disabled={
+                    this.props.state.deck.length > 0 ||
+                    (this.props.state.bids.length === 0 &&
+                      this.props.state.autobid === null &&
+                      !(
+                        landlord !== null &&
+                        landlord !== undefined &&
+                        players[landlord].level === "NT"
+                      )) ||
+                    (landlord !== null && landlord !== playerId) ||
+                    (landlord === null &&
+                      ((this.props.state.propagated
+                        .first_landlord_selection_policy === "ByWinningBid" &&
+                        this.props.state.bids[this.props.state.bids.length - 1]
+                          .id !== playerId) ||
+                        (this.props.state.propagated
+                          .first_landlord_selection_policy === "ByFirstBid" &&
+                          this.props.state.bids[0].id !== playerId)))
+                  }
+                  className="big"
+                >
+                  Pick up cards from the bottom
+                </button>
+                <button
+                  onClick={this.revealCard}
+                  disabled={
+                    landlord === null ||
+                    landlord === undefined ||
+                    this.props.state.deck.length > 0 ||
+                    this.props.state.bids.length > 0 ||
+                    this.props.state.autobid !== null ||
+                    (this.props.state.revealed_cards || 0) >=
+                      this.props.state.kitty.length ||
+                    (landlord !== null &&
                       landlord !== undefined &&
-                      players[landlord].level === "NT"
-                    )) ||
-                  (landlord !== null && landlord !== playerId) ||
-                  (landlord === null &&
-                    ((this.props.state.propagated
-                      .first_landlord_selection_policy === "ByWinningBid" &&
-                      this.props.state.bids[this.props.state.bids.length - 1]
-                        .id !== playerId) ||
-                      (this.props.state.propagated
-                        .first_landlord_selection_policy === "ByFirstBid" &&
-                        this.props.state.bids[0].id !== playerId)))
-                }
-                className="big"
-              >
-                Pick up cards from the bottom
-              </button>
-              <button
-                onClick={this.revealCard}
-                disabled={
-                  landlord === null ||
-                  landlord === undefined ||
-                  this.props.state.deck.length > 0 ||
-                  this.props.state.bids.length > 0 ||
-                  this.props.state.autobid !== null ||
-                  (this.props.state.revealed_cards || 0) >=
-                    this.props.state.kitty.length ||
-                  (landlord !== null &&
-                    landlord !== undefined &&
-                    players[landlord].level === "NT")
-                }
-                className="big"
-              >
-                Reveal card from the bottom
-              </button>
-              <BeepButton />
-            </>
-          }
-          bidTakeBacksEnabled={
-            this.props.state.propagated.bid_takeback_policy ===
-            "AllowBidTakeback"
-          }
-        />
-        {this.props.compact ? null : (
+                      players[landlord].level === "NT")
+                  }
+                  className="big"
+                >
+                  Reveal card from the bottom
+                </button>
+                <BeepButton />
+              </>
+            }
+            bidTakeBacksEnabled={
+              this.props.state.propagated.bid_takeback_policy ===
+              "AllowBidTakeback"
+            }
+          />
+        )}
+        {showsFooter(this.props.part) && (
           <LabeledPlay
             className="kitty"
             cards={this.props.state.kitty}

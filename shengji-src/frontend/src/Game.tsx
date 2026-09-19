@@ -4,7 +4,7 @@ import Errors from "./Errors";
 import Initialize from "./Initialize";
 import Draw, { drawNextPlayer } from "./Draw";
 import Exchange, { exchangeNextPlayer } from "./Exchange";
-import { AppStateContext } from "./AppStateProvider";
+import { AppStateContext, leaveRoom } from "./AppStateProvider";
 import { TimerContext } from "./TimerProvider";
 import Credits from "./Credits";
 import Chat from "./Chat";
@@ -15,6 +15,7 @@ import ResetButton from "./ResetButton";
 import RatedBanner from "./RatedBanner";
 import MatchSummaryModal from "./MatchSummaryModal";
 import SeatProvider from "./SeatProvider";
+import { PhasePart } from "./phasePart";
 import { GameState } from "./gen-types";
 
 import type { JSX } from "react";
@@ -45,11 +46,13 @@ const nextPlayerOf = (gameState: GameState): number | null => {
 /// connection controls.
 ///
 /// In 1v1 rooms a connection owns both seats of its team (`alice` and
-/// `alice (2)`), so the Draw / Exchange / Play phase is rendered once per
-/// seat. Each instance sits under a `SeatProvider`, which rewrites every
-/// `{Action: X}` it sends into `{ActionAs: [seatId, X]}`; the second
-/// instance is `compact` (no duplicated board). The Initialize phase is room
-/// settings and is rendered once, as the first seat.
+/// `alice (2)`). The Draw / Exchange / Play phase is then rendered in parts
+/// (see `PhasePart`): the shared `board` (players, trump, trick) once, full
+/// width; a `seat` part per seat (that seat's hand and buttons) side by side
+/// under it; and the `footer` (points, previous trick, kitty) once below.
+/// Each instance sits under a `SeatProvider`, which rewrites every
+/// `{Action: X}` it sends into `{ActionAs: [seatId, X]}`. The Initialize
+/// phase is room settings and is rendered once, as the first seat.
 const Game = (props: IProps): JSX.Element => {
   const { state, updateState } = React.useContext(AppStateContext);
   const timerContext = React.useContext(TimerContext);
@@ -67,7 +70,7 @@ const Game = (props: IProps): JSX.Element => {
     seats.playerIds.length === 2;
   const nextPlayer = dualSeat ? nextPlayerOf(gameState) : null;
 
-  const renderPhase = (name: string, compact: boolean): JSX.Element | null => {
+  const renderPhase = (name: string, part: PhasePart): JSX.Element | null => {
     if ("Draw" in gameState) {
       return (
         <Draw
@@ -77,14 +80,12 @@ const Game = (props: IProps): JSX.Element => {
           name={name}
           setTimeout={timerContext.setTimeout}
           clearTimeout={timerContext.clearTimeout}
-          compact={compact}
+          part={part}
         />
       );
     }
     if ("Exchange" in gameState) {
-      return (
-        <Exchange state={gameState.Exchange} name={name} compact={compact} />
-      );
+      return <Exchange state={gameState.Exchange} name={name} part={part} />;
     }
     if ("Play" in gameState) {
       return (
@@ -97,7 +98,7 @@ const Game = (props: IProps): JSX.Element => {
           }
           showTrickInPlayerOrder={state.settings.showTrickInPlayerOrder}
           beepOnTurn={state.settings.beepOnTurn}
-          compact={compact}
+          part={part}
         />
       );
     }
@@ -108,29 +109,40 @@ const Game = (props: IProps): JSX.Element => {
   if ("Initialize" in gameState) {
     phase = <Initialize state={gameState.Initialize} name={seatNames[0]} />;
   } else if (dualSeat && seats !== null) {
+    // The board once, full width; the two seats side by side under it
+    // (`.seats` is a two-column grid), so neither hand has to be scrolled
+    // to; then the footer (points, previous trick, kitty) once.
     phase = (
-      <div className="seats">
-        {seats.names.map((name, idx) => {
-          const playerId = seats.playerIds[idx];
-          const active = nextPlayer !== null && nextPlayer === playerId;
-          return (
-            <SeatProvider key={playerId} playerId={playerId}>
-              <div className={classNames("seat", { "seat-active": active })}>
-                <h3 className="seat-heading">
-                  Seat {idx + 1}: {name}
-                  {active ? (
-                    <span className="seat-turn"> (your turn)</span>
-                  ) : null}
-                </h3>
-                {renderPhase(name, idx > 0)}
-              </div>
-            </SeatProvider>
-          );
-        })}
-      </div>
+      <>
+        <SeatProvider playerId={seats.playerIds[0]}>
+          {renderPhase(seats.names[0], "board")}
+        </SeatProvider>
+        <div className="seats">
+          {seats.names.map((name, idx) => {
+            const playerId = seats.playerIds[idx];
+            const active = nextPlayer !== null && nextPlayer === playerId;
+            return (
+              <SeatProvider key={playerId} playerId={playerId}>
+                <div className={classNames("seat", { "seat-active": active })}>
+                  <h3 className="seat-heading">
+                    Seat {idx + 1}: {name}
+                    {active ? (
+                      <span className="seat-turn"> (your turn)</span>
+                    ) : null}
+                  </h3>
+                  {renderPhase(name, "seat")}
+                </div>
+              </SeatProvider>
+            );
+          })}
+        </div>
+        <SeatProvider playerId={seats.playerIds[0]}>
+          {renderPhase(seats.names[0], "footer")}
+        </SeatProvider>
+      </>
     );
   } else {
-    phase = renderPhase(seatNames[0], false);
+    phase = renderPhase(seatNames[0], "all");
   }
 
   return (
@@ -153,6 +165,18 @@ const Game = (props: IProps): JSX.Element => {
         </React.Suspense>
       ) : null}
       <div className="game">
+        <div className="leave-block">
+          <a
+            href={window.location.pathname}
+            onClick={(evt) => {
+              evt.preventDefault();
+              leaveRoom();
+            }}
+            title="Leave this room and go back to the lobby"
+          >
+            Leave room
+          </a>
+        </div>
         {"Initialize" in gameState ? null : (
           <ResetButton
             state={gameState}

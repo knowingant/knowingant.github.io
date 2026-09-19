@@ -22,14 +22,7 @@ const Landing = (): JSX.Element => {
 
   const intro = (
     <>
-      <p>
-        Welcome! This website helps you play 升级 / Tractor / 找朋友 / Finding
-        Friends with other people online, in rated matches.
-      </p>
-      <p>
-        A match is &ldquo;first to rank N&rdquo; (5 by default), and ratings
-        move once, when the match ends.
-      </p>
+      <p>Play rated 升级 / Tractor / 找朋友 / Finding Friends online.</p>
       <p>
         If you&apos;re not familiar with the rules, check them out{" "}
         <a href="rules.html">here</a>!
@@ -39,7 +32,7 @@ const Landing = (): JSX.Element => {
 
   let content: JSX.Element;
   if (state.authLoading) {
-    content = <p>Loading your account...</p>;
+    content = <p>Loading...</p>;
   } else if (state.auth === null) {
     content = <Auth />;
   } else {

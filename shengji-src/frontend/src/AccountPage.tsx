@@ -217,8 +217,8 @@ const AccountPage = (props: IProps): JSX.Element => {
         <Ladders ratings={profile.ratings} />
         <h3>Statistics</h3>
         <p className="auth-hint">
-          Every finished round and match counts here, rated or not; the ladders
-          above only count rated matches.
+          Every finished round and match counts here; the ladders above only
+          count rated matches.
         </p>
         <Stats stats={profile.stats} />
         <h3>Recent matches</h3>

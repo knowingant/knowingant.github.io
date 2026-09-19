@@ -15,15 +15,16 @@ import Cards from "./Cards";
 import { prefillCardInfoCache } from "./util/cachePrefill";
 import { useEngine } from "./useEngine";
 import { WebsocketContext } from "./WebsocketProvider";
+import { PhasePart, showsBoard, showsSeat } from "./phasePart";
 
 import type { JSX } from "react";
 
 interface IExchangeProps {
   state: ExchangePhase;
   name: string;
-  /// Hide the shared board (header, player list, trump, kitty) and only
-  /// render this seat's controls and hand. Used for the second seat in 1v1.
-  compact?: boolean;
+  /// Which slice to render (default `all`), see `PhasePart`. The Exchange
+  /// phase has no footer part.
+  part?: PhasePart;
 }
 
 interface IExchangeInnerProps extends IExchangeProps {
@@ -286,14 +287,12 @@ class Exchange extends React.Component<IExchangeInnerProps, IExchangeState> {
               "AllowBidTakeback"
             }
           />
-          {this.props.compact ? null : (
-            <LabeledPlay
-              className="kitty"
-              trump={this.props.state.trump}
-              cards={this.props.state.kitty}
-              label="底牌"
-            />
-          )}
+          <LabeledPlay
+            className="kitty"
+            trump={this.props.state.trump}
+            cards={this.props.state.kitty}
+            label="底牌"
+          />
         </>
       ) : null;
     const friendUI =
@@ -328,7 +327,7 @@ class Exchange extends React.Component<IExchangeInnerProps, IExchangeState> {
 
     return (
       <div>
-        {this.props.compact ? null : (
+        {showsBoard(this.props.part) && (
           <>
             <Header
               gameMode={this.props.state.game_mode}
@@ -353,21 +352,25 @@ class Exchange extends React.Component<IExchangeInnerProps, IExchangeState> {
             ) : null}
           </>
         )}
-        {friendUI}
-        {exchangeUI}
-        {exchangeUI === null && bidUI === null && playerId >= 0 ? (
+        {showsSeat(this.props.part) && (
           <>
-            <Cards
-              hands={this.props.state.hands}
-              playerId={playerId}
-              trump={this.props.state.trump}
-            />
-            <p>Waiting...</p>
+            {friendUI}
+            {exchangeUI}
+            {exchangeUI === null && bidUI === null && playerId >= 0 ? (
+              <>
+                <Cards
+                  hands={this.props.state.hands}
+                  playerId={playerId}
+                  trump={this.props.state.trump}
+                />
+                <p>Waiting...</p>
+              </>
+            ) : null}
+            {playerId !== nextPlayer && <BeepButton />}
+            {isLandlord && bidUI === null ? startGame : null}
+            {bidUI}
           </>
-        ) : null}
-        {playerId !== nextPlayer && <BeepButton />}
-        {isLandlord && bidUI === null ? startGame : null}
-        {bidUI}
+        )}
       </div>
     );
   }

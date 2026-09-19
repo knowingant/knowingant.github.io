@@ -1364,9 +1364,7 @@ const Initialize = (props: IProps): JSX.Element => {
         <h3>Game settings</h3>
         {matchInProgress && (
           <p className="auth-hint">
-            A match is in progress, so the settings that define it (rated, first
-            to rank, game mode, ranks, the leader and the player order) are
-            locked until it ends.
+            Some settings locked while match in progress.
           </p>
         )}
         <div>
@@ -1377,10 +1375,8 @@ const Initialize = (props: IProps): JSX.Element => {
               onChange={setRated}
               disabled={matchInProgress}
             >
-              <option value="yes">
-                Yes (the match counts on the {oneVsOne ? "1v1" : "team"} ladder)
-              </option>
-              <option value="no">No (casual, ratings unchanged)</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
             </select>
           </label>
         </div>
@@ -1397,10 +1393,7 @@ const Initialize = (props: IProps): JSX.Element => {
                   {rank}
                 </option>
               ))}
-            </select>{" "}
-            <span className="auth-hint">
-              (the match ends when someone reaches this rank)
-            </span>
+            </select>
           </label>
         </div>
         <div>
