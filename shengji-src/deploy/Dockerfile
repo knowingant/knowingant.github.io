@@ -6,6 +6,8 @@
 #
 #   docker build -f shengji-src/deploy/Dockerfile -t shengji .
 #   fly deploy   (fly.toml at the repo root points here)
+#   .github/workflows/backend-image.yml builds and pushes it to
+#   ghcr.io/knowingant/shengji for the VM setup in deploy/vm/
 #
 # Only Rust is compiled here (no node/wasm), which keeps the build simple and
 # reproducible. Build the frontend locally with scripts/build_shengji.sh.

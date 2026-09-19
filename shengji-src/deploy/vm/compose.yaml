@@ -1,0 +1,44 @@
+# The shengji backend behind Caddy (automatic HTTPS) on any Linux VM with
+# Docker. See ../../DEPLOY.md, "Backend on a VM".
+#
+#   cp .env.example .env   # then set DOMAIN and GOOGLE_CLIENT_ID
+#   docker compose up -d
+#   docker compose pull && docker compose up -d   # update after a push
+#
+# Persistent data (SQLite + room-state dump) ends up in ./data on the host.
+services:
+  shengji:
+    # Built and published by .github/workflows/backend-image.yml.
+    image: ghcr.io/knowingant/shengji:latest
+    restart: unless-stopped
+    environment:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?set GOOGLE_CLIENT_ID in .env}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://knowingant.github.io}
+      # Caddy overwrites Fly-Client-IP with the real client address (see
+      # Caddyfile), so per-IP rate limits keep working behind the proxy.
+      TRUST_PROXY_HEADERS: "1"
+      SESSION_TTL_DAYS: "180"
+      # DATABASE_PATH, DUMP_PATH, MESSAGE_PATH, STATIC_DIR, PORT come from
+      # the image and point at /data and /app/static.
+    volumes:
+      - ./data:/data
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - shengji
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
