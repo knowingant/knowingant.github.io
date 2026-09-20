@@ -651,109 +651,7 @@ var prefillExplainScoringCache = function (engine, params, decks) { return __awa
 
 /***/ }),
 
-/***/ 3701:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* unused harmony export WasmContext */
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
-
-var WasmContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
-    decodeWireFormat: function (_) {
-        throw new Error("cannot decode wire format");
-    },
-});
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (WasmContext);
-
-
-/***/ }),
-
-/***/ 3904:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__),
-/* harmony export */   P: () => (/* binding */ TimerContext)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
-// Provides a WebWorker-based timer implementation which doesn't get
-// wakeup-limited by the browser when the tab is running in the background.
-//
-// Relies on timer-worker.js to service the underlying timing requests.
-
-var TimerContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
-    setTimeout: function (_fn, _delay) { return 0; },
-    clearTimeout: function (_id) { },
-    setInterval: function (_fn, _interval) { return 0; },
-    clearInterval: function (_id) { },
-});
-var _TimerProvider = function (props) {
-    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(null), worker = _a[0], setWorker = _a[1];
-    var timeoutId = react__WEBPACK_IMPORTED_MODULE_0__.useRef(0);
-    var callbacks = react__WEBPACK_IMPORTED_MODULE_0__.useRef(new Map());
-    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
-        var timerWorker = new Worker("timer-worker.js");
-        timerWorker.addEventListener("message", function (evt) {
-            var data = evt.data;
-            var id = data.id;
-            if (callbacks.current.has(id)) {
-                var cb = callbacks.current.get(id);
-                if (cb) {
-                    cb();
-                }
-            }
-            if (data.variant === "timeout") {
-                callbacks.current.delete(id);
-            }
-        });
-        setWorker(timerWorker);
-        return function () {
-            timerWorker.terminate();
-        };
-    }, []);
-    var setTimeout = function (fn, delay) {
-        timeoutId.current += 1;
-        delay = delay === undefined ? 0 : delay;
-        var id = timeoutId.current;
-        callbacks.current.set(id, fn);
-        if (worker !== null) {
-            worker.postMessage({ command: "setTimeout", id: id, timeout: delay });
-        }
-        return id;
-    };
-    var clearTimeout = function (id) {
-        if (worker) {
-            worker.postMessage({ command: "clearTimeout", id: id });
-        }
-        callbacks.current.delete(id);
-    };
-    var setInterval = function (fn, interval) {
-        timeoutId.current += 1;
-        interval = interval === undefined ? 0 : interval;
-        var id = timeoutId.current;
-        callbacks.current.set(id, fn);
-        if (worker !== null) {
-            worker.postMessage({ command: "setInterval", id: id, interval: interval });
-        }
-        return id;
-    };
-    var clearInterval = function (id) {
-        if (worker !== null) {
-            worker.postMessage({ command: "clearInterval", id: id });
-        }
-        callbacks.current.delete(id);
-    };
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(TimerContext.Provider, { value: { setTimeout: setTimeout, clearTimeout: clearTimeout, setInterval: setInterval, clearInterval: clearInterval } }, props.children));
-};
-var TimerProvider = function (props) { return react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimerProvider, null, props.children); };
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TimerProvider);
-
-
-/***/ }),
-
-/***/ 4030:
+/***/ 2897:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 
@@ -950,6 +848,12 @@ var __assign = (undefined && undefined.__assign) || function () {
 var roomNameFromHash = function (hash) {
     var trimmed = hash.startsWith("#") ? hash.slice(1) : hash;
     return trimmed.startsWith("user/") ? "" : trimmed.slice(0, 16);
+};
+/// Leave the current room and show the lobby (the landing page). This is a
+/// full navigation to the page without its hash, so the websocket closes and
+/// the server frees the seat; the stored sign-in token survives it.
+var leaveRoom = function () {
+    window.location.assign(window.location.pathname + window.location.search);
 };
 var appState = combineState({
     settings: Settings,
@@ -1575,212 +1479,13 @@ var Errors = function (props) {
 };
 /* harmony default export */ const src_Errors = (Errors);
 
-// EXTERNAL MODULE: ./node_modules/classnames/index.js
-var classnames = __webpack_require__(6942);
-var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
 // EXTERNAL MODULE: ./node_modules/styled-components/dist/styled-components.browser.esm.js + 9 modules
 var styled_components_browser_esm = __webpack_require__(1510);
-// EXTERNAL MODULE: ./src/preloadedCards.ts + 1 modules
-var preloadedCards = __webpack_require__(7236);
-;// ./src/util/array.ts
-var array_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-var sum = function (array) { return array.reduce(function (a, b) { return a + b; }, 0); };
-var identity = function (l, r) { return l === r; };
-// Subtracts one array from another. Works with arrays with duplicate values,
-// and throws an exception if the smaller array is not completely contained in
-// the larger one.
-var minus = function (large, small, equality) {
-    if (equality === void 0) { equality = identity; }
-    var result = array_spreadArray([], large, true);
-    small.forEach(function (valueToRemove) {
-        var index = result.findIndex(function (t) { return equality(t, valueToRemove); });
-        if (index >= 0) {
-            result.splice(index, 1);
-        }
-    });
-    return result;
-};
-var mapObject = function (array, mapper) {
-    var result = {};
-    array.forEach(function (t) {
-        var _a = mapper(t), key = _a[0], value = _a[1];
-        result[key] = value;
-    });
-    return result;
-};
-var range = function (count, fn) {
-    return count !== undefined && count >= 0
-        ? Array(count)
-            .fill(undefined)
-            .map(function (_, idx) { return fn(idx); })
-        : [];
-};
-var shuffled = function (array) {
-    return array
-        .map(function (a) { return ({ sort: Math.random(), value: a }); })
-        .sort(function (a, b) { return a.sort - b.sort; })
-        .map(function (a) { return a.value; });
-};
-/* harmony default export */ const array = ({
-    mapObject: mapObject,
-    minus: minus,
-    range: range,
-    sum: sum,
-    shuffled: shuffled,
-});
-
-;// ./src/util/cardHelpers.ts
-
-
-var cardLookup = array.mapObject(preloadedCards/* default */.A, function (c) { return [c.value, c]; });
-var suitToUnicode = {
-    clubs: "♧",
-    diamonds: "♢",
-    hearts: "♡",
-    spades: "♤",
-};
-var suitToFilledUnicode = {
-    clubs: "♣",
-    diamonds: "♦",
-    hearts: "♥",
-    spades: "♠",
-};
-var cardInfoToSuit = function (cardInfo) {
-    switch (cardInfo.typ) {
-        case "♢":
-            return "diamonds";
-        case "♧":
-            return "clubs";
-        case "♡":
-            return "hearts";
-        case "♤":
-            return "spades";
-        default:
-            throw new Error("Invalid cardInfo");
-    }
-};
-var unicodeToCard = function (unicode) {
-    if (unicode === "🂠") {
-        return { type: "unknown" };
-    }
-    if (!(unicode in cardLookup)) {
-        throw new Error("Invalid card string: ".concat(unicode));
-    }
-    var cardInfo = cardLookup[unicode];
-    if (unicode === "🃟") {
-        return { type: "little_joker" };
-    }
-    else if (unicode === "🃏") {
-        return { type: "big_joker" };
-    }
-    else {
-        return {
-            rank: cardInfo.number,
-            suit: cardInfoToSuit(cardInfo),
-            type: "suit_card",
-        };
-    }
-};
-var cardToUnicodeSuit = function (card, fill) {
-    if (fill === void 0) { fill = true; }
-    var table = fill ? suitToFilledUnicode : suitToUnicode;
-    return table[card.suit];
-};
-
-;// ./src/InlineCard.tsx
+;// ./src/PublicRoomsPane.tsx
 var __makeTemplateObject = (undefined && undefined.__makeTemplateObject) || function (cooked, raw) {
     if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
     return cooked;
 };
-var InlineCard_assign = (undefined && undefined.__assign) || function () {
-    InlineCard_assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return InlineCard_assign.apply(this, arguments);
-};
-
-
-
-
-var InlineCardBase = styled_components_browser_esm/* default */.Ay.span(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  padding-left: 0.1em;\n  padding-right: 0.1em;\n"], ["\n  padding-left: 0.1em;\n  padding-right: 0.1em;\n"])));
-function Suit(className) {
-    var component = function (props) {
-        var settings = react.useContext(SettingsContext);
-        return (react.createElement(InlineCardBase, InlineCard_assign({ className: className }, props, { style: {
-                color: settings.suitColorOverrides[className],
-            } })));
-    };
-    component.displayName = "Suit";
-    return component;
-}
-var Diamonds = Suit("♢");
-var Hearts = Suit("♡");
-var Spades = Suit("♤");
-var Clubs = Suit("♧");
-var LittleJoker = Suit("🃟");
-var BigJoker = Suit("🃏");
-var Unknown = Suit("🂠");
-var suitComponent = function (suitCard) {
-    switch (suitCard.suit) {
-        case "diamonds":
-            return Diamonds;
-        case "hearts":
-            return Hearts;
-        case "clubs":
-            return Clubs;
-        case "spades":
-            return Spades;
-    }
-};
-var InlineCard = function (props) {
-    var card = unicodeToCard(props.card);
-    switch (card.type) {
-        case "unknown":
-            return react.createElement(Unknown, null, "\uD83C\uDCA0");
-        case "big_joker":
-            return react.createElement(BigJoker, null, "HJ");
-        case "little_joker":
-            return react.createElement(LittleJoker, null, "LJ");
-        case "suit_card":
-            // eslint-disable-next-line no-case-declarations
-            var Component = suitComponent(card);
-            return (react.createElement(Component, null,
-                card.rank,
-                cardToUnicodeSuit(card)));
-    }
-};
-/* harmony default export */ const src_InlineCard = (InlineCard);
-var templateObject_1;
-
-// EXTERNAL MODULE: ./src/WasmOrRpcProvider.tsx
-var WasmOrRpcProvider = __webpack_require__(671);
-;// ./src/useEngine.tsx
-
-
-function useEngine() {
-    var context = react.useContext(WasmOrRpcProvider.EngineContext);
-    if (!context) {
-        throw new Error("useEngine must be used within a WasmOrRpcProvider");
-    }
-    return context;
-}
-
-// EXTERNAL MODULE: ./src/util/cachePrefill.ts
-var cachePrefill = __webpack_require__(2895);
-;// ./src/Card.tsx
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -1821,374 +1526,9 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
-
-
-
-
-var SvgCard = react.lazy(function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-    switch (_a.label) {
-        case 0: return [4 /*yield*/, __webpack_require__.e(/* import() */ 61).then(__webpack_require__.bind(__webpack_require__, 3469))];
-        case 1: return [2 /*return*/, _a.sent()];
-    }
-}); }); });
-var Card = function (props) {
-    var settings = react.useContext(SettingsContext);
-    var engine = useEngine();
-    var _a = react.useState(null), cardInfo = _a[0], setCardInfo = _a[1];
-    var _b = react.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var height = props.smaller ? 95 : 120;
-    var bounds = getCardBounds(height);
-    // Create a cache key for the card info based on card and trump
-    var cacheKey = "".concat(props.card, "_").concat((0,cachePrefill/* getTrumpKey */.us)(props.trump));
-    react.useEffect(function () {
-        // Only load card info if the card is in the lookup
-        if (!(props.card in cardLookup)) {
-            return;
-        }
-        // Check cache first
-        if (cacheKey in cachePrefill/* cardInfoCache */.PU) {
-            setCardInfo(cachePrefill/* cardInfoCache */.PU[cacheKey]);
-            setIsLoading(false);
-            return;
-        }
-        setIsLoading(true);
-        // Check if a prefill is already in progress for this trump
-        var existingPrefillPromise = (0,cachePrefill/* getPrefillPromise */.i7)(props.trump);
-        if (existingPrefillPromise) {
-            // Wait for existing prefill
-            existingPrefillPromise
-                .then(function () {
-                // Check if our card is now cached
-                if (cacheKey in cachePrefill/* cardInfoCache */.PU) {
-                    setCardInfo(cachePrefill/* cardInfoCache */.PU[cacheKey]);
-                    setIsLoading(false);
-                }
-                else {
-                    // If still not cached after prefill, something went wrong
-                    console.error("Card ".concat(props.card, " not in cache after prefill completed"));
-                    var staticInfo = cardLookup[props.card];
-                    setCardInfo({
-                        suit: null,
-                        effective_suit: "Unknown",
-                        value: staticInfo.value || props.card,
-                        display_value: staticInfo.display_value || props.card,
-                        typ: staticInfo.typ || props.card,
-                        number: staticInfo.number || null,
-                        points: staticInfo.points || 0,
-                    });
-                    setIsLoading(false);
-                }
-            })
-                .catch(function (error) {
-                console.error("Failed to wait for prefill:", error);
-                setIsLoading(false);
-            });
-            return;
-        }
-        // Check if we should trigger a full prefill for this trump
-        var trumpKey = (0,cachePrefill/* getTrumpKey */.us)(props.trump);
-        // Count how many cards are cached for this trump
-        var cachedCount = Object.keys(cachePrefill/* cardInfoCache */.PU).filter(function (key) {
-            return key.endsWith("_".concat(trumpKey));
-        }).length;
-        // If we have very few cached cards for this trump, prefill everything
-        if (cachedCount < 5) {
-            // Trigger full prefill for uncached trump
-            // Start the prefill and wait for it
-            (0,cachePrefill/* prefillCardInfoCache */.j9)(engine, props.trump)
-                .then(function () {
-                // Check if our card is now cached
-                if (cacheKey in cachePrefill/* cardInfoCache */.PU) {
-                    setCardInfo(cachePrefill/* cardInfoCache */.PU[cacheKey]);
-                    setIsLoading(false);
-                }
-                else {
-                    // Fallback if card still not in cache
-                    var staticInfo = cardLookup[props.card];
-                    setCardInfo({
-                        suit: null,
-                        effective_suit: "Unknown",
-                        value: staticInfo.value || props.card,
-                        display_value: staticInfo.display_value || props.card,
-                        typ: staticInfo.typ || props.card,
-                        number: staticInfo.number || null,
-                        points: staticInfo.points || 0,
-                    });
-                    setIsLoading(false);
-                }
-            })
-                .catch(function (error) {
-                console.error("Failed to prefill cache:", error);
-                // Fallback on error
-                var staticInfo = cardLookup[props.card];
-                setCardInfo({
-                    suit: null,
-                    effective_suit: "Unknown",
-                    value: staticInfo.value || props.card,
-                    display_value: staticInfo.display_value || props.card,
-                    typ: staticInfo.typ || props.card,
-                    number: staticInfo.number || null,
-                    points: staticInfo.points || 0,
-                });
-                setIsLoading(false);
-            });
-            return;
-        }
-        // Only make individual request if no prefill is needed
-        engine
-            .batchGetCardInfo({
-            requests: [
-                {
-                    card: props.card,
-                    trump: props.trump,
-                },
-            ],
-        })
-            .then(function (response) {
-            if (!response || !response.results || response.results.length === 0) {
-                console.error("Invalid response from batchGetCardInfo:", response);
-                // Fallback to basic info from static lookup
-                var staticInfo = cardLookup[props.card];
-                setCardInfo({
-                    suit: null,
-                    effective_suit: "Unknown",
-                    value: staticInfo.value || props.card,
-                    display_value: staticInfo.display_value || props.card,
-                    typ: staticInfo.typ || props.card,
-                    number: staticInfo.number || null,
-                    points: staticInfo.points || 0,
-                });
-                setIsLoading(false);
-                return;
-            }
-            var info = response.results[0];
-            if (!info) {
-                console.error("Card info is undefined in response:", response);
-                // Fallback to basic info from static lookup
-                var staticInfo = cardLookup[props.card];
-                setCardInfo({
-                    suit: null,
-                    effective_suit: "Unknown",
-                    value: staticInfo.value || props.card,
-                    display_value: staticInfo.display_value || props.card,
-                    typ: staticInfo.typ || props.card,
-                    number: staticInfo.number || null,
-                    points: staticInfo.points || 0,
-                });
-                setIsLoading(false);
-                return;
-            }
-            // Cache the result with the trump-specific key
-            cachePrefill/* cardInfoCache */.PU[cacheKey] = info;
-            setCardInfo(info);
-            setIsLoading(false);
-        })
-            .catch(function (error) {
-            console.error("Error getting card info:", error);
-            console.error("Error stack:", error.stack);
-            // Fallback to basic info from static lookup
-            var staticInfo = cardLookup[props.card];
-            setCardInfo({
-                suit: null,
-                effective_suit: "Unknown",
-                value: staticInfo.value || props.card,
-                display_value: staticInfo.display_value || props.card,
-                typ: staticInfo.typ || props.card,
-                number: staticInfo.number || null,
-                points: staticInfo.points || 0,
-            });
-            setIsLoading(false);
-        });
-    }, [cacheKey, props.card, props.trump, engine]);
-    if (!(props.card in cardLookup)) {
-        var nonSVG = (react.createElement("div", { className: classnames_default()("card", "unknown", props.className), style: {
-                marginRight: props.collapseRight ? "-".concat(bounds.width * 0.6, "px") : "0",
-            } },
-            react.createElement(CardCanvas, { card: props.card, height: height, suit: classnames_default()("unknown", settings.fourColor ? "four-color" : null, settings.darkMode ? "dark-mode" : null), backgroundColor: settings.darkMode ? "#000" : "#fff" })));
-        if (settings.svgCards) {
-            return (react.createElement(react.Suspense, { fallback: nonSVG },
-                react.createElement("div", { className: classnames_default()("card", "svg", "unknown", props.className), style: {
-                        marginRight: props.collapseRight
-                            ? "-".concat(bounds.width * 0.6, "px")
-                            : "0",
-                    } },
-                    react.createElement(SvgCard, { fourColor: settings.fourColor, height: height, card: "🂠" }))));
-        }
-        else {
-            return nonSVG;
-        }
-    }
-    else {
-        var staticCardInfo = cardLookup[props.card];
-        var label = function (offset) {
-            if (isLoading || !cardInfo)
-                return null;
-            return (react.createElement("div", { className: "card-label", style: { bottom: "".concat(offset, "px") } },
-                react.createElement(src_InlineCard, { card: props.card })));
-        };
-        var icon = function (offset) {
-            if (isLoading || !cardInfo)
-                return null;
-            return (react.createElement("div", { className: "card-icon", style: { bottom: "".concat(offset, "px") } },
-                cardInfo.effective_suit === "Trump" && settings.trumpCardIcon,
-                cardInfo.points > 0 && settings.pointCardIcon));
-        };
-        var nonSVG = (react.createElement("div", { className: classnames_default()("card", staticCardInfo.typ, props.className, isLoading ? "loading" : null), onClick: props.onClick, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave, style: {
-                marginRight: props.collapseRight ? "-".concat(bounds.width * 0.6, "px") : "0",
-            } },
-            label(bounds.height / 10),
-            icon(bounds.height),
-            react.createElement(CardCanvas, { card: staticCardInfo.display_value, height: height, suit: classnames_default()(staticCardInfo.typ, settings.fourColor ? "four-color" : null, settings.darkMode ? "dark-mode" : null), colorOverride: settings.suitColorOverrides[staticCardInfo.typ], backgroundColor: settings.darkMode ? "#000" : "#fff" })));
-        if (settings.svgCards) {
-            return (react.createElement(react.Suspense, { fallback: nonSVG },
-                react.createElement("div", { className: classnames_default()("card", "svg", staticCardInfo.typ, props.className), onClick: props.onClick, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave, style: {
-                        marginRight: props.collapseRight
-                            ? "-".concat(bounds.width * 0.6, "px")
-                            : "0",
-                    } },
-                    label(height / 10),
-                    icon(height),
-                    react.createElement(SvgCard, { fourColor: settings.fourColor, height: height, card: props.card }))));
-        }
-        else {
-            return nonSVG;
-        }
-    }
-};
-var computeCanvasBounds = function (font, dpr) {
-    var c = document.createElement("canvas");
-    c.style.display = "none";
-    document.body.appendChild(c);
-    var ctx = c.getContext("2d");
-    if (ctx === null) {
-        throw new Error("Could not get 2d context");
-    }
-    ctx.scale(dpr, dpr);
-    ctx.font = font;
-    var text = "🂠";
-    var textMetrics = ctx.measureText(text);
-    document.body.removeChild(c);
-    return textMetrics;
-};
-var computeSuitColor = function (suit) {
-    var c = document.createElement("div");
-    c.className = suit;
-    c.style.display = "none";
-    document.body.appendChild(c);
-    var color = getComputedStyle(c).color;
-    document.body.removeChild(c);
-    return color;
-};
-var cardBoundsCache = {};
-var suitColorCache = {};
-var getCardBounds = function (height) {
-    var font = "".concat(height, "px solid");
-    if (!(font in cardBoundsCache)) {
-        cardBoundsCache[font] = src_memoize(function () { return computeCanvasBounds(font, 1); });
-    }
-    var textMetrics = cardBoundsCache[font]();
-    var effectiveHeight = Math.round(textMetrics.actualBoundingBoxAscent +
-        textMetrics.actualBoundingBoxDescent +
-        2);
-    var effectiveWidth = Math.round(textMetrics.actualBoundingBoxRight +
-        Math.min(textMetrics.actualBoundingBoxLeft, 0) +
-        2);
-    return {
-        metrics: textMetrics,
-        height: effectiveHeight,
-        width: effectiveWidth,
-    };
-};
-var CardCanvas = function (props) {
-    if (!(props.suit in suitColorCache)) {
-        suitColorCache[props.suit] = src_memoize(function () { return computeSuitColor(props.suit); });
-    }
-    var _a = getCardBounds(props.height), metrics = _a.metrics, width = _a.width, height = _a.height;
-    var style = suitColorCache[props.suit]();
-    return (react.createElement("svg", { focusable: "false", role: "img", xmlns: "http://www.w3.org/2000/svg", height: height, width: width },
-        react.createElement("rect", { fill: props.backgroundColor !== undefined ? props.backgroundColor : "#fff", x: metrics.actualBoundingBoxLeft, y: 0, width: metrics.width - 2, height: height }),
-        react.createElement("text", { fill: props.colorOverride !== undefined ? props.colorOverride : style, fontSize: "".concat(props.height, "px"), textLength: "".concat(width, "px"), x: Math.min(metrics.actualBoundingBoxLeft, 0) + 1, y: height - metrics.actualBoundingBoxDescent - 1 }, props.card)));
-};
-/* harmony default export */ const src_Card = (Card);
-
-;// ./src/LabeledPlay.tsx
-
-
-
-var LabeledPlay = function (props) {
-    var className = classnames_default()("label", {
-        next: props.next !== undefined &&
-            props.next !== null &&
-            props.id === props.next,
-    });
-    var cards = (props.cards || []).map(function (card, idx) { return (react.createElement(src_Card, { card: card, key: idx, trump: props.trump, collapseRight: idx !== (props.cards || []).length - 1 })); });
-    var groupedCards = props.groupedCards !== undefined
-        ? props.groupedCards.map(function (c, gidx) { return (react.createElement("div", { className: "card-group", key: gidx }, c.map(function (card, idx) { return (react.createElement(src_Card, { trump: props.trump, card: card, key: "".concat(gidx, "-").concat(idx), collapseRight: idx !== c.length - 1 })); }))); })
-        : cards;
-    return (react.createElement("div", { className: classnames_default()("labeled-play", props.className, {
-            clickable: props.onClick !== undefined,
-        }), onClick: props.onClick !== undefined
-            ? function (evt) {
-                evt.preventDefault();
-                if (props.onClick) {
-                    props.onClick();
-                }
-            }
-            : undefined },
-        react.createElement("div", { className: "play" }, groupedCards),
-        props.moreCards !== undefined && props.moreCards.length > 0 ? (react.createElement("div", { className: "play more" }, props.moreCards.map(function (card, idx) { return (react.createElement(src_Card, { trump: props.trump, card: card, key: idx, smaller: true, collapseRight: props.moreCards && idx !== props.moreCards.length - 1 })); }))) : null,
-        react.createElement("div", { className: className }, props.label)));
-};
-/* harmony default export */ const src_LabeledPlay = (LabeledPlay);
-
-;// ./src/PublicRoomsPane.tsx
-var PublicRoomsPane_makeTemplateObject = (undefined && undefined.__makeTemplateObject) || function (cooked, raw) {
-    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-    return cooked;
-};
-var PublicRoomsPane_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicRoomsPane_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-var Row = styled_components_browser_esm/* default */.Ay.div(PublicRoomsPane_templateObject_1 || (PublicRoomsPane_templateObject_1 = PublicRoomsPane_makeTemplateObject(["\n  display: table-row;\n  line-height: 23px;\n"], ["\n  display: table-row;\n  line-height: 23px;\n"])));
-var LabelCell = styled_components_browser_esm/* default */.Ay.div(templateObject_2 || (templateObject_2 = PublicRoomsPane_makeTemplateObject(["\n  display: table-cell;\n  padding-right: 2em;\n  font-weight: bold;\n  width: 200px;\n"], ["\n  display: table-cell;\n  padding-right: 2em;\n  font-weight: bold;\n  width: 200px;\n"])));
-var Cell = styled_components_browser_esm/* default */.Ay.div(templateObject_3 || (templateObject_3 = PublicRoomsPane_makeTemplateObject(["\n  display: table-cell;\n"], ["\n  display: table-cell;\n"])));
+var Row = styled_components_browser_esm/* default */.Ay.div(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  display: table-row;\n  line-height: 23px;\n"], ["\n  display: table-row;\n  line-height: 23px;\n"])));
+var LabelCell = styled_components_browser_esm/* default */.Ay.div(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n  display: table-cell;\n  padding-right: 2em;\n  font-weight: bold;\n  width: 200px;\n"], ["\n  display: table-cell;\n  padding-right: 2em;\n  font-weight: bold;\n  width: 200px;\n"])));
+var Cell = styled_components_browser_esm/* default */.Ay.div(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  display: table-cell;\n"], ["\n  display: table-cell;\n"])));
 var PublicRoomRow = function (_a) {
     var roomName = _a.roomName, numPlayers = _a.numPlayers, setRoomName = _a.setRoomName;
     return (react.createElement(Row, null,
@@ -2203,9 +1543,9 @@ var PublicRoomsPane = function (props) {
     }, []);
     var loadPublicRooms = function () {
         try {
-            var fetchAsync = function () { return PublicRoomsPane_awaiter(void 0, void 0, void 0, function () {
+            var fetchAsync = function () { return __awaiter(void 0, void 0, void 0, function () {
                 var fetchResult, resultJSON;
-                return PublicRoomsPane_generator(this, function (_a) {
+                return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, fetch((0,api/* apiUrl */.y0)("public_games.json"))];
                         case 1:
@@ -2242,7 +1582,7 @@ var PublicRoomsPane = function (props) {
             }))));
 };
 /* harmony default export */ const src_PublicRoomsPane = (PublicRoomsPane);
-var PublicRoomsPane_templateObject_1, templateObject_2, templateObject_3;
+var templateObject_1, templateObject_2, templateObject_3;
 
 // EXTERNAL MODULE: ./src/detectWasm.ts
 var detectWasm = __webpack_require__(6649);
@@ -2256,7 +1596,6 @@ var JoinRoom_spreadArray = (undefined && undefined.__spreadArray) || function (t
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
-
 
 
 
@@ -2314,7 +1653,6 @@ var JoinRoom = function (props) {
         setTimeout(generateRoomName, 0);
     }
     return (react.createElement("div", null,
-        react.createElement(src_LabeledPlay, { cards: ["🃟", "🃟", "🃏", "🃏"], trump: { NoTrump: {} }, label: null }),
         react.createElement("form", { className: "join-room", onSubmit: handleSubmit },
             react.createElement("div", null,
                 react.createElement("h2", null,
@@ -2330,7 +1668,7 @@ var JoinRoom = function (props) {
                 " ",
                 react.createElement("span", { className: "join-room-name", title: "Your account username" }, props.name),
                 " ",
-                react.createElement("span", { className: "auth-hint" }, "(your account name; sign out to change)")),
+                react.createElement("span", { className: "auth-hint" }, "(account name)")),
             react.createElement("fieldset", { className: "room-type" },
                 react.createElement("legend", null,
                     react.createElement("strong", null, "Room type")),
@@ -2341,30 +1679,27 @@ var JoinRoom = function (props) {
                 react.createElement("label", null,
                     react.createElement("input", { type: "radio", name: "room_type", value: "OneVsOne", checked: roomType === "OneVsOne", onChange: function () { return setRoomType("OneVsOne"); } }),
                     " ",
-                    "1v1 (two people, each plays both hands of a team)"),
-                react.createElement("p", { className: "auth-hint" }, "The room type only matters when you are creating a new room; joining an existing room uses whatever type it already has.")),
+                    "1v1 (each player controls two hands)"),
+                react.createElement("p", { className: "auth-hint" }, "Joining an existing room uses its existing type.")),
             react.createElement("div", null,
                 react.createElement("input", { type: "submit", value: "Join (or create) the game!", disabled: props.room_name.length !== 16 || props.name.length === 0 }))),
         react.createElement("div", null,
-            react.createElement("p", null, "Welcome to the game! Pick a room code above (or roll the dice) to create a new room, or enter the code of an existing room to (re-)join it. If you were in the middle of a game, joining the same room with the same account picks up where you left off."),
+            react.createElement("p", null, "Pick a room code above (or roll the dice) to create a new room, or enter the code of an existing room to (re-)join it."),
             react.createElement("p", null,
                 "Rooms are ",
                 react.createElement("strong", null, "rated by default"),
                 ", and they play",
                 " ",
                 react.createElement("strong", null, "matches"),
-                ": a match is \u201Cfirst to rank N\u201D (5 by default) and is rated once, when it ends, for everyone at the table (team rooms on the team ladder, 1v1 rooms on the 1v1 ladder). Individual rounds never move ratings. You can change the target rank, or turn rating off entirely, in the game settings before the match starts."),
-            react.createElement("p", null,
-                react.createElement("strong", null, "1v1 rooms"),
-                " are for exactly two people: each of you plays both seats of one team, so you see and control two hands. They are always Tractor (no Finding Friends)."),
+                ": a match is \u201Cfirst to rank N\u201D (5 by default). You can change N or turn rating off entirely in settings before the match starts."),
             react.createElement("p", null,
                 "If you're unfamiliar with the game, it might be helpful to",
                 " ",
                 react.createElement("a", { href: "rules.html", target: "_blank" }, "read the rules"),
                 " ",
-                "first. Your in-game name is always your account name, so you can no longer shadow another player by joining under their name; join as an observer instead and watch."),
+                "first."),
             react.createElement("p", null, "Once you are in the game, share the room link with at least three friends (or one friend, for 1v1) to start playing!"),
-            react.createElement("p", null, "This is a game with many house rules, so be sure to check out the game settings to see if your favorite rules are implemented. There's also a settings gear at the top, which can change how the game looks to you. Compared to upstream, the defaults here are fast autodraw and no taking back bids or plays.")),
+            react.createElement("p", null, "Compared to the robertying site, the defaults here are fast autodraw and no taking back bids or plays.")),
         react.createElement(src_PublicRoomsPane, { setRoomName: props.setRoomName })));
 };
 /* harmony default export */ const src_JoinRoom = (JoinRoom);
@@ -2598,19 +1933,8 @@ function usernameProblem(username) {
     }
     return null;
 }
-/// Why there is no password field anywhere on this site.
-var VibecodedNotice = function () { return (react.createElement("div", { className: "auth-warning", role: "note" },
-    react.createElement("p", null,
-        react.createElement("strong", null, "Heads up:"),
-        " this site is ",
-        react.createElement("strong", null, "vibecoded"),
-        " and run by an ",
-        react.createElement("strong", null, "idiot"),
-        ". That is exactly why there are no passwords: Google handles signing in, and nothing secret is stored here. All this site keeps is your username, your ratings and your game history."))); };
 var NoAltsRule = function () { return (react.createElement("div", { className: "auth-rule" },
-    react.createElement("p", null,
-        react.createElement("strong", null, "One account per person. Do not make alts."),
-        " Matches are rated, and the site records which browser each account signs in from: a match between accounts that have shared a device is not rated, and it is obvious. Two accounts means both get removed."))); };
+    react.createElement("p", null, "Please don't make alts. I'll ban you."))); };
 var Auth = function () {
     var _a;
     var updateState = react.useContext(AppStateContext).updateState;
@@ -2738,7 +2062,7 @@ var Auth = function () {
     if (pending !== null) {
         return (react.createElement("div", { className: "auth" },
             react.createElement("h2", null, "Almost there"),
-            react.createElement("p", null, "Your Google account is verified. Pick the username other players will see (3\u201320 characters: letters, digits, underscores). You cannot change it later."),
+            react.createElement("p", null, "Your Google account is verified. Pick a username other players will see (3\u201320 characters). You can't change it later."),
             react.createElement("form", { className: "auth-form", onSubmit: handleComplete },
                 react.createElement("label", null,
                     react.createElement("strong", null, "Username:"),
@@ -2755,13 +2079,12 @@ var Auth = function () {
                         }, disabled: busy }, "Cancel")))));
     }
     return (react.createElement("div", { className: "auth" },
-        react.createElement("p", null, "You need an account to play: in-game names are account names, and matches are rated. Sign in with Google below."),
-        react.createElement(VibecodedNotice, null),
+        react.createElement("p", null, "You need an account to play. Sign in with Google below."),
         googleClientId !== null && (react.createElement("div", { className: "auth-google" },
             react.createElement(GoogleButton, { clientId: googleClientId, onCredential: function (credential) {
                     handleGoogle(credential).catch(function (e) { return console.error(e); });
                 }, text: "continue_with" }),
-            react.createElement("p", { className: "auth-hint" }, "The first time you sign in you pick the username other players will see. There is nothing else to set up, and no password to forget."))),
+            react.createElement("p", { className: "auth-hint" }, "The first time you sign in, you pick the username other players will see. There is nothing else to set up."))),
         devLoginEnabled && (react.createElement("div", { className: "auth-dev" },
             googleClientId !== null && react.createElement("p", { className: "auth-or" }, "or"),
             react.createElement("h4", null, "Dev sign-in (local testing only)"),
@@ -3082,7 +2405,7 @@ var AccountPage = function (props) {
             react.createElement("h3", null, "Ladders"),
             react.createElement(Ladders, { ratings: profile.ratings }),
             react.createElement("h3", null, "Statistics"),
-            react.createElement("p", { className: "auth-hint" }, "Every finished round and match counts here, rated or not; the ladders above only count rated matches."),
+            react.createElement("p", { className: "auth-hint" }, "Every finished round and match counts here; the ladders above only count rated matches."),
             react.createElement(Stats, { stats: profile.stats }),
             react.createElement("h3", null, "Recent matches"),
             profile.recent_matches.length === 0 ? (react.createElement("p", { className: "auth-hint" }, "No finished matches yet.")) : (react.createElement("ul", { className: "account-matches" }, profile.recent_matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: profile.username })); })))));
@@ -3144,7 +2467,6 @@ var Ladder = function (props) {
     }
     return (react.createElement("div", { className: "ladder" },
         react.createElement("h4", null, props.title),
-        react.createElement("p", { className: "auth-hint" }, props.blurb),
         body));
 };
 /// The two ladders (team / 1v1), side by side, with a refresh button.
@@ -3175,10 +2497,9 @@ var Leaderboard = function () {
             "Leaderboard",
             " ",
             react.createElement("button", { type: "button", className: "normal", onClick: load, disabled: refreshing }, refreshing ? "Refreshing…" : "Refresh")),
-        react.createElement("p", { className: "auth-hint" }, "Everyone who has finished at least one rated match on a ladder is listed on it, and ratings only move at the end of a match (see the project's RATINGS.md)."),
         react.createElement("div", { className: "leaderboard-tables" },
-            react.createElement(Ladder, { mode: "team", title: "Team ladder", blurb: "Standard rooms with four or more players.", state: team, highlight: me }),
-            react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", blurb: "1v1 rooms: two people, each playing both seats of a team.", state: oneVsOne, highlight: me }))));
+            react.createElement(Ladder, { mode: "team", title: "Team ladder", state: team, highlight: me }),
+            react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", state: oneVsOne, highlight: me }))));
 };
 /* harmony default export */ const src_Leaderboard = (Leaderboard);
 
@@ -3201,8 +2522,7 @@ var Landing = function () {
         " ",
         react.createElement("span", { className: "red" }, "Finding Friends")));
     var intro = (react.createElement(react.Fragment, null,
-        react.createElement("p", null, "Welcome! This website helps you play \u5347\u7EA7 / Tractor / \u627E\u670B\u53CB / Finding Friends with other people online, in rated matches."),
-        react.createElement("p", null, "A match is \u201Cfirst to rank N\u201D (5 by default), and ratings move once, when the match ends."),
+        react.createElement("p", null, "Play rated \u5347\u7EA7 / Tractor / \u627E\u670B\u53CB / Finding Friends online."),
         react.createElement("p", null,
             "If you're not familiar with the rules, check them out",
             " ",
@@ -3210,7 +2530,7 @@ var Landing = function () {
             "!")));
     var content;
     if (state.authLoading) {
-        content = react.createElement("p", null, "Loading your account...");
+        content = react.createElement("p", null, "Loading...");
     }
     else if (state.auth === null) {
         content = react.createElement(src_Auth, null);
@@ -3233,6 +2553,9 @@ var Landing = function () {
 };
 /* harmony default export */ const src_Landing = (Landing);
 
+// EXTERNAL MODULE: ./node_modules/classnames/index.js
+var classnames = __webpack_require__(6942);
+var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames);
 // EXTERNAL MODULE: ./node_modules/react-tooltip/dist/react-tooltip.min.mjs
 var react_tooltip_min = __webpack_require__(7008);
 // EXTERNAL MODULE: ./node_modules/emoji-picker-react/dist/emoji-picker-react.esm.js + 1 modules
@@ -3269,6 +2592,61 @@ var LandlordSelector = function (props) {
 };
 /* harmony default export */ const src_LandlordSelector = (LandlordSelector);
 
+;// ./src/util/array.ts
+var array_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var sum = function (array) { return array.reduce(function (a, b) { return a + b; }, 0); };
+var identity = function (l, r) { return l === r; };
+// Subtracts one array from another. Works with arrays with duplicate values,
+// and throws an exception if the smaller array is not completely contained in
+// the larger one.
+var minus = function (large, small, equality) {
+    if (equality === void 0) { equality = identity; }
+    var result = array_spreadArray([], large, true);
+    small.forEach(function (valueToRemove) {
+        var index = result.findIndex(function (t) { return equality(t, valueToRemove); });
+        if (index >= 0) {
+            result.splice(index, 1);
+        }
+    });
+    return result;
+};
+var mapObject = function (array, mapper) {
+    var result = {};
+    array.forEach(function (t) {
+        var _a = mapper(t), key = _a[0], value = _a[1];
+        result[key] = value;
+    });
+    return result;
+};
+var range = function (count, fn) {
+    return count !== undefined && count >= 0
+        ? Array(count)
+            .fill(undefined)
+            .map(function (_, idx) { return fn(idx); })
+        : [];
+};
+var shuffled = function (array) {
+    return array
+        .map(function (a) { return ({ sort: Math.random(), value: a }); })
+        .sort(function (a, b) { return a.sort - b.sort; })
+        .map(function (a) { return a.value; });
+};
+/* harmony default export */ const array = ({
+    mapObject: mapObject,
+    minus: minus,
+    range: range,
+    sum: sum,
+    shuffled: shuffled,
+});
+
 ;// ./src/NumDecksSelector.tsx
 
 
@@ -3289,6 +2667,19 @@ var NumDecksSelector = function (props) {
                 })))));
 };
 /* harmony default export */ const src_NumDecksSelector = (NumDecksSelector);
+
+// EXTERNAL MODULE: ./src/WasmOrRpcProvider.tsx
+var WasmOrRpcProvider = __webpack_require__(671);
+;// ./src/useEngine.tsx
+
+
+function useEngine() {
+    var context = react.useContext(WasmOrRpcProvider.EngineContext);
+    if (!context) {
+        throw new Error("useEngine must be used within a WasmOrRpcProvider");
+    }
+    return context;
+}
 
 ;// ./src/KittySizeSelector.tsx
 
@@ -3509,7 +2900,7 @@ var RatedBanner = function () {
             rated: rated,
             unrated: !rated,
         }), title: rated
-            ? "The ".concat(oneVsOne ? "1v1" : "team", " ratings of everyone at the table move once, when this match ends.")
+            ? "This ".concat(oneVsOne ? "1v1" : "team", " match is rated.")
             : "This match does not affect ratings." }, parts.join(" · ")));
 };
 /* harmony default export */ const src_RatedBanner = (RatedBanner);
@@ -4115,6 +3506,8 @@ var Players = function (props) {
 };
 /* harmony default export */ const src_Players = (Players);
 
+// EXTERNAL MODULE: ./src/util/cachePrefill.ts
+var cachePrefill = __webpack_require__(2895);
 ;// ./src/ScoringSettings.tsx
 var ScoringSettings_assign = (undefined && undefined.__assign) || function () {
     ScoringSettings_assign = Object.assign || function(t) {
@@ -5380,24 +4773,19 @@ var Initialize = function (props) {
         react.createElement(src_Kicker, { players: props.state.propagated.players, onKick: function (playerId) { return send({ Kick: playerId }); } }),
         react.createElement("div", { className: "game-settings" },
             react.createElement("h3", null, "Game settings"),
-            matchInProgress && (react.createElement("p", { className: "auth-hint" }, "A match is in progress, so the settings that define it (rated, first to rank, game mode, ranks, the leader and the player order) are locked until it ends.")),
+            matchInProgress && (react.createElement("p", { className: "auth-hint" }, "Some settings locked while match in progress.")),
             react.createElement("div", null,
                 react.createElement("label", null,
                     "Rated:",
                     " ",
                     react.createElement("select", { value: rated ? "yes" : "no", onChange: setRated, disabled: matchInProgress },
-                        react.createElement("option", { value: "yes" },
-                            "Yes (the match counts on the ",
-                            oneVsOne ? "1v1" : "team",
-                            " ladder)"),
-                        react.createElement("option", { value: "no" }, "No (casual, ratings unchanged)")))),
+                        react.createElement("option", { value: "yes" }, "Yes"),
+                        react.createElement("option", { value: "no" }, "No")))),
             react.createElement("div", null,
                 react.createElement("label", null,
                     "First to rank:",
                     " ",
-                    react.createElement("select", { value: firstToRank, onChange: setFirstToRank, disabled: matchInProgress }, firstToRankOptions.map(function (rank) { return (react.createElement("option", { value: rank, key: rank }, rank)); })),
-                    " ",
-                    react.createElement("span", { className: "auth-hint" }, "(the match ends when someone reaches this rank)"))),
+                    react.createElement("select", { value: firstToRank, onChange: setFirstToRank, disabled: matchInProgress }, firstToRankOptions.map(function (rank) { return (react.createElement("option", { value: rank, key: rank }, rank)); })))),
             react.createElement("div", null, oneVsOne ? (react.createElement("label", null,
                 "Game mode: ",
                 react.createElement("strong", null, "1v1 room"),
@@ -5498,6 +4886,497 @@ var Initialize = function (props) {
                     react.createElement(react_tooltip_min/* Tooltip */.m_, { id: "resetTip", place: "top" }))))));
 };
 /* harmony default export */ const src_Initialize = (Initialize);
+
+// EXTERNAL MODULE: ./src/preloadedCards.ts + 1 modules
+var preloadedCards = __webpack_require__(7236);
+;// ./src/util/cardHelpers.ts
+
+
+var cardLookup = array.mapObject(preloadedCards/* default */.A, function (c) { return [c.value, c]; });
+var suitToUnicode = {
+    clubs: "♧",
+    diamonds: "♢",
+    hearts: "♡",
+    spades: "♤",
+};
+var suitToFilledUnicode = {
+    clubs: "♣",
+    diamonds: "♦",
+    hearts: "♥",
+    spades: "♠",
+};
+var cardInfoToSuit = function (cardInfo) {
+    switch (cardInfo.typ) {
+        case "♢":
+            return "diamonds";
+        case "♧":
+            return "clubs";
+        case "♡":
+            return "hearts";
+        case "♤":
+            return "spades";
+        default:
+            throw new Error("Invalid cardInfo");
+    }
+};
+var unicodeToCard = function (unicode) {
+    if (unicode === "🂠") {
+        return { type: "unknown" };
+    }
+    if (!(unicode in cardLookup)) {
+        throw new Error("Invalid card string: ".concat(unicode));
+    }
+    var cardInfo = cardLookup[unicode];
+    if (unicode === "🃟") {
+        return { type: "little_joker" };
+    }
+    else if (unicode === "🃏") {
+        return { type: "big_joker" };
+    }
+    else {
+        return {
+            rank: cardInfo.number,
+            suit: cardInfoToSuit(cardInfo),
+            type: "suit_card",
+        };
+    }
+};
+var cardToUnicodeSuit = function (card, fill) {
+    if (fill === void 0) { fill = true; }
+    var table = fill ? suitToFilledUnicode : suitToUnicode;
+    return table[card.suit];
+};
+
+;// ./src/InlineCard.tsx
+var InlineCard_makeTemplateObject = (undefined && undefined.__makeTemplateObject) || function (cooked, raw) {
+    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+    return cooked;
+};
+var InlineCard_assign = (undefined && undefined.__assign) || function () {
+    InlineCard_assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return InlineCard_assign.apply(this, arguments);
+};
+
+
+
+
+var InlineCardBase = styled_components_browser_esm/* default */.Ay.span(InlineCard_templateObject_1 || (InlineCard_templateObject_1 = InlineCard_makeTemplateObject(["\n  padding-left: 0.1em;\n  padding-right: 0.1em;\n"], ["\n  padding-left: 0.1em;\n  padding-right: 0.1em;\n"])));
+function Suit(className) {
+    var component = function (props) {
+        var settings = react.useContext(SettingsContext);
+        return (react.createElement(InlineCardBase, InlineCard_assign({ className: className }, props, { style: {
+                color: settings.suitColorOverrides[className],
+            } })));
+    };
+    component.displayName = "Suit";
+    return component;
+}
+var Diamonds = Suit("♢");
+var Hearts = Suit("♡");
+var Spades = Suit("♤");
+var Clubs = Suit("♧");
+var LittleJoker = Suit("🃟");
+var BigJoker = Suit("🃏");
+var Unknown = Suit("🂠");
+var suitComponent = function (suitCard) {
+    switch (suitCard.suit) {
+        case "diamonds":
+            return Diamonds;
+        case "hearts":
+            return Hearts;
+        case "clubs":
+            return Clubs;
+        case "spades":
+            return Spades;
+    }
+};
+var InlineCard = function (props) {
+    var card = unicodeToCard(props.card);
+    switch (card.type) {
+        case "unknown":
+            return react.createElement(Unknown, null, "\uD83C\uDCA0");
+        case "big_joker":
+            return react.createElement(BigJoker, null, "HJ");
+        case "little_joker":
+            return react.createElement(LittleJoker, null, "LJ");
+        case "suit_card":
+            // eslint-disable-next-line no-case-declarations
+            var Component = suitComponent(card);
+            return (react.createElement(Component, null,
+                card.rank,
+                cardToUnicodeSuit(card)));
+    }
+};
+/* harmony default export */ const src_InlineCard = (InlineCard);
+var InlineCard_templateObject_1;
+
+;// ./src/Card.tsx
+var Card_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Card_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+var SvgCard = react.lazy(function () { return Card_awaiter(void 0, void 0, void 0, function () { return Card_generator(this, function (_a) {
+    switch (_a.label) {
+        case 0: return [4 /*yield*/, __webpack_require__.e(/* import() */ 61).then(__webpack_require__.bind(__webpack_require__, 3469))];
+        case 1: return [2 /*return*/, _a.sent()];
+    }
+}); }); });
+var Card = function (props) {
+    var settings = react.useContext(SettingsContext);
+    var engine = useEngine();
+    var _a = react.useState(null), cardInfo = _a[0], setCardInfo = _a[1];
+    var _b = react.useState(false), isLoading = _b[0], setIsLoading = _b[1];
+    var height = props.smaller ? 95 : 120;
+    var bounds = getCardBounds(height);
+    // Create a cache key for the card info based on card and trump
+    var cacheKey = "".concat(props.card, "_").concat((0,cachePrefill/* getTrumpKey */.us)(props.trump));
+    react.useEffect(function () {
+        // Only load card info if the card is in the lookup
+        if (!(props.card in cardLookup)) {
+            return;
+        }
+        // Check cache first
+        if (cacheKey in cachePrefill/* cardInfoCache */.PU) {
+            setCardInfo(cachePrefill/* cardInfoCache */.PU[cacheKey]);
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(true);
+        // Check if a prefill is already in progress for this trump
+        var existingPrefillPromise = (0,cachePrefill/* getPrefillPromise */.i7)(props.trump);
+        if (existingPrefillPromise) {
+            // Wait for existing prefill
+            existingPrefillPromise
+                .then(function () {
+                // Check if our card is now cached
+                if (cacheKey in cachePrefill/* cardInfoCache */.PU) {
+                    setCardInfo(cachePrefill/* cardInfoCache */.PU[cacheKey]);
+                    setIsLoading(false);
+                }
+                else {
+                    // If still not cached after prefill, something went wrong
+                    console.error("Card ".concat(props.card, " not in cache after prefill completed"));
+                    var staticInfo = cardLookup[props.card];
+                    setCardInfo({
+                        suit: null,
+                        effective_suit: "Unknown",
+                        value: staticInfo.value || props.card,
+                        display_value: staticInfo.display_value || props.card,
+                        typ: staticInfo.typ || props.card,
+                        number: staticInfo.number || null,
+                        points: staticInfo.points || 0,
+                    });
+                    setIsLoading(false);
+                }
+            })
+                .catch(function (error) {
+                console.error("Failed to wait for prefill:", error);
+                setIsLoading(false);
+            });
+            return;
+        }
+        // Check if we should trigger a full prefill for this trump
+        var trumpKey = (0,cachePrefill/* getTrumpKey */.us)(props.trump);
+        // Count how many cards are cached for this trump
+        var cachedCount = Object.keys(cachePrefill/* cardInfoCache */.PU).filter(function (key) {
+            return key.endsWith("_".concat(trumpKey));
+        }).length;
+        // If we have very few cached cards for this trump, prefill everything
+        if (cachedCount < 5) {
+            // Trigger full prefill for uncached trump
+            // Start the prefill and wait for it
+            (0,cachePrefill/* prefillCardInfoCache */.j9)(engine, props.trump)
+                .then(function () {
+                // Check if our card is now cached
+                if (cacheKey in cachePrefill/* cardInfoCache */.PU) {
+                    setCardInfo(cachePrefill/* cardInfoCache */.PU[cacheKey]);
+                    setIsLoading(false);
+                }
+                else {
+                    // Fallback if card still not in cache
+                    var staticInfo = cardLookup[props.card];
+                    setCardInfo({
+                        suit: null,
+                        effective_suit: "Unknown",
+                        value: staticInfo.value || props.card,
+                        display_value: staticInfo.display_value || props.card,
+                        typ: staticInfo.typ || props.card,
+                        number: staticInfo.number || null,
+                        points: staticInfo.points || 0,
+                    });
+                    setIsLoading(false);
+                }
+            })
+                .catch(function (error) {
+                console.error("Failed to prefill cache:", error);
+                // Fallback on error
+                var staticInfo = cardLookup[props.card];
+                setCardInfo({
+                    suit: null,
+                    effective_suit: "Unknown",
+                    value: staticInfo.value || props.card,
+                    display_value: staticInfo.display_value || props.card,
+                    typ: staticInfo.typ || props.card,
+                    number: staticInfo.number || null,
+                    points: staticInfo.points || 0,
+                });
+                setIsLoading(false);
+            });
+            return;
+        }
+        // Only make individual request if no prefill is needed
+        engine
+            .batchGetCardInfo({
+            requests: [
+                {
+                    card: props.card,
+                    trump: props.trump,
+                },
+            ],
+        })
+            .then(function (response) {
+            if (!response || !response.results || response.results.length === 0) {
+                console.error("Invalid response from batchGetCardInfo:", response);
+                // Fallback to basic info from static lookup
+                var staticInfo = cardLookup[props.card];
+                setCardInfo({
+                    suit: null,
+                    effective_suit: "Unknown",
+                    value: staticInfo.value || props.card,
+                    display_value: staticInfo.display_value || props.card,
+                    typ: staticInfo.typ || props.card,
+                    number: staticInfo.number || null,
+                    points: staticInfo.points || 0,
+                });
+                setIsLoading(false);
+                return;
+            }
+            var info = response.results[0];
+            if (!info) {
+                console.error("Card info is undefined in response:", response);
+                // Fallback to basic info from static lookup
+                var staticInfo = cardLookup[props.card];
+                setCardInfo({
+                    suit: null,
+                    effective_suit: "Unknown",
+                    value: staticInfo.value || props.card,
+                    display_value: staticInfo.display_value || props.card,
+                    typ: staticInfo.typ || props.card,
+                    number: staticInfo.number || null,
+                    points: staticInfo.points || 0,
+                });
+                setIsLoading(false);
+                return;
+            }
+            // Cache the result with the trump-specific key
+            cachePrefill/* cardInfoCache */.PU[cacheKey] = info;
+            setCardInfo(info);
+            setIsLoading(false);
+        })
+            .catch(function (error) {
+            console.error("Error getting card info:", error);
+            console.error("Error stack:", error.stack);
+            // Fallback to basic info from static lookup
+            var staticInfo = cardLookup[props.card];
+            setCardInfo({
+                suit: null,
+                effective_suit: "Unknown",
+                value: staticInfo.value || props.card,
+                display_value: staticInfo.display_value || props.card,
+                typ: staticInfo.typ || props.card,
+                number: staticInfo.number || null,
+                points: staticInfo.points || 0,
+            });
+            setIsLoading(false);
+        });
+    }, [cacheKey, props.card, props.trump, engine]);
+    if (!(props.card in cardLookup)) {
+        var nonSVG = (react.createElement("div", { className: classnames_default()("card", "unknown", props.className), style: {
+                marginRight: props.collapseRight ? "-".concat(bounds.width * 0.6, "px") : "0",
+            } },
+            react.createElement(CardCanvas, { card: props.card, height: height, suit: classnames_default()("unknown", settings.fourColor ? "four-color" : null, settings.darkMode ? "dark-mode" : null), backgroundColor: settings.darkMode ? "#000" : "#fff" })));
+        if (settings.svgCards) {
+            return (react.createElement(react.Suspense, { fallback: nonSVG },
+                react.createElement("div", { className: classnames_default()("card", "svg", "unknown", props.className), style: {
+                        marginRight: props.collapseRight
+                            ? "-".concat(bounds.width * 0.6, "px")
+                            : "0",
+                    } },
+                    react.createElement(SvgCard, { fourColor: settings.fourColor, height: height, card: "🂠" }))));
+        }
+        else {
+            return nonSVG;
+        }
+    }
+    else {
+        var staticCardInfo = cardLookup[props.card];
+        var label = function (offset) {
+            if (isLoading || !cardInfo)
+                return null;
+            return (react.createElement("div", { className: "card-label", style: { bottom: "".concat(offset, "px") } },
+                react.createElement(src_InlineCard, { card: props.card })));
+        };
+        var icon = function (offset) {
+            if (isLoading || !cardInfo)
+                return null;
+            return (react.createElement("div", { className: "card-icon", style: { bottom: "".concat(offset, "px") } },
+                cardInfo.effective_suit === "Trump" && settings.trumpCardIcon,
+                cardInfo.points > 0 && settings.pointCardIcon));
+        };
+        var nonSVG = (react.createElement("div", { className: classnames_default()("card", staticCardInfo.typ, props.className, isLoading ? "loading" : null), onClick: props.onClick, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave, style: {
+                marginRight: props.collapseRight ? "-".concat(bounds.width * 0.6, "px") : "0",
+            } },
+            label(bounds.height / 10),
+            icon(bounds.height),
+            react.createElement(CardCanvas, { card: staticCardInfo.display_value, height: height, suit: classnames_default()(staticCardInfo.typ, settings.fourColor ? "four-color" : null, settings.darkMode ? "dark-mode" : null), colorOverride: settings.suitColorOverrides[staticCardInfo.typ], backgroundColor: settings.darkMode ? "#000" : "#fff" })));
+        if (settings.svgCards) {
+            return (react.createElement(react.Suspense, { fallback: nonSVG },
+                react.createElement("div", { className: classnames_default()("card", "svg", staticCardInfo.typ, props.className), onClick: props.onClick, onMouseEnter: props.onMouseEnter, onMouseLeave: props.onMouseLeave, style: {
+                        marginRight: props.collapseRight
+                            ? "-".concat(bounds.width * 0.6, "px")
+                            : "0",
+                    } },
+                    label(height / 10),
+                    icon(height),
+                    react.createElement(SvgCard, { fourColor: settings.fourColor, height: height, card: props.card }))));
+        }
+        else {
+            return nonSVG;
+        }
+    }
+};
+var computeCanvasBounds = function (font, dpr) {
+    var c = document.createElement("canvas");
+    c.style.display = "none";
+    document.body.appendChild(c);
+    var ctx = c.getContext("2d");
+    if (ctx === null) {
+        throw new Error("Could not get 2d context");
+    }
+    ctx.scale(dpr, dpr);
+    ctx.font = font;
+    var text = "🂠";
+    var textMetrics = ctx.measureText(text);
+    document.body.removeChild(c);
+    return textMetrics;
+};
+var computeSuitColor = function (suit) {
+    var c = document.createElement("div");
+    c.className = suit;
+    c.style.display = "none";
+    document.body.appendChild(c);
+    var color = getComputedStyle(c).color;
+    document.body.removeChild(c);
+    return color;
+};
+var cardBoundsCache = {};
+var suitColorCache = {};
+var getCardBounds = function (height) {
+    var font = "".concat(height, "px solid");
+    if (!(font in cardBoundsCache)) {
+        cardBoundsCache[font] = src_memoize(function () { return computeCanvasBounds(font, 1); });
+    }
+    var textMetrics = cardBoundsCache[font]();
+    var effectiveHeight = Math.round(textMetrics.actualBoundingBoxAscent +
+        textMetrics.actualBoundingBoxDescent +
+        2);
+    var effectiveWidth = Math.round(textMetrics.actualBoundingBoxRight +
+        Math.min(textMetrics.actualBoundingBoxLeft, 0) +
+        2);
+    return {
+        metrics: textMetrics,
+        height: effectiveHeight,
+        width: effectiveWidth,
+    };
+};
+var CardCanvas = function (props) {
+    if (!(props.suit in suitColorCache)) {
+        suitColorCache[props.suit] = src_memoize(function () { return computeSuitColor(props.suit); });
+    }
+    var _a = getCardBounds(props.height), metrics = _a.metrics, width = _a.width, height = _a.height;
+    var style = suitColorCache[props.suit]();
+    return (react.createElement("svg", { focusable: "false", role: "img", xmlns: "http://www.w3.org/2000/svg", height: height, width: width },
+        react.createElement("rect", { fill: props.backgroundColor !== undefined ? props.backgroundColor : "#fff", x: metrics.actualBoundingBoxLeft, y: 0, width: metrics.width - 2, height: height }),
+        react.createElement("text", { fill: props.colorOverride !== undefined ? props.colorOverride : style, fontSize: "".concat(props.height, "px"), textLength: "".concat(width, "px"), x: Math.min(metrics.actualBoundingBoxLeft, 0) + 1, y: height - metrics.actualBoundingBoxDescent - 1 }, props.card)));
+};
+/* harmony default export */ const src_Card = (Card);
+
+;// ./src/LabeledPlay.tsx
+
+
+
+var LabeledPlay = function (props) {
+    var className = classnames_default()("label", {
+        next: props.next !== undefined &&
+            props.next !== null &&
+            props.id === props.next,
+    });
+    var cards = (props.cards || []).map(function (card, idx) { return (react.createElement(src_Card, { card: card, key: idx, trump: props.trump, collapseRight: idx !== (props.cards || []).length - 1 })); });
+    var groupedCards = props.groupedCards !== undefined
+        ? props.groupedCards.map(function (c, gidx) { return (react.createElement("div", { className: "card-group", key: gidx }, c.map(function (card, idx) { return (react.createElement(src_Card, { trump: props.trump, card: card, key: "".concat(gidx, "-").concat(idx), collapseRight: idx !== c.length - 1 })); }))); })
+        : cards;
+    return (react.createElement("div", { className: classnames_default()("labeled-play", props.className, {
+            clickable: props.onClick !== undefined,
+        }), onClick: props.onClick !== undefined
+            ? function (evt) {
+                evt.preventDefault();
+                if (props.onClick) {
+                    props.onClick();
+                }
+            }
+            : undefined },
+        react.createElement("div", { className: "play" }, groupedCards),
+        props.moreCards !== undefined && props.moreCards.length > 0 ? (react.createElement("div", { className: "play more" }, props.moreCards.map(function (card, idx) { return (react.createElement(src_Card, { trump: props.trump, card: card, key: idx, smaller: true, collapseRight: props.moreCards && idx !== props.moreCards.length - 1 })); }))) : null,
+        react.createElement("div", { className: className }, props.label)));
+};
+/* harmony default export */ const src_LabeledPlay = (LabeledPlay);
 
 ;// ./src/BeepButton.tsx
 
@@ -5853,6 +5732,17 @@ var BidArea = function (props) {
 };
 /* harmony default export */ const src_BidArea = (BidArea);
 
+;// ./src/phasePart.ts
+var showsBoard = function (part) {
+    return part === undefined || part === "all" || part === "board";
+};
+var showsSeat = function (part) {
+    return part === undefined || part === "all" || part === "seat";
+};
+var showsFooter = function (part) {
+    return part === undefined || part === "all" || part === "footer";
+};
+
 ;// ./src/Draw.tsx
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -5881,6 +5771,7 @@ var Draw_assign = (undefined && undefined.__assign) || function () {
     return Draw_assign.apply(this, arguments);
 };
 /* tslint:disable:max-classes-per-file variable-name forin */
+
 
 
 
@@ -5953,7 +5844,12 @@ var DrawInner = /** @class */ (function (_super) {
     /// draw is in flight does not fire a duplicate.
     DrawInner.prototype.armAutodraw = function () {
         var _this = this;
-        if (!this.canDraw() || !this.state.autodraw) {
+        if (!showsSeat(this.props.part) ||
+            !this.canDraw() ||
+            !this.state.autodraw) {
+            // Nothing to draw (any more): drop a pending retry timer, otherwise it
+            // could fire once it is our turn again with the deck already empty.
+            this.cancelTimer();
             return;
         }
         var key = this.drawKey();
@@ -5975,8 +5871,7 @@ var DrawInner = /** @class */ (function (_super) {
         }, delay);
     };
     DrawInner.prototype.drawCard = function () {
-        var canDraw = this.props.state.propagated.players[this.props.state.position].name ===
-            this.props.name;
+        var canDraw = this.canDraw();
         this.cancelTimer();
         if (canDraw) {
             this.lastSentKey = this.drawKey();
@@ -6036,15 +5931,15 @@ var DrawInner = /** @class */ (function (_super) {
             };
         }
         return (react.createElement("div", null,
-            this.props.compact ? null : (react.createElement(react.Fragment, null,
+            showsBoard(this.props.part) && (react.createElement(react.Fragment, null,
                 react.createElement(src_Header, { gameMode: this.props.state.game_mode, chatLink: this.props.state.propagated.chat_link }),
                 react.createElement(src_Players, { players: this.props.state.propagated.players, observers: this.props.state.propagated.observers, landlord: landlord, next: next, name: this.props.name }))),
-            react.createElement(src_BidArea, { bids: this.props.state.bids, autobid: this.props.state.autobid, hands: this.props.state.hands, epoch: 0, name: this.props.name, trump: trump, landlord: landlord, players: this.props.state.propagated.players, bidPolicy: this.props.state.propagated.bid_policy, bidReinforcementPolicy: this.props.state.propagated.bid_reinforcement_policy, jokerBidPolicy: this.props.state.propagated.joker_bid_policy, numDecks: this.props.state.num_decks, header: react.createElement(react.Fragment, null,
+            showsSeat(this.props.part) && (react.createElement(src_BidArea, { bids: this.props.state.bids, autobid: this.props.state.autobid, hands: this.props.state.hands, epoch: 0, name: this.props.name, trump: trump, landlord: landlord, players: this.props.state.propagated.players, bidPolicy: this.props.state.propagated.bid_policy, bidReinforcementPolicy: this.props.state.propagated.bid_reinforcement_policy, jokerBidPolicy: this.props.state.propagated.joker_bid_policy, numDecks: this.props.state.num_decks, header: react.createElement(react.Fragment, null,
                     react.createElement("h2", null,
                         "Bids (",
                         this.props.state.deck.length,
                         " cards remaining in the deck)"),
-                    !this.props.compact &&
+                    showsBoard(this.props.part) &&
                         this.props.state.removed_cards.length > 0 ? (react.createElement("p", null,
                         "Note:",
                         " ",
@@ -6084,8 +5979,8 @@ var DrawInner = /** @class */ (function (_super) {
                                 landlord !== undefined &&
                                 players[landlord].level === "NT"), className: "big" }, "Reveal card from the bottom"),
                     react.createElement(src_BeepButton, null)), bidTakeBacksEnabled: this.props.state.propagated.bid_takeback_policy ===
-                    "AllowBidTakeback" }),
-            this.props.compact ? null : (react.createElement(src_LabeledPlay, { className: "kitty", cards: this.props.state.kitty, trump: { NoTrump: {} }, label: "\u5E95\u724C" }))));
+                    "AllowBidTakeback" })),
+            showsFooter(this.props.part) && (react.createElement(src_LabeledPlay, { className: "kitty", cards: this.props.state.kitty, trump: { NoTrump: {} }, label: "\u5E95\u724C" }))));
     };
     return DrawInner;
 }(react.Component));
@@ -6300,6 +6195,7 @@ var Exchange_spreadArray = (undefined && undefined.__spreadArray) || function (t
 
 
 
+
 /// Who should act next in the Exchange phase: the exchanger while kitty
 /// theft bidding is open, otherwise the landlord.
 var exchangeNextPlayer = function (state) {
@@ -6463,7 +6359,7 @@ var Exchange = /** @class */ (function (_super) {
                             lastBid.epoch !== this.props.state.epoch, className: "big" }, "Pick up cards from the bottom"),
                     isLandlord ? startGame : null), bidTakeBacksEnabled: this.props.state.propagated.bid_takeback_policy ===
                     "AllowBidTakeback" }),
-            this.props.compact ? null : (react.createElement(src_LabeledPlay, { className: "kitty", trump: this.props.state.trump, cards: this.props.state.kitty, label: "\u5E95\u724C" })))) : null;
+            react.createElement(src_LabeledPlay, { className: "kitty", trump: this.props.state.trump, cards: this.props.state.kitty, label: "\u5E95\u724C" }))) : null;
         var friendUI = this.props.state.game_mode !== "Tractor" && isLandlord ? (react.createElement("div", null,
             react.createElement(src_Friends, { gameMode: this.props.state.game_mode, showPlayed: false }),
             this.state.friends.map(function (friend, idx) {
@@ -6477,7 +6373,7 @@ var Exchange = /** @class */ (function (_super) {
             }),
             react.createElement("button", { onClick: this.pickFriends, className: "big" }, "Pick friends"))) : null;
         return (react.createElement("div", null,
-            this.props.compact ? null : (react.createElement(react.Fragment, null,
+            showsBoard(this.props.part) && (react.createElement(react.Fragment, null,
                 react.createElement(src_Header, { gameMode: this.props.state.game_mode, chatLink: this.props.state.propagated.chat_link }),
                 react.createElement(src_Players, { players: this.props.state.propagated.players, observers: this.props.state.propagated.observers, landlord: this.props.state.landlord, next: nextPlayer, name: this.props.name }),
                 react.createElement(Trump, { trump: this.props.state.trump }),
@@ -6487,14 +6383,15 @@ var Exchange = /** @class */ (function (_super) {
                     (this.props.state.removed_cards || []).map(function (c) { return (react.createElement(src_InlineCard, { key: c, card: c })); }),
                     " ",
                     "have been removed from the deck")) : null)),
-            friendUI,
-            exchangeUI,
-            exchangeUI === null && bidUI === null && playerId >= 0 ? (react.createElement(react.Fragment, null,
-                react.createElement(src_Cards, { hands: this.props.state.hands, playerId: playerId, trump: this.props.state.trump }),
-                react.createElement("p", null, "Waiting..."))) : null,
-            playerId !== nextPlayer && react.createElement(src_BeepButton, null),
-            isLandlord && bidUI === null ? startGame : null,
-            bidUI));
+            showsSeat(this.props.part) && (react.createElement(react.Fragment, null,
+                friendUI,
+                exchangeUI,
+                exchangeUI === null && bidUI === null && playerId >= 0 ? (react.createElement(react.Fragment, null,
+                    react.createElement(src_Cards, { hands: this.props.state.hands, playerId: playerId, trump: this.props.state.trump }),
+                    react.createElement("p", null, "Waiting..."))) : null,
+                playerId !== nextPlayer && react.createElement(src_BeepButton, null),
+                isLandlord && bidUI === null ? startGame : null,
+                bidUI))));
     };
     return Exchange;
 }(react.Component));
@@ -6534,12 +6431,12 @@ var ChangeLog = function () {
                 " ",
                 react.createElement("a", { href: "rules.html", target: "_blank" }, "rules"),
                 "."),
-            react.createElement("p", null, "There are a wide variety of game settings which may suit the way you normally play, e.g. changing how many decks, how scoring works, etc. These can be changed before every round."),
+            react.createElement("p", null, "There are a wide variety of game settings which may suit the way you normally play, e.g. changing the number of decks, how scoring works, etc. These can be changed before every round."),
             react.createElement("p", null, "There are also a bunch of UI customizations that you may want to turn on (or leave off) -- click the gear icon at the top of the screen once you're in the game."),
             react.createElement("h2", null, "Change Log"),
             react.createElement("p", null, "9/18/2026 (this fork):"),
             react.createElement("ul", null,
-                react.createElement("li", null, "Accounts: you sign in with Google, and your in-game name is always your account name. There are no passwords here at all. One account per person; no alts."),
+                react.createElement("li", null, "Accounts: Sign in with Google, and your in-game name is always your account name. There are no passwords here at all."),
                 react.createElement("li", null,
                     "Matches: a room plays \u201Cfirst to rank N\u201D matches (5 by default, changeable in the game settings). The first round of a match only starts once ",
                     react.createElement("em", null, "every"),
@@ -6776,7 +6673,6 @@ var Credits = function () { return (react.createElement("div", { className: "cre
         "This is a vibecoded clone of",
         " ",
         react.createElement("a", { href: "https://robertying.com/shengji/", target: "_blank", rel: "noreferrer" }, "Robert Ying's shengji"),
-        " ",
         ". All of the real work is Robert Ying (",
         react.createElement("a", { href: "mailto:me@robertying.com" }, "me@robertying.com"),
         "), Abra Shen and other",
@@ -6787,11 +6683,9 @@ var Credits = function () { return (react.createElement("div", { className: "cre
         react.createElement("a", { href: "https://github.com/rbtying/shengji", target: "_blank", rel: "noreferrer" }, "GitHub"),
         "."),
     react.createElement("p", { className: "donate" },
-        react.createElement("strong", null, "If you enjoy this, please donate to Robert Ying: Venmo @Robert-Ying"),
-        ", or via",
+        "If you enjoy this, please donate to Robert Ying: Venmo @Robert-Ying, or via",
         " ",
-        react.createElement("a", { href: "https://donate.stripe.com/aEU8x982f3oj4Ja7ss", target: "_blank", rel: "noreferrer" },
-            react.createElement("strong", null, "other payment methods")),
+        react.createElement("a", { href: "https://donate.stripe.com/aEU8x982f3oj4Ja7ss", target: "_blank", rel: "noreferrer" }, "other payment methods"),
         ".",
         react.createElement("span", { style: { float: "right" } },
             react.createElement(ChangeLog, null))))); };
@@ -7618,6 +7512,7 @@ var Play_generator = (undefined && undefined.__generator) || function (thisArg, 
 
 
 
+
 var Play_contentStyle = {
     position: "absolute",
     top: "50%",
@@ -7817,10 +7712,12 @@ var Play = function (props) {
             ]
             : [];
     };
-    var compact = props.compact === true;
+    var board = showsBoard(props.part);
+    var seat = showsSeat(props.part);
+    var footer = showsFooter(props.part);
     return (react.createElement("div", null,
-        shouldBeBeeping ? react.createElement(src_Beeper, null) : null,
-        !compact && (react.createElement(react.Fragment, null,
+        shouldBeBeeping && seat ? react.createElement(src_Beeper, null) : null,
+        board && (react.createElement(react.Fragment, null,
             react.createElement(src_Header, { gameMode: playPhase.propagated.game_mode, chatLink: playPhase.propagated.chat_link }),
             react.createElement(src_Players, { players: playPhase.propagated.players, observers: playPhase.propagated.observers, landlord: playPhase.landlord, landlords_team: playPhase.landlords_team, name: props.name, next: nextPlayer }),
             react.createElement(Trump, { trump: playPhase.trump }),
@@ -7833,18 +7730,22 @@ var Play = function (props) {
                 "have been removed from the deck")) : null,
             settings.showPointsAboveGame && (react.createElement(ProgressBarDisplay, { points: playPhase.points, penalties: playPhase.penalties, decks: playPhase.decks, trump: playPhase.trump, players: playPhase.propagated.players, landlordTeam: playPhase.landlords_team, landlord: playPhase.landlord, hideLandlordPoints: playPhase.propagated.hide_landlord_points, gameScoringParameters: playPhase.propagated.game_scoring_parameters, smallerTeamSize: smallerTeamSize })),
             react.createElement(Trick, { trick: playPhase.trick, players: playPhase.propagated.players, landlord: playPhase.landlord, landlord_suffix: landlordSuffix, landlords_team: playPhase.landlords_team, next: nextPlayer, name: props.name, showTrickInPlayerOrder: props.showTrickInPlayerOrder }))),
-        react.createElement(src_AutoPlayButton, { onSubmit: playCards, playDescription: grouping.length === 1 && lastPlay === undefined
-                ? grouping[0].description
-                : null, canSubmit: canPlay, currentWinner: playPhase.trick.current_winner, unsetAutoPlayWhenWinnerChanges: props.unsetAutoPlayWhenWinnerChanges, isCurrentPlayerTurn: isCurrentPlayerTurn }),
-        playPhase.propagated.play_takeback_policy === "AllowPlayTakeback" && (react.createElement("button", { className: "big", onClick: takeBackCards, disabled: !canTakeBack }, "Take back last play")),
-        react.createElement("button", { className: "big", onClick: endTrick, disabled: playPhase.trick.player_queue.length > 0 || playPhase.game_ended_early }, "Finish trick"),
-        playPhase.game_ended_early && (react.createElement("p", { className: "game-ended-early" }, "The remaining cards can't change the result, so this round is over")),
-        canFinish && (react.createElement("button", { className: "big", onClick: startNewGame }, "Finish game")),
-        react.createElement(src_BeepButton, null),
-        !compact && canFinish && !noCardsLeft && (react.createElement("div", null,
+        seat && (react.createElement(react.Fragment, null,
+            react.createElement(src_AutoPlayButton, { onSubmit: playCards, playDescription: grouping.length === 1 && lastPlay === undefined
+                    ? grouping[0].description
+                    : null, canSubmit: canPlay, currentWinner: playPhase.trick.current_winner, unsetAutoPlayWhenWinnerChanges: props.unsetAutoPlayWhenWinnerChanges, isCurrentPlayerTurn: isCurrentPlayerTurn }),
+            playPhase.propagated.play_takeback_policy ===
+                "AllowPlayTakeback" && (react.createElement("button", { className: "big", onClick: takeBackCards, disabled: !canTakeBack }, "Take back last play")),
+            react.createElement("button", { className: "big", onClick: endTrick, disabled: playPhase.trick.player_queue.length > 0 ||
+                    playPhase.game_ended_early }, "Finish trick"))),
+        board && playPhase.game_ended_early && (react.createElement("p", { className: "game-ended-early" }, "The remaining cards can't change the result, so this round is over")),
+        seat && (react.createElement(react.Fragment, null,
+            canFinish && (react.createElement("button", { className: "big", onClick: startNewGame }, "Finish game")),
+            react.createElement(src_BeepButton, null))),
+        footer && canFinish && !noCardsLeft && (react.createElement("div", null,
             react.createElement("p", null, "Cards remaining (that were not played):"),
             playPhase.propagated.players.map(function (p) { return (react.createElement(src_LabeledPlay, { key: p.id, trump: playPhase.trump, label: p.name, cards: getCardsFromHand(p.id).flatMap(function (g) { return g.cards; }) })); }))),
-        !canFinish && (react.createElement(react.Fragment, null,
+        seat && !canFinish && (react.createElement(react.Fragment, null,
             playPhase.trick.trick_format !== null &&
                 !isSpectator &&
                 playPhase.trick.player_queue.includes(currentPlayer.id) ? (react.createElement(TrickFormatHelper, { format: playPhase.trick.trick_format, hands: playPhase.hands, playerId: currentPlayer.id, trickDrawPolicy: playPhase.propagated.trick_draw_policy, setSelected: function (newSelected) {
@@ -7862,14 +7763,14 @@ var Play = function (props) {
             react.createElement(src_Cards, { hands: playPhase.hands, playerId: currentPlayer.id, trump: playPhase.trump, selectedCards: selected, onSelect: function (newSelected) {
                     updateSelectionAndGrouping(newSelected, playPhase.trump, playPhase.propagated.tractor_requirements);
                 }, notifyEmpty: isCurrentPlayerTurn }))),
-        !compact &&
+        footer &&
             playPhase.last_trick !== undefined &&
             playPhase.last_trick !== null &&
             props.showLastTrick ? (react.createElement("div", null,
             react.createElement("p", null, "Previous trick"),
             react.createElement(Trick, { trick: playPhase.last_trick, players: playPhase.propagated.players, landlord: playPhase.landlord, landlord_suffix: landlordSuffix, landlords_team: playPhase.landlords_team, name: props.name, showTrickInPlayerOrder: props.showTrickInPlayerOrder }))) : null,
-        !compact && playPhase.propagated.game_scoring_parameters ? (react.createElement(src_Points, { points: playPhase.points, penalties: playPhase.penalties, decks: playPhase.decks || [], players: playPhase.propagated.players, landlordTeam: playPhase.landlords_team, landlord: playPhase.landlord, trump: playPhase.trump, hideLandlordPoints: playPhase.propagated.hide_landlord_points || false, gameScoringParameters: playPhase.propagated.game_scoring_parameters, smallerTeamSize: smallerTeamSize })) : null,
-        !compact && (react.createElement(src_LabeledPlay, { trump: playPhase.trump, className: "kitty", cards: playPhase.kitty, label: "\u5E95\u724C" }))));
+        footer && playPhase.propagated.game_scoring_parameters ? (react.createElement(src_Points, { points: playPhase.points, penalties: playPhase.penalties, decks: playPhase.decks || [], players: playPhase.propagated.players, landlordTeam: playPhase.landlords_team, landlord: playPhase.landlord, trump: playPhase.trump, hideLandlordPoints: playPhase.propagated.hide_landlord_points || false, gameScoringParameters: playPhase.propagated.game_scoring_parameters, smallerTeamSize: smallerTeamSize })) : null,
+        footer && (react.createElement(src_LabeledPlay, { trump: playPhase.trump, className: "kitty", cards: playPhase.kitty, label: "\u5E95\u724C" }))));
 };
 var HelperContents = function (props) {
     var engine = useEngine();
@@ -8205,8 +8106,10 @@ var MatchSummaryModal = function () {
                     }) },
                     "(",
                     (0,api/* formatDelta */.CW)(c.delta),
-                    ")"))); })))) : (react.createElement("p", { className: "auth-hint" }, "Ratings only move at the end of a rated match; if this one was rated, the changes will appear here in a moment.")),
-        react.createElement("button", { className: "normal", onClick: close }, "Close")));
+                    ")"))); })))) : (react.createElement("p", { className: "auth-hint" }, "Ratings only update at the end of a rated match; if this one was rated, the changes will appear here in a moment.")),
+        react.createElement("button", { className: "normal", onClick: close }, "Close"),
+        " ",
+        react.createElement("button", { className: "normal", onClick: leaveRoom, title: "Leave this room and go back to the lobby" }, "Back to lobby")));
 };
 /* harmony default export */ const src_MatchSummaryModal = (MatchSummaryModal);
 
@@ -8324,11 +8227,13 @@ var nextPlayerOf = function (gameState) {
 /// connection controls.
 ///
 /// In 1v1 rooms a connection owns both seats of its team (`alice` and
-/// `alice (2)`), so the Draw / Exchange / Play phase is rendered once per
-/// seat. Each instance sits under a `SeatProvider`, which rewrites every
-/// `{Action: X}` it sends into `{ActionAs: [seatId, X]}`; the second
-/// instance is `compact` (no duplicated board). The Initialize phase is room
-/// settings and is rendered once, as the first seat.
+/// `alice (2)`). The Draw / Exchange / Play phase is then rendered in parts
+/// (see `PhasePart`): the shared `board` (players, trump, trick) once, full
+/// width; a `seat` part per seat (that seat's hand and buttons) side by side
+/// under it; and the `footer` (points, previous trick, kitty) once below.
+/// Each instance sits under a `SeatProvider`, which rewrites every
+/// `{Action: X}` it sends into `{ActionAs: [seatId, X]}`. The Initialize
+/// phase is room settings and is rendered once, as the first seat.
 var Game = function (props) {
     var _a = react.useContext(AppStateContext), state = _a.state, updateState = _a.updateState;
     var timerContext = react.useContext(TimerProvider/* TimerContext */.P);
@@ -8342,15 +8247,15 @@ var Game = function (props) {
         seats.names.length === 2 &&
         seats.playerIds.length === 2;
     var nextPlayer = dualSeat ? nextPlayerOf(gameState) : null;
-    var renderPhase = function (name, compact) {
+    var renderPhase = function (name, part) {
         if ("Draw" in gameState) {
-            return (react.createElement(src_Draw, { state: gameState.Draw, playDrawCardSound: state.settings.playDrawCardSound, autodrawSpeedMs: state.settings.autodrawSpeedMs, name: name, setTimeout: timerContext.setTimeout, clearTimeout: timerContext.clearTimeout, compact: compact }));
+            return (react.createElement(src_Draw, { state: gameState.Draw, playDrawCardSound: state.settings.playDrawCardSound, autodrawSpeedMs: state.settings.autodrawSpeedMs, name: name, setTimeout: timerContext.setTimeout, clearTimeout: timerContext.clearTimeout, part: part }));
         }
         if ("Exchange" in gameState) {
-            return (react.createElement(src_Exchange, { state: gameState.Exchange, name: name, compact: compact }));
+            return react.createElement(src_Exchange, { state: gameState.Exchange, name: name, part: part });
         }
         if ("Play" in gameState) {
-            return (react.createElement(src_Play, { playPhase: gameState.Play, name: name, showLastTrick: state.settings.showLastTrick, unsetAutoPlayWhenWinnerChanges: state.settings.unsetAutoPlayWhenWinnerChanges, showTrickInPlayerOrder: state.settings.showTrickInPlayerOrder, beepOnTurn: state.settings.beepOnTurn, compact: compact }));
+            return (react.createElement(src_Play, { playPhase: gameState.Play, name: name, showLastTrick: state.settings.showLastTrick, unsetAutoPlayWhenWinnerChanges: state.settings.unsetAutoPlayWhenWinnerChanges, showTrickInPlayerOrder: state.settings.showTrickInPlayerOrder, beepOnTurn: state.settings.beepOnTurn, part: part }));
         }
         return null;
     };
@@ -8359,22 +8264,28 @@ var Game = function (props) {
         phase = react.createElement(src_Initialize, { state: gameState.Initialize, name: seatNames[0] });
     }
     else if (dualSeat && seats !== null) {
-        phase = (react.createElement("div", { className: "seats" }, seats.names.map(function (name, idx) {
-            var playerId = seats.playerIds[idx];
-            var active = nextPlayer !== null && nextPlayer === playerId;
-            return (react.createElement(src_SeatProvider, { key: playerId, playerId: playerId },
-                react.createElement("div", { className: classnames_default()("seat", { "seat-active": active }) },
-                    react.createElement("h3", { className: "seat-heading" },
-                        "Seat ",
-                        idx + 1,
-                        ": ",
-                        name,
-                        active ? (react.createElement("span", { className: "seat-turn" }, " (your turn)")) : null),
-                    renderPhase(name, idx > 0))));
-        })));
+        // The board once, full width; the two seats side by side under it
+        // (`.seats` is a two-column grid), so neither hand has to be scrolled
+        // to; then the footer (points, previous trick, kitty) once.
+        phase = (react.createElement(react.Fragment, null,
+            react.createElement(src_SeatProvider, { playerId: seats.playerIds[0] }, renderPhase(seats.names[0], "board")),
+            react.createElement("div", { className: "seats" }, seats.names.map(function (name, idx) {
+                var playerId = seats.playerIds[idx];
+                var active = nextPlayer !== null && nextPlayer === playerId;
+                return (react.createElement(src_SeatProvider, { key: playerId, playerId: playerId },
+                    react.createElement("div", { className: classnames_default()("seat", { "seat-active": active }) },
+                        react.createElement("h3", { className: "seat-heading" },
+                            "Seat ",
+                            idx + 1,
+                            ": ",
+                            name,
+                            active ? (react.createElement("span", { className: "seat-turn" }, " (your turn)")) : null),
+                        renderPhase(name, "seat"))));
+            })),
+            react.createElement(src_SeatProvider, { playerId: seats.playerIds[0] }, renderPhase(seats.names[0], "footer"))));
     }
     else {
-        phase = renderPhase(seatNames[0], false);
+        phase = renderPhase(seatNames[0], "all");
     }
     return (react.createElement("div", { className: classnames_default()(state.settings.fourColor ? "four-color" : null, state.settings.showCardLabels ? "always-show-labels" : null, state.settings.hideChatBox ? "hide-chat-box" : null) },
         props.headerMessages,
@@ -8383,6 +8294,11 @@ var Game = function (props) {
         state.confetti !== null ? (react.createElement(react.Suspense, { fallback: null },
             react.createElement(Confetti, { confetti: state.confetti, clearConfetti: function () { return updateState({ confetti: null }); } }))) : null,
         react.createElement("div", { className: "game" },
+            react.createElement("div", { className: "leave-block" },
+                react.createElement("a", { href: window.location.pathname, onClick: function (evt) {
+                        evt.preventDefault();
+                        leaveRoom();
+                    }, title: "Leave this room and go back to the lobby" }, "Leave room")),
             "Initialize" in gameState ? null : (react.createElement(src_ResetButton, { state: gameState, name: seatNames[0], names: seatNames })),
             react.createElement(src_RatedBanner, null),
             phase,
@@ -8586,6 +8502,108 @@ var bootstrap = function () {
                                 react.createElement(src_Root, null)))))))));
 };
 bootstrap();
+
+
+/***/ }),
+
+/***/ 3701:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* unused harmony export WasmContext */
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
+
+var WasmContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
+    decodeWireFormat: function (_) {
+        throw new Error("cannot decode wire format");
+    },
+});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (WasmContext);
+
+
+/***/ }),
+
+/***/ 3904:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   P: () => (/* binding */ TimerContext)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
+// Provides a WebWorker-based timer implementation which doesn't get
+// wakeup-limited by the browser when the tab is running in the background.
+//
+// Relies on timer-worker.js to service the underlying timing requests.
+
+var TimerContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
+    setTimeout: function (_fn, _delay) { return 0; },
+    clearTimeout: function (_id) { },
+    setInterval: function (_fn, _interval) { return 0; },
+    clearInterval: function (_id) { },
+});
+var _TimerProvider = function (props) {
+    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(null), worker = _a[0], setWorker = _a[1];
+    var timeoutId = react__WEBPACK_IMPORTED_MODULE_0__.useRef(0);
+    var callbacks = react__WEBPACK_IMPORTED_MODULE_0__.useRef(new Map());
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        var timerWorker = new Worker("timer-worker.js");
+        timerWorker.addEventListener("message", function (evt) {
+            var data = evt.data;
+            var id = data.id;
+            if (callbacks.current.has(id)) {
+                var cb = callbacks.current.get(id);
+                if (cb) {
+                    cb();
+                }
+            }
+            if (data.variant === "timeout") {
+                callbacks.current.delete(id);
+            }
+        });
+        setWorker(timerWorker);
+        return function () {
+            timerWorker.terminate();
+        };
+    }, []);
+    var setTimeout = function (fn, delay) {
+        timeoutId.current += 1;
+        delay = delay === undefined ? 0 : delay;
+        var id = timeoutId.current;
+        callbacks.current.set(id, fn);
+        if (worker !== null) {
+            worker.postMessage({ command: "setTimeout", id: id, timeout: delay });
+        }
+        return id;
+    };
+    var clearTimeout = function (id) {
+        if (worker) {
+            worker.postMessage({ command: "clearTimeout", id: id });
+        }
+        callbacks.current.delete(id);
+    };
+    var setInterval = function (fn, interval) {
+        timeoutId.current += 1;
+        interval = interval === undefined ? 0 : interval;
+        var id = timeoutId.current;
+        callbacks.current.set(id, fn);
+        if (worker !== null) {
+            worker.postMessage({ command: "setInterval", id: id, interval: interval });
+        }
+        return id;
+    };
+    var clearInterval = function (id) {
+        if (worker !== null) {
+            worker.postMessage({ command: "clearInterval", id: id });
+        }
+        callbacks.current.delete(id);
+    };
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(TimerContext.Provider, { value: { setTimeout: setTimeout, clearTimeout: clearTimeout, setInterval: setInterval, clearInterval: clearInterval } }, props.children));
+};
+var TimerProvider = function (props) { return react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimerProvider, null, props.children); };
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TimerProvider);
 
 
 /***/ }),
@@ -9491,9 +9509,9 @@ var Timeout = function (props) {
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(4030)))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(2897)))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.8883fa9c6ef5f32bbe5e.js.map
+//# sourceMappingURL=main.8163867579f86807e8ed.js.map
