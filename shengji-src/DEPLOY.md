@@ -100,7 +100,8 @@ bill. Files: `shengji-src/deploy/vm/` (`compose.yaml`, `Caddyfile`,
 `.env.example`). The image is built by GitHub Actions on every push to
 `main` that touches `shengji-src/` or `shengji/`
 (`.github/workflows/backend-image.yml`) and published as
-`ghcr.io/knowingant/shengji:latest` (amd64 only).
+`ghcr.io/knowingant/shengji:latest`, built for both x86 (amd64) and Arm
+(arm64), so either free Oracle shape can run it.
 
 Cost notes, checked 2026-09-19: Oracle's Always Free tier includes the public
 IP and 10 TB/month of traffic, so it is genuinely free, but Oracle may
@@ -132,9 +133,15 @@ VM costs $0.005/hour (about $3.60/month), which is roughly Fly's price.
 1. Sign up at `oracle.com/cloud/free`. A card is required for identity
    verification; nothing is charged. The home region is permanent and
    Always Free compute only runs there, so pick one near the players.
-2. Compute → Instances → Create instance. Image: Canonical Ubuntu 24.04.
-   Shape: Virtual machine → Specialty and previous generation →
-   `VM.Standard.E2.1.Micro` (Always Free; x86, which the image needs).
+2. Compute → Instances → Create instance. Shape: Virtual machine, then
+   either `VM.Standard.E2.1.Micro` under "Specialty and previous generation"
+   (x86, 1 GB) or, when that list is empty for your account or region,
+   Ampere `VM.Standard.A1.Flex` with 1 OCPU and 6 GB (Arm; the Always Free
+   allowance covers up to 2 OCPUs and 12 GB, but A1 capacity is often sold
+   out, so retry later or in another availability domain, or let
+   `deploy/vm/oci_retry_a1.sh` keep trying through the OCI CLI; its header
+   says how to set that up). Image: Canonical Ubuntu 24.04; the console
+   picks the build that matches the shape.
    Networking: new VCN with a public subnet, assign a public IPv4 address.
    SSH keys: paste your public key (`cat ~/.ssh/id_ed25519.pub`; run
    `ssh-keygen -t ed25519` first if you have none). Create and wait for
