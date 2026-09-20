@@ -476,28 +476,12 @@ label {
 .rated-banner {
   display: inline-block;
   margin: 8px 0 4px;
-  padding: 2px 10px;
-  border-radius: 4px;
   font-size: 0.9em;
   font-weight: bold;
-  border: 1px solid #1933f9;
-  color: #1933f9;
 }
 
 .rated-banner.unrated {
-  border-color: #888;
-  color: #555;
   font-weight: normal;
-}
-
-.dark-mode .rated-banner {
-  border-color: #96a2fa;
-  color: #96a2fa;
-}
-
-.dark-mode .rated-banner.unrated {
-  border-color: #777;
-  color: #aaa;
 }
 
 /* 1v1: the shared board is rendered once above this; the two seats the

@@ -104,6 +104,43 @@ async fn main() -> Result<(), anyhow::Error> {
         "port" => config.port,
     );
 
+    // `shengji replay-ratings`: recompute every rated match with the current
+    // formula (after changing it) and exit. Run with the server stopped or
+    // between matches; it is one transaction and idempotent.
+    if std::env::args().nth(1).as_deref() == Some("replay-ratings") {
+        let db = Db::open(&config.database_path)?;
+        let report = ratings::replay_ratings(&db, &config)?;
+        println!(
+            "replayed {} rated match(es) in {}",
+            report.len(),
+            config.database_path
+        );
+        for m in &report {
+            println!(
+                "match {} ({} ladder, first to {}):",
+                m.match_id,
+                m.mode.as_str(),
+                m.first_to_rank
+            );
+            for p in &m.players {
+                let (b, a) = p.replayed;
+                match p.stored {
+                    Some((sb, sa)) if (sb, sa) != (b, a) => println!(
+                        "  {}: was {} -> {}, now {} -> {} ({:+})",
+                        p.username,
+                        sb,
+                        sa,
+                        b,
+                        a,
+                        a - b
+                    ),
+                    _ => println!("  {}: {} -> {} ({:+})", p.username, b, a, a - b),
+                }
+            }
+        }
+        return Ok(());
+    }
+
     let db = Db::open(&config.database_path)?;
     let _ = db.with(|c| db::delete_expired_sessions(c));
 

@@ -6,10 +6,13 @@
 //! linearly with the match length ("first to rank N" → `T = N − 2` levels):
 //!
 //! * `m_uv = (L_u − L_v) / T` for every pair of users on different sides,
-//! * `s_uv = 0.75 + 0.25·m` for a win, `0.25 + 0.25·m` for a loss, `0.5`
-//!   for a tie,
+//! * `s_uv = 0.95 + 0.05·m` for a win, `0.05 + 0.05·m` for a loss, `0.5`
+//!   for a tie: the result is what counts, the margin is a second-order
+//!   term worth at most 5% of it,
 //! * `E_uv = 1 / (1 + 10^((R_v − R_u)/400))`,
-//! * `Δ_u = K(N) · mean_v (s_uv − E_uv)` with `K(N) = 120 · (N − 2)`.
+//! * `Δ_u = K(N) · mean_v (s_uv − E_uv)` with `K(N) = 120 · (N − 2)`,
+//!   clamped so that whoever came out ahead never loses points and whoever
+//!   came out behind never gains any.
 //!
 //! No rating deviation, no volatility: a change is a function of the ratings
 //! and the final result only. This crate is pure: no I/O, no clocks.
@@ -80,13 +83,19 @@ pub fn k_factor(params: &Params, target_levels: usize) -> f64 {
     params.k_per_level * target_levels as f64
 }
 
+/// How much of a result the margin is worth: a win scores
+/// `1 − MARGIN_WEIGHT + MARGIN_WEIGHT·m`, so the closest possible win is
+/// still worth `1 − MARGIN_WEIGHT` and the margin only moves it by up to
+/// `MARGIN_WEIGHT`.
+pub const MARGIN_WEIGHT: f64 = 0.05;
+
 /// Score of `u` against `v` for a normalized margin `m ∈ [−1, 1]`.
 pub fn score_for_margin(m: f64) -> f64 {
     let m = m.clamp(-1.0, 1.0);
     if m > 0.0 {
-        0.75 + 0.25 * m
+        1.0 - MARGIN_WEIGHT + MARGIN_WEIGHT * m
     } else if m < 0.0 {
-        0.25 + 0.25 * m
+        MARGIN_WEIGHT + MARGIN_WEIGHT * m
     } else {
         0.5
     }
@@ -128,7 +137,17 @@ pub fn rate_match(params: &Params, target_levels: usize, standings: &[Standing])
             }
             let score = sum_s / n as f64;
             let expected = sum_e / n as f64;
-            let after = (u.rating + k * (score - expected)).max(params.rating_floor);
+            let mut after = u.rating + k * (score - expected);
+            // A result is never punished: whoever came out ahead (mean score
+            // above ½) cannot lose points and whoever came out behind cannot
+            // gain any. This only bites in lopsided pairings, where the Elo
+            // expectation is more extreme than the margin-adjusted score.
+            if score > 0.5 {
+                after = after.max(u.rating);
+            } else if score < 0.5 {
+                after = after.min(u.rating);
+            }
+            let after = after.max(params.rating_floor);
             Change {
                 before: u.rating,
                 after,
@@ -178,13 +197,27 @@ mod tests {
 
     #[test]
     fn even_narrow_wins_at_default_n() {
-        // loser reached rank 3 (1 level): m = 2/3 -> s = 0.9167 -> +150
+        // loser reached rank 3 (1 level): m = 2/3 -> s = 0.9833 -> +174
         let c = two(3, 1, 1500.0, 1500.0, 3);
-        assert!((c[0].delta() - 150.0).abs() < 1e-6, "{:?}", c);
-        // loser reached rank 4 (2 levels): m = 1/3 -> s = 0.8333 -> +120
+        assert!((c[0].delta() - 174.0).abs() < 1e-6, "{:?}", c);
+        // loser reached rank 4 (2 levels): m = 1/3 -> s = 0.9667 -> +168
         let c = two(3, 2, 1500.0, 1500.0, 3);
-        assert!((c[0].delta() - 120.0).abs() < 1e-6, "{:?}", c);
-        assert!((c[1].delta() + 120.0).abs() < 1e-6, "{:?}", c);
+        assert!((c[0].delta() - 168.0).abs() < 1e-6, "{:?}", c);
+        assert!((c[1].delta() + 168.0).abs() < 1e-6, "{:?}", c);
+    }
+
+    #[test]
+    fn lopsided_results_are_never_punished() {
+        // An 800 loses narrowly to a 1500: Elo expected 0.017 of them, the
+        // narrow loss scores 0.033, so unclamped they would gain (and the
+        // 1500, expected to win by more, would lose). Neither happens.
+        let c = two(3, 2, 1500.0, 800.0, 3);
+        assert_eq!(c[0].delta(), 0.0, "{:?}", c);
+        assert_eq!(c[1].delta(), 0.0, "{:?}", c);
+        // A shutout by the favourite still pays them (a little).
+        let c = two(3, 0, 1500.0, 800.0, 3);
+        assert!(c[0].delta() > 0.0 && c[0].delta() < 10.0, "{:?}", c);
+        assert!((c[0].delta() + c[1].delta()).abs() < 1e-9);
     }
 
     #[test]
@@ -209,10 +242,12 @@ mod tests {
         let c = two(3, 0, 1700.0, 1500.0, 3);
         assert!((c[0].delta() - 360.0 * (1.0 - e)).abs() < 1e-9);
         assert!(c[0].delta() > 85.0 && c[0].delta() < 87.0, "{:?}", c);
+        // narrow win: 360·(0.9667 − 0.7597) ≈ +74.5
         let c = two(3, 2, 1700.0, 1500.0, 3);
-        assert!(c[0].delta() > 25.0 && c[0].delta() < 28.0, "{:?}", c);
+        assert!(c[0].delta() > 73.0 && c[0].delta() < 76.0, "{:?}", c);
+        // narrow loss: 360·(0.0333 − 0.7597) ≈ −261.5
         let c = two(2, 3, 1700.0, 1500.0, 3);
-        assert!(c[0].delta() < -212.0 && c[0].delta() > -215.0, "{:?}", c);
+        assert!(c[0].delta() < -260.0 && c[0].delta() > -263.0, "{:?}", c);
         // zero-sum for two users
         assert!((c[0].delta() + c[1].delta()).abs() < 1e-9);
     }
@@ -240,9 +275,9 @@ mod tests {
                 s(1500.0, 1, 1),
             ],
         );
-        assert!((c[0].delta() - 150.0).abs() < 1e-6);
-        assert!((c[1].delta() - 150.0).abs() < 1e-6);
-        assert!((c[2].delta() + 150.0).abs() < 1e-6);
+        assert!((c[0].delta() - 174.0).abs() < 1e-6);
+        assert!((c[1].delta() - 174.0).abs() < 1e-6);
+        assert!((c[2].delta() + 174.0).abs() < 1e-6);
         let total: f64 = c.iter().map(|c| c.delta()).sum();
         assert!(total.abs() < 1e-6);
         // teammates are not compared with each other: a lone side gets nothing
@@ -269,9 +304,10 @@ mod tests {
                 s(1500.0, 0, 3),
             ],
         );
-        // winners: draw vs each other (0.5), 0.9167 vs the 1-level player,
-        // 1.0 vs the 0-level player -> mean 0.8056 -> +110
-        assert!((c[0].score - (0.5 + 11.0 / 12.0 + 1.0) / 3.0).abs() < 1e-9);
+        // winners: draw vs each other (0.5), 0.9833 vs the 1-level player,
+        // 1.0 vs the 0-level player -> mean 0.8278 -> +118
+        let vs_one_level = 1.0 - MARGIN_WEIGHT + MARGIN_WEIGHT * 2.0 / 3.0;
+        assert!((c[0].score - (0.5 + vs_one_level + 1.0) / 3.0).abs() < 1e-9);
         assert!((c[0].delta() - c[1].delta()).abs() < 1e-9);
         assert!(c[0].delta() > 0.0 && c[3].delta() < 0.0 && c[2].delta() < 0.0);
         let total: f64 = c.iter().map(|c| c.delta()).sum();
@@ -283,8 +319,8 @@ mod tests {
         assert_eq!(score_for_margin(0.0), 0.5);
         assert_eq!(score_for_margin(1.0), 1.0);
         assert_eq!(score_for_margin(-1.0), 0.0);
-        assert!((score_for_margin(0.5) - 0.875).abs() < 1e-12);
-        assert!((score_for_margin(-0.5) - 0.125).abs() < 1e-12);
+        assert!((score_for_margin(0.5) - 0.975).abs() < 1e-12);
+        assert!((score_for_margin(-0.5) - 0.025).abs() < 1e-12);
         let c = two(0, 3, 0.05, 1500.0, 3);
         assert_eq!(c[0].after, 0.0);
     }

@@ -768,6 +768,92 @@ pub fn recent_matches_for_user(
     Ok(out)
 }
 
+/// A rated match as needed to replay ratings: its players with the sides and
+/// levels that were recorded, in recording order.
+#[derive(Clone, Debug, PartialEq)]
+pub struct RatedMatchRow {
+    pub id: i64,
+    pub mode: RatingMode,
+    pub first_to_rank: String,
+    pub finished_at: i64,
+    pub players: Vec<RatedMatchPlayer>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct RatedMatchPlayer {
+    pub user_id: i64,
+    pub username: String,
+    pub side: i64,
+    pub levels: i64,
+    pub rating_before: Option<f64>,
+    pub rating_after: Option<f64>,
+}
+
+/// Every match whose ratings were applied, oldest first.
+pub fn rated_matches_in_order(conn: &Connection) -> DbResult<Vec<RatedMatchRow>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, mode, first_to_rank, finished_at FROM matches \
+         WHERE rating_applied = 1 ORDER BY id ASC",
+    )?;
+    let heads = stmt
+        .query_map([], |row| {
+            let mode: String = row.get(1)?;
+            Ok(RatedMatchRow {
+                id: row.get(0)?,
+                mode: parse_mode(mode, 1)?,
+                first_to_rank: row.get(2)?,
+                finished_at: row.get(3)?,
+                players: vec![],
+            })
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+    let mut pstmt = conn.prepare(
+        "SELECT mp.user_id, u.username, mp.side, mp.levels, mp.rating_before, mp.rating_after \
+         FROM match_players mp JOIN users u ON u.id = mp.user_id \
+         WHERE mp.match_id = ?1 ORDER BY mp.rowid ASC",
+    )?;
+    let mut out = Vec::with_capacity(heads.len());
+    for mut h in heads {
+        h.players = pstmt
+            .query_map(params![h.id], |row| {
+                Ok(RatedMatchPlayer {
+                    user_id: row.get(0)?,
+                    username: row.get(1)?,
+                    side: row.get(2)?,
+                    levels: row.get(3)?,
+                    rating_before: row.get(4)?,
+                    rating_after: row.get(5)?,
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+        out.push(h);
+    }
+    Ok(out)
+}
+
+/// Overwrite the rating columns of one player's row in a match (replays).
+pub fn update_match_player_rating(
+    conn: &Connection,
+    match_id: i64,
+    user_id: i64,
+    before: f64,
+    after: f64,
+    score: f64,
+) -> DbResult<()> {
+    conn.execute(
+        "UPDATE match_players SET rating_before = ?3, rating_after = ?4, score = ?5 \
+         WHERE match_id = ?1 AND user_id = ?2",
+        params![match_id, user_id, before, after, score],
+    )?;
+    Ok(())
+}
+
+/// Delete every ladder row (a replay rebuilds them from the matches).
+pub fn clear_ratings(conn: &Connection) -> DbResult<()> {
+    conn.execute("DELETE FROM ratings", [])?;
+    Ok(())
+}
+
 // ---------------------------------------------------------------------------
 // Rounds
 // ---------------------------------------------------------------------------
