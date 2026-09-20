@@ -14,9 +14,9 @@ tests.
 
 ## The formula
 
-Plain Elo with a margin-of-victory score and a K that grows with the match
-length. No rating deviation, no volatility, no provisional period: a change
-depends only on the ratings involved and the final result.
+Plain Elo with a K that grows with the match length and a small
+margin-of-victory term. No rating deviation, no volatility, no provisional
+period: a change depends only on the ratings involved and the final result.
 
 For each user `u` let
 
@@ -30,19 +30,25 @@ team; Finding Friends: every other player; 1v1: the other user):
 
 ```
 margin  m_uv = (L_u − L_v) / T                       ∈ [−1, 1]
-score   s_uv = 0.75 + 0.25·m_uv   if m_uv > 0        (a win is worth ≥ 0.75)
-             = 0.25 + 0.25·m_uv   if m_uv < 0        (a loss is worth ≤ 0.25)
+score   s_uv = 0.95 + 0.05·m_uv   if m_uv > 0        (a win is worth ≥ 0.95)
+             = 0.05 + 0.05·m_uv   if m_uv < 0        (a loss is worth ≤ 0.05)
              = 0.5                if m_uv = 0
 expected E_uv = 1 / (1 + 10^((R_v − R_u) / 400))
 ```
 
-and the user's change is the average over their opponents:
+The result is what counts; the margin is a second-order term that moves a
+result's value by at most 5%. The user's change is the average over their
+opponents:
 
 ```
 Δ_u = K(N) · mean_v (s_uv − E_uv),      K(N) = 120 · (N − 2)
 ```
 
-Ratings are rounded to integers for display and clamped at 0.
+then clamped so that a result is never punished: a user whose mean score is
+above ½ cannot lose points and one below ½ cannot gain any. That only bites
+in lopsided pairings, where Elo's expectation is more extreme than the
+margin-adjusted score, and it is the one place the system is not exactly
+zero-sum. Ratings are rounded to integers for display and clamped at 0.
 
 ## What that means in numbers
 
@@ -51,24 +57,33 @@ Two equally rated sides, default N = 5 (`T = 3`, `K = 360`):
 | result | winner's score | Δ winner | Δ loser |
 |---|---|---|---|
 | shutout: loser never left rank 2 | 1.0 | **+180** | −180 |
-| loser got to rank 3 | 0.917 | +150 | −150 |
-| loser got to rank 4 | 0.833 | +120 | −120 |
+| loser got to rank 3 | 0.983 | +174 | −174 |
+| loser got to rank 4 | 0.967 | +168 | −168 |
 
-So a win against an equal opponent is worth 120–180 points at N = 5
+So a win against an equal opponent is worth 168–180 points at N = 5
 (`80 + 20N` for the full margin). Longer matches swing more: the full-margin
 win is `60·(N − 2)` points (60 at N = 3, 480 at N = 10), because a longer
 race carries proportionally more information.
 
 Rating differences matter the usual Elo way: a 1700 beating a 1500 by the
 full margin gains `360·(1 − 0.76) ≈ +86`; beating them narrowly (loser at
-rank 4) gains `360·(0.833 − 0.76) ≈ +26`; losing to them narrowly costs the
-1700 `360·(0.167 − 0.76) ≈ −213`.
+rank 4) gains `360·(0.967 − 0.76) ≈ +75`; losing to them narrowly costs the
+1700 `360·(0.033 − 0.76) ≈ −262`.
 
 Team members share a rank in Tractor, so both members of the winning team
 get the same score against each opponent; their changes differ only through
 their own ratings. In Finding Friends every player has their own rank and
 is scored against everyone else, so two players who both reached N draw
 with each other (`s = 0.5`) and both beat everyone below them.
+
+## Changing the formula
+
+`shengji replay-ratings` (the backend binary with that one argument, see
+DEPLOY.md) recomputes every rated match from scratch, in order, under the
+current formula, and rewrites the ladders and the per-match numbers shown
+on account pages. Matches recorded without rating and all statistics are
+left alone, and running it twice is harmless. The 2026-09-20 change from a
+25% to a 5% margin term was applied that way.
 
 ## What is not handled
 

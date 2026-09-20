@@ -15,7 +15,7 @@ use slog::error;
 
 use shengji_core::settings::{GameModeSettings, MatchStanding, PlayerMode};
 use shengji_mechanics::types::Rank;
-use shengji_rating::{rate_match, Standing};
+use shengji_rating::{rate_match, Change, Standing};
 use shengji_types::{RatingChange, RatingMode, RatingView};
 
 use crate::auth::{self, ApiError};
@@ -364,17 +364,7 @@ pub fn apply_match(db: &Db, config: &Config, outcome: &MatchOutcome) -> DbResult
             let row = &rows[i];
             let (before, after, score) = if apply {
                 let c = changes[i];
-                let mut new_row = row.clone();
-                new_row.rating = c.after;
-                new_row.matches += 1;
-                if c.score > 0.5 {
-                    new_row.wins += 1;
-                } else if c.score < 0.5 {
-                    new_row.losses += 1;
-                } else {
-                    new_row.draws += 1;
-                }
-                new_row.updated_at = Some(now);
+                let new_row = rated_row(row, &c, now);
                 db::upsert_rating(tx, &new_row)?;
                 let b = c.before.round() as i64;
                 let a = c.after.round() as i64;
@@ -427,6 +417,96 @@ pub fn apply_match(db: &Db, config: &Config, outcome: &MatchOutcome) -> DbResult
                 reason: reason.clone().unwrap_or_default(),
             }
         })
+    })
+}
+
+/// A ladder row after one more rated match: new rating, and the match
+/// counted as a win, loss or draw by the mean score.
+fn rated_row(row: &db::RatingRow, change: &Change, at: i64) -> db::RatingRow {
+    let mut new_row = row.clone();
+    new_row.rating = change.after;
+    new_row.matches += 1;
+    if change.score > 0.5 {
+        new_row.wins += 1;
+    } else if change.score < 0.5 {
+        new_row.losses += 1;
+    } else {
+        new_row.draws += 1;
+    }
+    new_row.updated_at = Some(at);
+    new_row
+}
+
+/// One match's rating changes as rewritten by [`replay_ratings`]: per user,
+/// the numbers that were stored (if any) and the replayed ones, rounded.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ReplayedMatch {
+    pub match_id: i64,
+    pub mode: RatingMode,
+    pub first_to_rank: String,
+    pub players: Vec<ReplayedPlayer>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ReplayedPlayer {
+    pub username: String,
+    pub stored: Option<(i64, i64)>,
+    pub replayed: (i64, i64),
+}
+
+/// Recompute every rated match from scratch, oldest first, with the current
+/// formula, and rewrite both the ladders and the per-match before/after
+/// numbers (`shengji replay-ratings`, after a formula change). Running it
+/// again is a no-op; matches recorded without rating stay that way, and
+/// statistics are untouched.
+pub fn replay_ratings(db: &Db, config: &Config) -> DbResult<Vec<ReplayedMatch>> {
+    let params = &config.rating_params;
+    db.transaction(|tx| {
+        let matches = db::rated_matches_in_order(tx)?;
+        db::clear_ratings(tx)?;
+        let mut report = Vec::with_capacity(matches.len());
+        for m in &matches {
+            let t = Rank::from_str(&m.first_to_rank)
+                .map(|r| r.index())
+                .unwrap_or(1)
+                .max(1);
+            let rows: Vec<db::RatingRow> = m
+                .players
+                .iter()
+                .map(|p| db::get_rating(tx, p.user_id, m.mode, params))
+                .collect::<DbResult<_>>()?;
+            let standings: Vec<Standing> = m
+                .players
+                .iter()
+                .zip(rows.iter())
+                .map(|(p, r)| Standing {
+                    rating: r.rating,
+                    levels: p.levels.max(0) as usize,
+                    side: p.side.max(0) as usize,
+                })
+                .collect();
+            let changes = rate_match(params, t, &standings);
+            let mut players = Vec::with_capacity(m.players.len());
+            for ((p, row), c) in m.players.iter().zip(rows.iter()).zip(changes.iter()) {
+                db::upsert_rating(tx, &rated_row(row, c, m.finished_at))?;
+                db::update_match_player_rating(tx, m.id, p.user_id, c.before, c.after, c.score)?;
+                players.push(ReplayedPlayer {
+                    username: p.username.clone(),
+                    stored: match (p.rating_before, p.rating_after) {
+                        (Some(b), Some(a)) => Some((b.round() as i64, a.round() as i64)),
+                        _ => None,
+                    },
+                    replayed: (c.before.round() as i64, c.after.round() as i64),
+                });
+            }
+            report.push(ReplayedMatch {
+                match_id: m.id,
+                mode: m.mode,
+                first_to_rank: m.first_to_rank.clone(),
+                players,
+            });
+        }
+        Ok(report)
     })
 }
 
@@ -723,6 +803,60 @@ mod tests {
     }
 
     #[test]
+    fn replay_rebuilds_ladders_and_stored_changes() {
+        let db = Db::open_in_memory().unwrap();
+        let cfg = config();
+        make_users(&db, &["alice", "bob"]);
+        apply_match(&db, &cfg, &outcome_1v1(true, "r1")).unwrap();
+        apply_match(&db, &cfg, &outcome_1v1(true, "r2")).unwrap();
+        // An unrated match, which the replay must leave alone.
+        apply_match(&db, &cfg, &outcome_1v1(false, "r3")).unwrap();
+        let snapshot = |db: &Db| -> Vec<(String, i64, i64, i64, i64)> {
+            leaderboard_view(db, RatingMode::OneVsOne, 10)
+                .unwrap()
+                .into_iter()
+                .map(|e| (e.username, e.rating, e.matches, e.wins, e.losses))
+                .collect()
+        };
+        let before = snapshot(&db);
+        let alice = db
+            .with(|c| db::get_user_by_username(c, "alice"))
+            .unwrap()
+            .unwrap();
+        // Corrupt the ladder and a stored match row, as a formula change
+        // effectively does.
+        db.with(|c| {
+            let mut row = db::get_rating(c, alice.id, RatingMode::OneVsOne, &cfg.rating_params)?;
+            row.rating = 999.0;
+            row.wins = 0;
+            db::upsert_rating(c, &row)?;
+            db::update_match_player_rating(c, 1, alice.id, 1.0, 2.0, 0.5)
+        })
+        .unwrap();
+
+        let report = replay_ratings(&db, &cfg).unwrap();
+        assert_eq!(report.len(), 2);
+        assert_eq!(report[0].match_id, 1);
+        assert_eq!(report[0].players[0].username, "alice");
+        assert_eq!(report[0].players[0].stored, Some((1, 2)));
+        assert_eq!(report[0].players[0].replayed, (1500, 1680));
+        assert_eq!(snapshot(&db), before);
+        let profile = profile_view(&db, &cfg, &alice).unwrap();
+        // newest first: r3 (unrated), r2, r1
+        assert_eq!(profile["recent_matches"][2]["delta"], 180);
+        assert_eq!(profile["recent_matches"][0]["rating_applied"], false);
+
+        // Running it again changes nothing.
+        let again = replay_ratings(&db, &cfg).unwrap();
+        for m in &again {
+            for p in &m.players {
+                assert_eq!(p.stored, Some(p.replayed));
+            }
+        }
+        assert_eq!(snapshot(&db), before);
+    }
+
+    #[test]
     fn unrated_and_shared_device_matches_are_recorded_without_rating() {
         let db = Db::open_in_memory().unwrap();
         let cfg = config();
@@ -786,9 +920,9 @@ mod tests {
         match apply_match(&db, &cfg, &team).unwrap() {
             MatchResult::Rated { mode, changes, .. } => {
                 assert_eq!(mode, RatingMode::Team);
-                assert_eq!(changes[0].delta, 120);
-                assert_eq!(changes[2].delta, 120);
-                assert_eq!(changes[1].delta, -120);
+                assert_eq!(changes[0].delta, 168);
+                assert_eq!(changes[2].delta, 168);
+                assert_eq!(changes[1].delta, -168);
             }
             other => panic!("{:?}", other),
         }
@@ -817,11 +951,11 @@ mod tests {
         };
         match apply_match(&db, &cfg, &ff).unwrap() {
             MatchResult::Rated { changes, .. } => {
-                // a/b: mean of 0.5, 0.833, 1.0 = 0.778 -> +100; c: -30; d: -170
-                assert_eq!(changes[0].delta, 100);
-                assert_eq!(changes[1].delta, 100);
-                assert_eq!(changes[2].delta, -30);
-                assert_eq!(changes[3].delta, -170);
+                // e/f: mean of 0.5, 0.967, 1.0 = 0.822 -> +116; g: -54; h: -178
+                assert_eq!(changes[0].delta, 116);
+                assert_eq!(changes[1].delta, 116);
+                assert_eq!(changes[2].delta, -54);
+                assert_eq!(changes[3].delta, -178);
                 let total: i64 = changes.iter().map(|c| c.delta).sum();
                 assert!(total.abs() <= 2, "{}", total);
             }

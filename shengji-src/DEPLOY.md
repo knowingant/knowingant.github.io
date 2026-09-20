@@ -90,6 +90,7 @@ fly logs
 fly status
 curl https://knowingant-shengji.fly.dev/stats
 curl 'https://knowingant-shengji.fly.dev/api/leaderboard?mode=team'
+fly ssh console -C "/app/shengji replay-ratings"   # after a rating formula change
 ```
 
 ## 1b. Backend on a VM instead (Oracle Always Free, or any Linux box)
@@ -177,7 +178,10 @@ certificate on first start, so DNS must already point at the VM.
 
 Update after a push: `sudo docker compose pull && sudo docker compose up -d`
 (the backend dumps room state on shutdown and reloads it, so a restart costs
-players a reconnect, not their game). Data lives in `~/shengji/data/`
+players a reconnect, not their game). If the rating formula changed
+(RATINGS.md), recompute the ladders once after updating, while nobody is
+mid-match: `sudo docker compose run --rm shengji replay-ratings`. It prints
+every rated match with the old and new numbers and is safe to run twice. Data lives in `~/shengji/data/`
 (SQLite plus the room dump). Backup:
 `sudo docker compose exec shengji sqlite3 /data/shengji.db '.backup /data/backup.db'`,
 then copy `~/shengji/data/backup.db` off the machine.

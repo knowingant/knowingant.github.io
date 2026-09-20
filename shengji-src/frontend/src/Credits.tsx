@@ -11,7 +11,7 @@ const contentStyle: React.CSSProperties = {
   transform: "translate(-50%, -50%)",
 };
 
-const changeLogVersion: number = 25;
+const changeLogVersion: number = 26;
 
 const ChangeLog = (): JSX.Element => {
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
@@ -61,6 +61,16 @@ const ChangeLog = (): JSX.Element => {
           you&apos;re in the game.
         </p>
         <h2>Change Log</h2>
+        <p>9/20/2026:</p>
+        <ul>
+          <li>
+            Rating changes are now almost entirely about who won: how far the
+            losers got only moves a match&apos;s value by up to 5%, and a result
+            is never punished (winners can&apos;t lose points, losers can&apos;t
+            gain any). The rated matches played so far were recomputed under the
+            new rule.
+          </li>
+        </ul>
         <p>9/18/2026 (this fork):</p>
         <ul>
           <li>
