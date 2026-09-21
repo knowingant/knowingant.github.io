@@ -771,11 +771,11 @@ mod tests {
                 assert_eq!(changes.len(), 2);
                 assert_eq!(
                     (changes[0].before, changes[0].after, changes[0].delta),
-                    (1500, 1680, 180)
+                    (1500, 1536, 36)
                 );
                 assert_eq!(
                     (changes[1].before, changes[1].after, changes[1].delta),
-                    (1500, 1320, -180)
+                    (1500, 1464, -36)
                 );
                 assert_eq!(changes[0].levels, 3);
                 assert_eq!(changes[0].score, 1.0);
@@ -789,17 +789,17 @@ mod tests {
         ));
         let lb = leaderboard_view(&db, RatingMode::OneVsOne, 10).unwrap();
         assert_eq!(lb[0].username, "alice");
-        assert_eq!((lb[0].rating, lb[0].matches, lb[0].wins), (1680, 1, 1));
-        assert_eq!((lb[1].rating, lb[1].losses), (1320, 1));
+        assert_eq!((lb[0].rating, lb[0].matches, lb[0].wins), (1536, 1, 1));
+        assert_eq!((lb[1].rating, lb[1].losses), (1464, 1));
         let u = db
             .with(|c| db::get_user_by_username(c, "bob"))
             .unwrap()
             .unwrap();
         let profile = profile_view(&db, &cfg, &u).unwrap();
         assert_eq!(profile["stats"]["matches_lost"], 1);
-        assert_eq!(profile["recent_matches"][0]["delta"], -180);
+        assert_eq!(profile["recent_matches"][0]["delta"], -36);
         assert_eq!(profile["recent_matches"][0]["result"], "lost");
-        assert_eq!(profile["ratings"]["1v1"]["rating"], 1320);
+        assert_eq!(profile["ratings"]["1v1"]["rating"], 1464);
     }
 
     #[test]
@@ -839,11 +839,11 @@ mod tests {
         assert_eq!(report[0].match_id, 1);
         assert_eq!(report[0].players[0].username, "alice");
         assert_eq!(report[0].players[0].stored, Some((1, 2)));
-        assert_eq!(report[0].players[0].replayed, (1500, 1680));
+        assert_eq!(report[0].players[0].replayed, (1500, 1536));
         assert_eq!(snapshot(&db), before);
         let profile = profile_view(&db, &cfg, &alice).unwrap();
         // newest first: r3 (unrated), r2, r1
-        assert_eq!(profile["recent_matches"][2]["delta"], 180);
+        assert_eq!(profile["recent_matches"][2]["delta"], 36);
         assert_eq!(profile["recent_matches"][0]["rating_applied"], false);
 
         // Running it again changes nothing.
@@ -920,9 +920,9 @@ mod tests {
         match apply_match(&db, &cfg, &team).unwrap() {
             MatchResult::Rated { mode, changes, .. } => {
                 assert_eq!(mode, RatingMode::Team);
-                assert_eq!(changes[0].delta, 168);
-                assert_eq!(changes[2].delta, 168);
-                assert_eq!(changes[1].delta, -168);
+                assert_eq!(changes[0].delta, 34);
+                assert_eq!(changes[2].delta, 34);
+                assert_eq!(changes[1].delta, -34);
             }
             other => panic!("{:?}", other),
         }
@@ -951,11 +951,11 @@ mod tests {
         };
         match apply_match(&db, &cfg, &ff).unwrap() {
             MatchResult::Rated { changes, .. } => {
-                // e/f: mean of 0.5, 0.967, 1.0 = 0.822 -> +116; g: -54; h: -178
-                assert_eq!(changes[0].delta, 116);
-                assert_eq!(changes[1].delta, 116);
-                assert_eq!(changes[2].delta, -54);
-                assert_eq!(changes[3].delta, -178);
+                // e/f: mean of 0.5, 0.967, 1.0 = 0.822 -> +23; g: -11; h: -36
+                assert_eq!(changes[0].delta, 23);
+                assert_eq!(changes[1].delta, 23);
+                assert_eq!(changes[2].delta, -11);
+                assert_eq!(changes[3].delta, -36);
                 let total: i64 = changes.iter().map(|c| c.delta).sum();
                 assert!(total.abs() <= 2, "{}", total);
             }

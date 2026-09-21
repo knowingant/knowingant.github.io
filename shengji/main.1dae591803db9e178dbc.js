@@ -6407,7 +6407,7 @@ var Credits_contentStyle = {
     left: "50%",
     transform: "translate(-50%, -50%)",
 };
-var changeLogVersion = 26;
+var changeLogVersion = 27;
 var ChangeLog = function () {
     var _a = react.useState(false), modalOpen = _a[0], setModalOpen = _a[1];
     var _b = react.useContext(AppStateContext), state = _b.state, updateState = _b.updateState;
@@ -6434,6 +6434,9 @@ var ChangeLog = function () {
             react.createElement("p", null, "There are a wide variety of game settings which may suit the way you normally play, e.g. changing the number of decks, how scoring works, etc. These can be changed before every round."),
             react.createElement("p", null, "There are also a bunch of UI customizations that you may want to turn on (or leave off) -- click the gear icon at the top of the screen once you're in the game."),
             react.createElement("h2", null, "Change Log"),
+            react.createElement("p", null, "9/21/2026:"),
+            react.createElement("ul", null,
+                react.createElement("li", null, "Rating changes are now a fifth of what they were: a shutout between equal players at first-to-5 moves each rating by 36 points instead of 180, and a first-to-3 by 12. All rated matches were recomputed.")),
             react.createElement("p", null, "9/20/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Rating changes are now almost entirely about who won: how far the losers got only moves a match's value by up to 5%, and a result is never punished (winners can't lose points, losers can't gain any). The rated matches played so far were recomputed under the new rule.")),
@@ -9517,4 +9520,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.b1631143fb7995136236.js.map
+//# sourceMappingURL=main.1dae591803db9e178dbc.js.map
