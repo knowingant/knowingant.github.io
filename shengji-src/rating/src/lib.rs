@@ -10,7 +10,7 @@
 //!   for a tie: the result is what counts, the margin is a second-order
 //!   term worth at most 5% of it,
 //! * `E_uv = 1 / (1 + 10^((R_v − R_u)/400))`,
-//! * `Δ_u = K(N) · mean_v (s_uv − E_uv)` with `K(N) = 120 · (N − 2)`,
+//! * `Δ_u = K(N) · mean_v (s_uv − E_uv)` with `K(N) = 24 · (N − 2)`,
 //!   clamped so that whoever came out ahead never loses points and whoever
 //!   came out behind never gains any.
 //!
@@ -35,7 +35,7 @@ pub struct Params {
 impl Default for Params {
     fn default() -> Self {
         Params {
-            k_per_level: 120.0,
+            k_per_level: 24.0,
             elo_scale: 400.0,
             initial_rating: 1500.0,
             rating_floor: 0.0,
@@ -186,24 +186,24 @@ mod tests {
     }
 
     #[test]
-    fn even_shutout_at_default_n_is_180() {
-        // N = 5 -> T = 3, K = 360; shutout: winner 3 levels, loser 0.
+    fn even_shutout_at_default_n_is_36() {
+        // N = 5 -> T = 3, K = 72; shutout: winner 3 levels, loser 0.
         let c = two(3, 0, 1500.0, 1500.0, 3);
-        assert!((c[0].delta() - 180.0).abs() < 1e-9, "{:?}", c);
-        assert!((c[1].delta() + 180.0).abs() < 1e-9, "{:?}", c);
+        assert!((c[0].delta() - 36.0).abs() < 1e-9, "{:?}", c);
+        assert!((c[1].delta() + 36.0).abs() < 1e-9, "{:?}", c);
         assert_eq!(c[0].score, 1.0);
         assert_eq!(c[1].score, 0.0);
     }
 
     #[test]
     fn even_narrow_wins_at_default_n() {
-        // loser reached rank 3 (1 level): m = 2/3 -> s = 0.9833 -> +174
+        // loser reached rank 3 (1 level): m = 2/3 -> s = 0.9833 -> +34.8
         let c = two(3, 1, 1500.0, 1500.0, 3);
-        assert!((c[0].delta() - 174.0).abs() < 1e-6, "{:?}", c);
-        // loser reached rank 4 (2 levels): m = 1/3 -> s = 0.9667 -> +168
+        assert!((c[0].delta() - 34.8).abs() < 1e-6, "{:?}", c);
+        // loser reached rank 4 (2 levels): m = 1/3 -> s = 0.9667 -> +33.6
         let c = two(3, 2, 1500.0, 1500.0, 3);
-        assert!((c[0].delta() - 168.0).abs() < 1e-6, "{:?}", c);
-        assert!((c[1].delta() + 168.0).abs() < 1e-6, "{:?}", c);
+        assert!((c[0].delta() - 33.6).abs() < 1e-6, "{:?}", c);
+        assert!((c[1].delta() + 33.6).abs() < 1e-6, "{:?}", c);
     }
 
     #[test]
@@ -225,7 +225,7 @@ mod tests {
         for t in 1..=12usize {
             let c = two(t, 0, 1500.0, 1500.0, t);
             assert!(
-                (c[0].delta() - 60.0 * t as f64).abs() < 1e-6,
+                (c[0].delta() - 12.0 * t as f64).abs() < 1e-6,
                 "T={t} {:?}",
                 c
             );
@@ -240,14 +240,14 @@ mod tests {
         let e = expected_score(&p(), 1700.0, 1500.0);
         assert!((e - 0.7597).abs() < 1e-3, "{e}");
         let c = two(3, 0, 1700.0, 1500.0, 3);
-        assert!((c[0].delta() - 360.0 * (1.0 - e)).abs() < 1e-9);
-        assert!(c[0].delta() > 85.0 && c[0].delta() < 87.0, "{:?}", c);
-        // narrow win: 360·(0.9667 − 0.7597) ≈ +74.5
+        assert!((c[0].delta() - 72.0 * (1.0 - e)).abs() < 1e-9);
+        assert!(c[0].delta() > 17.0 && c[0].delta() < 18.0, "{:?}", c);
+        // narrow win: 72·(0.9667 − 0.7597) ≈ +14.9
         let c = two(3, 2, 1700.0, 1500.0, 3);
-        assert!(c[0].delta() > 73.0 && c[0].delta() < 76.0, "{:?}", c);
-        // narrow loss: 360·(0.0333 − 0.7597) ≈ −261.5
+        assert!(c[0].delta() > 14.5 && c[0].delta() < 15.5, "{:?}", c);
+        // narrow loss: 72·(0.0333 − 0.7597) ≈ −52.3
         let c = two(2, 3, 1700.0, 1500.0, 3);
-        assert!(c[0].delta() < -260.0 && c[0].delta() > -263.0, "{:?}", c);
+        assert!(c[0].delta() < -52.0 && c[0].delta() > -53.0, "{:?}", c);
         // zero-sum for two users
         assert!((c[0].delta() + c[1].delta()).abs() < 1e-9);
     }
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn overshoot_is_capped_at_target() {
         let c = two(5, 0, 1500.0, 1500.0, 3);
-        assert!((c[0].delta() - 180.0).abs() < 1e-9);
+        assert!((c[0].delta() - 36.0).abs() < 1e-9);
     }
 
     #[test]
@@ -275,9 +275,9 @@ mod tests {
                 s(1500.0, 1, 1),
             ],
         );
-        assert!((c[0].delta() - 174.0).abs() < 1e-6);
-        assert!((c[1].delta() - 174.0).abs() < 1e-6);
-        assert!((c[2].delta() + 174.0).abs() < 1e-6);
+        assert!((c[0].delta() - 34.8).abs() < 1e-6);
+        assert!((c[1].delta() - 34.8).abs() < 1e-6);
+        assert!((c[2].delta() + 34.8).abs() < 1e-6);
         let total: f64 = c.iter().map(|c| c.delta()).sum();
         assert!(total.abs() < 1e-6);
         // teammates are not compared with each other: a lone side gets nothing
@@ -305,7 +305,7 @@ mod tests {
             ],
         );
         // winners: draw vs each other (0.5), 0.9833 vs the 1-level player,
-        // 1.0 vs the 0-level player -> mean 0.8278 -> +118
+        // 1.0 vs the 0-level player -> mean 0.8278 -> +23.6
         let vs_one_level = 1.0 - MARGIN_WEIGHT + MARGIN_WEIGHT * 2.0 / 3.0;
         assert!((c[0].score - (0.5 + vs_one_level + 1.0) / 3.0).abs() < 1e-9);
         assert!((c[0].delta() - c[1].delta()).abs() < 1e-9);
@@ -321,7 +321,9 @@ mod tests {
         assert_eq!(score_for_margin(-1.0), 0.0);
         assert!((score_for_margin(0.5) - 0.975).abs() < 1e-12);
         assert!((score_for_margin(-0.5) - 0.025).abs() < 1e-12);
-        let c = two(0, 3, 0.05, 1500.0, 3);
+        // A rating so low that even the tiny expected-score deficit takes it
+        // below zero gets floored.
+        let c = two(0, 3, 0.005, 1500.0, 3);
         assert_eq!(c[0].after, 0.0);
     }
 }

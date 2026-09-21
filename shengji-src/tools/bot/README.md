@@ -85,16 +85,16 @@ Against `DEV_LOGIN=1 PORT=3031 cargo run --features dynamic` (fresh DB),
 `--first-to 3`, one command per room:
 
 - 1v1 rated (`alice`,`bob`): one match, two rounds, `MatchRated` with
-  `alice 1500 -> 1560 (+60)` / `bob 1500 -> 1440 (-60)`; `/api/users` shows
-  `1v1 1560 (1m 1w-0l-0d)` / `1440 (1m 0w-1l-0d)`.
+  `alice 1500 -> 1512 (+12)` / `bob 1500 -> 1488 (-12)`; `/api/users` shows
+  `1v1 1512 (1m 1w-0l-0d)` / `1488 (1m 0w-1l-0d)`.
 - Standard rated (`carol`,`dave`,`erin`,`frank`): one match, one round,
-  `carol`/`erin` `+60`, `dave`/`frank` `-60` on the `team` ladder.
+  `carol`/`erin` `+12`, `dave`/`frank` `-12` on the `team` ladder.
 - 1v1 `--unrated`: `MatchFinished` but no `MatchRated`; ratings unchanged and
   `recent_matches[0]` has `rated: false` with no delta; the backend logs
   "Match recorded without rating … this room is unrated".
 - 1v1 `--matches 2`: the room returns to Initialize at rank 2 with
   `num_games_finished 0`, both users vote again and the second match is
-  rated on the updated ratings (`+40`/`-40` at 1560 vs 1440).
+  rated on the updated ratings (`+11`/`-11` at 1512 vs 1488).
 
 ## How it plays
 

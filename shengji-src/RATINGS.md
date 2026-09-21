@@ -41,7 +41,7 @@ result's value by at most 5%. The user's change is the average over their
 opponents:
 
 ```
-Δ_u = K(N) · mean_v (s_uv − E_uv),      K(N) = 120 · (N − 2)
+Δ_u = K(N) · mean_v (s_uv − E_uv),      K(N) = 24 · (N − 2)
 ```
 
 then clamped so that a result is never punished: a user whose mean score is
@@ -52,23 +52,24 @@ zero-sum. Ratings are rounded to integers for display and clamped at 0.
 
 ## What that means in numbers
 
-Two equally rated sides, default N = 5 (`T = 3`, `K = 360`):
+Two equally rated sides, default N = 5 (`T = 3`, `K = 72`):
 
 | result | winner's score | Δ winner | Δ loser |
 |---|---|---|---|
-| shutout: loser never left rank 2 | 1.0 | **+180** | −180 |
-| loser got to rank 3 | 0.983 | +174 | −174 |
-| loser got to rank 4 | 0.967 | +168 | −168 |
+| shutout: loser never left rank 2 | 1.0 | **+36** | −36 |
+| loser got to rank 3 | 0.983 | +34.8 | −34.8 |
+| loser got to rank 4 | 0.967 | +33.6 | −33.6 |
 
-So a win against an equal opponent is worth 168–180 points at N = 5
-(`80 + 20N` for the full margin). Longer matches swing more: the full-margin
-win is `60·(N − 2)` points (60 at N = 3, 480 at N = 10), because a longer
-race carries proportionally more information.
+So a win against an equal opponent is worth 34–36 points at N = 5
+(`16 + 4N` for the full margin). Longer matches swing more: the full-margin
+win is `12·(N − 2)` points (12 at N = 3, 96 at N = 10), because a longer
+race carries proportionally more information. Changes are deliberately
+small: the ladder is meant to move over dozens of matches, not a handful.
 
 Rating differences matter the usual Elo way: a 1700 beating a 1500 by the
-full margin gains `360·(1 − 0.76) ≈ +86`; beating them narrowly (loser at
-rank 4) gains `360·(0.967 − 0.76) ≈ +75`; losing to them narrowly costs the
-1700 `360·(0.033 − 0.76) ≈ −262`.
+full margin gains `72·(1 − 0.76) ≈ +17`; beating them narrowly (loser at
+rank 4) gains `72·(0.967 − 0.76) ≈ +15`; losing to them narrowly costs the
+1700 `72·(0.033 − 0.76) ≈ −52`.
 
 Team members share a rank in Tractor, so both members of the winning team
 get the same score against each opponent; their changes differ only through
@@ -83,7 +84,8 @@ DEPLOY.md) recomputes every rated match from scratch, in order, under the
 current formula, and rewrites the ladders and the per-match numbers shown
 on account pages. Matches recorded without rating and all statistics are
 left alone, and running it twice is harmless. The 2026-09-20 change from a
-25% to a 5% margin term was applied that way.
+25% to a 5% margin term and the 2026-09-21 change of K from 120 to 24 per
+level (every change a fifth of what it was) were applied that way.
 
 ## What is not handled
 

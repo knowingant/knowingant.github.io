@@ -11,7 +11,7 @@ const contentStyle: React.CSSProperties = {
   transform: "translate(-50%, -50%)",
 };
 
-const changeLogVersion: number = 26;
+const changeLogVersion: number = 27;
 
 const ChangeLog = (): JSX.Element => {
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
@@ -61,6 +61,14 @@ const ChangeLog = (): JSX.Element => {
           you&apos;re in the game.
         </p>
         <h2>Change Log</h2>
+        <p>9/21/2026:</p>
+        <ul>
+          <li>
+            Rating changes are now a fifth of what they were: a shutout between
+            equal players at first-to-5 moves each rating by 36 points instead
+            of 180, and a first-to-3 by 12. All rated matches were recomputed.
+          </li>
+        </ul>
         <p>9/20/2026:</p>
         <ul>
           <li>
