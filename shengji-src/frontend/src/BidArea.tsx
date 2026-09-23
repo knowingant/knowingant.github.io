@@ -12,6 +12,7 @@ import {
 import { WebsocketContext } from "./WebsocketProvider";
 import LabeledPlay from "./LabeledPlay";
 import { useEngine } from "./useEngine";
+import { orderBidsByArrival } from "./bidOrder";
 
 import type { JSX } from "react";
 
@@ -73,21 +74,7 @@ const BidArea = (props: IBidAreaProps): JSX.Element => {
           num_decks: props.numDecks,
         })
         .then((bids) => {
-          // Sort the bids
-          bids.sort((a, b) => {
-            if (a.card < b.card) {
-              return -1;
-            } else if (a.card > b.card) {
-              return 1;
-            } else if (a.count < b.count) {
-              return -1;
-            } else if (a.count > b.count) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          setValidBids(bids);
+          setValidBids((shown) => orderBidsByArrival(shown, bids));
           setIsLoadingBids(false);
         })
         .catch((error) => {
@@ -199,27 +186,28 @@ const BidArea = (props: IBidAreaProps): JSX.Element => {
           </button>
         ) : null}
         {props.suffixButtons}
-        {isLoadingBids ? (
-          <p>Loading bid options...</p>
-        ) : validBids.length > 0 ? (
+        {validBids.length > 0 ? (
           <p>Click a bid option to bid</p>
+        ) : isLoadingBids ? (
+          <p>Loading bid options...</p>
         ) : (
           <p>No available bids!</p>
         )}
-        {!isLoadingBids &&
-          validBids.map((bid, idx) => {
-            return (
-              <LabeledPlay
-                trump={trump}
-                cards={Array(bid.count).fill(bid.card)}
-                key={idx}
-                label={`Bid option ${idx + 1}`}
-                onClick={() => {
-                  send({ Action: { Bid: [bid.card, bid.count] } });
-                }}
-              />
-            );
-          })}
+        {/* The options stay up while the next list loads, so they do not
+            blink out (and everything below them jump) on every draw. */}
+        {validBids.map((bid, idx) => {
+          return (
+            <LabeledPlay
+              trump={trump}
+              cards={Array(bid.count).fill(bid.card)}
+              key={`${bid.card}|${bid.count}`}
+              label={`Bid option ${idx + 1}`}
+              onClick={() => {
+                send({ Action: { Bid: [bid.card, bid.count] } });
+              }}
+            />
+          );
+        })}
         <Cards hands={props.hands} playerId={playerId} trump={trump} />
       </div>
     );
