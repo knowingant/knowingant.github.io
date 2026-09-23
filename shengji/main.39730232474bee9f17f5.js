@@ -2,656 +2,7 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 671:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   EngineContext: () => (/* binding */ EngineContext),
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
-/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4300);
-/* harmony import */ var _WasmContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3701);
-/* harmony import */ var _detectWasm__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6649);
-/* harmony import */ var _util_cachePrefill__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2895);
-var __assign = (undefined && undefined.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __rest = (undefined && undefined.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
-
-
-
-
-
-// Helper to make RPC calls to the server
-function callRpc(request) {
-    return __awaiter(this, void 0, void 0, function () {
-        var bodyString, rpcUrl, response, errorText, responseText, result, type, responseData;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    bodyString = JSON.stringify(request);
-                    rpcUrl = (0,_api__WEBPACK_IMPORTED_MODULE_1__/* .apiUrl */ .y0)("/api/rpc");
-                    return [4 /*yield*/, fetch(rpcUrl, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: bodyString,
-                        })];
-                case 1:
-                    response = _a.sent();
-                    if (!!response.ok) return [3 /*break*/, 3];
-                    return [4 /*yield*/, response.text()];
-                case 2:
-                    errorText = _a.sent();
-                    console.error("RPC call failed with status ".concat(response.status, ":"), errorText);
-                    console.error("Failed request was:", bodyString);
-                    throw new Error("RPC call failed: ".concat(response.statusText));
-                case 3: return [4 /*yield*/, response.text()];
-                case 4:
-                    responseText = _a.sent();
-                    try {
-                        result = JSON.parse(responseText);
-                    }
-                    catch (_b) {
-                        console.error("Failed to parse JSON response:", responseText);
-                        throw new Error("Invalid JSON response from server: ".concat(responseText.substring(0, 100)));
-                    }
-                    // Check if it's an error response
-                    if (result.type === "Error") {
-                        throw new Error(result.Error || "Unknown error");
-                    }
-                    // Since the response uses serde tag="type", the structure is { type: "ResponseType", ...data }
-                    // We need to return the whole result minus the type field for most responses
-                    // or extract based on the actual response structure
-                    if (!result.type) {
-                        console.error("Invalid RPC response - missing type field:", result);
-                        throw new Error("Invalid RPC response structure");
-                    }
-                    type = result.type, responseData = __rest(result, ["type"]);
-                    // Some responses might be wrapped, others might have the data directly
-                    // BatchGetCardInfo should have results directly in responseData
-                    return [2 /*return*/, responseData];
-            }
-        });
-    });
-}
-// Create async versions of each function that can fallback to RPC
-var createAsyncFunctions = function (useWasm, wasmModule) {
-    if (useWasm && wasmModule) {
-        // WASM is available and loaded, use synchronous WASM functions wrapped in promises
-        return {
-            findViablePlays: function (trump, tractorRequirements, cards) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.find_viable_plays({
-                            trump: trump,
-                            cards: cards,
-                            tractor_requirements: tractorRequirements,
-                        }).results];
-                });
-            }); },
-            findValidBids: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.find_valid_bids(req).results];
-                });
-            }); },
-            sortAndGroupCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.sort_and_group_cards(req).results];
-                });
-            }); },
-            decomposeTrickFormat: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.decompose_trick_format(req).results];
-                });
-            }); },
-            canPlayCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.can_play_cards(req).playable];
-                });
-            }); },
-            explainScoring: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.explain_scoring(req)];
-                });
-            }); },
-            nextThresholdReachable: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    response = wasmModule.next_threshold_reachable(req);
-                    return [2 /*return*/, response.reachable];
-                });
-            }); },
-            computeScore: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.compute_score(req)];
-                });
-            }); },
-            computeDeckLen: function (decks) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.compute_deck_len({ decks: decks })];
-                });
-            }); },
-            batchGetCardInfo: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var results;
-                return __generator(this, function (_a) {
-                    results = req.requests.map(function (r) { return wasmModule.get_card_info(r); });
-                    return [2 /*return*/, { results: results }];
-                });
-            }); },
-        };
-    }
-    else {
-        // WASM not available, use RPC calls
-        return {
-            findViablePlays: function (trump, tractorRequirements, cards) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc({
-                                type: "FindViablePlays",
-                                trump: trump,
-                                tractor_requirements: tractorRequirements,
-                                cards: cards,
-                            })];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.results];
-                    }
-                });
-            }); },
-            findValidBids: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "FindValidBids" }, req))];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.results];
-                    }
-                });
-            }); },
-            sortAndGroupCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "SortAndGroupCards" }, req))];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.results];
-                    }
-                });
-            }); },
-            decomposeTrickFormat: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "DecomposeTrickFormat" }, req))];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.results];
-                    }
-                });
-            }); },
-            canPlayCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "CanPlayCards" }, req))];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.playable];
-                    }
-                });
-            }); },
-            explainScoring: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "ExplainScoring" }, req))];
-                        case 1: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            nextThresholdReachable: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "NextThresholdReachable" }, req))];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.reachable];
-                    }
-                });
-            }); },
-            computeScore: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "ComputeScore" }, req))];
-                        case 1: return [2 /*return*/, _a.sent()];
-                    }
-                });
-            }); },
-            computeDeckLen: function (decks) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc({
-                                type: "ComputeDeckLen",
-                                decks: decks,
-                            })];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.length];
-                    }
-                });
-            }); },
-            batchGetCardInfo: function (req) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "BatchGetCardInfo" }, req))];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response];
-                    }
-                });
-            }); },
-        };
-    }
-};
-var EngineContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext(null);
-var WasmOrRpcProvider = function (props) {
-    var useWasm = (0,_detectWasm__WEBPACK_IMPORTED_MODULE_4__/* .isWasmAvailable */ .u)();
-    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(null), wasmModule = _a[0], setWasmModule = _a[1];
-    var _b = react__WEBPACK_IMPORTED_MODULE_0__.useState(useWasm), isLoading = _b[0], setIsLoading = _b[1];
-    // Load WASM module dynamically if available
-    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
-        if (useWasm) {
-            // Load WASM module dynamically
-            __webpack_require__.e(/* import() */ 411).then(__webpack_require__.bind(__webpack_require__, 3411))
-                .then(function (module) {
-                setWasmModule(module);
-                // Set module on window for debugging
-                window.shengji = module;
-                // WASM module loaded successfully
-                setIsLoading(false);
-            })
-                .catch(function (error) {
-                console.error("Failed to load WASM module:", error);
-                setIsLoading(false);
-            });
-        }
-        else {
-            // Using server-side RPC fallback (no-WASM mode)
-            setIsLoading(false);
-        }
-    }, [useWasm]);
-    var engineFuncs = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () { return createAsyncFunctions(useWasm, wasmModule); }, [useWasm, wasmModule]);
-    // Only provide decodeWireFormat in the synchronous context
-    var syncContextValue = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () { return ({
-        decodeWireFormat: function (req) {
-            if (useWasm && wasmModule) {
-                return JSON.parse(wasmModule.zstd_decompress(req));
-            }
-            else {
-                // When WASM is not available, messages should already be decompressed
-                // by the server, so we can just parse them directly
-                var text = new TextDecoder().decode(req);
-                return JSON.parse(text);
-            }
-        },
-    }); }, [useWasm, wasmModule]);
-    var engineContextValue = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () { return (__assign(__assign({}, engineFuncs), { decodeWireFormat: syncContextValue.decodeWireFormat, isUsingWasm: useWasm && wasmModule !== null })); }, [engineFuncs, syncContextValue, useWasm, wasmModule]);
-    // Track if initial prefill is complete
-    var _c = react__WEBPACK_IMPORTED_MODULE_0__.useState(false), isPrefillComplete = _c[0], setIsPrefillComplete = _c[1];
-    // Eagerly prefill cache for common trump configurations when engine is ready
-    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
-        if (!isLoading && engineContextValue && !isPrefillComplete) {
-            // Engine ready, eagerly prefill card cache for common trumps
-            // Create an array of prefill promises
-            var prefillPromises = [];
-            // Prefill for NoTrump (used in JoinRoom for the joker cards display)
-            var noTrumpBasic = { NoTrump: {} };
-            prefillPromises.push((0,_util_cachePrefill__WEBPACK_IMPORTED_MODULE_3__/* .prefillCardInfoCache */ .j9)(engineContextValue, noTrumpBasic)
-                .then(function () {
-                /* Prefilled cache for NoTrump (no rank) */
-            })
-                .catch(function (error) {
-                return console.error("Failed to prefill NoTrump cache:", error);
-            }));
-            // Also prefill for NoTrump with rank 2 (most common starting rank)
-            var noTrump2 = { NoTrump: { number: "2" } };
-            prefillPromises.push((0,_util_cachePrefill__WEBPACK_IMPORTED_MODULE_3__/* .prefillCardInfoCache */ .j9)(engineContextValue, noTrump2)
-                .then(function () {
-                /* Prefilled cache for NoTrump rank 2 */
-            })
-                .catch(function (error) {
-                return console.error("Failed to prefill NoTrump rank 2 cache:", error);
-            }));
-            // Wait for all prefills to complete before marking as done
-            Promise.all(prefillPromises).then(function () {
-                setIsPrefillComplete(true);
-                // All initial prefills complete
-            });
-        }
-    }, [isLoading, engineContextValue, isPrefillComplete]);
-    // Show loading indicator while WASM is being loaded or initial cache is being prefilled
-    if (isLoading) {
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "Loading game engine...");
-    }
-    // Optionally wait for prefill to complete before rendering children
-    // This prevents the initial cards from making individual requests
-    if (!isPrefillComplete) {
-        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "Initializing game data...");
-    }
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(EngineContext.Provider, { value: engineContextValue },
-        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_WasmContext__WEBPACK_IMPORTED_MODULE_2__/* ["default"] */ .A.Provider, { value: syncContextValue }, props.children)));
-};
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (WasmOrRpcProvider);
-
-
-/***/ }),
-
-/***/ 2895:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   L9: () => (/* binding */ explainScoringCache),
-/* harmony export */   O3: () => (/* binding */ getExplainScoringKey),
-/* harmony export */   PU: () => (/* binding */ cardInfoCache),
-/* harmony export */   bM: () => (/* binding */ prefillExplainScoringCache),
-/* harmony export */   i7: () => (/* binding */ getPrefillPromise),
-/* harmony export */   j9: () => (/* binding */ prefillCardInfoCache),
-/* harmony export */   us: () => (/* binding */ getTrumpKey)
-/* harmony export */ });
-/* unused harmony exports isPrefillInProgress, markPrefillStarted */
-/* harmony import */ var _preloadedCards__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7236);
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-// Cache for card info to avoid repeated async calls
-var cardInfoCache = {};
-// Cache for explainScoring results
-var explainScoringCache = {};
-// Track which trumps are currently being prefilled to avoid duplicate requests
-var prefillInProgressMap = {};
-function isPrefillInProgress(trump) {
-    var trumpKey = getTrumpKey(trump);
-    return (prefillInProgressMap[trumpKey] !== undefined &&
-        prefillInProgressMap[trumpKey] !== null);
-}
-function markPrefillStarted(trump, promise) {
-    var trumpKey = getTrumpKey(trump);
-    prefillInProgressMap[trumpKey] = promise;
-}
-function markPrefillCompleted(trump) {
-    var trumpKey = getTrumpKey(trump);
-    delete prefillInProgressMap[trumpKey];
-}
-function getPrefillPromise(trump) {
-    var trumpKey = getTrumpKey(trump);
-    return prefillInProgressMap[trumpKey] || null;
-}
-// Helper to create a stable cache key from trump
-var getTrumpKey = function (trump) {
-    if ("Standard" in trump) {
-        return "std_".concat(trump.Standard.suit, "_").concat(trump.Standard.number);
-    }
-    else if ("NoTrump" in trump) {
-        return "nt_".concat(trump.NoTrump.number || "none");
-    }
-    return "unknown";
-};
-// Prefill card info cache for all cards with a given trump using batch API
-var prefillCardInfoCache = function (engine, trump) { return __awaiter(void 0, void 0, void 0, function () {
-    var trumpKey, existingPromise, prefillPromise;
-    return __generator(this, function (_a) {
-        trumpKey = getTrumpKey(trump);
-        existingPromise = getPrefillPromise(trump);
-        if (existingPromise) {
-            // Prefill already in progress for this trump, return existing promise
-            return [2 /*return*/, existingPromise];
-        }
-        prefillPromise = (function () { return __awaiter(void 0, void 0, void 0, function () {
-            var requestsToMake, _i, preloadedCards_1, cardInfo, cacheKey, unknownCacheKey, batchResponse, error_1, _loop_1, _a, requestsToMake_1, _b, card, cacheKey;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        requestsToMake = [];
-                        // Get all unique card values from preloadedCards
-                        for (_i = 0, preloadedCards_1 = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A; _i < preloadedCards_1.length; _i++) {
-                            cardInfo = preloadedCards_1[_i];
-                            cacheKey = "".concat(cardInfo.value, "_").concat(trumpKey);
-                            // Skip if already cached
-                            if (cacheKey in cardInfoCache) {
-                                continue;
-                            }
-                            requestsToMake.push({ card: cardInfo.value, cacheKey: cacheKey });
-                        }
-                        unknownCacheKey = "\uD83C\uDCA0_".concat(trumpKey);
-                        if (!(unknownCacheKey in cardInfoCache)) {
-                            requestsToMake.push({ card: "🂠", cacheKey: unknownCacheKey });
-                        }
-                        // If nothing to fetch, return early
-                        if (requestsToMake.length === 0) {
-                            // Card info cache already filled for this trump
-                            return [2 /*return*/];
-                        }
-                        _c.label = 1;
-                    case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, engine.batchGetCardInfo({
-                                requests: requestsToMake.map(function (r) { return ({
-                                    card: r.card,
-                                    trump: trump,
-                                }); }),
-                            })];
-                    case 2:
-                        batchResponse = _c.sent();
-                        // Process batch response
-                        // Validate response structure
-                        if (!batchResponse ||
-                            !batchResponse.results ||
-                            !Array.isArray(batchResponse.results)) {
-                            throw new Error("Invalid batch response structure: ".concat(JSON.stringify(batchResponse)));
-                        }
-                        if (batchResponse.results.length !== requestsToMake.length) {
-                            console.warn("Response length mismatch: expected ".concat(requestsToMake.length, ", got ").concat(batchResponse.results.length));
-                        }
-                        // Store results in cache
-                        batchResponse.results.forEach(function (info, index) {
-                            if (index >= requestsToMake.length) {
-                                console.warn("Skipping extra response at index ".concat(index));
-                                return;
-                            }
-                            var cacheKey = requestsToMake[index].cacheKey;
-                            cardInfoCache[cacheKey] = info;
-                        });
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _c.sent();
-                        console.error("❌ Error batch fetching card info:", error_1);
-                        console.error("Error details:", error_1 instanceof Error ? error_1.stack : error_1);
-                        _loop_1 = function (card, cacheKey) {
-                            var cardData = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A.find(function (c) { return c.value === card; });
-                            cardInfoCache[cacheKey] = {
-                                suit: null,
-                                effective_suit: "Unknown",
-                                value: card,
-                                display_value: (cardData === null || cardData === void 0 ? void 0 : cardData.display_value) || card,
-                                typ: (cardData === null || cardData === void 0 ? void 0 : cardData.typ) || "unknown",
-                                number: (cardData === null || cardData === void 0 ? void 0 : cardData.number) || null,
-                                points: (cardData === null || cardData === void 0 ? void 0 : cardData.points) || 0,
-                            };
-                        };
-                        // Fallback to individual requests or static data
-                        for (_a = 0, requestsToMake_1 = requestsToMake; _a < requestsToMake_1.length; _a++) {
-                            _b = requestsToMake_1[_a], card = _b.card, cacheKey = _b.cacheKey;
-                            _loop_1(card, cacheKey);
-                        }
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        }); })();
-        // Store the promise and set up cleanup
-        markPrefillStarted(trump, prefillPromise);
-        // Clear the in-progress flag when done
-        prefillPromise.finally(function () {
-            markPrefillCompleted(trump);
-        });
-        return [2 /*return*/, prefillPromise];
-    });
-}); };
-// Create a cache key for explainScoring requests
-var getExplainScoringKey = function (params, smallerLandlordTeamSize, decks) {
-    // Create a stable key based on the request parameters
-    return JSON.stringify({
-        params: params,
-        smallerLandlordTeamSize: smallerLandlordTeamSize,
-        deckCount: decks.length,
-        // We assume deck configuration is the same for a given count
-    });
-};
-// Prefill explainScoring cache
-var prefillExplainScoringCache = function (engine, params, decks) { return __awaiter(void 0, void 0, void 0, function () {
-    var promises, _loop_2, _i, _a, smallerTeamSize;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                promises = [];
-                _loop_2 = function (smallerTeamSize) {
-                    var cacheKey = getExplainScoringKey(params, smallerTeamSize, decks);
-                    if (cacheKey in explainScoringCache) {
-                        return "continue";
-                    }
-                    var promise = engine
-                        .explainScoring({
-                        params: params,
-                        smaller_landlord_team_size: smallerTeamSize,
-                        decks: decks,
-                    })
-                        .then(function (result) {
-                        explainScoringCache[cacheKey] = result;
-                    })
-                        .catch(function (error) {
-                        console.error("Error prefilling explainScoring cache:", error);
-                        // Fallback to empty result
-                        explainScoringCache[cacheKey] = {
-                            results: [],
-                            step_size: 10,
-                            total_points: 100,
-                        };
-                    });
-                    promises.push(promise);
-                };
-                // Prefill both regular and bonus scoring
-                for (_i = 0, _a = [false, true]; _i < _a.length; _i++) {
-                    smallerTeamSize = _a[_i];
-                    _loop_2(smallerTeamSize);
-                }
-                return [4 /*yield*/, Promise.all(promises)];
-            case 1:
-                _b.sent();
-                return [2 /*return*/];
-        }
-    });
-}); };
-
-
-/***/ }),
-
-/***/ 2897:
+/***/ 53:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 
@@ -5599,7 +4950,55 @@ var Cards = function (props) {
 };
 /* harmony default export */ const src_Cards = (Cards);
 
+;// ./src/bidOrder.ts
+var bidOrder_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var bidKey = function (bid) { return "".concat(bid.card, "|").concat(bid.count); };
+var compareBids = function (a, b) {
+    if (a.card < b.card) {
+        return -1;
+    }
+    else if (a.card > b.card) {
+        return 1;
+    }
+    else {
+        return a.count - b.count;
+    }
+};
+/// Orders the bid options by when they became available. Options that were
+/// already shown keep their places relative to each other and new ones go at
+/// the end, so drawing a card never slides a new option under the cursor of
+/// someone about to click an old one. Options that arrive together (the first
+/// load, or several at once after a bid is taken back) are sorted by card and
+/// count among themselves.
+var orderBidsByArrival = function (shown, valid) {
+    var validByKey = new Map();
+    valid.forEach(function (bid) {
+        if (!validByKey.has(bidKey(bid))) {
+            validByKey.set(bidKey(bid), bid);
+        }
+    });
+    var kept = [];
+    shown.forEach(function (bid) {
+        var current = validByKey.get(bidKey(bid));
+        if (current !== undefined) {
+            kept.push(current);
+            validByKey.delete(bidKey(bid));
+        }
+    });
+    var added = Array.from(validByKey.values()).sort(compareBids);
+    return bidOrder_spreadArray(bidOrder_spreadArray([], kept, true), added, true);
+};
+
 ;// ./src/BidArea.tsx
+
 
 
 
@@ -5642,25 +5041,7 @@ var BidArea = function (props) {
                 num_decks: props.numDecks,
             })
                 .then(function (bids) {
-                // Sort the bids
-                bids.sort(function (a, b) {
-                    if (a.card < b.card) {
-                        return -1;
-                    }
-                    else if (a.card > b.card) {
-                        return 1;
-                    }
-                    else if (a.count < b.count) {
-                        return -1;
-                    }
-                    else if (a.count > b.count) {
-                        return 1;
-                    }
-                    else {
-                        return 0;
-                    }
-                });
-                setValidBids(bids);
+                setValidBids(function (shown) { return orderBidsByArrival(shown, bids); });
                 setIsLoadingBids(false);
             })
                 .catch(function (error) {
@@ -5720,13 +5101,12 @@ var BidArea = function (props) {
                     props.bids[props.bids.length - 1].id !== playerId ||
                     props.bids[props.bids.length - 1].epoch !== props.epoch, className: "big" }, "Take back bid")) : null,
             props.suffixButtons,
-            isLoadingBids ? (react.createElement("p", null, "Loading bid options...")) : validBids.length > 0 ? (react.createElement("p", null, "Click a bid option to bid")) : (react.createElement("p", null, "No available bids!")),
-            !isLoadingBids &&
-                validBids.map(function (bid, idx) {
-                    return (react.createElement(src_LabeledPlay, { trump: trump_1, cards: Array(bid.count).fill(bid.card), key: idx, label: "Bid option ".concat(idx + 1), onClick: function () {
-                            send({ Action: { Bid: [bid.card, bid.count] } });
-                        } }));
-                }),
+            validBids.length > 0 ? (react.createElement("p", null, "Click a bid option to bid")) : isLoadingBids ? (react.createElement("p", null, "Loading bid options...")) : (react.createElement("p", null, "No available bids!")),
+            validBids.map(function (bid, idx) {
+                return (react.createElement(src_LabeledPlay, { trump: trump_1, cards: Array(bid.count).fill(bid.card), key: "".concat(bid.card, "|").concat(bid.count), label: "Bid option ".concat(idx + 1), onClick: function () {
+                        send({ Action: { Bid: [bid.card, bid.count] } });
+                    } }));
+            }),
             react.createElement(src_Cards, { hands: props.hands, playerId: playerId, trump: trump_1 })));
     }
 };
@@ -8512,6 +7892,655 @@ bootstrap();
 
 /***/ }),
 
+/***/ 671:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   EngineContext: () => (/* binding */ EngineContext),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
+/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4300);
+/* harmony import */ var _WasmContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3701);
+/* harmony import */ var _detectWasm__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6649);
+/* harmony import */ var _util_cachePrefill__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2895);
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __rest = (undefined && undefined.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+
+
+
+
+
+// Helper to make RPC calls to the server
+function callRpc(request) {
+    return __awaiter(this, void 0, void 0, function () {
+        var bodyString, rpcUrl, response, errorText, responseText, result, type, responseData;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    bodyString = JSON.stringify(request);
+                    rpcUrl = (0,_api__WEBPACK_IMPORTED_MODULE_1__/* .apiUrl */ .y0)("/api/rpc");
+                    return [4 /*yield*/, fetch(rpcUrl, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: bodyString,
+                        })];
+                case 1:
+                    response = _a.sent();
+                    if (!!response.ok) return [3 /*break*/, 3];
+                    return [4 /*yield*/, response.text()];
+                case 2:
+                    errorText = _a.sent();
+                    console.error("RPC call failed with status ".concat(response.status, ":"), errorText);
+                    console.error("Failed request was:", bodyString);
+                    throw new Error("RPC call failed: ".concat(response.statusText));
+                case 3: return [4 /*yield*/, response.text()];
+                case 4:
+                    responseText = _a.sent();
+                    try {
+                        result = JSON.parse(responseText);
+                    }
+                    catch (_b) {
+                        console.error("Failed to parse JSON response:", responseText);
+                        throw new Error("Invalid JSON response from server: ".concat(responseText.substring(0, 100)));
+                    }
+                    // Check if it's an error response
+                    if (result.type === "Error") {
+                        throw new Error(result.Error || "Unknown error");
+                    }
+                    // Since the response uses serde tag="type", the structure is { type: "ResponseType", ...data }
+                    // We need to return the whole result minus the type field for most responses
+                    // or extract based on the actual response structure
+                    if (!result.type) {
+                        console.error("Invalid RPC response - missing type field:", result);
+                        throw new Error("Invalid RPC response structure");
+                    }
+                    type = result.type, responseData = __rest(result, ["type"]);
+                    // Some responses might be wrapped, others might have the data directly
+                    // BatchGetCardInfo should have results directly in responseData
+                    return [2 /*return*/, responseData];
+            }
+        });
+    });
+}
+// Create async versions of each function that can fallback to RPC
+var createAsyncFunctions = function (useWasm, wasmModule) {
+    if (useWasm && wasmModule) {
+        // WASM is available and loaded, use synchronous WASM functions wrapped in promises
+        return {
+            findViablePlays: function (trump, tractorRequirements, cards) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.find_viable_plays({
+                            trump: trump,
+                            cards: cards,
+                            tractor_requirements: tractorRequirements,
+                        }).results];
+                });
+            }); },
+            findValidBids: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.find_valid_bids(req).results];
+                });
+            }); },
+            sortAndGroupCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.sort_and_group_cards(req).results];
+                });
+            }); },
+            decomposeTrickFormat: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.decompose_trick_format(req).results];
+                });
+            }); },
+            canPlayCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.can_play_cards(req).playable];
+                });
+            }); },
+            explainScoring: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.explain_scoring(req)];
+                });
+            }); },
+            nextThresholdReachable: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    response = wasmModule.next_threshold_reachable(req);
+                    return [2 /*return*/, response.reachable];
+                });
+            }); },
+            computeScore: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.compute_score(req)];
+                });
+            }); },
+            computeDeckLen: function (decks) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.compute_deck_len({ decks: decks })];
+                });
+            }); },
+            batchGetCardInfo: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var results;
+                return __generator(this, function (_a) {
+                    results = req.requests.map(function (r) { return wasmModule.get_card_info(r); });
+                    return [2 /*return*/, { results: results }];
+                });
+            }); },
+        };
+    }
+    else {
+        // WASM not available, use RPC calls
+        return {
+            findViablePlays: function (trump, tractorRequirements, cards) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc({
+                                type: "FindViablePlays",
+                                trump: trump,
+                                tractor_requirements: tractorRequirements,
+                                cards: cards,
+                            })];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response.results];
+                    }
+                });
+            }); },
+            findValidBids: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "FindValidBids" }, req))];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response.results];
+                    }
+                });
+            }); },
+            sortAndGroupCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "SortAndGroupCards" }, req))];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response.results];
+                    }
+                });
+            }); },
+            decomposeTrickFormat: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "DecomposeTrickFormat" }, req))];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response.results];
+                    }
+                });
+            }); },
+            canPlayCards: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "CanPlayCards" }, req))];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response.playable];
+                    }
+                });
+            }); },
+            explainScoring: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "ExplainScoring" }, req))];
+                        case 1: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            }); },
+            nextThresholdReachable: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "NextThresholdReachable" }, req))];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response.reachable];
+                    }
+                });
+            }); },
+            computeScore: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "ComputeScore" }, req))];
+                        case 1: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            }); },
+            computeDeckLen: function (decks) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc({
+                                type: "ComputeDeckLen",
+                                decks: decks,
+                            })];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response.length];
+                    }
+                });
+            }); },
+            batchGetCardInfo: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                var response;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "BatchGetCardInfo" }, req))];
+                        case 1:
+                            response = _a.sent();
+                            return [2 /*return*/, response];
+                    }
+                });
+            }); },
+        };
+    }
+};
+var EngineContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext(null);
+var WasmOrRpcProvider = function (props) {
+    var useWasm = (0,_detectWasm__WEBPACK_IMPORTED_MODULE_4__/* .isWasmAvailable */ .u)();
+    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(null), wasmModule = _a[0], setWasmModule = _a[1];
+    var _b = react__WEBPACK_IMPORTED_MODULE_0__.useState(useWasm), isLoading = _b[0], setIsLoading = _b[1];
+    // Load WASM module dynamically if available
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        if (useWasm) {
+            // Load WASM module dynamically
+            __webpack_require__.e(/* import() */ 411).then(__webpack_require__.bind(__webpack_require__, 3411))
+                .then(function (module) {
+                setWasmModule(module);
+                // Set module on window for debugging
+                window.shengji = module;
+                // WASM module loaded successfully
+                setIsLoading(false);
+            })
+                .catch(function (error) {
+                console.error("Failed to load WASM module:", error);
+                setIsLoading(false);
+            });
+        }
+        else {
+            // Using server-side RPC fallback (no-WASM mode)
+            setIsLoading(false);
+        }
+    }, [useWasm]);
+    var engineFuncs = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () { return createAsyncFunctions(useWasm, wasmModule); }, [useWasm, wasmModule]);
+    // Only provide decodeWireFormat in the synchronous context
+    var syncContextValue = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () { return ({
+        decodeWireFormat: function (req) {
+            if (useWasm && wasmModule) {
+                return JSON.parse(wasmModule.zstd_decompress(req));
+            }
+            else {
+                // When WASM is not available, messages should already be decompressed
+                // by the server, so we can just parse them directly
+                var text = new TextDecoder().decode(req);
+                return JSON.parse(text);
+            }
+        },
+    }); }, [useWasm, wasmModule]);
+    var engineContextValue = react__WEBPACK_IMPORTED_MODULE_0__.useMemo(function () { return (__assign(__assign({}, engineFuncs), { decodeWireFormat: syncContextValue.decodeWireFormat, isUsingWasm: useWasm && wasmModule !== null })); }, [engineFuncs, syncContextValue, useWasm, wasmModule]);
+    // Track if initial prefill is complete
+    var _c = react__WEBPACK_IMPORTED_MODULE_0__.useState(false), isPrefillComplete = _c[0], setIsPrefillComplete = _c[1];
+    // Eagerly prefill cache for common trump configurations when engine is ready
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        if (!isLoading && engineContextValue && !isPrefillComplete) {
+            // Engine ready, eagerly prefill card cache for common trumps
+            // Create an array of prefill promises
+            var prefillPromises = [];
+            // Prefill for NoTrump (used in JoinRoom for the joker cards display)
+            var noTrumpBasic = { NoTrump: {} };
+            prefillPromises.push((0,_util_cachePrefill__WEBPACK_IMPORTED_MODULE_3__/* .prefillCardInfoCache */ .j9)(engineContextValue, noTrumpBasic)
+                .then(function () {
+                /* Prefilled cache for NoTrump (no rank) */
+            })
+                .catch(function (error) {
+                return console.error("Failed to prefill NoTrump cache:", error);
+            }));
+            // Also prefill for NoTrump with rank 2 (most common starting rank)
+            var noTrump2 = { NoTrump: { number: "2" } };
+            prefillPromises.push((0,_util_cachePrefill__WEBPACK_IMPORTED_MODULE_3__/* .prefillCardInfoCache */ .j9)(engineContextValue, noTrump2)
+                .then(function () {
+                /* Prefilled cache for NoTrump rank 2 */
+            })
+                .catch(function (error) {
+                return console.error("Failed to prefill NoTrump rank 2 cache:", error);
+            }));
+            // Wait for all prefills to complete before marking as done
+            Promise.all(prefillPromises).then(function () {
+                setIsPrefillComplete(true);
+                // All initial prefills complete
+            });
+        }
+    }, [isLoading, engineContextValue, isPrefillComplete]);
+    // Show loading indicator while WASM is being loaded or initial cache is being prefilled
+    if (isLoading) {
+        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "Loading game engine...");
+    }
+    // Optionally wait for prefill to complete before rendering children
+    // This prevents the initial cards from making individual requests
+    if (!isPrefillComplete) {
+        return react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "Initializing game data...");
+    }
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(EngineContext.Provider, { value: engineContextValue },
+        react__WEBPACK_IMPORTED_MODULE_0__.createElement(_WasmContext__WEBPACK_IMPORTED_MODULE_2__/* ["default"] */ .A.Provider, { value: syncContextValue }, props.children)));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (WasmOrRpcProvider);
+
+
+/***/ }),
+
+/***/ 2895:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   L9: () => (/* binding */ explainScoringCache),
+/* harmony export */   O3: () => (/* binding */ getExplainScoringKey),
+/* harmony export */   PU: () => (/* binding */ cardInfoCache),
+/* harmony export */   bM: () => (/* binding */ prefillExplainScoringCache),
+/* harmony export */   i7: () => (/* binding */ getPrefillPromise),
+/* harmony export */   j9: () => (/* binding */ prefillCardInfoCache),
+/* harmony export */   us: () => (/* binding */ getTrumpKey)
+/* harmony export */ });
+/* unused harmony exports isPrefillInProgress, markPrefillStarted */
+/* harmony import */ var _preloadedCards__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7236);
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+// Cache for card info to avoid repeated async calls
+var cardInfoCache = {};
+// Cache for explainScoring results
+var explainScoringCache = {};
+// Track which trumps are currently being prefilled to avoid duplicate requests
+var prefillInProgressMap = {};
+function isPrefillInProgress(trump) {
+    var trumpKey = getTrumpKey(trump);
+    return (prefillInProgressMap[trumpKey] !== undefined &&
+        prefillInProgressMap[trumpKey] !== null);
+}
+function markPrefillStarted(trump, promise) {
+    var trumpKey = getTrumpKey(trump);
+    prefillInProgressMap[trumpKey] = promise;
+}
+function markPrefillCompleted(trump) {
+    var trumpKey = getTrumpKey(trump);
+    delete prefillInProgressMap[trumpKey];
+}
+function getPrefillPromise(trump) {
+    var trumpKey = getTrumpKey(trump);
+    return prefillInProgressMap[trumpKey] || null;
+}
+// Helper to create a stable cache key from trump
+var getTrumpKey = function (trump) {
+    if ("Standard" in trump) {
+        return "std_".concat(trump.Standard.suit, "_").concat(trump.Standard.number);
+    }
+    else if ("NoTrump" in trump) {
+        return "nt_".concat(trump.NoTrump.number || "none");
+    }
+    return "unknown";
+};
+// Prefill card info cache for all cards with a given trump using batch API
+var prefillCardInfoCache = function (engine, trump) { return __awaiter(void 0, void 0, void 0, function () {
+    var trumpKey, existingPromise, prefillPromise;
+    return __generator(this, function (_a) {
+        trumpKey = getTrumpKey(trump);
+        existingPromise = getPrefillPromise(trump);
+        if (existingPromise) {
+            // Prefill already in progress for this trump, return existing promise
+            return [2 /*return*/, existingPromise];
+        }
+        prefillPromise = (function () { return __awaiter(void 0, void 0, void 0, function () {
+            var requestsToMake, _i, preloadedCards_1, cardInfo, cacheKey, unknownCacheKey, batchResponse, error_1, _loop_1, _a, requestsToMake_1, _b, card, cacheKey;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        requestsToMake = [];
+                        // Get all unique card values from preloadedCards
+                        for (_i = 0, preloadedCards_1 = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A; _i < preloadedCards_1.length; _i++) {
+                            cardInfo = preloadedCards_1[_i];
+                            cacheKey = "".concat(cardInfo.value, "_").concat(trumpKey);
+                            // Skip if already cached
+                            if (cacheKey in cardInfoCache) {
+                                continue;
+                            }
+                            requestsToMake.push({ card: cardInfo.value, cacheKey: cacheKey });
+                        }
+                        unknownCacheKey = "\uD83C\uDCA0_".concat(trumpKey);
+                        if (!(unknownCacheKey in cardInfoCache)) {
+                            requestsToMake.push({ card: "🂠", cacheKey: unknownCacheKey });
+                        }
+                        // If nothing to fetch, return early
+                        if (requestsToMake.length === 0) {
+                            // Card info cache already filled for this trump
+                            return [2 /*return*/];
+                        }
+                        _c.label = 1;
+                    case 1:
+                        _c.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, engine.batchGetCardInfo({
+                                requests: requestsToMake.map(function (r) { return ({
+                                    card: r.card,
+                                    trump: trump,
+                                }); }),
+                            })];
+                    case 2:
+                        batchResponse = _c.sent();
+                        // Process batch response
+                        // Validate response structure
+                        if (!batchResponse ||
+                            !batchResponse.results ||
+                            !Array.isArray(batchResponse.results)) {
+                            throw new Error("Invalid batch response structure: ".concat(JSON.stringify(batchResponse)));
+                        }
+                        if (batchResponse.results.length !== requestsToMake.length) {
+                            console.warn("Response length mismatch: expected ".concat(requestsToMake.length, ", got ").concat(batchResponse.results.length));
+                        }
+                        // Store results in cache
+                        batchResponse.results.forEach(function (info, index) {
+                            if (index >= requestsToMake.length) {
+                                console.warn("Skipping extra response at index ".concat(index));
+                                return;
+                            }
+                            var cacheKey = requestsToMake[index].cacheKey;
+                            cardInfoCache[cacheKey] = info;
+                        });
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _c.sent();
+                        console.error("❌ Error batch fetching card info:", error_1);
+                        console.error("Error details:", error_1 instanceof Error ? error_1.stack : error_1);
+                        _loop_1 = function (card, cacheKey) {
+                            var cardData = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A.find(function (c) { return c.value === card; });
+                            cardInfoCache[cacheKey] = {
+                                suit: null,
+                                effective_suit: "Unknown",
+                                value: card,
+                                display_value: (cardData === null || cardData === void 0 ? void 0 : cardData.display_value) || card,
+                                typ: (cardData === null || cardData === void 0 ? void 0 : cardData.typ) || "unknown",
+                                number: (cardData === null || cardData === void 0 ? void 0 : cardData.number) || null,
+                                points: (cardData === null || cardData === void 0 ? void 0 : cardData.points) || 0,
+                            };
+                        };
+                        // Fallback to individual requests or static data
+                        for (_a = 0, requestsToMake_1 = requestsToMake; _a < requestsToMake_1.length; _a++) {
+                            _b = requestsToMake_1[_a], card = _b.card, cacheKey = _b.cacheKey;
+                            _loop_1(card, cacheKey);
+                        }
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); })();
+        // Store the promise and set up cleanup
+        markPrefillStarted(trump, prefillPromise);
+        // Clear the in-progress flag when done
+        prefillPromise.finally(function () {
+            markPrefillCompleted(trump);
+        });
+        return [2 /*return*/, prefillPromise];
+    });
+}); };
+// Create a cache key for explainScoring requests
+var getExplainScoringKey = function (params, smallerLandlordTeamSize, decks) {
+    // Create a stable key based on the request parameters
+    return JSON.stringify({
+        params: params,
+        smallerLandlordTeamSize: smallerLandlordTeamSize,
+        deckCount: decks.length,
+        // We assume deck configuration is the same for a given count
+    });
+};
+// Prefill explainScoring cache
+var prefillExplainScoringCache = function (engine, params, decks) { return __awaiter(void 0, void 0, void 0, function () {
+    var promises, _loop_2, _i, _a, smallerTeamSize;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                promises = [];
+                _loop_2 = function (smallerTeamSize) {
+                    var cacheKey = getExplainScoringKey(params, smallerTeamSize, decks);
+                    if (cacheKey in explainScoringCache) {
+                        return "continue";
+                    }
+                    var promise = engine
+                        .explainScoring({
+                        params: params,
+                        smaller_landlord_team_size: smallerTeamSize,
+                        decks: decks,
+                    })
+                        .then(function (result) {
+                        explainScoringCache[cacheKey] = result;
+                    })
+                        .catch(function (error) {
+                        console.error("Error prefilling explainScoring cache:", error);
+                        // Fallback to empty result
+                        explainScoringCache[cacheKey] = {
+                            results: [],
+                            step_size: 10,
+                            total_points: 100,
+                        };
+                    });
+                    promises.push(promise);
+                };
+                // Prefill both regular and bonus scoring
+                for (_i = 0, _a = [false, true]; _i < _a.length; _i++) {
+                    smallerTeamSize = _a[_i];
+                    _loop_2(smallerTeamSize);
+                }
+                return [4 /*yield*/, Promise.all(promises)];
+            case 1:
+                _b.sent();
+                return [2 /*return*/];
+        }
+    });
+}); };
+
+
+/***/ }),
+
 /***/ 3701:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -9515,9 +9544,9 @@ var Timeout = function (props) {
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(2897)))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(53)))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.1dae591803db9e178dbc.js.map
+//# sourceMappingURL=main.39730232474bee9f17f5.js.map
