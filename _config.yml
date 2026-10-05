@@ -1,9 +1,6 @@
-title: Michael Luo
+title: ""
 author: Michael Luo
 email: luomichaelcunhao@gmail.com
-description: >
-  Michael's personal website.
-
 theme: minima
 markdown: kramdown
 kramdown:
@@ -12,6 +9,7 @@ kramdown:
 header_pages:
   - index.md
   - citizenship.md
+  - blfgsa.md
   - handouts.md
   - diaries.md
 
