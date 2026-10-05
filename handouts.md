@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Handouts and psets
+title: Handouts
 permalink: /handouts/
 ---
 
