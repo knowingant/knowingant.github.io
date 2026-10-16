@@ -53,7 +53,7 @@ Again: checking is the MOST important thing when bashing. Slow and steady really
 
 \subsection{Useful formulas}
 
-For quick lookup, we include the most important formulas.
+For quick lookup, we include the most important formulas. But you really should already know these.
 \begin{itemize}
 	\ii For all $z$ lying on the unit circle, $\ol z = \frac 1z$.
 	\ii The midpoint of segment $AB$ is $\frac{a + b}2$.
@@ -98,7 +98,7 @@ We also include some less useful formulas.
 \subsection{Jacobi bialternant formula}
 \label{ssec:jacobi-bialternant}
 
-\alert{Skip this formula for now if you're less experienced.}
+This formula is rarely useful, but when it is, it grants the user an incredible amount of aura. \alert{Skip this formula for now if you're less experienced.}
 
 We'll need some theory. A partition $\lambda = \lambda_1\lambda_2\lambda_3 \dots$ is a weakly decreasing sequence of nonnegative integers $\lambda_i$ with finitely many nonzero elements. We use the French convention that the Young diagram of a partition $\lambda$ is the subset of $\ZZ_{>0}^2$ such that $(i,j)$ is in the Young diagram of $\lambda$ if and only if $i \le \lambda_j$. We will identify $\lambda$ with its Young diagram, hence we will use $\lambda$ to refer to both the partition $\lambda$ and its Young diagram. Let $S_n$ be the symmetric group, so $S_n$ is the set of permutations acting on $\{x_1,\dots,x_n\}$. For a diagram $\lambda$, a tableau is a function $\tau$ from $\lambda$ to any totally ordered set $X$, usually $\ZZ_{>0}$. We say a tableau is semistandard if its rows are weakly increasing and its columns are strictly increasing, i.e., if $i' > i$ and $j' > j$, we have $\tau(i,j) \le \tau(i',j)$ and $\tau(i,j) < \tau(i,j')$. The content or weight $\gamma(\tau)$ of a tableau $\tau$ is the sequence $(m_1,m_2,\dots)$, where $m_i$ is the cardinality of the preimage of $i$ with respect to $\tau$. For example, this is a semistandard tableau on $\lambda = 5442$ with content $(1,2,1,1,1,1,2,4,1,1)$.
 \[\begin{ytableau}
@@ -276,6 +276,25 @@ These problems are relatively straightforward and should be tried before the wal
 
 \section{Walkthroughs}
 \label{sec:walkthroughs}
+
+\subsection{Canada 1991/3}
+
+\begin{example}[Canada 1991/3]
+	Let $P$ be a point inside circle $\omega$. Consider the set of chords of $\omega$ that contain $P$. Prove that their midpoints all lie on a circle.
+\end{example}
+
+\begin{walkthrough}
+	Problems you can complex bash in your head are rare, but this is one of them. We will (of course) let $\omega$ be the unit circle. Let $\ol{AB}$ be a chord of $\omega$ containing $P$.
+
+	One possible approach is to solve for $b$ in terms of $a$ and $p$. However, this is a terrible idea. The problem is symmetric in $A$ and $B$, so this approach breaks symmetry. We want to keep everything symmetric, so in some sense, we'd like to work with the variables $\sigma := a + b$ and $\pi := ab$, rather than $a$ and $b$ themselves.
+	\begin{walk}
+		\ii Write down the condition that $P$ lies on $\ol{AB}$.
+		\ii We need to show $\frac12(a + b)$ lies on a fixed circle. Use the above condition to rewrite this in terms of $ab$.
+		\ii Use $\lvert ab\rvert = 1$ to show that $\frac12(p + ab\ol p)$ lies on a fixed circle.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
 
 \subsection{EMC 2024/J3}
 
