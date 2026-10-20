@@ -37,3 +37,10 @@ shengji-src/frontend/dist
 shengji-src/frontend/shengji-wasm/pkg
 *.db
 *.db-*
+
+# meet-0: only each event's problems.pdf and solutions.pdf are published;
+# sources, build.py, and LaTeX/asy build files stay local
+static/meet-0/**
+!static/meet-0/**/
+!static/meet-0/*/*/problems.pdf
+!static/meet-0/*/*/solutions.pdf
