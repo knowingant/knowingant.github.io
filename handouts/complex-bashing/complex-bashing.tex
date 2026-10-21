@@ -12,7 +12,7 @@
 \maketitle
 
 \begin{abstract}
-	This handout is intended for intermediate complex bashers. You should be able to complete \verb|BGW-complex| or solve most of the problems in \Cref{sec:warm-ups}. The main content of this handout is \Cref{sec:walkthroughs}, which contains 11 walkthroughs in rough order of increasing difficulty. You should try these walkthroughs yourself before reading them.
+	This handout is intended for intermediate complex bashers. You should be able to complete \verb|BGW-complex| or solve most of the problems in \Cref{sec:warm-ups}. The main content of this handout is \Cref{sec:walkthroughs}, which contains 13 walkthroughs in rough order of increasing difficulty. You should try these walkthroughs yourself before reading them.
 \end{abstract}
 
 \begin{quote}
@@ -127,12 +127,8 @@ It is a fact that the Schur functions are symmetric, i.e., they are invariant un
 		\ii Sort the cells containing $k$ and $k + 1$ in each row in increasing order.
 	\end{enumerate}
 \end{definition}
-
 This implies
-\begin{equation}
-	\label{equ:schur-to-monomial}
-	s_\lambda = \sum_\mu K_{\lambda\mu}m_\mu,
-\end{equation}
+\[s_\lambda = \sum_\mu K_{\lambda\mu}m_\mu,\]
 where the sum is taken over all partitions $\mu$.
 
 Let $\rho$ be the partition $(n - 1,\dots,0)$. We are finally ready to state the formula.
@@ -140,7 +136,7 @@ Let $\rho$ be the partition $(n - 1,\dots,0)$. We are finally ready to state the
 	For all partitions $\lambda$,
 	\[a_{\lambda + \rho} = a_\rho s_\lambda.\]
 \end{proposition}
-Observe that $a_\rho$ is the Vandermonde determinant $\prod_{i < j}(x_i - x_j)$. Along with \Cref{equ:schur-to-monomial}, this implies
+Observe that $a_\rho$ is the Vandermonde determinant $\prod_{i < j}(x_i - x_j)$. This implies
 \[a_{\lambda + \rho} = a_\rho s_\lambda = \prod_{i < j}(x_i - x_j)\biggl(\sum_\mu K_{\lambda\mu}m_\mu \biggr).\]
 
 An example is in order. The most useful case when complex bashing is $n = 3$. When computing symmetric determinants, you will often see expressions such as
@@ -164,7 +160,7 @@ Writing as a sum of permutations, we get
 \[\sum_{w \in S_3}\sgn(w)w(x^5y^2) - \sum_{w \in S_3}\sgn(w)w(x^4y^3) = a_{520} - a_{430}.\]
 So by the Jacobi bialternant formula, this becomes
 \[a_{210}(s_{310} - s_{220}) = (x - y)(x - z)(y - z)(s_{31} - s_{22}).\]
-We will now apply \Cref{equ:schur-to-monomial}. We only need to sum over partitions $\mu$ with sum $4$, since otherwise $K_{\lambda\mu} = 0$. We compute the eight Kostka numbers
+We will now write the $s_\lambda$ in terms of $m_\lambda$. We only need to sum over partitions $\mu$ with sum $4$, since otherwise $K_{\lambda\mu} = 0$. We compute the eight Kostka numbers
 \begin{align*}
 	K_{31,4} &= 0 \quad K_{31,31} = 1 \quad K_{31,22} = 1 \quad K_{31,211} = 2 \\
 	K_{22,4} &= 0 \quad K_{22,31} = 0 \quad K_{22,22} = 1 \quad K_{22,211} = 1.
@@ -319,6 +315,43 @@ These problems are relatively straightforward and should be tried before the wal
 
 \pagebreak
 
+\subsection{HMMT Team 2026/6}
+
+\begin{example}[HMMT Team 2026/6]
+	Let $ABCD$ be a cyclic quadrilateral with circumcenter $O,$ and let $M$ be the midpoint of $\ol{AB}$. Suppose that $\angle CMD = 90\dg$ and $\ol{AD} \perp \ol{BC}$. Prove that the reflection of $O$ over $\ol{AB}$ lies on line $CD$.
+\end{example}
+
+\begin{walkthrough}
+	This problem took me 15 minutes in-contest. This is a classic example of the power of setting good variables.
+
+	Let $(ABCD)$ be the unit circle. We begin by writing the conditions and conclusion in terms of complex numbers.
+	\begin{walk}
+		\ii Show that the conditions are equivalent to
+		\[ad + bc = 0 \quad \text{and} \quad \frac{(2c - (a + b))(2c - cd(\frac1a + \frac1b))}{(2d - (a + b))(2d - cd(\frac1a + \frac1b))}= -1.\]
+		\ii Show that the conclusion is equivalent to $a + b + cd(\frac1a + \frac1b) = c + d$.
+	\end{walk}
+	The second condition and conclusion suggest the substitution $x = a + b$ and $y = cd(\frac1a + \frac1b)$. Then we need to show the two conditions
+	\begin{align*}
+		ad + bc &= 0 \tag{$\bigstar$} \\
+		\frac{(2c - x)(2c - y)}{(2d - x)(2d - y)} &= -1 \tag{$\bigstar\bigstar$}
+	\end{align*}
+	imply $x + y = c + d$.
+	
+	Usually, you want to use points on the unit circle as variables. However, all we have left now are polynomial equalities (no conjugation). Also, $(\bigstar\bigstar)$ and the conclusion are far more easily written in terms of $x$ and $y$ than $a$ and $b$. Therefore, we'll try get rid of $a$ and $b$ completely. The first condition is not symmetric in $a$ and $b$, though, so we'll replace it with a symmetric condition.
+	
+	Since the problem is true, it is possible to do some algebra to show $(\bigstar)$ and $(\bigstar\bigstar)$ implies the conclusion. Swapping $a$ and $b$ and doing the same algebra, one can show $ac + bd = 0$ and $(\bigstar\bigstar)$ implies the conclusion as well. Therefore, we can safely replace $(\bigstar)$ with the weaker (but symmetric) condition
+	\[(ad + bc)(ac + bd) = 0 \tag{$\dagger$}.\]
+	We can finish now.
+	\begin{walk}[resume]
+		\ii Rewrite $(\dagger)$ as $xy + (c - d)^2 = 0$.
+		\ii Rewrite $(\bigstar\bigstar)$ as
+		\[2(c^2 + d^2) - (x + y)(c + d) + xy = 0\]
+		and substitute in $xy = -(c - d)^2$ to finish.
+	\end{walk}
+\end{walkthrough}
+
+\pagebreak
+
 \subsection{ISL 2023 G5}
 
 \begin{example}[ISL 2023 G5]
@@ -443,7 +476,7 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii Show that
 		\[\angle BDC = 90\dg + \angle BAC \iff \frac{c - d}{b - d} \div \frac{c - a}{b - a} \in i\RR \iff \frac{(c - d)(b - a)}{(b - x)(c - a)} \in i\RR.\]
 		\ii Show that the above is equivalent to
-		\[b(b - c)x^2 + a(b + c)(b + c - 2a)x - a^2c(b - c) = 0. \qquad (\bigstar)\]
+		\[b(b - c)x^2 + a(b + c)(b + c - 2a)x - a^2c(b - c) = 0. \tag{$\bigstar$}\]
 		\ii Line $AB$ is tangent to $(BEM)$ if and only if $\dang ABE = \dang BME$. Hence we require
 		\[\frac{a - b}{e - b} \div \frac{b - m}{e - m} = \frac{(a - b)(e - m)}{(x - b)(b - c)} \in \RR.\]
 		Show that this is equivalent to $(\bigstar)$.
@@ -513,7 +546,7 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii Convince yourself it's enough to show
 		\[\frac{j + \ol jbc - b - c}p = \frac{j + \ol jx^2 - 2x}x.\]
 		\ii Multiply by $p$ and write $j = xy\ol j$ to get
-		\[(xy + bc)\ol j - (b + c) = p(x + y)\ol j - 2p. \qquad (\bigstar)\]
+		\[(xy + bc)\ol j - (b + c) = p(x + y)\ol j - 2p. \tag{$\bigstar$}\]
 		At this point, we are happy because this expression is symmetric in $x$ and $y$.
 	\end{walk}
 
@@ -590,15 +623,15 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii Solve for $a$ in terms of $j$, $b$, and $c$. Convince yourself that $a/\ol a$ should be $j^2$, then verify your expression for $a$ satisfies this.
 	\end{walk}
 
-	Let $P$ be any point on $\Gamma$, and let $Q$ be the other intersection of $PK$ with $\Gamma$.
-	Let $R$ and $S$ be the intersections of the line through $K$ perpendicular to $PQ$ with $\Gamma$. 
+	Let $P$ be any point on $\Omega$, and let $Q$ be the other intersection of $PK$ with $\Omega$.
+	Let $R$ and $S$ be the intersections of the line through $K$ perpendicular to $PQ$ with $\Omega$. 
 	We show that if $P$ lies on either of the bisectors of $\angle BKA$, then $\angle PAR = \angle QAS$.
 
 	\begin{walk}[resume]
 		\ii Show that it's equivalent to require
-		\[\frac{(p - k)^2}{(a - k)(b - c)} \in \RR \qquad (\dagger)\]
+		\[\frac{(p - k)^2}{(a - k)(b - c)} \in \RR \tag{$\dagger$}\]
 		to imply
-		\[\frac{(a - p)(a - q)}{(a - r)(a - s)} \in \RR. \qquad (\bigstar)\]
+		\[\frac{(a - p)(a - q)}{(a - r)(a - s)} \in \RR. \tag{$\bigstar$}\]
 	\end{walk}
 
 	The key insight is to parameterize the entire setup in terms of $pq$. This is motivated by the following facts:
@@ -614,11 +647,11 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii Respecting symmetry, we rewrite $(\dagger)$ as
 		\[\frac{(p - k)(q - k)}{(a - k)(b - c)} \in \RR.\]
 		Show that this is equivalent to
-		\[p^2q^2(a - j^2\ol k) + bcj^2(a - k) = 0. \qquad (\dagger\dagger)\]
+		\[p^2q^2(a - j^2\ol k) + bcj^2(a - k) = 0. \tag{$\dagger\dagger$}\]
 		\ii Show that
 		\[\frac{(a - p)(a - q)}{(a - r)(a - s)} = \frac{a^2 - ak + (1 - a\ol k)pq}{a^2 - ak - (1 - a\ol k)pq}.\]
 		\ii Show that $(\bigstar)$ rearranges to
-		\[p^2q^2(1 - a\ol k)(a - j^2\ol k) + j^2(k - a)(j^2 - ak) = 0. \qquad (\bigstar\bigstar)\]
+		\[p^2q^2(1 - a\ol k)(a - j^2\ol k) + j^2(k - a)(j^2 - ak) = 0. \tag{$\bigstar\bigstar$}\]
 		\ii Finish by showing $(\dagger\dagger)$ and $(\bigstar\bigstar)$ are equivalent.
 	\end{walk}
 \end{walkthrough}
@@ -643,8 +676,8 @@ These problems are relatively straightforward and should be tried before the wal
 	We proceed with the first solution, which I did on \href{https://www.twitch.tv/knowingsanta}{Twitch}. The computation took two hours, but I had emotional support in the form of chat.
 	\begin{walk}[resume]
 		\ii The condition that a point $T$ lies on $(XYZ)$ may be written as
-		\[\frac{(T - y)(x - y)}{(T - z)(x - z)} \in \mathbb R.\]
-		Compute $\frac{x - y}{x - z}$. It should be really nice.
+		\[\frac{(T - y)(x - z)}{(T - z)(x - y)} \in \mathbb R.\]
+		Compute $\frac{x - z}{x - y}$. It should be really nice.
 		\ii Substituting in $\overline T = \tfrac 1T$ yields a quadratic whose roots are the intersection of $(ABC)$ and $(XYZ)$; we need to show this quadratic has a double root. Show that this quadratic is
 		\[T^2(b^2\overline y - c^2\overline z) - T(b^2 - c^2 + b^2\overline yz + c^2y\overline z) + b^2z - c^2y = 0.\]
 		\ii Substitute to show that the discriminant of this quadratic is zero. (This computation is not short.)
@@ -663,7 +696,7 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii Compute
 		\begin{align*}
 			\Pow_\Gamma(X) = x\ol x - 1 &= \frac{(p - a)^2((ab + bc + ca)p^2 - 2abcp + abc(a + b + c))}{a^2p^2(b + c)^2} \\
-			y - z &= \frac{(b - c)(-2pabc + abc(a + b + c))}{p^2(a + b)(a + c)}.
+			y - z &= \frac{(b - c)((ab + bc + ca)p^2 - 2pabc + abc(a + b + c))}{p^2(a + b)(a + c)}.
 		\end{align*}
 		\ii Divide by unit and symmetric terms to obtain
 		\[\lvert a - p\rvert\lvert b - c\rvert \pm \lvert b - p\rvert\lvert c - a\rvert \pm \lvert c - p\rvert\lvert a - b\rvert = 0.\]
