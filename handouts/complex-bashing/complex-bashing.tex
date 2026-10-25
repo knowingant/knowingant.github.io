@@ -56,8 +56,8 @@ Again: checking is the MOST important thing when bashing. Slow and steady really
 For quick lookup, we include the most important formulas. But you really should already know these.
 \begin{itemize}
 	\ii For all $z$ lying on the unit circle, $\ol z = \frac 1z$.
-	\ii The midpoint of segment $AB$ is $\frac{a + b}2$.
-	\ii The foot from $P$ to $\ol{AB}$ is $\frac12(a + b + p - ab\ol p)$, given that $a$ and $b$ lie on the unit circle.
+	\ii The midpoint of segment $\ol{AB}$ is $\frac{a + b}2$.
+	\ii The foot from $P$ to $\ol{AB}$ is $\frac12(a + b + p - ab\ol p)$, given that $a$ and $b$ lie on the unit circle. In particular, $Z$ lies on $\ol{AB}$ iff $z + ab\ol z = a + b$.
 	\ii The points $A$, $B$, and $C$ are collinear if and only if $\frac{a - c}{b - c} \in \RR$.
 	\ii We have $\dang ABC = \dang DEF$ if and only if $\frac{a - b}{c - b} \div \frac{d - e}{f - e} \in \RR$.
 	\ii The intersection of lines $\ol{AB}$ and $\ol{CD}$ is $\frac{ab(c + d) - cd(a + b)}{ab - cd}$, given that $a$, $b$, $c$, and $d$ lie on the unit circle. In particular, the intersection of tangents $\ol{AA}$ and $\ol{BB}$ is $\frac{2ab}{a + b}$.
@@ -74,7 +74,7 @@ For quick lookup, we include the most important formulas. But you really should 
 	\end{vmatrix}.\]
 	This matrix formulation is ONLY useful if $a$, $b$, and $c$ have nice symmetry, and you can perform row operations to greatly simplify the computation. This case is somewhat rare. It's almost always better to translate one of the points to zero. Then the circumcenter of $A$, $B$, and $O$ (where $O$ is the origin) is
 	\[\frac{ab(\ol b - \ol a)}{a\ol b - \ol ab} = \frac{\frac a{\ol a} \cdot b - \frac b{\ol b} \cdot a}{\frac a{\ol a} - \frac b{\ol b}}.\]
-	(The reason I included the second, seemingly awkward formulation is that $\frac a{\ol a}$ and $\frac b{\ol b}$ often have nice forms.)
+	(I included the second, seemingly awkward formulation since $\frac a{\ol a}$ and $\frac b{\ol b}$ often have nice forms.)
 	\ii Let lines $AX$ and $BY$ intersect at a point $P$. The second intersection of $(ABP)$ and $(XYP)$ is the center of the spiral similarity sending $\ol{AB}$ to $\ol{XY}$, which is $\frac{ay - bx}{a + y - b - x}$.
 \end{itemize}
 
@@ -261,7 +261,7 @@ These problems are relatively straightforward and should be tried before the wal
 \end{problem}
 
 \begin{problem}[USAMO 2023/1]
-	In an acute triangle $ABC$, let $M$ be the midpoint of $\overline{BC}$. Let $P$ be the foot of the perpendicular from $C$ to $AM$. Suppose that the circumcircle of triangle $ABP$ intersects line $BC$ at two distinct points $B$ and $Q$. Let $N$ be the midpoint of $\overline{AQ}$. Prove that $NB=NC$.
+	In an acute triangle $ABC$, let $M$ be the midpoint of $\ol{BC}$. Let $P$ be the foot of the perpendicular from $C$ to $AM$. Suppose that the circumcircle of triangle $ABP$ intersects line $BC$ at two distinct points $B$ and $Q$. Let $N$ be the midpoint of $\ol{AQ}$. Prove that $NB=NC$.
 \end{problem}
 
 \begin{problem}[IMO 2023/2]
@@ -303,7 +303,7 @@ These problems are relatively straightforward and should be tried before the wal
 
 	Let $\omega$ be the unit circle, and let $BC$, $CA$, and $AB$ be tangent to $\omega$ at $X$, $Y$, and $Z$, respectively.
 	\begin{walk}
-		\ii Compute $a$, $d$, $m$, $b$, and $c$ using ice cream cone.
+		\ii Compute $a$, $b$, $c$, $d$, and $m$.
 		\ii We need to show
 		\[\frac{a - m}{d - m} \div \frac{d - b}{c - b} \in \RR.\]
 		Show that since $\frac{c - b}x \in i\RR$, it's equivalent to show
@@ -337,10 +337,10 @@ These problems are relatively straightforward and should be tried before the wal
 	\end{align*}
 	imply $x + y = c + d$.
 	
-	Usually, you want to use points on the unit circle as variables. However, all we have left now are polynomial equalities (no conjugation). Also, $(\bigstar\bigstar)$ and the conclusion are far more easily written in terms of $x$ and $y$ than $a$ and $b$. Therefore, we'll try get rid of $a$ and $b$ completely. The first condition is not symmetric in $a$ and $b$, though, so we'll replace it with a symmetric condition.
+	Usually, you want to use points on the unit circle as variables. However, all we have left now are polynomial equalities (no conjugation). Also, $(\bigstar\bigstar)$ and the conclusion are far more easily written in terms of $x$ and $y$ than $a$ and $b$. Therefore, we'll try to get rid of $a$ and $b$ completely. The first condition is not symmetric in $a$ and $b$, though, so we'll replace it with a symmetric condition.
 	
-	Since the problem is true, it is possible to do some algebra to show $(\bigstar)$ and $(\bigstar\bigstar)$ implies the conclusion. Swapping $a$ and $b$ and doing the same algebra, one can show $ac + bd = 0$ and $(\bigstar\bigstar)$ implies the conclusion as well. Therefore, we can safely replace $(\bigstar)$ with the weaker (but symmetric) condition
-	\[(ad + bc)(ac + bd) = 0 \tag{$\dagger$}.\]
+	Since the problem is true, it is possible to do some algebra to show $(\bigstar)$ and $(\bigstar\bigstar)$ imply the conclusion. Swapping $a$ and $b$ and doing the same algebra, one can show $ac + bd = 0$ and $(\bigstar\bigstar)$ imply the conclusion as well. Therefore, we can safely replace $(\bigstar)$ with the weaker (but symmetric) condition
+	\[(ad + bc)(ac + bd) = 0. \tag{$\dagger$}\]
 	We can finish now.
 	\begin{walk}[resume]
 		\ii Rewrite $(\dagger)$ as $xy + (c - d)^2 = 0$.
@@ -415,7 +415,7 @@ These problems are relatively straightforward and should be tried before the wal
 \end{example}
 
 \begin{walkthrough}
-	I solved this problem while eating cheese curds at the Minnesota State Fair.
+	This one is relatively straightforward. I solved this one while eating cheese curds at the Minnesota State Fair.
 
 	Let $X$ be the intersection of the external $\angle A$-bisector and line $DI$. We show $X$ lies on line $PQ$. Let $O_1$ and $O_2$ be the centers of $(PBF)$ and $(PCE)$. Let $\omega$ be the unit circle.
 	\begin{walk}
@@ -439,7 +439,7 @@ These problems are relatively straightforward and should be tried before the wal
 \subsection{TST 2017/5}
 
 \begin{example}[TST 2017/5]
-	Let $ABC$ be a triangle with altitude $\overline{AE}$. The $A$-excircle touches $\overline{BC}$ at $D$, and intersects the circumcircle at two points $F$ and $G$. Prove that one can select points $V$ and $N$ on lines $DG$ and $DF$ such that quadrilateral $EVAN$ is a rhombus.
+	Let $ABC$ be a triangle with altitude $\ol{AE}$. The $A$-excircle touches $\ol{BC}$ at $D$, and intersects the circumcircle at two points $F$ and $G$. Prove that one can select points $V$ and $N$ on lines $DG$ and $DF$ such that quadrilateral $EVAN$ is a rhombus.
 \end{example}
 
 \begin{walkthrough}
@@ -503,7 +503,7 @@ These problems are relatively straightforward and should be tried before the wal
 		\[(a - x)(a + x) \sim (b - x)(c + x) \sim (b + x)(c - x).\]
 		Use the fact that $x \sim y$ implies $x \sim y + \lambda x$ for all $\lambda \in \RR$ to show that the above implies
 		\[a^2 - x^2 \sim bc - a^2 \sim x(b - c).\]
-		\ii Since $b \neq c$, conclude that $x \sim \frac{bc - a^2}{b - c}$, and similarly, $y \sim \frac{bc - a^2}{b - c}$ as well. So $x \sim y \sim \frac{bc - a^2}{b - c}$.
+		\ii Since $b \neq c$, conclude that $x \sim \frac{bc - a^2}{b - c}$, and similarly, $y \sim \frac{bc - a^2}{b - c}$ as well.
 	\end{walk}
 	Now we work by cases on whether $\frac{bc - a^2}{b - c} = 0$.
 	\begin{walk}[resume]
@@ -670,7 +670,7 @@ These problems are relatively straightforward and should be tried before the wal
 	Let $P$ be the tangency point of $\ell$ to $(ABC)$. Let $X = \ell_b \cap \ell_c$ and define $Y$ and $Z$ similarly. We complex bash with $(ABC)$ as the unit circle. The first step is the same in all three solutions.
 	\begin{walk}
 		\ii Compute
-		\[x = \frac{p^2(ab + bc + ca) - 2pabc + a^2bc}{p^2(b + c)} = a + \frac{bc(p - a)^2}{p^2(b + c)} \quad \text{and} \quad \overline x = \frac 1a + \frac{(p - a)^2}{a^2(b + c)}.\]
+		\[x = \frac{p^2(ab + bc + ca) - 2pabc + a^2bc}{p^2(b + c)} = a + \frac{bc(p - a)^2}{p^2(b + c)} \quad \text{and} \quad \ol x = \frac 1a + \frac{(p - a)^2}{a^2(b + c)}.\]
 	\end{walk}
 
 	We proceed with the first solution, which I did on \href{https://www.twitch.tv/knowingsanta}{Twitch}. The computation took two hours, but I had emotional support in the form of chat.
@@ -678,8 +678,8 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii The condition that a point $T$ lies on $(XYZ)$ may be written as
 		\[\frac{(T - y)(x - z)}{(T - z)(x - y)} \in \mathbb R.\]
 		Compute $\frac{x - z}{x - y}$. It should be really nice.
-		\ii Substituting in $\overline T = \tfrac 1T$ yields a quadratic whose roots are the intersection of $(ABC)$ and $(XYZ)$; we need to show this quadratic has a double root. Show that this quadratic is
-		\[T^2(b^2\overline y - c^2\overline z) - T(b^2 - c^2 + b^2\overline yz + c^2y\overline z) + b^2z - c^2y = 0.\]
+		\ii Substituting in $\ol T = \tfrac 1T$ yields a quadratic whose roots are the intersection of $(ABC)$ and $(XYZ)$; we need to show this quadratic has a double root. Show that this quadratic is
+		\[T^2(b^2\ol y - c^2\ol z) - T(b^2 - c^2 + b^2\ol yz - c^2y\ol z) + b^2z - c^2y = 0.\]
 		\ii Substitute to show that the discriminant of this quadratic is zero. (This computation is not short.)
 	\end{walk}
 	

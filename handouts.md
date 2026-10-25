@@ -26,13 +26,21 @@ Please let me know about any errors, if you have any questions, or if you want s
 
 # Recorded presentations
 
+- **A tour of the generalized Catalan numbers**
+[(pdf)](primes-talk/primes-talk.pdf) [(youtube)](https://youtu.be/dsFPs1UOboo)
+
+    A talk on the generalized Catalan numbers
+    meant for a general mathematical audience.
+    Given at the 2026 Fall-Term PRIMES conference.
+    Thanks to Timothy Chen for filming.
+    
+
 - **Penguins**
 [(pdf)](stack-sorting/stack-sorting.pdf) [(tex)](stack-sorting/stack-sorting.tex) [(youtube)](https://youtu.be/4Pg7ZQRtXYY)
 
     A ten-minute RSI talk on stack-sorting
     meant for an audience without a math background.
-    You should watch the YouTube video instead of reading the slides;
-    credits to Tristan Sun for filming.
+    Thanks to Tristan Sun for filming.
 
 - **Tractor**
 [(pdf)](tractor/tractor.pdf) [(tex)](tractor/tractor.tex) [(youtube)](https://youtu.be/M2Z3jXubzKM)
