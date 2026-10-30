@@ -7,14 +7,13 @@ slugify() {
 }
 
 if (( $# < 1 )); then
-  echo "Usage: $0 path/to/file.tex [Title] [--slug custom-slug]" >&2
+  echo "Usage: $0 path/to/file.tex [--slug custom-slug]" >&2
   exit 1
 fi
 
 src=$1
 shift
 
-custom_title=""
 custom_slug=""
 
 while (( $# > 0 )); do
@@ -28,13 +27,9 @@ while (( $# > 0 )); do
       shift 2
       ;;
     *)
-      if [[ -n "$custom_title" ]]; then
-        echo "Unexpected extra argument: $1" >&2
-        echo "Usage: $0 path/to/file.tex [Title] [--slug custom-slug]" >&2
-        exit 1
-      fi
-      custom_title=$1
-      shift
+      echo "Unexpected extra argument: $1" >&2
+      echo "Usage: $0 path/to/file.tex [--slug custom-slug]" >&2
+      exit 1
       ;;
   esac
 done
@@ -49,7 +44,6 @@ if ! command -v latexmk >/dev/null 2>&1; then
   exit 1
 fi
 
-repo_root=$(cd "$(dirname "$0")/.." && pwd)
 build_dir=$(mktemp -d)
 src_dir=$(cd "$(dirname "$src")" && pwd)
 src_file=$(basename "$src")
@@ -61,17 +55,8 @@ if [[ -z "$slug" ]]; then
   echo "Slug must contain at least one letter or number" >&2
   exit 1
 fi
-title=${custom_title:-$base_name}
-escaped_title=$(printf '%s' "$title" | sed 's/"/\\"/g')
-today=$(date +%F)
 pdf_tmp="$build_dir/$base_name.pdf"
 dest_pdf="$src_dir/$slug.pdf"
-data_dir="$repo_root/_data"
-data_file="$data_dir/handouts.yml"
-src_rel=${src_abs#$repo_root/}
-pdf_rel=${dest_pdf#$repo_root/}
-src_path="/$src_rel"
-pdf_path="/$pdf_rel"
 
 cleanup() {
   rm -rf "$build_dir"
@@ -88,29 +73,8 @@ if [[ ! -f "$pdf_tmp" ]]; then
   exit 1
 fi
 
-mkdir -p "$data_dir"
 cp "$pdf_tmp" "$dest_pdf"
-
-ruby -ryaml -rdate -e '
-path = ARGV.shift
-title = ARGV.shift
-pdf = ARGV.shift
-source = ARGV.shift
-slug = ARGV.shift
-date = ARGV.shift
-data =
-  if File.exist?(path)
-    YAML.safe_load(File.read(path), permitted_classes: [Date], aliases: true)
-  else
-    []
-  end
-data = [] unless data.is_a?(Array)
-data.reject! { |item| item["slug"] == slug }
-data << { "title" => title, "pdf" => pdf, "source" => source, "slug" => slug, "date" => date }
-File.write(path, data.to_yaml)
-' "$data_file" "$escaped_title" "$pdf_path" "$src_path" "$slug" "$today"
 
 echo "Published handout:"
 echo "  PDF:   $dest_pdf"
 echo "  TEX:   $src_abs"
-echo "  Data:  $data_file"
