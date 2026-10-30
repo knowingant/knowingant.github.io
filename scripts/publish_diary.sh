@@ -101,7 +101,7 @@ cp "$encrypted_pdf" "$dest_pdf"
 touch "$password_file"
 grep -v "^$slug " "$password_file" > "$build_dir/passwords" || true
 printf '%s `%s`\n' "$slug" "$password" >> "$build_dir/passwords"
-cp "$build_dir/passwords" "$password_file"
+sort -V "$build_dir/passwords" > "$password_file"
 
 printf '@everyone\n%s\nPW (click to copy on mobile): `%s`\n' "$url" "$password" | pbcopy
 
