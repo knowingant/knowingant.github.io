@@ -28,6 +28,8 @@ private
 **.synctex.gz
 **.synctex(busy)
 **.synctex
+**.vrb
+**.pdfpc
 
 .DS_Store
 # shengji fork build artifacts (see shengji-src/.gitignore too)

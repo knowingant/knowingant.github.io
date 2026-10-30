@@ -6,16 +6,14 @@ slugify() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//'
 }
 
-if (( $# < 2 )); then
-  echo "Usage: $0 path/to/file.tex password [Title] [--slug custom-slug]" >&2
+if (( $# < 1 )); then
+  echo "Usage: $0 path/to/file.tex [--slug custom-slug]" >&2
   exit 1
 fi
 
 src=$1
-password=$2
-shift 2
+shift
 
-custom_title=""
 custom_slug=""
 
 while (( $# > 0 )); do
@@ -29,13 +27,9 @@ while (( $# > 0 )); do
       shift 2
       ;;
     *)
-      if [[ -n "$custom_title" ]]; then
-        echo "Unexpected extra argument: $1" >&2
-        echo "Usage: $0 path/to/file.tex password [Title] [--slug custom-slug]" >&2
-        exit 1
-      fi
-      custom_title=$1
-      shift
+      echo "Unexpected extra argument: $1" >&2
+      echo "Usage: $0 path/to/file.tex [--slug custom-slug]" >&2
+      exit 1
       ;;
   esac
 done
@@ -45,20 +39,12 @@ if [[ ! -f "$src" ]]; then
   exit 1
 fi
 
-if [[ -z "$password" ]]; then
-  echo "Password must not be empty" >&2
-  exit 1
-fi
-
-if ! command -v latexmk >/dev/null 2>&1; then
-  echo "latexmk is required" >&2
-  exit 1
-fi
-
-if ! command -v gs >/dev/null 2>&1; then
-  echo "Ghostscript (gs) is required for PDF encryption" >&2
-  exit 1
-fi
+for cmd in latexmk qpdf pbcopy python3; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "$cmd is required" >&2
+    exit 1
+  fi
+done
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 build_dir=$(mktemp -d)
@@ -71,17 +57,20 @@ if [[ -z "$slug" ]]; then
   echo "Slug must contain at least one letter or number" >&2
   exit 1
 fi
-title=${custom_title:-$base_name}
-escaped_title=$(printf '%s' "$title" | sed 's/"/\\"/g')
-today=$(date +%F)
 plain_pdf="$build_dir/$base_name.pdf"
 encrypted_pdf="$build_dir/$slug-encrypted.pdf"
 dest_dir="$repo_root/assets/diaries/$slug"
 dest_pdf="$dest_dir/$slug.pdf"
-data_dir="$repo_root/_data"
-data_file="$data_dir/diaries.yml"
-pdf_path="/assets/diaries/$slug/$slug.pdf"
-summary="This PDF is password-protected."
+url="https://knowingant.github.io/assets/diaries/$slug/$slug.pdf"
+# One "slug `password`" line per diary. This file must stay out of git.
+password_file="$repo_root/private/diary-passwords.txt"
+
+if ! git -C "$repo_root" check-ignore -q "$password_file"; then
+  echo "Refusing to run: $password_file is not gitignored" >&2
+  exit 1
+fi
+
+password=$(python3 -c 'import secrets, string; print("".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16)))')
 
 cleanup() {
   rm -rf "$build_dir"
@@ -98,47 +87,25 @@ if [[ ! -f "$plain_pdf" ]]; then
   exit 1
 fi
 
-gs \
-  -q \
-  -dBATCH \
-  -dNOPAUSE \
-  -sDEVICE=pdfwrite \
-  -dCompatibilityLevel=1.7 \
-  -dEncryptionR=3 \
-  -dKeyLength=128 \
-  -dPermissions=-4 \
-  -sOwnerPassword="$password" \
-  -sUserPassword="$password" \
-  -sOutputFile="$encrypted_pdf" \
-  "$plain_pdf"
+qpdf --encrypt --user-password="$password" --owner-password="$password" --bits=256 -- \
+  "$plain_pdf" "$encrypted_pdf"
 
 if [[ ! -f "$encrypted_pdf" ]]; then
   echo "Encrypted PDF was not created: $encrypted_pdf" >&2
   exit 1
 fi
 
-mkdir -p "$dest_dir" "$data_dir"
+mkdir -p "$dest_dir" "$(dirname "$password_file")"
 cp "$encrypted_pdf" "$dest_pdf"
 
-ruby -ryaml -rdate -e '
-path = ARGV.shift
-title = ARGV.shift
-pdf = ARGV.shift
-slug = ARGV.shift
-date = ARGV.shift
-summary = ARGV.shift
-data =
-  if File.exist?(path)
-    YAML.safe_load(File.read(path), permitted_classes: [Date], aliases: true)
-  else
-    []
-  end
-data = [] unless data.is_a?(Array)
-data.reject! { |item| item["slug"] == slug }
-data << { "title" => title, "pdf" => pdf, "slug" => slug, "date" => date, "summary" => summary }
-File.write(path, data.to_yaml)
-' "$data_file" "$escaped_title" "$pdf_path" "$slug" "$today" "$summary"
+touch "$password_file"
+grep -v "^$slug " "$password_file" > "$build_dir/passwords" || true
+printf '%s `%s`\n' "$slug" "$password" >> "$build_dir/passwords"
+cp "$build_dir/passwords" "$password_file"
+
+printf '@everyone\n%s\nPW (click to copy on mobile): `%s`\n' "$url" "$password" | pbcopy
 
 echo "Published encrypted diary:"
-echo "  PDF:   $dest_pdf"
-echo "  Data:  $data_file"
+echo "  PDF:       $dest_pdf"
+echo "  Password:  saved to $password_file"
+echo "Copied the Discord announcement to the clipboard."
