@@ -54,9 +54,9 @@ Please let me know about any errors, if you have any questions, or if you want s
 - **Complex bashing** 🌶🌶🌶
 [(pdf)](complex-bashing/complex-bashing.pdf) [(tex)](complex-bashing/complex-bashing.tex)
 
-    Intended for intermediate complex bashers who are able to complete BGW-complex.
+    Intended for intermediate complex bashers who can finish `BGW-complex`.
     We also introduce the Jacobi bialternant formula.
-    The main content of this handout is 11 walkthroughs.
+    The main content of this handout is 14 walkthroughs.
 
 - **Estimation** 🌶–🌶🌶
 [(pdf)](estimation/estimation.pdf) [(tex)](estimation/estimation.tex)

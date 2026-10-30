@@ -12,7 +12,7 @@
 \maketitle
 
 \begin{abstract}
-	This handout is intended for intermediate complex bashers. You should be able to complete \verb|BGW-complex| or solve most of the problems in \Cref{sec:warm-ups}. The main content of this handout is \Cref{sec:walkthroughs}, which contains 13 walkthroughs in rough order of increasing difficulty. You should try these walkthroughs yourself before reading them.
+	Intended for intermediate complex bashers. You should be able to complete \texttt{BGW-complex} or solve most of the problems in \Cref{sec:warm-ups}. The main content of this handout is \Cref{sec:walkthroughs}, which contains fourteen walkthroughs in rough order of increasing difficulty. \alert{Try to do the walkthrough examples without reading the steps before reading them.} We also include a beginner-friendly introduction to the Jacobi bialternant formula.
 \end{abstract}
 
 \begin{quote}
@@ -315,7 +315,7 @@ These problems are relatively straightforward and should be tried before the wal
 \begin{walkthrough}
 	Problems you can complex bash in your head are rare, but this is one of them. We will (of course) let $\omega$ be the unit circle. Let $\ol{AB}$ be a chord of $\omega$ containing $P$.
 
-	One possible approach is to solve for $b$ in terms of $a$ and $p$. However, this is a terrible idea. The problem is symmetric in $A$ and $B$, so this approach breaks symmetry. We want to keep everything symmetric, so in some sense, we'd like to work with the variables $\sigma := a + b$ and $\pi := ab$, rather than $a$ and $b$ themselves.
+	One possible approach is to solve for $b$ in terms of $a$ and $p$. However, this is a terrible idea. The problem is symmetric in $A$ and $B$, so this approach breaks symmetry. We want to keep everything symmetric, so in some sense, we'd like to work with the variables $a + b$ and $= ab$, rather than $a$ and $b$ themselves.
 	\begin{walk}
 		\ii Write down the condition that $P$ lies on $\ol{AB}$.
 		\ii We need to show $\frac12(a + b)$ lies on a fixed circle. Use the above condition to rewrite this in terms of $ab$.
@@ -358,13 +358,7 @@ These problems are relatively straightforward and should be tried before the wal
 \begin{walkthrough}
 	This is doable using methods from only \texttt{BGW-complex} (in fact it appears as a walkthrough there), but we're going to nuke it using the Jacobi bialternant formula for fun.
 
-	Make sure you've read \Cref{ssec:jacobi-bialternant}. We will employ American Smartass Notation: let $\lvert f,g,h\rvert$ for rational functions $f$, $g$, and $h$ denote the magnitude of the determinant of the $3 \times 3$ matrix whose rows are the three cyclic variations of $(f,g,h)$. For example,
-	\[\left\lvert a^2 + d^2,\frac{a(x\ol j + 1)}{a + d},1\right\rvert = \left\lvert\begin{vmatrix}
-		a^2 + d^2 & \frac{a(x\ol j + 1)}{a + d} & 1 \\
-		b^2 + e^2 & \frac{b(y\ol j + 1)}{b + e} & 1 \\
-		c^2 + f^2 & \frac{c(z\ol j + 1)}{c + f} & 1
-	\end{vmatrix}\right\rvert,\]
-	where the outside vertical bars denote the magnitude.
+	Make sure you've read \Cref{ssec:jacobi-bialternant}. We will employ American Smartass Notation: let $\lvert f,g,h\rvert$ for rational functions $f$, $g$, and $h$ denote the magnitude of the determinant of the $3 \times 3$ matrix whose rows are the three cyclic variations of $(f,g,h)$.
 
 	\begin{walk}
 		\ii Compute $x = \frac12(a + \frac12(a + b + c - \frac{bc}a))$.
