@@ -98,32 +98,72 @@ We also include some less useful formulas.
 \subsection{Jacobi bialternant formula}
 \label{ssec:jacobi-bialternant}
 
-This formula is rarely useful, but when it is, it grants the user an incredible amount of aura. \alert{Skip this formula for now if you're less experienced.}
+I'd like to introduce the incredibly powerful Jacobi bialternant formula, which remains somewhat obscure in the math competition community (for probably good reasons). In the world of complex bashing, it allows one to compute symmetric determinants quickly. It's rarely useful, but when it is, it grants the user an incredible amount of aura. \alert{Skip this formula for now if you're less experienced.}
 
-We'll need some theory. A partition $\lambda = \lambda_1\lambda_2\lambda_3 \dots$ is a weakly decreasing sequence of nonnegative integers $\lambda_i$ with finitely many nonzero elements. We use the French convention that the Young diagram of a partition $\lambda$ is the subset of $\ZZ_{>0}^2$ such that $(i,j)$ is in the Young diagram of $\lambda$ if and only if $i \le \lambda_j$. We will identify $\lambda$ with its Young diagram, hence we will use $\lambda$ to refer to both the partition $\lambda$ and its Young diagram. Let $S_n$ be the symmetric group, so $S_n$ is the set of permutations acting on $\{x_1,\dots,x_n\}$. For a diagram $\lambda$, a tableau is a function $\tau$ from $\lambda$ to any totally ordered set $X$, usually $\ZZ_{>0}$. We say a tableau is semistandard if its rows are weakly increasing and its columns are strictly increasing, i.e., if $i' > i$ and $j' > j$, we have $\tau(i,j) \le \tau(i',j)$ and $\tau(i,j) < \tau(i,j')$. The content or weight $\gamma(\tau)$ of a tableau $\tau$ is the sequence $(m_1,m_2,\dots)$, where $m_i$ is the cardinality of the preimage of $i$ with respect to $\tau$. For example, this is a semistandard tableau on $\lambda = 5442$ with content $(1,2,1,1,1,1,2,4,1,1)$.
+Let $S_n$ be the set of permutations acting on $\{1,2,\dots,n\}$. The set $S_n$ is called the \emph{symmetric group}. Each permutation $\sigma \in S_n$ also acts on expressions in the variables $x_1$, \dots, $x_n$ by permuting the indices of the $x_i$. For example, if $\sigma(1) = 1$, $\sigma(2) = 3$, and $\sigma(3) = 2$, then $\sigma(\frac{x_1 + x_2}{x_3}) = \frac{x_1 + x_3}{x_2}$.
+
+The number of \emph{inversions} of a permutation $\sigma$ is the number of pairs $(i,j)$ with $1 \le i < j \le n$ such that $\sigma(i) > \sigma(j)$. The \emph{sign} of a permutation $\sigma$, denoted $\sgn(\sigma)$, is $+1$ if the number of inversions is even and $-1$ if the number of inversions is odd. The following fact is classical, but I did not know why it was true until recently.
+\begin{lemma}
+	[The sign is multiplicative]
+	Let $\sigma_1$ and $\sigma_2$ be two permutations. Then $\sgn(\sigma_1\sigma_2) = \sgn(\sigma_1)\sgn(\sigma_2)$. (Here, $\sigma_1\sigma_2$ refers to the composition $\sigma_1 \circ \sigma_2$.) 
+\end{lemma}
+
+\begin{proof}
+	[Proof by \href{https://mathoverflow.net/questions/417690/conceptual-reason-why-the-sign-of-a-permutation-is-well-defined}{Theo Johnson-Freyd}]
+	Draw the permutation by connecting dots on either sides of a strip. Use wiggly lines if you like, but only use normal crossings. Now each crossing represents an inversion, and argue that this count modulo $2$ is a topological invariant. Stack two strips to show multiplicativity.
+\end{proof}
+
+\begin{exercise}
+	List the permutations in $S_3$ and compute their signs.
+\end{exercise}
+
+\begin{exercise}
+	A \emph{transposition} is a permutation that just swaps two elements. Show that transpositions have sign $-1$, and hence any decomposition of an even (resp.\ odd) permutation into transpositions will use an even (resp.\ odd) number of them.
+\end{exercise}
+
+We say $f \in \mathbb C(x_1,\dots,x_n)$ is symmetric (resp.\ antisymmetric) if $f = \sigma(f)$ (resp.\ $f = \sgn(\sigma)\sigma(f)$) for all $\sigma \in S_n$. Let $\Lambda_n$ and $A_n$ be the set of symmetric and antisymmetric polynomials in $\CC[x_1,\dots,x_n]$, respectively, and let $\Delta(x_1,\dots,x_n) = \prod_{i < j}(x_i - x_j)$.
+
+We present the following characterization of antisymmetric polynomials.
+\begin{lemma}[Antisymmetric polynomials are multiples of $\Delta$]
+    $A_n = \Delta \Lambda_n$.
+\end{lemma}
+
+\begin{proof}
+    As $\Delta$ is antisymmetric and the product of an antisymmetric and symmetric polynomial is symmetric, $\Delta\Lambda_n \subseteq A_n$.
+    
+    Now suppose $f \in A_n$. For any $i \neq j$, let $\sigma_{ij}$ be the permutation swapping $x_i$ and $x_j$. Then $\sigma_{ij}(f) = -f$ as $f$ is antisymmetric, but $x_i - x_j \mid f - \sigma_{ij}(f)$. Hence $x_i - x_j \mid f$ for all $i \neq j$, so $\Delta \mid f$. Also, $\frac f{\Delta}$ is symmetric, since the quotient of two antisymmetric polynomials is symmetric. Hence $f \in \Delta \Lambda_n$, so $A_n \subseteq \Delta \Lambda_n$, as desired.
+\end{proof}
+
+We're going to take a detour into the world of tableaux. A \emph{partition} $\lambda = \lambda_1\lambda_2\lambda_3 \dots$ is a weakly decreasing sequence of nonnegative integers $\lambda_i$ with finitely many nonzero elements. The \emph{Young diagram} of a partition $\lambda$ is the subset of $\ZZ_{>0}^2$ such that $(i,j)$ is in the Young diagram of $\lambda$ if and only if $i \le \lambda_j$. That is, the Young diagram of a partition is formed by stacking left-aligned rows of cells of length $\lambda_i$ with $\lambda_1$ on the bottom. For example, here's the diagram corresponding to $\lambda = 5442$.
+\[\ydiagram{2,4,4,5}\]
+We will identify $\lambda$ with its Young diagram, hence we will use $\lambda$ to refer to both the partition $\lambda$ and its Young diagram. For a diagram $\lambda$, a tableau is a function $\tau$ from $\lambda$ to any totally ordered set $X$, usually $\ZZ_{>0}$. We say a tableau is semistandard if its rows are weakly increasing and its columns are strictly increasing, i.e., if $i' > i$ and $j' > j$, we have $\tau(i,j) \le \tau(i',j)$ and $\tau(i,j) < \tau(i,j')$. The \emph{content} or \emph{weight} $\gamma(\tau)$ of a tableau $\tau$ is the sequence $(m_1,m_2,\dots)$, where $m_i$ is the number of times $i = \tau(c)$ for a cell $c$. We write tableau by filling each $c \in \lambda$ with $\tau(c)$. For example, this is a semistandard tableau on $\lambda = 5442$ with content $(1,2,1,1,1,1,2,4,1,1)$.
 \[\begin{ytableau}
 	7 & 8 & \none & \none & \none \\
 	4 & 6 & 9 & 10 & \none \\
 	3 & 5 & 8 & 8 & \none \\
 	1 & 2 & 2 & 7 & 8
 \end{ytableau}\]
-If $\lambda$ and $\mu$ are two partitions of $n$, define the Kostka number $K_{\lambda\mu}$ to be the number of semistandard Young tableaux of shape $\lambda$ and content $\mu$.
+If $\lambda$ and $\mu$ are two partitions of $n$, define the \emph{Kostka number} $K_{\lambda\mu}$ to be the number of semistandard Young tableaux of shape $\lambda$ and content $\mu$.
 
-Observe that $S_n$ acts on $\CC[x_1,\dots,x_n]$ by permutation of variables, so for a partition $\lambda$, define
-\[a_\lambda = \sum_{w \in S_n}\sgn(w)w(x_1^{\lambda_1}\cdots x_n^{\lambda_n}) = \det(x_i^{\lambda_j})_{1 \le i,j \le n}.\]
-We will now define the monomial symmetric functions. Let $\lambda$ be a partition of length $n$ and let $m_i$ be the number of times $i$ appears in $\lambda$. Then
-\[m_\lambda(x_1,\dots,x_n) := \frac1{m_0!\cdots m_n!}\sum_{w \in S_n}w(x_1^{\lambda_1} \dots x_n^{\lambda_n}).\]
-For example, $m_{211}(x_1,x_2,x_3) = x_1x_2x_3(x_1 + x_2 + x_3)$. Also, define the Schur function
-\[s_\lambda = \sum_\tau x_1^{\gamma(\tau)_1}\cdots x_n^{\gamma(\tau)_n},\]
+We now define a few polynomials. For a partition $\lambda$, define the alternating sum
+\[a_\lambda = \sum_{\sigma \in S_n}\sgn(\sigma)\sigma(x_1^{\lambda_1}\dots x_n^{\lambda_n}) = \det(x_i^{\lambda_j})_{1 \le i,j \le n}.\]
+Now $a_\lambda$ is antisymmetric, so $\Delta$ divides it. Also, by matching degrees and any coefficient, we see $\Delta = a_{n - 1,\dots,1}$.
+
+Let $\lambda$ be a partition of length $n$ and let $m_i$ be the number of times $i$ appears in $\lambda$. Then define the \emph{monomial symmetric functions}
+\[m_\lambda(x_1,\dots,x_n) := \frac1{m_0!\dots m_n!}\sum_{\sigma \in S_n}\sigma(x_1^{\lambda_1} \dots x_n^{\lambda_n}).\]
+For example, $m_{211}(x_1,x_2,x_3) = x_1x_2x_3(x_1 + x_2 + x_3)$. The monomial symmetric functions include every monomial with exponents $\lambda_1$, \dots, $\lambda_n$ in some order exactly once.
+
+Finally, define the Schur function
+\[s_\lambda = \sum_\tau x_1^{\gamma(\tau)_1}\dots x_n^{\gamma(\tau)_n},\]
 where the sum is taken over semistandard tableaux $\tau$ on $\lambda$ with entries in $\{1,\dots,n\}$. This is equivalent to taking every semistandard tableau $\tau$, replacing each $i$ with $x_i$, multiplying the elements of $\tau$, and summing.
 
-It is a fact that the Schur functions are symmetric, i.e., they are invariant under any permutation of variables. We will sketch the proof, for completeness. The idea is that any permutation is a composition of adjacent transpositions, so it's enough to show $s_\lambda(x_1,\dots,x_i,x_{i + 1},\dots,x_n) = s_\lambda(x_1,\dots,x_{i + 1},x_i,\dots,x_n)$. For this, it's enough to show the number of semistandard tableaux with content $(m_1,\dots,m_i,m_{i + 1},\dots,m_n)$ is equal to the number of semistandard tableaux with content $(m_1,\dots,m_{i + 1},m_i,\dots,m_n)$ for all $(m_1,\dots,m_n)$. To show this, there's a bijection.
+It is a fact that the Schur functions are symmetric, i.e., they are invariant under any permutation of variables. We will sketch the proof, for completeness. The idea is that any permutation is a composition of adjacent transpositions, so it's enough to show $s_\lambda(x_1,\dots,x_i,x_{i + 1},\dots,x_n) = s_\lambda(x_1,\dots,x_{i + 1},x_i,\dots,x_n)$. For this, it's enough to show the number of semistandard tableaux with content $(m_1,\dots,m_i,m_{i + 1},\dots,m_n)$ is equal to the number of semistandard tableaux with content $(m_1,\dots,m_{i + 1},m_i,\dots,m_n)$ for all $(m_1,\dots,m_n)$. The relevant bijections are called the \emph{Bender--Knuth involutions}.
 
 \begin{definition}
 	For each $k$, the Bender--Knuth involution $\sigma_k$ is an involution on the set of semistandard tableaux fixing shape and content except for swapping the number of occurrences of $k$ and $k + 1$. Specifically, the Bender--Knuth involution $\sigma_k$ is the composition of the following three operations.
 	\begin{enumerate}
 		\ii Simultaneously replace every $k$ with a $k + 1$ and replace every $k + 1$ with a $k$.
-		\ii If there is a cell containing $k + 1$ above a cell containing $k$, swap them. This can happen at most once in each column.
+		\ii If there is a cell containing $k + 1$ below a cell containing $k$, swap them. This can happen at most once in each column.
 		\ii Sort the cells containing $k$ and $k + 1$ in each row in increasing order.
 	\end{enumerate}
 \end{definition}
@@ -131,12 +171,12 @@ This implies
 \[s_\lambda = \sum_\mu K_{\lambda\mu}m_\mu,\]
 where the sum is taken over all partitions $\mu$.
 
-Let $\rho$ be the partition $(n - 1,\dots,0)$. We are finally ready to state the formula.
+Let $\rho$ be the partition $(n - 1,\dots,0)$. Since $a_{\lambda + \rho}$ is antisymmetric, $\Delta = a_\rho$ divides it. The Jacobi bialternant formula tells us what the quotient is: the Schur function $s_\lambda$.
 \begin{proposition}[Jacobi bialternant formula]
 	For all partitions $\lambda$,
 	\[a_{\lambda + \rho} = a_\rho s_\lambda.\]
 \end{proposition}
-Observe that $a_\rho$ is the Vandermonde determinant $\prod_{i < j}(x_i - x_j)$. This implies
+This implies
 \[a_{\lambda + \rho} = a_\rho s_\lambda = \prod_{i < j}(x_i - x_j)\biggl(\sum_\mu K_{\lambda\mu}m_\mu \biggr).\]
 
 An example is in order. The most useful case when complex bashing is $n = 3$. When computing symmetric determinants, you will often see expressions such as
@@ -147,17 +187,10 @@ An example is in order. The most useful case when complex bashing is $n = 3$. Wh
 \end{vmatrix}.\]
 We will evaluate this.
 
-This is
-\[\cycsum yz(3x^2 - y^2 - z^2)((y(z^2 + x^2) + zx(z + x)) - (z(x^2 + y^2) + xy(x + y))),\]
-where the $\cycsum$ means to take the sum over the three possible cyclic variants. For example,
-\[\cycsum x^2y = x^2y + y^2z + z^2x.\]
-Expanding, this becomes
-\begin{multline*}
-	\cycsum -3 x^{3} y^{3} z + x y^{5} z - 3 x^{2} y^{3} z^{2} + y^{5} z^{2} + 3 x^{3} y z^{3} + 3 x^{2} y^{2} z^{3} - y^{4} z^{3} + y^{3} z^{4} - x y z^{5} - y^{2} z^{5} \\
-	= \cycsum y^5z^2 - y^2z^5 + y^3z^4 - y^4z^3.
-\end{multline*}
-Writing as a sum of permutations, we get
-\[\sum_{w \in S_3}\sgn(w)w(x^5y^2) - \sum_{w \in S_3}\sgn(w)w(x^4y^3) = a_{520} - a_{430}.\]
+By Leibniz's permutation formula, this is
+\[\sum_{\sigma \in S_3} \sgn(\sigma)\sigma(yz(3x^2 - y^2 - z^2)(y(z^2 + x^2) + zx(z + x))).\]
+We will expand this. Note that the alternating sum of any monomial of the form $x^ay^bz^c$ where the $a$, $b$, and $c$ are not pairwise distinct is zero. Also, note that alternating sums of terms like $3x^4y^2z + 3x^4yz^2$ are zero. (Why?) After eliminating these terms, this becomes
+\[\sum_{\sigma \in S_3}\sgn(\sigma)\sigma(-y^4z^3 - y^2z^5) = -a_{043} - a_{025} = a_{520} - a_{430}.\]
 So by the Jacobi bialternant formula, this becomes
 \[a_{210}(s_{310} - s_{220}) = (x - y)(x - z)(y - z)(s_{31} - s_{22}).\]
 We will now write the $s_\lambda$ in terms of $m_\lambda$. We only need to sum over partitions $\mu$ with sum $4$, since otherwise $K_{\lambda\mu} = 0$. We compute the eight Kostka numbers
@@ -165,7 +198,7 @@ We will now write the $s_\lambda$ in terms of $m_\lambda$. We only need to sum o
 	K_{31,4} &= 0 \quad K_{31,31} = 1 \quad K_{31,22} = 1 \quad K_{31,211} = 2 \\
 	K_{22,4} &= 0 \quad K_{22,31} = 0 \quad K_{22,22} = 1 \quad K_{22,211} = 1.
 \end{align*}
-We do not need to compute $K_{31,1111}$ or $K_{22,1111}$ since $n = 3$ and hence we are only summing over semistandard tableaux with entries in $\{1,2,3\}$, so we only need to consider tableaux with at most $3$ distinct entries. Hence
+Since $n = 3$, we are only summing over semistandard tableaux with entries in $\{1,2,3\}$, so we only need to consider tableaux with at most $3$ distinct entries. Therefore, we do not need to compute $K_{31,1111}$ or $K_{22,1111}$. Now we obtain
 \begin{align*}
 	s_{31} - s_{22} &= m_{31} + m_{22} + 2m_{211} - m_{22} - m_{211} \\
 	&= m_{31} + m_{211} \\
@@ -311,6 +344,38 @@ These problems are relatively straightforward and should be tried before the wal
 		\ii Finish by writing the above in terms of $x$, $y$, and $z$.
 	\end{walk}
 	I did not see the optimization of using $\frac{c - b}x \in i\RR$ during the contest.
+\end{walkthrough}
+
+\pagebreak
+
+\subsection{Romania 2003}
+\label{ssec:jacobi-warmup}
+
+\begin{example}[Romania 2003]
+	Prove that the midpoints of the altitudes of a nondegenerate triangle are collinear if and only if the triangle is right.
+\end{example}
+
+\begin{walkthrough}
+	This is doable using methods from only \texttt{BGW-complex} (in fact it appears as a walkthrough there), but we're going to nuke it using the Jacobi bialternant formula for fun.
+
+	Make sure you've read \Cref{ssec:jacobi-bialternant}. We will employ American Smartass Notation: let $\lvert f,g,h\rvert$ for rational functions $f$, $g$, and $h$ denote the magnitude of the determinant of the $3 \times 3$ matrix whose rows are the three cyclic variations of $(f,g,h)$. For example,
+	\[\left\lvert a^2 + d^2,\frac{a(x\ol j + 1)}{a + d},1\right\rvert = \left\lvert\begin{vmatrix}
+		a^2 + d^2 & \frac{a(x\ol j + 1)}{a + d} & 1 \\
+		b^2 + e^2 & \frac{b(y\ol j + 1)}{b + e} & 1 \\
+		c^2 + f^2 & \frac{c(z\ol j + 1)}{c + f} & 1
+	\end{vmatrix}\right\rvert,\]
+	where the outside vertical bars denote the magnitude.
+
+	\begin{walk}
+		\ii Compute $x = \frac12(a + \frac12(a + b + c - \frac{bc}a))$.
+		\ii Now $X$, $Y$, and $Z$ are collinear iff the points $4x - (a + b + c)$ and cyclic are collinear. Show that this is equivalent to $0 = \lvert 2a^2 - bc,2abc - a^3,a\rvert$.
+		\ii Write this as
+		\[\sum_{\sigma \in S_3}\sgn(\sigma)\sigma((2a^2 - bc)(2abc - b^3)c).\]
+		Show that this is $a_{420}(a,b,c)$.
+		\ii Two ways to finish. First, show that
+		\[a_{420}(a,b,c) = a_{210}(a^2,b^2,c^2) = -(b^2 - a^2)(c^2 - a^2)(c^2 - b^2).\]
+		Second, use the Jacobi bialternant formula to factor $a_{420}(a,b,c)$. Conclude.
+	\end{walk}
 \end{walkthrough}
 
 \pagebreak
@@ -735,7 +800,7 @@ These problems are relatively straightforward and should be tried before the wal
 \end{example}
 
 \begin{walkthrough}
-	This one's a tough cookie. Inspired by \texttt{GeronimoStilton}'s famous 2021 computer-assisted complex bash for this problem, I sought to find a setup acceptable for humans. The following bash is the result. See \href{https://artofproblemsolving.com/community/u987166h1181536p37945622}{my post} on the AoPS thread for a full solution.
+	This one's a tough cookie. Inspired by \texttt{GeronimoStilton}'s famous 2021 computer-assisted complex bash for this problem, I sought to find a setup acceptable for humans. The following bash is the result. See \href{https://artofproblemsolving.com/community/u987166h1181536p37945622}{my post} on the AoPS thread for a full solution. You should do \Cref{ssec:jacobi-warmup} first.
 
 	Let $O$ be the circumcenter of $\triangle ABC$. Let $J$ and $r$ be the incenter and inradius of $\triangle ABC$. Let $X$ be the arc midpoint of $\arc{BC}$ opposite $A$. Let $D$ be the touchpoint of the incircle of $\triangle ABC$ to $\ol{BC}$. Define $Y$, $Z$, $E$, and $F$ similarly.
 
@@ -787,14 +852,6 @@ These problems are relatively straightforward and should be tried before the wal
 		\end{asy}
 	\end{center}
 
-	First, make sure you've read \Cref{ssec:jacobi-bialternant}. We will employ American Smartass Notation: let $\lvert f,g,h\rvert$ for rational functions $f$, $g$, and $h$ denote the magnitude of the determinant of the $3 \times 3$ matrix whose rows are the three cyclic variations of $(f,g,h)$. For example,
-	\[\left\lvert a^2 + d^2,\frac{a(x\ol j + 1)}{a + d},1\right\rvert = \left\lvert\begin{vmatrix}
-		a^2 + d^2 & \frac{a(x\ol j + 1)}{a + d} & 1 \\
-		b^2 + e^2 & \frac{b(y\ol j + 1)}{b + e} & 1 \\
-		c^2 + f^2 & \frac{c(z\ol j + 1)}{c + f} & 1
-	\end{vmatrix}\right\rvert,\]
-	where the outside vertical bars denote the magnitude.
-
 	Complex bash by setting $(ABC)$ as the unit circle. The condition that the circumcenter of $(A_1B_1C_1)$ has magnitude $1$ is equivalent to
 	\[1 = \frac{\lvert 1,a_1,a_1\ol{a_1}\rvert}{\lvert 1,a_1,\ol{a_1}\rvert}.\]
 	We will simplify this as much as possible. Throughout, use elementary column operations as needed to assist simplification.
@@ -817,15 +874,13 @@ These problems are relatively straightforward and should be tried before the wal
 		\[1 = \frac{\lvert 1,qr(p^3 + pqr + q^2r + qr^2),p(q^2 + r^2)\rvert}{\lvert 1,p^2,q^2r^2\rvert}.\]
 		\ii If $p^2 = q^2$, then the determinant in the denominator is zero; this implies $p^2 - q^2$ divides it. Similarly, $p^2 - r^2$ and $q^2 - r^2$ divide it. Yet it is a degree-$3$ polynomial in $p^2$, $q^2$, and $r^2$ (so $p^2$, $q^2$, and $r^2$ are ``degree-$1$''). Match the coefficients of the $p^4q^2$ term to conclude the denominator is $\lvert (p^2 - q^2)(p^2 - r^2)(q^2 - r^2)\rvert$.
 		\ii The determinant in the numerator is
-		\[\cycsum qr(p^3 + pqr + q^2r + qr^2)(q(r^2 + p^2) - r(p^2 + q^2)).\]
-		Expand to show it is $a_{521} - a_{431} - a_{530}$. This should not be hard: although there are sixteen terms, any of the form $p^aq^br^c$ where $a$, $b$, and $c$ are not all distinct should cancel, so you can just ignore them. (Why?)
+		\[\sum_{\sigma \in S_3} \sgn(\sigma)\sigma(qr(p^3 + pqr + q^2r + qr^2)q(r^2 + p^2)).\]
+		Expand to show it is $a_{521} - a_{431} - a_{530}$.
 		\ii Apply the Jacobi bialternant formula to obtain
-		\[\left\lvert \frac{s_{311} - s_{221} - s_{32}}{(p + q)(q + r)(r + p)}\right\rvert.\]
+		\[1 = \left\lvert \frac{s_{311} - s_{221} - s_{32}}{(p + q)(q + r)(r + p)}\right\rvert.\]
 		\ii Expand in terms of $m_\lambda$ to obtain
 		\[1 = \left\lvert \frac{m_{32} + 2m_{221}}{m_{21} + 2m_{111}}\right\rvert.\]
-		Square to get
-		\[1 = \frac{(m_{32} + 2m_{221})(m_{2,-1} + 2m_1)}{(m_{21} + 2m_{111})^2},\]
-		then expand to get
+		Square and expand. You should get
 		\[m_{32}m_{2,0,-1} + 2m_{221}m_{2,0,-1} + 2m_{32}m_1 + 4m_{221}m_1 - m_{21}^2 - 4m_{21}m_{111} - 4m_{111}^2 = 0.\]
 	\end{walk}
 
