@@ -6911,7 +6911,7 @@ var Credits_contentStyle = {
     left: "50%",
     transform: "translate(-50%, -50%)",
 };
-var changeLogVersion = 27;
+var changeLogVersion = 28;
 var ChangeLog = function () {
     var _a = react.useState(false), modalOpen = _a[0], setModalOpen = _a[1];
     var _b = react.useContext(AppStateContext), state = _b.state, updateState = _b.updateState;
@@ -6938,6 +6938,10 @@ var ChangeLog = function () {
             react.createElement("p", null, "There are a wide variety of game settings which may suit the way you normally play, e.g. changing the number of decks, how scoring works, etc. These can be changed before every round."),
             react.createElement("p", null, "There are also a bunch of UI customizations that you may want to turn on (or leave off) -- click the gear icon at the top of the screen once you're in the game."),
             react.createElement("h2", null, "Change Log"),
+            react.createElement("p", null, "11/8/2026:"),
+            react.createElement("ul", null,
+                react.createElement("li", null, "Spectators can watch a player's hand (room setting \u201Cshadowing\u201D), the room type can be switched between matches from the lobby, and the rules page draws its cards again."),
+                react.createElement("li", null, "\u201CThrow as singles\u201D: when leading, a pair or tractor can be thrown as separate singles. The usual throw rules apply.")),
             react.createElement("p", null, "9/21/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Rating changes are now a fifth of what they were: a shutout between equal players at first-to-5 moves each rating by 36 points instead of 180, and a first-to-3 by 12. All rated matches were recomputed.")),
@@ -8065,6 +8069,17 @@ var Play = function (props) {
         setSelected([]);
         setGrouping([]);
     };
+    /// Lead the selected cards as separate singles even though they form a
+    /// pair or tractor (a "split throw"): rare, but right when a trumped pair
+    /// would double the kitty penalty. The server applies the usual throw check.
+    var throwAsSingles = function () {
+        var singles = selected.map(function (card) { return ({
+            Repeated: { count: 1, card: { card: card, trump: playPhase.trump } },
+        }); });
+        send({ Action: { PlayCardsWithHint: [selected, singles] } });
+        setSelected([]);
+        setGrouping([]);
+    };
     var sendEvent = function (event) { return function () { return send(event); }; };
     var takeBackCards = sendEvent({ Action: "TakeBackCards" });
     var endTrick = sendEvent({ Action: "EndTrick" });
@@ -8138,6 +8153,12 @@ var Play = function (props) {
     }, [playPhase.hands.hands, currentPlayer.id, selected]);
     var nextPlayer = playPhase.trick.player_queue[0];
     var lastPlay = playPhase.trick.played_cards[playPhase.trick.played_cards.length - 1];
+    // Offer the split throw only when leading a selection whose natural
+    // grouping has something bigger than a single to split.
+    var canThrowAsSingles = lastPlay === undefined &&
+        selected.length > 1 &&
+        grouping.length > 0 &&
+        grouping[0].grouping.some(function (u) { return !("Repeated" in u) || u.Repeated.count > 1; });
     var _d = react.useState(false), canPlay = _d[0], setCanPlay = _d[1];
     react.useEffect(function () {
         if (!isSpectator && selected.length > 0) {
@@ -8244,6 +8265,7 @@ var Play = function (props) {
             react.createElement(src_AutoPlayButton, { onSubmit: playCards, playDescription: grouping.length === 1 && lastPlay === undefined
                     ? grouping[0].description
                     : null, canSubmit: canPlay, currentWinner: playPhase.trick.current_winner, unsetAutoPlayWhenWinnerChanges: props.unsetAutoPlayWhenWinnerChanges, isCurrentPlayerTurn: isCurrentPlayerTurn }),
+            canThrowAsSingles && (react.createElement("button", { className: "normal", onClick: throwAsSingles, disabled: !isCurrentPlayerTurn || playPhase.game_ended_early, title: "Lead these cards as separate singles instead of as a pair or tractor (a split throw)" }, "Throw as singles")),
             playPhase.propagated.play_takeback_policy ===
                 "AllowPlayTakeback" && (react.createElement("button", { className: "big", onClick: takeBackCards, disabled: !canTakeBack }, "Take back last play")),
             react.createElement("button", { className: "big", onClick: endTrick, disabled: playPhase.trick.player_queue.length > 0 ||
@@ -9352,7 +9374,7 @@ var Timeout = function (props) {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"2f742751e11a3485e59b"}[chunkId] + ".js";
+/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"ca3c3ee03ff8a5dc2c25"}[chunkId] + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -9605,4 +9627,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.4fb36daabdacb0c5420c.js.map
+//# sourceMappingURL=main.5a303f18e5665c8dfdeb.js.map

@@ -172,6 +172,12 @@ names of a connection. The first `State` may reach the client before
 
 ## Core changes (`core/`, `mechanics/`)
 
+- Split throws: `TrickFormat::from_cards` accepts a `PlayCardsWithHint`
+  grouping made of plain repeats that exactly cover the led cards even when
+  it is not the natural decomposition (a pair as two singles, a tractor as
+  pairs or singles). The throw-validity check still runs per unit. The UI
+  offers it as "Throw as singles" when leading.
+
 - Defaults: `BidTakebackPolicy::NoBidTakeback`,
   `PlayTakebackPolicy::NoPlayTakeback`, `KittyPenalty::Power`.
 - `PropagatedState`: `rated: bool` (default true), `player_mode:

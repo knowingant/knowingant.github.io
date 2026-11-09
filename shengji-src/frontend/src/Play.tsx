@@ -88,6 +88,18 @@ const Play = (props: IProps): JSX.Element => {
     setGrouping([]);
   };
 
+  /// Lead the selected cards as separate singles even though they form a
+  /// pair or tractor (a "split throw"): rare, but right when a trumped pair
+  /// would double the kitty penalty. The server applies the usual throw check.
+  const throwAsSingles = (): void => {
+    const singles = selected.map((card) => ({
+      Repeated: { count: 1, card: { card, trump: playPhase.trump } },
+    }));
+    send({ Action: { PlayCardsWithHint: [selected, singles] } });
+    setSelected([]);
+    setGrouping([]);
+  };
+
   const sendEvent = (event: object) => () => send(event);
   const takeBackCards = sendEvent({ Action: "TakeBackCards" });
   const endTrick = sendEvent({ Action: "EndTrick" });
@@ -185,6 +197,15 @@ const Play = (props: IProps): JSX.Element => {
   const nextPlayer = playPhase.trick.player_queue[0];
   const lastPlay =
     playPhase.trick.played_cards[playPhase.trick.played_cards.length - 1];
+  // Offer the split throw only when leading a selection whose natural
+  // grouping has something bigger than a single to split.
+  const canThrowAsSingles =
+    lastPlay === undefined &&
+    selected.length > 1 &&
+    grouping.length > 0 &&
+    grouping[0].grouping.some(
+      (u) => !("Repeated" in u) || u.Repeated.count > 1,
+    );
 
   const [canPlay, setCanPlay] = React.useState(false);
 
@@ -361,6 +382,16 @@ const Play = (props: IProps): JSX.Element => {
             }
             isCurrentPlayerTurn={isCurrentPlayerTurn}
           />
+          {canThrowAsSingles && (
+            <button
+              className="normal"
+              onClick={throwAsSingles}
+              disabled={!isCurrentPlayerTurn || playPhase.game_ended_early}
+              title="Lead these cards as separate singles instead of as a pair or tractor (a split throw)"
+            >
+              Throw as singles
+            </button>
+          )}
           {playPhase.propagated.play_takeback_policy ===
             "AllowPlayTakeback" && (
             <button

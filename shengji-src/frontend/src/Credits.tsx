@@ -11,7 +11,7 @@ const contentStyle: React.CSSProperties = {
   transform: "translate(-50%, -50%)",
 };
 
-const changeLogVersion: number = 27;
+const changeLogVersion: number = 28;
 
 const ChangeLog = (): JSX.Element => {
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
@@ -61,6 +61,18 @@ const ChangeLog = (): JSX.Element => {
           you&apos;re in the game.
         </p>
         <h2>Change Log</h2>
+        <p>11/8/2026:</p>
+        <ul>
+          <li>
+            Spectators can watch a player&apos;s hand (room setting
+            &ldquo;shadowing&rdquo;), the room type can be switched between
+            matches from the lobby, and the rules page draws its cards again.
+          </li>
+          <li>
+            &ldquo;Throw as singles&rdquo;: when leading, a pair or tractor can
+            be thrown as separate singles. The usual throw rules apply.
+          </li>
+        </ul>
         <p>9/21/2026:</p>
         <ul>
           <li>

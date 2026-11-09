@@ -554,6 +554,30 @@ impl TrickFormat {
                         });
                     }
                 }
+                // A split throw: the same cards grouped into smaller plain
+                // repeats than their natural decomposition, e.g. a pair led
+                // as two singles (worth it when a trumped pair would double
+                // the kitty penalty). Legal as long as the units exactly
+                // cover the cards; the throw check in `play_cards` still
+                // applies to every unit, so this cannot sneak past it.
+                if proposed
+                    .iter()
+                    .all(|u| matches!(u, TrickUnit::Repeated { .. }))
+                {
+                    let mut proposed_cards: Vec<Card> =
+                        proposed.iter().flat_map(|u| u.cards()).collect();
+                    proposed_cards.sort_by(|a, b| trump.compare(*a, *b));
+                    let mut played = cards.to_vec();
+                    played.sort_by(|a, b| trump.compare(*a, *b));
+                    if proposed_cards == played {
+                        return Ok(TrickFormat {
+                            suit,
+                            units: proposed,
+                            trump,
+                            is_rainbow: false,
+                        });
+                    }
+                }
                 Err(TrickError::NonMatchingProposal)
             }
             None => {
@@ -1989,6 +2013,64 @@ mod tests {
 
         assert!(expected_tf.matches(&[S_2, S_2, S_2]).is_ok());
         assert!(expected_tf.matches(&[S_2, S_2]).is_err());
+    }
+
+    #[test]
+    fn a_pair_can_be_led_as_two_singles_with_a_hint() {
+        // Natural decomposition: the pair.
+        let natural = TrickFormat::from_cards(
+            TRUMP,
+            TractorRequirements::default(),
+            &[D_A, D_A],
+            None,
+            CompoundFormats::default(),
+        )
+        .unwrap();
+        assert_eq!(natural.units.len(), 1);
+
+        // Split throw: two singles, accepted when proposed explicitly.
+        let singles = vec![
+            TrickUnit::Repeated {
+                count: 1,
+                card: oc!(D_A),
+            },
+            TrickUnit::Repeated {
+                count: 1,
+                card: oc!(D_A),
+            },
+        ];
+        let split = TrickFormat::from_cards(
+            TRUMP,
+            TractorRequirements::default(),
+            &[D_A, D_A],
+            Some(&singles),
+            CompoundFormats::default(),
+        )
+        .unwrap();
+        assert_eq!(split.units.len(), 2);
+        assert_eq!(split.size(), 2);
+
+        // The proposal still has to cover exactly the cards played.
+        let wrong = vec![
+            TrickUnit::Repeated {
+                count: 1,
+                card: oc!(D_A),
+            },
+            TrickUnit::Repeated {
+                count: 1,
+                card: oc!(D_K),
+            },
+        ];
+        assert!(matches!(
+            TrickFormat::from_cards(
+                TRUMP,
+                TractorRequirements::default(),
+                &[D_A, D_A],
+                Some(&wrong),
+                CompoundFormats::default(),
+            ),
+            Err(TrickError::NonMatchingProposal)
+        ));
     }
 
     #[test]
