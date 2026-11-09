@@ -76,9 +76,18 @@ const renderMessage = (message: Message): JSX.Element => {
       return (
         <span>
           {message.data?.actor_name} played{" "}
-          {variant.cards.map((card, i) => (
-            <InlineCard card={card} key={i} />
-          ))}
+          {variant.units !== undefined && variant.units.length > 1
+            ? variant.units.map((unit, ui) => (
+                <React.Fragment key={ui}>
+                  {ui > 0 ? " + " : null}
+                  {unit.map((card, i) => (
+                    <InlineCard card={card} key={i} />
+                  ))}
+                </React.Fragment>
+              ))
+            : variant.cards.map((card, i) => (
+                <InlineCard card={card} key={i} />
+              ))}
         </span>
       );
     case "EndOfGameKittyReveal":

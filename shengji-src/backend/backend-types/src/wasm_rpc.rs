@@ -18,6 +18,10 @@ pub struct FindViablePlaysRequest {
     pub trump: Trump,
     pub tractor_requirements: TractorRequirements,
     pub cards: Vec<Card>,
+    /// Also return every other valid grouping (split throws), marked
+    /// `natural: false`.
+    #[serde(default)]
+    pub all_groupings: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
@@ -29,6 +33,10 @@ pub struct FindViablePlaysResult {
 pub struct FoundViablePlay {
     pub grouping: Vec<TrickUnit>,
     pub description: String,
+    /// One of the natural decompositions (what the cards mean when played
+    /// without choosing), as opposed to a split the player asked for.
+    #[serde(default)]
+    pub natural: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]

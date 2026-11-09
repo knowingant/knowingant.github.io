@@ -69,8 +69,14 @@ const ChangeLog = (): JSX.Element => {
             matches from the lobby, and the rules page draws its cards again.
           </li>
           <li>
-            &ldquo;Throw as singles&rdquo;: when leading, a pair or tractor can
-            be thrown as separate singles. The usual throw rules apply.
+            Leading: every valid way to group the cards can be chosen under
+            &ldquo;Other ways to throw these cards&rdquo; (a pair as two
+            singles, a tractor as its pairs, ...). The usual throw rules apply
+            to each part, and the chat shows the parts separated by +.
+          </li>
+          <li>
+            The bottom can only be picked up 5 seconds after the last card drawn
+            or the last beatable bid, so nobody can rush past a bid.
           </li>
         </ul>
         <p>9/21/2026:</p>

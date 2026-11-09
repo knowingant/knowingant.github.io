@@ -172,11 +172,20 @@ names of a connection. The first `State` may reach the client before
 
 ## Core changes (`core/`, `mechanics/`)
 
-- Split throws: `TrickFormat::from_cards` accepts a `PlayCardsWithHint`
-  grouping made of plain repeats that exactly cover the led cards even when
-  it is not the natural decomposition (a pair as two singles, a tractor as
-  pairs or singles). The throw-validity check still runs per unit. The UI
-  offers it as "Throw as singles" when leading.
+- Split throws: `TrickFormat::from_cards` accepts any `PlayCardsWithHint`
+  grouping whose units are individually valid (repeats, or tractors meeting
+  the room's tractor requirements) and exactly cover the led cards, not only
+  the natural decompositions (a pair as two singles, a tractor as its pairs,
+  ...). The throw-validity check still runs per unit. `find_viable_plays`
+  with `all_groupings` enumerates every such partition (`natural` marks the
+  default ones); the play screen lists them under "Other ways to throw these
+  cards". `PlayedCards` carries the lead's units so the chat shows a throw as
+  `AA + K`.
+- Kitty pickup delay (backend, `shengji_handler`): `PickUpKitty` in the Draw
+  phase is refused until 5 seconds after the last card drawn or the last bid
+  that could still be beaten (a bid of big jokers × number of decks does not
+  restart the clock). In-memory per room; the client mirrors it as a
+  countdown on the button.
 
 - Defaults: `BidTakebackPolicy::NoBidTakeback`,
   `PlayTakebackPolicy::NoPlayTakeback`, `KittyPenalty::Power`.

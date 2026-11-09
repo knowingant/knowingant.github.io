@@ -120,11 +120,13 @@ const createAsyncFunctions = (
         trump: Trump,
         tractorRequirements: TractorRequirements,
         cards: string[],
+        allGroupings: boolean = false,
       ): Promise<FoundViablePlay[]> => {
         return wasmModule.find_viable_plays({
           trump,
           cards,
           tractor_requirements: tractorRequirements,
+          all_groupings: allGroupings,
         }).results;
       },
       findValidBids: async (req: FindValidBidsRequest): Promise<Bid[]> => {
@@ -177,12 +179,14 @@ const createAsyncFunctions = (
         trump: Trump,
         tractorRequirements: TractorRequirements,
         cards: string[],
+        allGroupings: boolean = false,
       ): Promise<FoundViablePlay[]> => {
         const response = await callRpc<FindViablePlaysResult>({
           type: "FindViablePlays",
           trump,
           tractor_requirements: tractorRequirements,
           cards,
+          all_groupings: allGroupings,
         });
         return response.results;
       },
@@ -269,6 +273,7 @@ export interface EngineContext {
     trump: Trump,
     tractorRequirements: TractorRequirements,
     cards: string[],
+    allGroupings?: boolean,
   ) => Promise<FoundViablePlay[]>;
   findValidBids: (req: FindValidBidsRequest) => Promise<Bid[]>;
   sortAndGroupCards: (req: SortAndGroupCardsRequest) => Promise<SuitGroup[]>;

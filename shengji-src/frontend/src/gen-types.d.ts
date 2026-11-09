@@ -538,6 +538,10 @@ export type MessageVariant =
   | {
       cards: Card[];
       type: "PlayedCards";
+      /**
+       * Units of a multi-unit lead, for "AA + K" in the chat (empty otherwise; older states have none).
+       */
+      units?: Card[][];
       [k: string]: unknown;
     }
   | {
@@ -994,6 +998,10 @@ export interface FindValidBidsResult {
   [k: string]: unknown;
 }
 export interface FindViablePlaysRequest {
+  /**
+   * Also return every other valid grouping (split throws), marked `natural: false`.
+   */
+  all_groupings?: boolean;
   cards: Card[];
   tractor_requirements: TractorRequirements;
   trump: Trump;
@@ -1006,6 +1014,10 @@ export interface FindViablePlaysResult {
 export interface FoundViablePlay {
   description: string;
   grouping: TrickUnit[];
+  /**
+   * One of the natural decompositions (what the cards mean when played without choosing), as opposed to a split the player asked for.
+   */
+  natural?: boolean;
   [k: string]: unknown;
 }
 export interface InitializePhase {

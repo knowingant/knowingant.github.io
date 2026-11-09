@@ -31,7 +31,13 @@ interface IDrawInnerProps extends IDrawProps {
 
 interface IDrawState {
   autodraw: boolean;
+  /// When the bottom may be picked up again (server rule: 5 s after the last
+  /// draw or beatable bid). Mirrors the server so the button shows a
+  /// countdown instead of an error.
+  pickupReadyAt: number | null;
 }
+
+const PICKUP_DELAY_MS = 5000;
 
 /// Who should act next in the Draw phase: the player at `position` while
 /// cards remain, otherwise the last bidder (who picks up the kitty).
@@ -58,6 +64,7 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
     super(props);
     this.state = {
       autodraw: true,
+      pickupReadyAt: null,
     };
     this.drawCard = this.drawCard.bind(this);
     this.pickUpKitty = this.pickUpKitty.bind(this);
@@ -69,8 +76,33 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
     this.armAutodraw();
   }
 
-  componentDidUpdate(): void {
+  componentDidUpdate(prevProps: IDrawInnerProps): void {
     this.armAutodraw();
+    const prev = prevProps.state;
+    const cur = this.props.state;
+    const drew = prev.deck.length !== cur.deck.length;
+    const last = cur.bids[cur.bids.length - 1];
+    const beatableBid =
+      prev.bids.length !== cur.bids.length &&
+      last !== undefined &&
+      !(last.card === "🃏" && last.count === cur.num_decks);
+    if (drew || beatableBid) {
+      const readyAt = Date.now() + PICKUP_DELAY_MS;
+      this.setState({ pickupReadyAt: readyAt });
+      // Re-render once a second so the countdown on the button ticks.
+      for (let s = 1; s <= PICKUP_DELAY_MS / 1000; s++) {
+        this.props.setTimeout(() => this.forceUpdate(), s * 1000 + 50);
+      }
+    }
+  }
+
+  /// Seconds until the bottom may be picked up (0 when it may).
+  private pickupWaitSecs(): number {
+    const readyAt = this.state.pickupReadyAt;
+    if (readyAt === null) {
+      return 0;
+    }
+    return Math.max(0, Math.ceil((readyAt - Date.now()) / 1000));
   }
 
   componentWillUnmount(): void {
@@ -179,6 +211,7 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
   render(): JSX.Element {
     const canDraw = this.canDraw();
     const next = drawNextPlayer(this.props.state);
+    const pickupWait = this.pickupWaitSecs();
 
     const players: { [playerId: number]: Player } = {};
     let playerId = -1;
@@ -286,6 +319,7 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
                 <button
                   onClick={this.pickUpKitty}
                   disabled={
+                    pickupWait > 0 ||
                     this.props.state.deck.length > 0 ||
                     (this.props.state.bids.length === 0 &&
                       this.props.state.autobid === null &&
@@ -307,6 +341,7 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
                   className="big"
                 >
                   Pick up cards from the bottom
+                  {pickupWait > 0 ? ` (${pickupWait}s)` : ""}
                 </button>
                 <button
                   onClick={this.revealCard}

@@ -215,7 +215,9 @@ impl PlayPhase {
                     original_cards,
                     better_player,
                 },
-                PlayCardsMessage::PlayedCards { cards } => MessageVariant::PlayedCards { cards },
+                PlayCardsMessage::PlayedCards { cards, units } => {
+                    MessageVariant::PlayedCards { cards, units }
+                }
             })
             .collect())
     }

@@ -73,6 +73,15 @@ var __rest = (undefined && undefined.__rest) || function (s, e) {
         }
     return t;
 };
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 
 
 
@@ -137,15 +146,23 @@ var createAsyncFunctions = function (useWasm, wasmModule) {
     if (useWasm && wasmModule) {
         // WASM is available and loaded, use synchronous WASM functions wrapped in promises
         return {
-            findViablePlays: function (trump, tractorRequirements, cards) { return __awaiter(void 0, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, wasmModule.find_viable_plays({
-                            trump: trump,
-                            cards: cards,
-                            tractor_requirements: tractorRequirements,
-                        }).results];
+            findViablePlays: function (trump_1, tractorRequirements_1, cards_1) {
+                var args_1 = [];
+                for (var _i = 3; _i < arguments.length; _i++) {
+                    args_1[_i - 3] = arguments[_i];
+                }
+                return __awaiter(void 0, __spreadArray([trump_1, tractorRequirements_1, cards_1], args_1, true), void 0, function (trump, tractorRequirements, cards, allGroupings) {
+                    if (allGroupings === void 0) { allGroupings = false; }
+                    return __generator(this, function (_a) {
+                        return [2 /*return*/, wasmModule.find_viable_plays({
+                                trump: trump,
+                                cards: cards,
+                                tractor_requirements: tractorRequirements,
+                                all_groupings: allGroupings,
+                            }).results];
+                    });
                 });
-            }); },
+            },
             findValidBids: function (req) { return __awaiter(void 0, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     return [2 /*return*/, wasmModule.find_valid_bids(req).results];
@@ -200,22 +217,30 @@ var createAsyncFunctions = function (useWasm, wasmModule) {
     else {
         // WASM not available, use RPC calls
         return {
-            findViablePlays: function (trump, tractorRequirements, cards) { return __awaiter(void 0, void 0, void 0, function () {
-                var response;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, callRpc({
-                                type: "FindViablePlays",
-                                trump: trump,
-                                tractor_requirements: tractorRequirements,
-                                cards: cards,
-                            })];
-                        case 1:
-                            response = _a.sent();
-                            return [2 /*return*/, response.results];
-                    }
+            findViablePlays: function (trump_1, tractorRequirements_1, cards_1) {
+                var args_1 = [];
+                for (var _i = 3; _i < arguments.length; _i++) {
+                    args_1[_i - 3] = arguments[_i];
+                }
+                return __awaiter(void 0, __spreadArray([trump_1, tractorRequirements_1, cards_1], args_1, true), void 0, function (trump, tractorRequirements, cards, allGroupings) {
+                    var response;
+                    if (allGroupings === void 0) { allGroupings = false; }
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, callRpc({
+                                    type: "FindViablePlays",
+                                    trump: trump,
+                                    tractor_requirements: tractorRequirements,
+                                    cards: cards,
+                                    all_groupings: allGroupings,
+                                })];
+                            case 1:
+                                response = _a.sent();
+                                return [2 /*return*/, response.results];
+                        }
+                    });
                 });
-            }); },
+            },
             findValidBids: function (req) { return __awaiter(void 0, void 0, void 0, function () {
                 var response;
                 return __generator(this, function (_a) {
@@ -6284,6 +6309,7 @@ var Draw_assign = (undefined && undefined.__assign) || function () {
 
 
 
+var PICKUP_DELAY_MS = 5000;
 /// Who should act next in the Draw phase: the player at `position` while
 /// cards remain, otherwise the last bidder (who picks up the kitty).
 var drawNextPlayer = function (state) {
@@ -6307,6 +6333,7 @@ var DrawInner = /** @class */ (function (_super) {
         _this.drawCardAudio = null;
         _this.state = {
             autodraw: true,
+            pickupReadyAt: null,
         };
         _this.drawCard = _this.drawCard.bind(_this);
         _this.pickUpKitty = _this.pickUpKitty.bind(_this);
@@ -6317,8 +6344,32 @@ var DrawInner = /** @class */ (function (_super) {
     DrawInner.prototype.componentDidMount = function () {
         this.armAutodraw();
     };
-    DrawInner.prototype.componentDidUpdate = function () {
+    DrawInner.prototype.componentDidUpdate = function (prevProps) {
+        var _this = this;
         this.armAutodraw();
+        var prev = prevProps.state;
+        var cur = this.props.state;
+        var drew = prev.deck.length !== cur.deck.length;
+        var last = cur.bids[cur.bids.length - 1];
+        var beatableBid = prev.bids.length !== cur.bids.length &&
+            last !== undefined &&
+            !(last.card === "🃏" && last.count === cur.num_decks);
+        if (drew || beatableBid) {
+            var readyAt = Date.now() + PICKUP_DELAY_MS;
+            this.setState({ pickupReadyAt: readyAt });
+            // Re-render once a second so the countdown on the button ticks.
+            for (var s = 1; s <= PICKUP_DELAY_MS / 1000; s++) {
+                this.props.setTimeout(function () { return _this.forceUpdate(); }, s * 1000 + 50);
+            }
+        }
+    };
+    /// Seconds until the bottom may be picked up (0 when it may).
+    DrawInner.prototype.pickupWaitSecs = function () {
+        var readyAt = this.state.pickupReadyAt;
+        if (readyAt === null) {
+            return 0;
+        }
+        return Math.max(0, Math.ceil((readyAt - Date.now()) / 1000));
     };
     DrawInner.prototype.componentWillUnmount = function () {
         this.cancelTimer();
@@ -6411,6 +6462,7 @@ var DrawInner = /** @class */ (function (_super) {
         var _this = this;
         var canDraw = this.canDraw();
         var next = drawNextPlayer(this.props.state);
+        var pickupWait = this.pickupWaitSecs();
         var players = {};
         var playerId = -1;
         this.props.state.propagated.players.forEach(function (p) {
@@ -6457,7 +6509,8 @@ var DrawInner = /** @class */ (function (_super) {
                     react.createElement("label", null,
                         "auto-draw",
                         react.createElement("input", { type: "checkbox", name: "autodraw", checked: this.state.autodraw, onChange: this.onAutodrawClicked }))), suffixButtons: react.createElement(react.Fragment, null,
-                    react.createElement("button", { onClick: this.pickUpKitty, disabled: this.props.state.deck.length > 0 ||
+                    react.createElement("button", { onClick: this.pickUpKitty, disabled: pickupWait > 0 ||
+                            this.props.state.deck.length > 0 ||
                             (this.props.state.bids.length === 0 &&
                                 this.props.state.autobid === null &&
                                 !(landlord !== null &&
@@ -6471,7 +6524,9 @@ var DrawInner = /** @class */ (function (_super) {
                                         .id !== playerId) ||
                                     (this.props.state.propagated
                                         .first_landlord_selection_policy === "ByFirstBid" &&
-                                        this.props.state.bids[0].id !== playerId))), className: "big" }, "Pick up cards from the bottom"),
+                                        this.props.state.bids[0].id !== playerId))), className: "big" },
+                        "Pick up cards from the bottom",
+                        pickupWait > 0 ? " (".concat(pickupWait, "s)") : ""),
                     react.createElement("button", { onClick: this.revealCard, disabled: landlord === null ||
                             landlord === undefined ||
                             this.props.state.deck.length > 0 ||
@@ -6941,7 +6996,8 @@ var ChangeLog = function () {
             react.createElement("p", null, "11/8/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Spectators can watch a player's hand (room setting \u201Cshadowing\u201D), the room type can be switched between matches from the lobby, and the rules page draws its cards again."),
-                react.createElement("li", null, "\u201CThrow as singles\u201D: when leading, a pair or tractor can be thrown as separate singles. The usual throw rules apply.")),
+                react.createElement("li", null, "Leading: every valid way to group the cards can be chosen under \u201COther ways to throw these cards\u201D (a pair as two singles, a tractor as its pairs, ...). The usual throw rules apply to each part, and the chat shows the parts separated by +."),
+                react.createElement("li", null, "The bottom can only be picked up 5 seconds after the last card drawn or the last beatable bid, so nobody can rush past a bid.")),
             react.createElement("p", null, "9/21/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Rating changes are now a fifth of what they were: a shutout between equal players at first-to-5 moves each rating by 36 points instead of 180, and a first-to-3 by 12. All rated matches were recomputed.")),
@@ -7294,7 +7350,11 @@ var renderMessage = function (message) {
                 _e.actor_name,
                 " played",
                 " ",
-                variant.cards.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); })));
+                variant.units !== undefined && variant.units.length > 1
+                    ? variant.units.map(function (unit, ui) { return (react.createElement(react.Fragment, { key: ui },
+                        ui > 0 ? " + " : null,
+                        unit.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); }))); })
+                    : variant.cards.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); })));
         case "EndOfGameKittyReveal":
             return (react.createElement("span", null,
                 variant.cards.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); }),
@@ -8006,6 +8066,16 @@ var Play_generator = (undefined && undefined.__generator) || function (thisArg, 
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var Play_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
 
 
 
@@ -8037,12 +8107,17 @@ var Play = function (props) {
     var send = react.useContext(WebsocketProvider_WebsocketContext).send;
     var settings = react.useContext(SettingsContext);
     var _a = react.useState([]), selected = _a[0], setSelected = _a[1];
+    // Every valid grouping of the selected cards (natural ones first) and the
+    // one that will be played. A lead with one natural grouping is chosen
+    // automatically; the rest can be picked from the list.
     var _b = react.useState([]), grouping = _b[0], setGrouping = _b[1];
+    var _c = react.useState(null), chosen = _c[0], setChosen = _c[1];
+    var _d = react.useState(false), showMoreGroupings = _d[0], setShowMoreGroupings = _d[1];
     var engine = useEngine();
-    var _c = react.useState(null), lastPrefillTrump = _c[0], setLastPrefillTrump = _c[1];
+    var _e = react.useState(null), lastPrefillTrump = _e[0], setLastPrefillTrump = _e[1];
     // Helper function to update selection and grouping
     var updateSelectionAndGrouping = function (newSelected, trump, tractorRequirements) { return Play_awaiter(void 0, void 0, void 0, function () {
-        var plays, error_1;
+        var plays, natural, error_1;
         return Play_generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -8050,36 +8125,51 @@ var Play = function (props) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, engine.findViablePlays(trump, tractorRequirements, newSelected)];
+                    return [4 /*yield*/, engine.findViablePlays(trump, tractorRequirements, newSelected, true)];
                 case 2:
                     plays = _a.sent();
                     setGrouping(plays);
+                    natural = plays.filter(function (p) { return p.natural !== false; });
+                    setChosen(natural.length === 1 ? natural[0] : null);
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();
                     console.error("Error finding viable plays:", error_1);
                     setGrouping([]);
+                    setChosen(null);
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
             }
         });
     }); };
     var playCards = function () {
-        send({ Action: { PlayCardsWithHint: [selected, grouping[0].grouping] } });
+        if (chosen === null) {
+            return;
+        }
+        send({ Action: { PlayCardsWithHint: [selected, chosen.grouping] } });
         setSelected([]);
         setGrouping([]);
+        setChosen(null);
+        setShowMoreGroupings(false);
     };
-    /// Lead the selected cards as separate singles even though they form a
-    /// pair or tractor (a "split throw"): rare, but right when a trumped pair
-    /// would double the kitty penalty. The server applies the usual throw check.
-    var throwAsSingles = function () {
-        var singles = selected.map(function (card) { return ({
-            Repeated: { count: 1, card: { card: card, trump: playPhase.trump } },
-        }); });
-        send({ Action: { PlayCardsWithHint: [selected, singles] } });
-        setSelected([]);
-        setGrouping([]);
+    /// The cards of one unit of a grouping, for display.
+    var unitCards = function (u) {
+        return "Repeated" in u
+            ? Array(u.Repeated.count).fill(u.Repeated.card.card)
+            : u.Tractor.members.flatMap(function (m) {
+                return Array(u.Tractor.count).fill(m.card);
+            });
     };
+    /// "AA + K (a pair and a single)".
+    var describeGrouping = function (g) { return (react.createElement(react.Fragment, null,
+        g.grouping.map(function (u, ui) { return (react.createElement(react.Fragment, { key: ui },
+            ui > 0 ? " + " : null,
+            unitCards(u).map(function (card, ci) { return (react.createElement(src_InlineCard, { card: card, key: ci })); }))); }),
+        " ",
+        react.createElement("span", { className: "auth-hint" },
+            "(",
+            g.description,
+            ")"))); };
     var sendEvent = function (event) { return function () { return send(event); }; };
     var takeBackCards = sendEvent({ Action: "TakeBackCards" });
     var endTrick = sendEvent({ Action: "EndTrick" });
@@ -8153,13 +8243,9 @@ var Play = function (props) {
     }, [playPhase.hands.hands, currentPlayer.id, selected]);
     var nextPlayer = playPhase.trick.player_queue[0];
     var lastPlay = playPhase.trick.played_cards[playPhase.trick.played_cards.length - 1];
-    // Offer the split throw only when leading a selection whose natural
-    // grouping has something bigger than a single to split.
-    var canThrowAsSingles = lastPlay === undefined &&
-        selected.length > 1 &&
-        grouping.length > 0 &&
-        grouping[0].grouping.some(function (u) { return !("Repeated" in u) || u.Repeated.count > 1; });
-    var _d = react.useState(false), canPlay = _d[0], setCanPlay = _d[1];
+    var naturalGroupings = grouping.filter(function (g) { return g.natural !== false; });
+    var otherGroupings = grouping.filter(function (g) { return g.natural === false; });
+    var _f = react.useState(false), canPlay = _f[0], setCanPlay = _f[1];
     react.useEffect(function () {
         if (!isSpectator && selected.length > 0) {
             engine
@@ -8173,7 +8259,7 @@ var Play = function (props) {
                 .then(function (playable) {
                 // In order to play the first trick, the grouping must be disambiguated!
                 if (lastPlay === undefined) {
-                    playable = playable && grouping.length === 1;
+                    playable = playable && chosen !== null;
                 }
                 playable = playable && !playPhase.game_ended_early;
                 setCanPlay(playable);
@@ -8196,6 +8282,7 @@ var Play = function (props) {
         lastPlay,
         playPhase.game_ended_early,
         grouping,
+        chosen,
         engine,
     ]);
     var isCurrentPlayerTurn = currentPlayer.id === nextPlayer;
@@ -8262,10 +8349,9 @@ var Play = function (props) {
             settings.showPointsAboveGame && (react.createElement(ProgressBarDisplay, { points: playPhase.points, penalties: playPhase.penalties, decks: playPhase.decks, trump: playPhase.trump, players: playPhase.propagated.players, landlordTeam: playPhase.landlords_team, landlord: playPhase.landlord, hideLandlordPoints: playPhase.propagated.hide_landlord_points, gameScoringParameters: playPhase.propagated.game_scoring_parameters, smallerTeamSize: smallerTeamSize })),
             react.createElement(Trick, { trick: playPhase.trick, players: playPhase.propagated.players, landlord: playPhase.landlord, landlord_suffix: landlordSuffix, landlords_team: playPhase.landlords_team, next: nextPlayer, name: props.name, showTrickInPlayerOrder: props.showTrickInPlayerOrder }))),
         seat && (react.createElement(react.Fragment, null,
-            react.createElement(src_AutoPlayButton, { onSubmit: playCards, playDescription: grouping.length === 1 && lastPlay === undefined
-                    ? grouping[0].description
+            react.createElement(src_AutoPlayButton, { onSubmit: playCards, playDescription: chosen !== null && lastPlay === undefined
+                    ? chosen.description
                     : null, canSubmit: canPlay, currentWinner: playPhase.trick.current_winner, unsetAutoPlayWhenWinnerChanges: props.unsetAutoPlayWhenWinnerChanges, isCurrentPlayerTurn: isCurrentPlayerTurn }),
-            canThrowAsSingles && (react.createElement("button", { className: "normal", onClick: throwAsSingles, disabled: !isCurrentPlayerTurn || playPhase.game_ended_early, title: "Lead these cards as separate singles instead of as a pair or tractor (a split throw)" }, "Throw as singles")),
             playPhase.propagated.play_takeback_policy ===
                 "AllowPlayTakeback" && (react.createElement("button", { className: "big", onClick: takeBackCards, disabled: !canTakeBack }, "Take back last play")),
             react.createElement("button", { className: "big", onClick: endTrick, disabled: playPhase.trick.player_queue.length > 0 ||
@@ -8285,13 +8371,31 @@ var Play = function (props) {
                 } })) : null,
             lastPlay === undefined &&
                 isCurrentPlayerTurn &&
-                grouping.length > 1 && (react.createElement("div", null,
-                react.createElement("p", null, "It looks like you are making a play that can be interpreted in multiple ways!"),
-                react.createElement("p", null, "Which of the following did you mean?"),
-                grouping.map(function (g, gidx) { return (react.createElement("button", { key: gidx, onClick: function (evt) {
-                        evt.preventDefault();
-                        setGrouping([g]);
-                    }, className: "big" }, g.description)); }))),
+                grouping.length > 1 && (react.createElement("div", { className: "groupings" },
+                naturalGroupings.length > 1 && chosen === null && (react.createElement(react.Fragment, null,
+                    react.createElement("p", null, "This play can be read in more than one way. Which did you mean?"),
+                    naturalGroupings.map(function (g, gidx) { return (react.createElement("button", { key: gidx, onClick: function (evt) {
+                            evt.preventDefault();
+                            setChosen(g);
+                        }, className: "big" }, describeGrouping(g))); }))),
+                otherGroupings.length > 0 && (react.createElement("p", null,
+                    react.createElement("a", { href: window.location.href, onClick: function (evt) {
+                            evt.preventDefault();
+                            setShowMoreGroupings(!showMoreGroupings);
+                        } }, showMoreGroupings
+                        ? "Hide other groupings"
+                        : "Other ways to throw these cards"))),
+                showMoreGroupings && (react.createElement("div", { className: "other-groupings" },
+                    react.createElement("p", { className: "auth-hint" }, "Throw rules apply to every part: if another player can beat any part, the throw fails."),
+                    Play_spreadArray(Play_spreadArray([], naturalGroupings, true), otherGroupings, true).map(function (g, gidx) { return (react.createElement("button", { key: gidx, onClick: function (evt) {
+                            evt.preventDefault();
+                            setChosen(g);
+                        }, className: classnames_default()("normal", {
+                            "grouping-chosen": chosen === g,
+                        }) }, describeGrouping(g))); }))),
+                chosen !== null && chosen.natural === false && (react.createElement("p", null,
+                    "Playing as ",
+                    describeGrouping(chosen))))),
             react.createElement(src_Cards, { hands: playPhase.hands, playerId: currentPlayer.id, trump: playPhase.trump, selectedCards: selected, onSelect: function (newSelected) {
                     updateSelectionAndGrouping(newSelected, playPhase.trump, playPhase.propagated.tractor_requirements);
                 }, notifyEmpty: isCurrentPlayerTurn }))),
@@ -9374,7 +9478,7 @@ var Timeout = function (props) {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"ca3c3ee03ff8a5dc2c25"}[chunkId] + ".js";
+/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"4574419b5f3a3438d95d"}[chunkId] + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -9627,4 +9731,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.5a303f18e5665c8dfdeb.js.map
+//# sourceMappingURL=main.8023e6ee6f614fab9360.js.map

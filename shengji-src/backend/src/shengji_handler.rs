@@ -11,7 +11,7 @@
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use anyhow::{anyhow, bail};
 use slog::{debug, error, info, o, Logger};
@@ -42,6 +42,42 @@ use crate::{
 
 /// The first (`JoinRoom`) message must arrive within this long.
 const JOIN_TIMEOUT: Duration = Duration::from_secs(10);
+
+/// The bottom cannot be picked up until this long after the last card was
+/// drawn or the last bid that could still be beaten, so a bid cannot be
+/// rushed past the table (DESIGN.md, "Kitty pickup delay").
+pub const KITTY_PICKUP_DELAY: Duration = Duration::from_secs(5);
+
+lazy_static::lazy_static! {
+    /// Per room: when the draw-phase clock for the kitty pickup last reset.
+    /// In memory only; after a restart the delay simply does not apply to the
+    /// current round.
+    static ref DRAW_ACTIVITY_AT: std::sync::Mutex<HashMap<String, Instant>> =
+        std::sync::Mutex::new(HashMap::new());
+}
+
+/// Whether a successful `action` restarts the kitty pickup clock: drawing a
+/// card does, and so does any bid except the unbeatable one (big jokers, as
+/// many as there are decks).
+pub fn resets_pickup_timer(state: &GameState, action: &Action) -> bool {
+    match action {
+        Action::DrawCard => true,
+        Action::Bid(card, count) => {
+            !(*card == shengji_mechanics::types::Card::BigJoker && *count == state.num_decks())
+        }
+        _ => false,
+    }
+}
+
+/// How much longer the bottom must stay down, if at all.
+pub fn kitty_pickup_wait(last_activity: Option<Instant>, now: Instant) -> Option<Duration> {
+    let since = now.saturating_duration_since(last_activity?);
+    if since < KITTY_PICKUP_DELAY {
+        Some(KITTY_PICKUP_DELAY - since)
+    } else {
+        None
+    }
+}
 
 /// Longest chat message we relay (DESIGN.md, "WebSocket protocol").
 const MAX_CHAT_BYTES: usize = 2000;
@@ -1507,6 +1543,17 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
                 None => first_seat(game.state(), &username)?,
             };
             guard_action(game.state(), caller, &action)?;
+            if matches!(action, Action::PickUpKitty) && matches!(game.state(), GameState::Draw(_)) {
+                let last = DRAW_ACTIVITY_AT.lock().unwrap().get(&room).copied();
+                if let Some(wait) = kitty_pickup_wait(last, Instant::now()) {
+                    bail!(
+                        "the bottom can be picked up {} seconds after the last draw or bid ({} to go)",
+                        KITTY_PICKUP_DELAY.as_secs(),
+                        wait.as_secs() + 1
+                    );
+                }
+            }
+            let restarts_pickup_clock = resets_pickup_timer(game.state(), &action);
             // A reset in a rated Finding Friends round needs everyone else.
             if matches!(action, Action::ResetGame) && needs_unanimous_reset(game.state()) {
                 if let ResetVote::Waiting { votes, needed } =
@@ -1528,6 +1575,12 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
             let pre = pre_round(game.state(), &action);
             let (msgs, joined) =
                 apply_action(game, caller, action, &logger, associated_websockets)?;
+            if restarts_pickup_clock {
+                DRAW_ACTIVITY_AT
+                    .lock()
+                    .unwrap()
+                    .insert(room.clone(), Instant::now());
+            }
             if clears_votes || phase != std::mem::discriminant(game.state()) {
                 reset_votes.clear();
             }
@@ -2065,6 +2118,34 @@ mod tests {
             g.interact(Action::StartGame, id, &logger()).unwrap();
         }
         assert!(matches!(g.state(), GameState::Draw(_)));
+    }
+
+    #[test]
+    fn kitty_pickup_clock_rules() {
+        let mut g = InteractiveGame::new();
+        for n in ["alice", "bob", "carol", "dave"] {
+            register_seats(&mut g, n).unwrap();
+        }
+        let state = g.state();
+        assert!(resets_pickup_timer(state, &Action::DrawCard));
+        assert!(resets_pickup_timer(state, &Action::Bid(Card::BigJoker, 1)));
+        assert!(resets_pickup_timer(
+            state,
+            &Action::Bid(Card::SmallJoker, state.num_decks())
+        ));
+        assert!(!resets_pickup_timer(
+            state,
+            &Action::Bid(Card::BigJoker, state.num_decks())
+        ));
+        assert!(!resets_pickup_timer(state, &Action::PickUpKitty));
+
+        let t0 = Instant::now();
+        assert_eq!(kitty_pickup_wait(None, t0), None);
+        assert!(
+            kitty_pickup_wait(Some(t0), t0 + Duration::from_secs(2)).unwrap()
+                > Duration::from_secs(2)
+        );
+        assert_eq!(kitty_pickup_wait(Some(t0), t0 + KITTY_PICKUP_DELAY), None);
     }
 
     #[test]

@@ -16,16 +16,48 @@ use shengji_types::wasm_rpc::{
 };
 
 pub fn find_viable_plays(req: FindViablePlaysRequest) -> FindViablePlaysResult {
-    let results = TrickUnit::find_plays(req.trump, req.tractor_requirements, req.cards)
-        .into_iter()
-        .map(|p| {
-            let description = UnitLike::multi_description(p.iter().map(UnitLike::from));
-            FoundViablePlay {
-                grouping: p,
-                description,
-            }
+    let canonical = |p: &Vec<TrickUnit>| {
+        let mut p = p.clone();
+        p.sort_by(|a, b| {
+            a.size()
+                .cmp(&b.size())
+                .then(a.first_card().cmp(&b.first_card()))
+        });
+        p
+    };
+    let describe = |p: &Vec<TrickUnit>| UnitLike::multi_description(p.iter().map(UnitLike::from));
+    let natural: Vec<Vec<TrickUnit>> = TrickUnit::find_plays(
+        req.trump,
+        req.tractor_requirements,
+        req.cards.iter().copied(),
+    )
+    .into_iter()
+    .map(|p| canonical(&p))
+    .collect();
+    let mut results: Vec<FoundViablePlay> = natural
+        .iter()
+        .map(|p| FoundViablePlay {
+            grouping: p.clone(),
+            description: describe(p),
+            natural: true,
         })
-        .collect::<Vec<_>>();
+        .collect();
+    if req.all_groupings {
+        for p in TrickUnit::find_all_groupings(
+            req.trump,
+            req.tractor_requirements,
+            req.cards.iter().copied(),
+        ) {
+            let p = canonical(&p);
+            if !natural.contains(&p) && !results.iter().any(|r| r.grouping == p) {
+                results.push(FoundViablePlay {
+                    description: describe(&p),
+                    grouping: p,
+                    natural: false,
+                });
+            }
+        }
+    }
     FindViablePlaysResult { results }
 }
 

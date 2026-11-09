@@ -1,4 +1,5 @@
 import * as React from "react";
+import classNames from "classnames";
 import { Tooltip } from "react-tooltip";
 import ReactModal from "react-modal";
 import {
@@ -7,6 +8,7 @@ import {
   Hands,
   TrickDrawPolicy,
   FoundViablePlay,
+  TrickUnit,
   SuitGroup,
 } from "./gen-types";
 import Header from "./Header";
@@ -56,7 +58,12 @@ const Play = (props: IProps): JSX.Element => {
   const { send } = React.useContext(WebsocketContext);
   const settings = React.useContext(SettingsContext);
   const [selected, setSelected] = React.useState<string[]>([]);
+  // Every valid grouping of the selected cards (natural ones first) and the
+  // one that will be played. A lead with one natural grouping is chosen
+  // automatically; the rest can be picked from the list.
   const [grouping, setGrouping] = React.useState<FoundViablePlay[]>([]);
+  const [chosen, setChosen] = React.useState<FoundViablePlay | null>(null);
+  const [showMoreGroupings, setShowMoreGroupings] = React.useState(false);
   const engine = useEngine();
   const [lastPrefillTrump, setLastPrefillTrump] = React.useState<string | null>(
     null,
@@ -74,31 +81,51 @@ const Play = (props: IProps): JSX.Element => {
         trump,
         tractorRequirements,
         newSelected,
+        true,
       );
       setGrouping(plays);
+      const natural = plays.filter((p) => p.natural !== false);
+      setChosen(natural.length === 1 ? natural[0] : null);
     } catch (error) {
       console.error("Error finding viable plays:", error);
       setGrouping([]);
+      setChosen(null);
     }
   };
 
   const playCards = (): void => {
-    send({ Action: { PlayCardsWithHint: [selected, grouping[0].grouping] } });
+    if (chosen === null) {
+      return;
+    }
+    send({ Action: { PlayCardsWithHint: [selected, chosen.grouping] } });
     setSelected([]);
     setGrouping([]);
+    setChosen(null);
+    setShowMoreGroupings(false);
   };
 
-  /// Lead the selected cards as separate singles even though they form a
-  /// pair or tractor (a "split throw"): rare, but right when a trumped pair
-  /// would double the kitty penalty. The server applies the usual throw check.
-  const throwAsSingles = (): void => {
-    const singles = selected.map((card) => ({
-      Repeated: { count: 1, card: { card, trump: playPhase.trump } },
-    }));
-    send({ Action: { PlayCardsWithHint: [selected, singles] } });
-    setSelected([]);
-    setGrouping([]);
-  };
+  /// The cards of one unit of a grouping, for display.
+  const unitCards = (u: TrickUnit): string[] =>
+    "Repeated" in u
+      ? Array<string>(u.Repeated.count).fill(u.Repeated.card.card)
+      : u.Tractor.members.flatMap((m) =>
+          Array<string>(u.Tractor.count).fill(m.card),
+        );
+
+  /// "AA + K (a pair and a single)".
+  const describeGrouping = (g: FoundViablePlay): JSX.Element => (
+    <>
+      {g.grouping.map((u, ui) => (
+        <React.Fragment key={ui}>
+          {ui > 0 ? " + " : null}
+          {unitCards(u).map((card, ci) => (
+            <InlineCard card={card} key={ci} />
+          ))}
+        </React.Fragment>
+      ))}{" "}
+      <span className="auth-hint">({g.description})</span>
+    </>
+  );
 
   const sendEvent = (event: object) => () => send(event);
   const takeBackCards = sendEvent({ Action: "TakeBackCards" });
@@ -197,15 +224,8 @@ const Play = (props: IProps): JSX.Element => {
   const nextPlayer = playPhase.trick.player_queue[0];
   const lastPlay =
     playPhase.trick.played_cards[playPhase.trick.played_cards.length - 1];
-  // Offer the split throw only when leading a selection whose natural
-  // grouping has something bigger than a single to split.
-  const canThrowAsSingles =
-    lastPlay === undefined &&
-    selected.length > 1 &&
-    grouping.length > 0 &&
-    grouping[0].grouping.some(
-      (u) => !("Repeated" in u) || u.Repeated.count > 1,
-    );
+  const naturalGroupings = grouping.filter((g) => g.natural !== false);
+  const otherGroupings = grouping.filter((g) => g.natural === false);
 
   const [canPlay, setCanPlay] = React.useState(false);
 
@@ -222,7 +242,7 @@ const Play = (props: IProps): JSX.Element => {
         .then((playable) => {
           // In order to play the first trick, the grouping must be disambiguated!
           if (lastPlay === undefined) {
-            playable = playable && grouping.length === 1;
+            playable = playable && chosen !== null;
           }
           playable = playable && !playPhase.game_ended_early;
           setCanPlay(playable);
@@ -244,6 +264,7 @@ const Play = (props: IProps): JSX.Element => {
     lastPlay,
     playPhase.game_ended_early,
     grouping,
+    chosen,
     engine,
   ]);
 
@@ -371,8 +392,8 @@ const Play = (props: IProps): JSX.Element => {
           <AutoPlayButton
             onSubmit={playCards}
             playDescription={
-              grouping.length === 1 && lastPlay === undefined
-                ? grouping[0].description
+              chosen !== null && lastPlay === undefined
+                ? chosen.description
                 : null
             }
             canSubmit={canPlay!}
@@ -382,16 +403,6 @@ const Play = (props: IProps): JSX.Element => {
             }
             isCurrentPlayerTurn={isCurrentPlayerTurn}
           />
-          {canThrowAsSingles && (
-            <button
-              className="normal"
-              onClick={throwAsSingles}
-              disabled={!isCurrentPlayerTurn || playPhase.game_ended_early}
-              title="Lead these cards as separate singles instead of as a pair or tractor (a split throw)"
-            >
-              Throw as singles
-            </button>
-          )}
           {playPhase.propagated.play_takeback_policy ===
             "AllowPlayTakeback" && (
             <button
@@ -465,24 +476,67 @@ const Play = (props: IProps): JSX.Element => {
           {lastPlay === undefined &&
             isCurrentPlayerTurn &&
             grouping.length > 1 && (
-              <div>
-                <p>
-                  It looks like you are making a play that can be interpreted in
-                  multiple ways!
-                </p>
-                <p>Which of the following did you mean?</p>
-                {grouping.map((g, gidx) => (
-                  <button
-                    key={gidx}
-                    onClick={(evt) => {
-                      evt.preventDefault();
-                      setGrouping([g]);
-                    }}
-                    className="big"
-                  >
-                    {g.description}
-                  </button>
-                ))}
+              <div className="groupings">
+                {naturalGroupings.length > 1 && chosen === null && (
+                  <>
+                    <p>
+                      This play can be read in more than one way. Which did you
+                      mean?
+                    </p>
+                    {naturalGroupings.map((g, gidx) => (
+                      <button
+                        key={gidx}
+                        onClick={(evt) => {
+                          evt.preventDefault();
+                          setChosen(g);
+                        }}
+                        className="big"
+                      >
+                        {describeGrouping(g)}
+                      </button>
+                    ))}
+                  </>
+                )}
+                {otherGroupings.length > 0 && (
+                  <p>
+                    <a
+                      href={window.location.href}
+                      onClick={(evt) => {
+                        evt.preventDefault();
+                        setShowMoreGroupings(!showMoreGroupings);
+                      }}
+                    >
+                      {showMoreGroupings
+                        ? "Hide other groupings"
+                        : "Other ways to throw these cards"}
+                    </a>
+                  </p>
+                )}
+                {showMoreGroupings && (
+                  <div className="other-groupings">
+                    <p className="auth-hint">
+                      Throw rules apply to every part: if another player can
+                      beat any part, the throw fails.
+                    </p>
+                    {[...naturalGroupings, ...otherGroupings].map((g, gidx) => (
+                      <button
+                        key={gidx}
+                        onClick={(evt) => {
+                          evt.preventDefault();
+                          setChosen(g);
+                        }}
+                        className={classNames("normal", {
+                          "grouping-chosen": chosen === g,
+                        })}
+                      >
+                        {describeGrouping(g)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {chosen !== null && chosen.natural === false && (
+                  <p>Playing as {describeGrouping(chosen)}</p>
+                )}
               </div>
             )}
           <Cards

@@ -19,6 +19,10 @@ pub enum PlayCardsMessage {
     },
     PlayedCards {
         cards: Vec<Card>,
+        /// The units of a multi-unit lead (a throw), in play order; empty for
+        /// single-unit leads, follows, and failed throws. Lets the chat show
+        /// "AA + K" so everyone sees how a throw was split.
+        units: Vec<Vec<Card>>,
     },
 }
 
@@ -192,6 +196,26 @@ impl TrickUnit {
         }
 
         find_plays_inner(&mut counts, original_num_cards, tractor_requirements, None)
+    }
+
+    /// Every way to split the cards into valid units (repeats and tractors),
+    /// not only the natural decompositions of [`find_plays`](Self::find_plays):
+    /// a pair as two singles, a tractor as its pairs, and so on. Each unit must
+    /// satisfy the tractor requirements on its own; when led, the throw rules
+    /// then judge every unit. Partitions are canonical (the unit holding the
+    /// lowest remaining card is chosen first), so none repeats.
+    pub fn find_all_groupings(
+        trump: Trump,
+        tractor_requirements: TractorRequirements,
+        iter: impl IntoIterator<Item = Card>,
+    ) -> Vec<Units> {
+        let mut counts: BTreeMap<OrderedCard, usize> = BTreeMap::new();
+        for card in iter {
+            *counts.entry(OrderedCard { card, trump }).or_insert(0) += 1;
+        }
+        let mut out = vec![];
+        find_all_groupings_inner(&mut counts, tractor_requirements, &mut vec![], &mut out);
+        out
     }
 
     pub fn cards(&self) -> Vec<Card> {
@@ -554,16 +578,21 @@ impl TrickFormat {
                         });
                     }
                 }
-                // A split throw: the same cards grouped into smaller plain
-                // repeats than their natural decomposition, e.g. a pair led
-                // as two singles (worth it when a trumped pair would double
-                // the kitty penalty). Legal as long as the units exactly
-                // cover the cards; the throw check in `play_cards` still
-                // applies to every unit, so this cannot sneak past it.
-                if proposed
-                    .iter()
-                    .all(|u| matches!(u, TrickUnit::Repeated { .. }))
-                {
+                // Any other partition into valid units that exactly covers
+                // the cards is accepted too (a "split throw": a pair led as
+                // two singles, a tractor as its pairs, ...). Worth it when a
+                // trumped pair would double the kitty penalty. The throw check
+                // in `play_cards` judges every unit, so this can only make a
+                // play smaller, never stronger.
+                let unit_is_valid = |u: &TrickUnit| match u {
+                    TrickUnit::Repeated { count, .. } => *count >= 1,
+                    TrickUnit::Tractor { .. } => {
+                        TrickUnit::find_plays(trump, tractor_requirements, u.cards())
+                            .into_iter()
+                            .any(|p| p.len() == 1 && p[0] == *u)
+                    }
+                };
+                if proposed.iter().all(unit_is_valid) {
                     let mut proposed_cards: Vec<Card> =
                         proposed.iter().flat_map(|u| u.cards()).collect();
                     proposed_cards.sort_by(|a, b| trump.compare(*a, *b));
@@ -906,16 +935,23 @@ impl Trick {
                     (cards, vec![], None)
                 };
 
+            let units: Vec<Vec<Card>> = if better_player.is_none() && tf.units.len() > 1 {
+                tf.units.iter().map(|u| u.cards()).collect()
+            } else {
+                vec![]
+            };
             self.trick_format = Some(tf);
 
             msgs.push(PlayCardsMessage::PlayedCards {
                 cards: cards.clone(),
+                units,
             });
 
             (cards, bad_throw_cards, better_player)
         } else {
             msgs.push(PlayCardsMessage::PlayedCards {
                 cards: cards.clone(),
+                units: vec![],
             });
             (cards, vec![], None)
         };
@@ -1162,7 +1198,7 @@ impl UnitLike {
             if ct == 1 {
                 format!("a {desc}")
             } else {
-                format!("{ct} {desc}")
+                format!("{ct} {desc}s")
             }
         } else {
             let mut s =
@@ -1170,7 +1206,8 @@ impl UnitLike {
                     .into_iter()
                     .fold(String::new(), |mut s, (desc, ct): (String, usize)| {
                         use std::fmt::Write;
-                        let _ = write!(s, "{ct} {desc}, ");
+                        let plural = if ct == 1 { "" } else { "s" };
+                        let _ = write!(s, "{ct} {desc}{plural}, ");
                         s
                     });
             s.pop();
@@ -1485,6 +1522,62 @@ fn find_tractors_from_start(
         }
     }
     potential_starts
+}
+
+fn find_all_groupings_inner(
+    counts: &mut BTreeMap<OrderedCard, usize>,
+    tractor_requirements: TractorRequirements,
+    current: &mut Units,
+    out: &mut Vec<Units>,
+) {
+    let (card, count) = match counts.iter().find(|(_, n)| **n > 0) {
+        Some((c, n)) => (*c, *n),
+        None => {
+            out.push(current.clone());
+            return;
+        }
+    };
+    let mut candidates: Units = (1..=count)
+        .map(|k| TrickUnit::Repeated { count: k, card })
+        .collect();
+    // Tractors starting at the lowest card, of every width the cards allow.
+    for width in tractor_requirements.min_count.max(2)..=count {
+        let mut frontier: Vec<Members> = vec![vec![card]];
+        while let Some(path) = frontier.pop() {
+            let last = *path.last().expect("path is never empty");
+            for next in last.successor() {
+                if counts.get(&next).copied().unwrap_or(0) >= width {
+                    let mut longer = path.clone();
+                    longer.push(next);
+                    if longer.len() >= tractor_requirements.min_length {
+                        candidates.push(TrickUnit::Tractor {
+                            count: width,
+                            members: longer.clone(),
+                        });
+                    }
+                    frontier.push(longer);
+                }
+            }
+        }
+    }
+    for unit in candidates {
+        let used: Vec<OrderedCard> = match &unit {
+            TrickUnit::Repeated { card, count } => vec![*card; *count],
+            TrickUnit::Tractor { count, members } => members
+                .iter()
+                .flat_map(|m| std::iter::repeat_n(*m, *count))
+                .collect(),
+        };
+        for c in &used {
+            *counts.get_mut(c).expect("unit cards come from counts") -= 1;
+        }
+        current.push(unit);
+        find_all_groupings_inner(counts, tractor_requirements, current, out);
+        current.pop();
+        for c in &used {
+            *counts.get_mut(c).expect("unit cards come from counts") += 1;
+        }
+    }
 }
 
 fn find_plays_inner(
@@ -2049,6 +2142,46 @@ mod tests {
         .unwrap();
         assert_eq!(split.units.len(), 2);
         assert_eq!(split.size(), 2);
+
+        // Every grouping of AAAKK: repeats and the KKAA tractor in all
+        // combinations that cover the cards.
+        let all = TrickUnit::find_all_groupings(
+            TRUMP,
+            TractorRequirements::default(),
+            vec![D_A, D_A, D_A, D_K, D_K],
+        );
+        let shapes: std::collections::BTreeSet<Vec<usize>> = all
+            .iter()
+            .map(|g| {
+                let mut sizes: Vec<usize> = g.iter().map(|u| u.size()).collect();
+                sizes.sort_unstable();
+                sizes
+            })
+            .collect();
+        // [AAA][KK], [AA][A][KK], [A][A][A][KK], [AAA][K][K], [AA][A][K][K],
+        // [A][A][A][K][K], [KKAA][A] (and [KK][AA][A] shares its shape)
+        assert!(shapes.contains(&vec![2, 3]), "{:?}", all);
+        assert!(shapes.contains(&vec![1, 2, 2]), "{:?}", all);
+        assert!(shapes.contains(&vec![1, 1, 1, 2]), "{:?}", all);
+        assert!(shapes.contains(&vec![1, 1, 1, 1, 1]), "{:?}", all);
+        assert!(shapes.contains(&vec![1, 4]), "{:?}", all);
+        assert!(
+            all.iter().any(|g| g.iter().any(|u| u.is_tractor())),
+            "{:?}",
+            all
+        );
+        assert!(all.len() >= 7, "{:?}", all);
+        // and each of them is accepted as a proposal
+        for g in &all {
+            TrickFormat::from_cards(
+                TRUMP,
+                TractorRequirements::default(),
+                &[D_A, D_A, D_A, D_K, D_K],
+                Some(g),
+                CompoundFormats::default(),
+            )
+            .unwrap_or_else(|e| panic!("{:?}: {:?}", g, e));
+        }
 
         // The proposal still has to cover exactly the cards played.
         let wrong = vec![

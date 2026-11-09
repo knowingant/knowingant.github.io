@@ -113,6 +113,10 @@ pub enum MessageVariant {
     TookBackBid,
     PlayedCards {
         cards: Vec<Card>,
+        /// Units of a multi-unit lead, for "AA + K" in the chat (empty
+        /// otherwise; older states have none).
+        #[serde(default)]
+        units: Vec<Vec<Card>>,
     },
     ThrowFailed {
         original_cards: Vec<Card>,
@@ -338,7 +342,9 @@ impl MessageVariant {
                 format!("{} set the game mode to Finding Friends with {} friends", n?, friends),
             TookBackBid => format!("{} took back their last bid", n?),
             TookBackPlay => format!("{} took back their last play", n?),
-            PlayedCards { ref cards } =>
+            PlayedCards { ref units, .. } if units.len() > 1 =>
+                format!("{} played {}", n?, units.iter().map(|u| u.iter().map(|c| c.as_char()).collect::<String>()).collect::<Vec<_>>().join(" + ")),
+            PlayedCards { ref cards, .. } =>
                 format!("{} played {}", n?, cards.iter().map(|c| c.as_char()).collect::<String>()),
             EndOfGameKittyReveal { ref cards } =>
                 format!("{} in kitty", cards.iter().map(|c| c.as_char()).collect::<String>()),

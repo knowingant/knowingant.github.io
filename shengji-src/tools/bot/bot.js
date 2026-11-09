@@ -471,10 +471,14 @@ class Connection {
     }
     this.ctx.consecutiveErrors += 1;
     for (const a of this.lastActions) a.onError?.();
+    // "the bottom can be picked up 5 seconds after ... (3 to go)": wait it
+    // out instead of hammering the server.
+    const toGo = /\((\d+) to go\)/.exec(text);
+    const delay = toGo ? Number(toGo[1]) * 1000 + 100 : 500;
     setTimeout(() => {
       this.retryRequested = true;
       this.evaluate();
-    }, 500);
+    }, delay);
   }
 
   onBroadcast(body) {

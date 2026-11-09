@@ -230,6 +230,7 @@ mod tests {
                 number: Number::Two,
             },
             tractor_requirements: TractorRequirements::default(),
+            all_groupings: false,
             cards: vec![
                 S_3, S_3, S_4, S_4, // Pair of 3s and 4s (tractor)
                 S_5, S_6, // Singles

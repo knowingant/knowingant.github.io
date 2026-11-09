@@ -484,6 +484,19 @@ label {
   font-weight: normal;
 }
 
+/* Lead groupings (natural choices and split throws). */
+.groupings button {
+  margin: 2px 4px 2px 0;
+}
+
+.groupings button.grouping-chosen {
+  outline: 2px solid #1933f9;
+}
+
+.dark-mode .groupings button.grouping-chosen {
+  outline-color: #96a2fa;
+}
+
 /* Spectators: pick a player whose hand to watch (`Shadow`). */
 .watch-hand {
   margin: 8px 0;
