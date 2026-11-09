@@ -31,10 +31,6 @@ interface IDrawInnerProps extends IDrawProps {
 
 interface IDrawState {
   autodraw: boolean;
-  /// When the bottom may be picked up again (server rule: 5 s after the last
-  /// draw or beatable bid). Mirrors the server so the button shows a
-  /// countdown instead of an error.
-  pickupReadyAt: number | null;
 }
 
 const PICKUP_DELAY_MS = 5000;
@@ -59,12 +55,18 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
   /// The draw-state key at the time of the last `DrawCard` we sent.
   private lastSentKey: string | null = null;
   private drawCardAudio: HTMLAudioElement | null = null;
+  /// When the bottom may be picked up again (server rule: 5 s after the last
+  /// draw or beatable bid). Mirrors the server so the button shows a
+  /// countdown instead of an error. An instance field, not state: it changes
+  /// on every drawn card and the draw itself already re-renders.
+  private pickupReadyAt: number | null = null;
+  /// The once-a-second re-render while the countdown is showing.
+  private countdownTimer: number | null = null;
 
   constructor(props: IDrawInnerProps) {
     super(props);
     this.state = {
       autodraw: true,
-      pickupReadyAt: null,
     };
     this.drawCard = this.drawCard.bind(this);
     this.pickUpKitty = this.pickUpKitty.bind(this);
@@ -87,26 +89,40 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
       last !== undefined &&
       !(last.card === "🃏" && last.count === cur.num_decks);
     if (drew || beatableBid) {
-      const readyAt = Date.now() + PICKUP_DELAY_MS;
-      this.setState({ pickupReadyAt: readyAt });
-      // Re-render once a second so the countdown on the button ticks.
-      for (let s = 1; s <= PICKUP_DELAY_MS / 1000; s++) {
-        this.props.setTimeout(() => this.forceUpdate(), s * 1000 + 50);
-      }
+      this.pickupReadyAt = Date.now() + PICKUP_DELAY_MS;
+      this.tickCountdown();
     }
   }
 
   /// Seconds until the bottom may be picked up (0 when it may).
   private pickupWaitSecs(): number {
-    const readyAt = this.state.pickupReadyAt;
-    if (readyAt === null) {
+    if (this.pickupReadyAt === null) {
       return 0;
     }
-    return Math.max(0, Math.ceil((readyAt - Date.now()) / 1000));
+    return Math.max(0, Math.ceil((this.pickupReadyAt - Date.now()) / 1000));
   }
 
   componentWillUnmount(): void {
     this.cancelTimer();
+    if (this.countdownTimer !== null) {
+      this.props.clearTimeout(this.countdownTimer);
+      this.countdownTimer = null;
+    }
+  }
+
+  /// Keep one timer ticking once a second until the pickup wait is over, so
+  /// the countdown on the button updates without a render per drawn card.
+  private tickCountdown(): void {
+    if (this.countdownTimer !== null) {
+      return;
+    }
+    this.countdownTimer = this.props.setTimeout(() => {
+      this.countdownTimer = null;
+      this.forceUpdate();
+      if (this.pickupWaitSecs() > 0) {
+        this.tickCountdown();
+      }
+    }, 1000);
   }
 
   private cancelTimer(): void {

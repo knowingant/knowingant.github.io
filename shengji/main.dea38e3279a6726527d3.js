@@ -6331,9 +6331,15 @@ var DrawInner = /** @class */ (function (_super) {
         /// The draw-state key at the time of the last `DrawCard` we sent.
         _this.lastSentKey = null;
         _this.drawCardAudio = null;
+        /// When the bottom may be picked up again (server rule: 5 s after the last
+        /// draw or beatable bid). Mirrors the server so the button shows a
+        /// countdown instead of an error. An instance field, not state: it changes
+        /// on every drawn card and the draw itself already re-renders.
+        _this.pickupReadyAt = null;
+        /// The once-a-second re-render while the countdown is showing.
+        _this.countdownTimer = null;
         _this.state = {
             autodraw: true,
-            pickupReadyAt: null,
         };
         _this.drawCard = _this.drawCard.bind(_this);
         _this.pickUpKitty = _this.pickUpKitty.bind(_this);
@@ -6345,7 +6351,6 @@ var DrawInner = /** @class */ (function (_super) {
         this.armAutodraw();
     };
     DrawInner.prototype.componentDidUpdate = function (prevProps) {
-        var _this = this;
         this.armAutodraw();
         var prev = prevProps.state;
         var cur = this.props.state;
@@ -6355,24 +6360,38 @@ var DrawInner = /** @class */ (function (_super) {
             last !== undefined &&
             !(last.card === "🃏" && last.count === cur.num_decks);
         if (drew || beatableBid) {
-            var readyAt = Date.now() + PICKUP_DELAY_MS;
-            this.setState({ pickupReadyAt: readyAt });
-            // Re-render once a second so the countdown on the button ticks.
-            for (var s = 1; s <= PICKUP_DELAY_MS / 1000; s++) {
-                this.props.setTimeout(function () { return _this.forceUpdate(); }, s * 1000 + 50);
-            }
+            this.pickupReadyAt = Date.now() + PICKUP_DELAY_MS;
+            this.tickCountdown();
         }
     };
     /// Seconds until the bottom may be picked up (0 when it may).
     DrawInner.prototype.pickupWaitSecs = function () {
-        var readyAt = this.state.pickupReadyAt;
-        if (readyAt === null) {
+        if (this.pickupReadyAt === null) {
             return 0;
         }
-        return Math.max(0, Math.ceil((readyAt - Date.now()) / 1000));
+        return Math.max(0, Math.ceil((this.pickupReadyAt - Date.now()) / 1000));
     };
     DrawInner.prototype.componentWillUnmount = function () {
         this.cancelTimer();
+        if (this.countdownTimer !== null) {
+            this.props.clearTimeout(this.countdownTimer);
+            this.countdownTimer = null;
+        }
+    };
+    /// Keep one timer ticking once a second until the pickup wait is over, so
+    /// the countdown on the button updates without a render per drawn card.
+    DrawInner.prototype.tickCountdown = function () {
+        var _this = this;
+        if (this.countdownTimer !== null) {
+            return;
+        }
+        this.countdownTimer = this.props.setTimeout(function () {
+            _this.countdownTimer = null;
+            _this.forceUpdate();
+            if (_this.pickupWaitSecs() > 0) {
+                _this.tickCountdown();
+            }
+        }, 1000);
     };
     DrawInner.prototype.cancelTimer = function () {
         if (this.timeout !== null) {
@@ -9731,4 +9750,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.8023e6ee6f614fab9360.js.map
+//# sourceMappingURL=main.dea38e3279a6726527d3.js.map
