@@ -2087,9 +2087,8 @@ var JoinRoom_spreadArray = (undefined && undefined.__spreadArray) || function (t
 var JoinRoom = function (props) {
     var _a = react.useState(false), editable = _a[0], setEditable = _a[1];
     var _b = react.useState(props.room_name.length !== 16), shouldGenerate = _b[0], setShouldGenerate = _b[1];
-    var _c = react.useState("Standard"), roomType = _c[0], setRoomType = _c[1];
     var send = react.useContext(WebsocketProvider_WebsocketContext).send;
-    var _d = react.useContext(AppStateContext), state = _d.state, updateState = _d.updateState;
+    var _c = react.useContext(AppStateContext), state = _c.state, updateState = _c.updateState;
     var setTimeout = react.useContext(TimerProvider/* TimerContext */.P).setTimeout;
     var handleRoomChange = function (event) {
         return props.setRoomName(event.target.value.trim());
@@ -2114,7 +2113,6 @@ var JoinRoom = function (props) {
                 room_name: props.room_name,
                 token: token,
                 disable_compression: !(0,detectWasm/* isWasmAvailable */.u)(),
-                room_type: roomType,
                 device_id: api/* deviceId */.wE(),
             });
         }
@@ -2150,18 +2148,6 @@ var JoinRoom = function (props) {
                 react.createElement("span", { className: "join-room-name", title: "Your account username" }, props.name),
                 " ",
                 react.createElement("span", { className: "auth-hint" }, "(account name)")),
-            react.createElement("fieldset", { className: "room-type" },
-                react.createElement("legend", null,
-                    react.createElement("strong", null, "Room type")),
-                react.createElement("label", null,
-                    react.createElement("input", { type: "radio", name: "room_type", value: "Standard", checked: roomType === "Standard", onChange: function () { return setRoomType("Standard"); } }),
-                    " ",
-                    "Standard (4+ players)"),
-                react.createElement("label", null,
-                    react.createElement("input", { type: "radio", name: "room_type", value: "OneVsOne", checked: roomType === "OneVsOne", onChange: function () { return setRoomType("OneVsOne"); } }),
-                    " ",
-                    "1v1 (each player controls two hands)"),
-                react.createElement("p", { className: "auth-hint" }, "Joining an existing room uses its existing type.")),
             react.createElement("div", null,
                 react.createElement("input", { type: "submit", value: "Join (or create) the game!", disabled: props.room_name.length !== 16 || props.name.length === 0 }))),
         react.createElement("div", null,
@@ -9619,4 +9605,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.bfb1e7e8997e8f9ee727.js.map
+//# sourceMappingURL=main.4fb36daabdacb0c5420c.js.map

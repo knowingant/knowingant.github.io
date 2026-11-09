@@ -129,7 +129,9 @@ First message from client (`JoinRoom`), within 10 s of connecting:
  "device_id": "..."}
 ```
 
-`room_type` is only applied when the room does not exist yet. Bad/missing
+`room_type` is only applied when the room does not exist yet (the web
+client no longer sends it: rooms start Standard and are switched from the
+lobby with `SetPlayerMode`). Bad/missing
 token → `Error("not signed in")` and the socket is closed. Errors sent
 before the join succeeds are never compressed. The upgrade request's
 `Origin`, when present, must be one of `CORS_ALLOWED_ORIGINS` (or
@@ -298,7 +300,7 @@ renders this; `AccountBar`, leaderboard rows and player names link to it.
 - Landing page: signed out → `Auth.tsx` (Google button; a "dev sign-in"
   username form when `dev_login` is on; the no-alts rule and the
   vibecoded/idiot notice). Signed in → `AccountBar` (username, ratings,
-  profile link, sign out), `JoinRoom` (room code, room type), leaderboard.
+  profile link, sign out), `JoinRoom` (room code), leaderboard.
 - Hash routing: `#<16-char room>` joins a room; `#user/<name>` shows an
   account page (`AccountPage.tsx`).
 - In room (`Game.tsx`): `RatedBanner` ("Rated match · first to 5 · round

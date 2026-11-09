@@ -677,21 +677,6 @@ label {
   margin-top: 12px;
 }
 
-.room-type {
-  border: 1px solid currentColor;
-  margin: 5px;
-  padding: 5px 10px;
-}
-
-.room-type label {
-  display: block;
-  cursor: pointer;
-}
-
-.room-type p {
-  margin: 4px 0 0;
-}
-
 .join-room .join-room-name,
 .join-room .auth-hint {
   cursor: default;

@@ -5,7 +5,6 @@ import { TimerContext } from "./TimerProvider";
 import PublicRoomsPane from "./PublicRoomsPane";
 import { isWasmAvailable } from "./detectWasm";
 import * as api from "./api";
-import type { PlayerMode } from "./gen-types";
 
 import type { JSX } from "react";
 
@@ -21,7 +20,6 @@ const JoinRoom = (props: IProps): JSX.Element => {
   const [shouldGenerate, setShouldGenerate] = React.useState<boolean>(
     props.room_name.length !== 16,
   );
-  const [roomType, setRoomType] = React.useState<PlayerMode>("Standard");
   const { send } = React.useContext(WebsocketContext);
   const { state, updateState } = React.useContext(AppStateContext);
   const { setTimeout } = React.useContext(TimerContext);
@@ -50,7 +48,6 @@ const JoinRoom = (props: IProps): JSX.Element => {
         room_name: props.room_name,
         token,
         disable_compression: !isWasmAvailable(),
-        room_type: roomType,
         device_id: api.deviceId(),
       });
     }
@@ -114,34 +111,6 @@ const JoinRoom = (props: IProps): JSX.Element => {
           </span>{" "}
           <span className="auth-hint">(account name)</span>
         </div>
-        <fieldset className="room-type">
-          <legend>
-            <strong>Room type</strong>
-          </legend>
-          <label>
-            <input
-              type="radio"
-              name="room_type"
-              value="Standard"
-              checked={roomType === "Standard"}
-              onChange={() => setRoomType("Standard")}
-            />{" "}
-            Standard (4+ players)
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="room_type"
-              value="OneVsOne"
-              checked={roomType === "OneVsOne"}
-              onChange={() => setRoomType("OneVsOne")}
-            />{" "}
-            1v1 (each player controls two hands)
-          </label>
-          <p className="auth-hint">
-            Joining an existing room uses its existing type.
-          </p>
-        </fieldset>
         <div>
           <input
             type="submit"
