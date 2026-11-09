@@ -610,12 +610,11 @@ impl PropagatedState {
         }
     }
 
-    /// Set the player mode. Only valid before any player has joined; the
-    /// backend calls this when a room is first created.
+    /// Set the player mode: when a room is created, or between matches from
+    /// the lobby (the backend adds or removes the second seats). Locked while
+    /// a match is in progress like every other match-defining setting.
     pub fn set_player_mode(&mut self, player_mode: PlayerMode) -> Result<(), Error> {
-        if !self.players.is_empty() || !self.observers.is_empty() {
-            bail!("player mode can only be set on an empty room");
-        }
+        self.assert_settings_unlocked()?;
         self.player_mode = player_mode;
         if player_mode == PlayerMode::OneVsOne {
             self.game_mode = GameModeSettings::Tractor;

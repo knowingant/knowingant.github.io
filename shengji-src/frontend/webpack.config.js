@@ -49,7 +49,7 @@ module.exports = {
     minimizer: [
       (compiler) => () => {
         new TerserJsPlugin({ terserOptions: { sourceMap: true } }).apply(
-          compiler
+          compiler,
         );
       },
       new CssMinimizerPlugin({}),
@@ -90,6 +90,12 @@ module.exports = {
         {
           from: "static/runtime.js",
           to: "runtime.js",
+        },
+        {
+          // rules.html fetches it to draw the suits (the backend serves the
+          // same data at /cards.json; the static site has to ship a copy).
+          from: "src/generated/cards.json",
+          to: "cards.json",
         },
         {
           from: "../favicon",

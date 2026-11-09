@@ -484,6 +484,15 @@ label {
   font-weight: normal;
 }
 
+/* Spectators: pick a player whose hand to watch (`Shadow`). */
+.watch-hand {
+  margin: 8px 0;
+}
+
+.watch-hand-cards {
+  margin-top: 4px;
+}
+
 /* 1v1: the shared board is rendered once above this; the two seats the
    connection controls sit side by side under it, separated by a rule so the
    two hands don't run into each other. */

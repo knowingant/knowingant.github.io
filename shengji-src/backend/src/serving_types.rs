@@ -88,6 +88,13 @@ pub enum UserMessage {
     Beep,
     ReadyCheck,
     Ready,
+    /// Spectators only: receive the state as seen by this player (their
+    /// hand), or `None` to stop. Allowed while the room's shadowing policy
+    /// permits it.
+    Shadow(Option<PlayerID>),
+    /// Switch the room between Standard and 1v1 from the lobby, between
+    /// matches. The server adds or removes everyone's second seats.
+    SetPlayerMode(PlayerMode),
 }
 
 #[derive(Clone, Serialize)]

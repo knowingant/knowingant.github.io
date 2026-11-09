@@ -5,7 +5,7 @@ import { TimerContext } from "./TimerProvider";
 import memoize from "./memoize";
 import WasmContext from "./WasmContext";
 import { GameMessage } from "./gen-types";
-import { wsUrl } from "./api";
+import { apiHost, wsUrl } from "./api";
 
 import type { JSX } from "react";
 
@@ -191,7 +191,10 @@ const WebsocketProvider: React.FunctionComponent<
         updateStateRef.current({
           errors: [
             ...stateRef.current.errors,
-            "Could not connect to the game server; please try again.",
+            `Could not connect to the game server at ${apiHost()}. ` +
+              "Ad blockers and filtered networks (school, library or office " +
+              "wifi) often block it: allow that address or switch networks, " +
+              "then reload.",
           ],
         });
       }

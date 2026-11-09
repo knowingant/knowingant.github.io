@@ -473,10 +473,10 @@ const UncommonSettings = (props: IUncommonSettings): JSX.Element => {
             onChange={props.setGameShadowingPolicy}
           >
             <option value="AllowMultipleSessions">
-              Allow players to be shadowed by joining with the same name
+              Allow spectators to watch a player&apos;s hand
             </option>
             <option value="SingleSessionOnly">
-              Do not allow players to be shadowed
+              Do not allow spectators to watch hands
             </option>
           </select>
         </label>
@@ -899,10 +899,14 @@ const Initialize = (props: IProps): JSX.Element => {
     }
   };
 
-  // 1v1 rooms: two users, each controlling both seats of one team. The mode
-  // is fixed by the server when the room is created; Tractor only, no
-  // reordering / observer juggling.
+  // 1v1 rooms: two users, each controlling both seats of one team. Tractor
+  // only, no reordering / observer juggling. The type can be switched from
+  // the lobby between matches (`SetPlayerMode`, a server-level message).
   const oneVsOne = props.state.propagated.player_mode === "OneVsOne";
+  const setPlayerMode = (evt: React.ChangeEvent<HTMLSelectElement>): void => {
+    evt.preventDefault();
+    send({ SetPlayerMode: evt.target.value });
+  };
   // `rated` defaults to true on the server (serde default).
   const rated = isRated(props.state.propagated);
   const firstToRank = firstToRankOf(props.state.propagated);
@@ -1397,10 +1401,24 @@ const Initialize = (props: IProps): JSX.Element => {
           </label>
         </div>
         <div>
+          <label>
+            Room type:{" "}
+            <select
+              value={oneVsOne ? "OneVsOne" : "Standard"}
+              onChange={setPlayerMode}
+              disabled={matchInProgress}
+            >
+              <option value="Standard">Standard (4+ players)</option>
+              <option value="OneVsOne">
+                1v1 (each player controls two hands)
+              </option>
+            </select>
+          </label>
+        </div>
+        <div>
           {oneVsOne ? (
             <label>
-              Game mode: <strong>1v1 room</strong> (升级 / Tractor; each player
-              controls both seats of their team)
+              Game mode: 升级 / Tractor (1v1 rooms are always Tractor)
             </label>
           ) : (
             <label>

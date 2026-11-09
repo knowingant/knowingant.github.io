@@ -146,7 +146,13 @@ After registration the server sends, to this socket only:
 
 Client → server (`UserMessage`) as upstream plus
 `{"ActionAs": [<player_id>, <Action>]}` (act as one of the seats this
-connection controls; plain `{"Action": ...}` acts as the first seat).
+connection controls; plain `{"Action": ...}` acts as the first seat),
+`{"Shadow": <player_id> | null}` (spectators only: receive the state as that
+player sees it, i.e. with their hand, while the room's shadowing policy
+allows it; the server re-checks on every state it forwards) and
+`{"SetPlayerMode": "Standard" | "OneVsOne"}` (lobby, between matches: switch
+the room type; the server adds or removes everyone's `u (2)` seats, orders
+`[A, B, A (2), B (2)]`, and sends new `Joined` notices and `RoomRatings`).
 
 Server → client (`GameMessage`) additions:
 

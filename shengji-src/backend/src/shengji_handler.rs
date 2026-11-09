@@ -32,7 +32,7 @@ use crate::{
     db::{self, Db},
     ratings::{
         self, seat2_name, username_for_seat, MatchOutcome, MatchResult, RoundOutcome,
-        SeatRoundResult,
+        SeatRoundResult, SEAT2_SUFFIX,
     },
     serving_types::{JoinRoom, UserMessage, VersionedGame},
     state_dump::InMemoryStats,
@@ -68,7 +68,14 @@ struct Session<S> {
     room: String,
     backend_storage: S,
     services: SessionServices,
+    /// Spectator hand-watching: the player whose view this connection asked
+    /// for (`UserMessage::Shadow`). Shared with the subscription task, which
+    /// redacts every state it forwards.
+    shadow: ShadowTarget,
 }
+
+/// See `Session::shadow`.
+type ShadowTarget = Arc<std::sync::Mutex<Option<PlayerID>>>;
 
 impl<S> Session<S> {
     fn key(&self) -> Vec<u8> {
@@ -364,6 +371,8 @@ async fn handle_user_connected<S: Storage<VersionedGame, E>, E: std::fmt::Debug 
         }
     };
 
+    let shadow: ShadowTarget = Arc::new(std::sync::Mutex::new(None));
+
     // Subscribe to messages for the room. After this point, we should
     // no longer use tx! It's owned by the backend storage.
     tokio::task::spawn(player_subscribe_task(
@@ -372,6 +381,7 @@ async fn handle_user_connected<S: Storage<VersionedGame, E>, E: std::fmt::Debug 
         tx.clone(),
         subscription,
         disable_compression,
+        shadow.clone(),
     ));
 
     let session = Session {
@@ -381,6 +391,7 @@ async fn handle_user_connected<S: Storage<VersionedGame, E>, E: std::fmt::Debug 
         room: room.clone(),
         backend_storage: backend_storage.clone(),
         services,
+        shadow,
     };
 
     let (seats, join_span) = register_user(&session, room_type, stats)
@@ -404,6 +415,7 @@ async fn player_subscribe_task(
     tx: mpsc::UnboundedSender<Vec<u8>>,
     mut subscription: mpsc::UnboundedReceiver<GameMessage>,
     disable_compression: bool,
+    shadow: ShadowTarget,
 ) {
     debug!(logger, "Subscribed to messages");
     while let Some(v) = subscription.recv().await {
@@ -427,8 +439,16 @@ async fn player_subscribe_task(
             continue;
         }
         let v = if let GameMessage::State { state } = v {
-            let ids = seat_ids(&state, &username);
             let g = InteractiveGame::new_from_state(state);
+            let mut ids = seat_ids(g.state(), &username);
+            // A spectator who asked to watch a player sees the state as that
+            // player does, for as long as the room and their own seats allow.
+            let target = *shadow.lock().unwrap();
+            if let Some(t) = target {
+                if shadow_view_allowed(&g, &username, t) {
+                    ids = vec![t];
+                }
+            }
             match g.dump_state_for_players(&ids) {
                 Ok(state) => GameMessage::State { state },
                 Err(_) => continue,
@@ -726,8 +746,276 @@ async fn handle_user_action<S: Storage<VersionedGame, E>, E: Send>(
         UserMessage::ActionAs(id, action) => {
             perform_action(session, Some(id), action).await?;
         }
+        UserMessage::Shadow(target) => {
+            shadow_player(session, target).await;
+        }
+        UserMessage::SetPlayerMode(mode) => {
+            change_player_mode(session, mode).await;
+        }
     }
     Ok(())
+}
+
+/// Spectator hand-watching (`UserMessage::Shadow`): `username` may receive
+/// the state as `target` sees it only while they hold no player seat, the
+/// target is a player, and the room's shadowing policy allows it.
+pub fn shadow_view_allowed(game: &InteractiveGame, username: &str, target: PlayerID) -> bool {
+    let state = game.state();
+    game.allows_multiple_sessions_per_user()
+        && state.is_player(target)
+        && !seat_ids(state, username)
+            .iter()
+            .any(|id| state.is_player(*id))
+}
+
+/// `UserMessage::Shadow`: check the request against the room, remember it
+/// for this connection and resend the state, redacted for that player.
+async fn shadow_player<S: Storage<VersionedGame, E>, E: Send>(
+    session: &Session<S>,
+    target: Option<PlayerID>,
+) {
+    let username = session.username.clone();
+    let snapshot: Arc<std::sync::Mutex<Option<GameState>>> = Arc::new(std::sync::Mutex::new(None));
+    let snapshot_ = snapshot.clone();
+    let ok = execute_immutable_operation(
+        session.ws_id,
+        &session.room,
+        session.backend_storage.clone(),
+        move |game, _| {
+            if let Some(t) = target {
+                if !shadow_view_allowed(game, &username, t) {
+                    bail!("only spectators can watch a player's hand, and only when the room allows shadowing");
+                }
+            }
+            *snapshot_.lock().unwrap() = Some(game.dump_state()?);
+            Ok(vec![])
+        },
+        "watch that player's hand",
+    )
+    .await;
+    if !ok {
+        return;
+    }
+    *session.shadow.lock().unwrap() = target;
+    let state = snapshot.lock().unwrap().take();
+    if let Some(state) = state {
+        let _ = session
+            .backend_storage
+            .clone()
+            .publish_to_single_subscriber(
+                session.key(),
+                session.ws_id,
+                GameMessage::State { state },
+            )
+            .await;
+    }
+}
+
+/// `Joined` notices for every socket of `owner` after their seats changed,
+/// also pointing any new seat ids at those sockets.
+fn joined_notices_for_user(
+    state: &GameState,
+    owner: &str,
+    associated_websockets: &mut HashMap<PlayerID, Vec<usize>>,
+) -> Notices {
+    let ids: Vec<PlayerID> = seat_names(owner, state.player_mode())
+        .iter()
+        .filter_map(|n| state.player_id(n).ok())
+        .collect();
+    let mut sockets: Vec<usize> = ids
+        .iter()
+        .flat_map(|id| associated_websockets.get(id).cloned().unwrap_or_default())
+        .collect();
+    sockets.sort_unstable();
+    sockets.dedup();
+    for id in &ids {
+        associated_websockets.insert(*id, sockets.clone());
+    }
+    let names: Vec<String> = ids
+        .iter()
+        .filter_map(|id| state.player_name(*id).ok().map(str::to_owned))
+        .collect();
+    sockets
+        .into_iter()
+        .map(|ws| {
+            (
+                ws,
+                GameMessage::Joined {
+                    username: owner.to_string(),
+                    names: names.clone(),
+                    player_ids: ids.clone(),
+                    player_mode: state.player_mode(),
+                },
+            )
+        })
+        .collect()
+}
+
+/// `UserMessage::SetPlayerMode`: switch the room between Standard and 1v1
+/// from the lobby, between matches. Towards 1v1 every seated player gets
+/// their `u (2)` seat (so at most two users may be seated) and the seats are
+/// ordered `[A, B, A (2), B (2)]`; back to Standard the second seats are
+/// removed. Returns the broadcasts and the `Joined` notices for the users
+/// whose seats changed.
+pub fn switch_player_mode(
+    game: &mut InteractiveGame,
+    caller: PlayerID,
+    mode: PlayerMode,
+    associated_websockets: &mut HashMap<PlayerID, Vec<usize>>,
+) -> Result<(Vec<GameMessage>, Notices), anyhow::Error> {
+    if !matches!(game.state(), GameState::Initialize(_)) {
+        bail!("the room type can only be changed from the lobby");
+    }
+    if !game.state().is_player(caller) {
+        bail!("only players can change the room type");
+    }
+    let caller_name = username_for_seat(game.player_name(caller)?).to_owned();
+    if game.state().player_mode() == mode {
+        return Ok((vec![], vec![]));
+    }
+    let init = match game.state_mut() {
+        GameState::Initialize(init) => init,
+        _ => bail!("the room type can only be changed from the lobby"),
+    };
+    let p = init.propagated_mut();
+    let mut owners: Vec<String> = vec![];
+    for pl in p.players() {
+        let u = username_for_seat(&pl.name).to_string();
+        if !owners.contains(&u) {
+            owners.push(u);
+        }
+    }
+    match mode {
+        PlayerMode::OneVsOne => {
+            if owners.len() > 2 {
+                bail!("a 1v1 room holds two players: make the others observers first");
+            }
+            p.set_player_mode(mode)?;
+            for owner in &owners {
+                let second = seat2_name(owner);
+                if p.players().iter().any(|pl| pl.name == second) {
+                    continue;
+                }
+                if let Some(id) = p
+                    .observers()
+                    .iter()
+                    .find(|o| o.name == second)
+                    .map(|o| o.id)
+                {
+                    p.make_player(id)?;
+                } else {
+                    let template = p
+                        .players()
+                        .iter()
+                        .find(|pl| username_for_seat(&pl.name) == owner)
+                        .cloned();
+                    let (id, _) = p.add_player(second)?;
+                    if let Some(t) = template {
+                        p.set_rank(id, t.rank())?;
+                        p.set_meta_rank(id, t.metalevel)?;
+                    }
+                }
+            }
+            if owners.len() == 2 {
+                let order = [
+                    owners[0].clone(),
+                    owners[1].clone(),
+                    seat2_name(&owners[0]),
+                    seat2_name(&owners[1]),
+                ];
+                let ids = order
+                    .iter()
+                    .map(|n| {
+                        p.players()
+                            .iter()
+                            .find(|pl| &pl.name == n)
+                            .map(|pl| pl.id)
+                            .ok_or_else(|| anyhow!("missing seat {n}"))
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                p.reorder_players(&ids)?;
+            }
+        }
+        PlayerMode::Standard => {
+            p.set_player_mode(mode)?;
+            let seconds: Vec<(PlayerID, bool)> = p
+                .players()
+                .iter()
+                .filter(|pl| pl.name.ends_with(SEAT2_SUFFIX))
+                .map(|pl| (pl.id, true))
+                .chain(
+                    p.observers()
+                        .iter()
+                        .filter(|o| o.name.ends_with(SEAT2_SUFFIX))
+                        .map(|o| (o.id, false)),
+                )
+                .collect();
+            for (id, is_player) in seconds {
+                if is_player {
+                    p.remove_player(id)?;
+                } else {
+                    p.remove_observer(id)?;
+                }
+                associated_websockets.remove(&id);
+            }
+        }
+    }
+    // Seats changed, so any "start" votes are stale.
+    p.clear_start_votes();
+
+    let state = game.state();
+    let mut notices = vec![];
+    for owner in &owners {
+        notices.extend(joined_notices_for_user(state, owner, associated_websockets));
+    }
+    let what = match mode {
+        PlayerMode::OneVsOne => "1v1: each player controls both seats of their team",
+        PlayerMode::Standard => "Standard: one seat per player",
+    };
+    Ok((
+        vec![GameMessage::System {
+            message: format!("{caller_name} switched the room to {what}"),
+        }],
+        notices,
+    ))
+}
+
+/// `UserMessage::SetPlayerMode`, inside the room lock, then the `Joined`
+/// notices and the ratings for the new ladder.
+async fn change_player_mode<S: Storage<VersionedGame, E>, E: Send>(
+    session: &Session<S>,
+    mode: PlayerMode,
+) {
+    type Post = (Notices, Vec<String>, PlayerMode);
+    let post: Arc<std::sync::Mutex<Option<Post>>> = Arc::new(std::sync::Mutex::new(None));
+    let post_ = post.clone();
+    let username = session.username.clone();
+    execute_operation(
+        session.ws_id,
+        &session.room,
+        session.backend_storage.clone(),
+        move |game, _, associated_websockets, reset_votes| {
+            let caller = first_seat(game.state(), &username)?;
+            let (msgs, joined) = switch_player_mode(game, caller, mode, associated_websockets)?;
+            reset_votes.clear();
+            let state = game.state();
+            *post_.lock().unwrap() = Some((joined, room_names(state), state.player_mode()));
+            Ok(msgs)
+        },
+        "change the room type",
+    )
+    .await;
+    let post = post.lock().unwrap().take();
+    if let Some((joined, all_names, player_mode)) = post {
+        for (ws, msg) in joined {
+            let _ = session
+                .backend_storage
+                .clone()
+                .publish_to_single_subscriber(session.key(), ws, msg)
+                .await;
+        }
+        publish_room_ratings(session, player_mode, &all_names).await;
+    }
 }
 
 /// Kick seat `id`; in 1v1 rooms, every seat of that user.
@@ -1424,7 +1712,7 @@ mod tests {
 
     use shengji_core::game_state::initialize_phase::InitializePhase;
     use shengji_core::game_state::play_phase::{PlayPhase, PlayerGameFinishedResult};
-    use shengji_core::settings::FriendSelection;
+    use shengji_core::settings::{FriendSelection, GameShadowingPolicy};
     use shengji_mechanics::types::{cards, Card, EffectiveSuit, Number, Rank, Suit};
 
     fn logger() -> Logger {
@@ -1777,6 +2065,93 @@ mod tests {
             g.interact(Action::StartGame, id, &logger()).unwrap();
         }
         assert!(matches!(g.state(), GameState::Draw(_)));
+    }
+
+    #[test]
+    fn switching_room_type_adds_and_removes_second_seats() {
+        let mut g = InteractiveGame::new();
+        let (a, _) = register_seats(&mut g, "alice").unwrap();
+        let (b, _) = register_seats(&mut g, "bob").unwrap();
+        let mut ws: HashMap<PlayerID, Vec<usize>> = HashMap::new();
+        ws.insert(a[0], vec![7]);
+        ws.insert(b[0], vec![8]);
+
+        let (msgs, joined) =
+            switch_player_mode(&mut g, a[0], PlayerMode::OneVsOne, &mut ws).unwrap();
+        assert_eq!(g.state().player_mode(), PlayerMode::OneVsOne);
+        assert_eq!(
+            names(g.state()),
+            vec!["alice", "bob", "alice (2)", "bob (2)"]
+        );
+        assert!(matches!(msgs[0], GameMessage::System { .. }));
+        let a2 = g.state().player_id("alice (2)").unwrap();
+        assert_eq!(ws[&a2], vec![7]);
+        assert_eq!(seat_ids(g.state(), "alice"), vec![a[0], a2]);
+        assert_eq!(joined.len(), 2);
+        match &joined[0].1 {
+            GameMessage::Joined {
+                names, player_mode, ..
+            } => {
+                assert_eq!(names.len(), 2);
+                assert_eq!(*player_mode, PlayerMode::OneVsOne);
+            }
+            other => panic!("{:?}", other),
+        }
+
+        // The same mode again is a no-op.
+        let (m, j) = switch_player_mode(&mut g, a[0], PlayerMode::OneVsOne, &mut ws).unwrap();
+        assert!(m.is_empty() && j.is_empty());
+
+        // And back: the second seats go away.
+        let (_, joined) = switch_player_mode(&mut g, b[0], PlayerMode::Standard, &mut ws).unwrap();
+        assert_eq!(g.state().player_mode(), PlayerMode::Standard);
+        assert_eq!(names(g.state()), vec!["alice", "bob"]);
+        assert!(!ws.contains_key(&a2));
+        assert_eq!(joined.len(), 2);
+        for (_, m) in &joined {
+            match m {
+                GameMessage::Joined {
+                    names, player_mode, ..
+                } => {
+                    assert_eq!(names.len(), 1);
+                    assert_eq!(*player_mode, PlayerMode::Standard);
+                }
+                other => panic!("{:?}", other),
+            }
+        }
+
+        // Three seated players cannot become a 1v1 room.
+        register_seats(&mut g, "carol").unwrap();
+        assert!(switch_player_mode(&mut g, a[0], PlayerMode::OneVsOne, &mut ws).is_err());
+        assert_eq!(g.state().player_mode(), PlayerMode::Standard);
+        assert_eq!(names(g.state()), vec!["alice", "bob", "carol"]);
+    }
+
+    #[test]
+    fn shadowing_is_for_spectators_only_and_policy_gated() {
+        let mut g = InteractiveGame::new();
+        for n in ["alice", "bob", "carol", "dave"] {
+            register_seats(&mut g, n).unwrap();
+        }
+        let eve = match g.state_mut() {
+            GameState::Initialize(init) => {
+                init.propagated_mut().add_observer("eve".into()).unwrap()
+            }
+            _ => panic!("not initialize"),
+        };
+        let alice = g.state().player_id("alice").unwrap();
+        let bob = g.state().player_id("bob").unwrap();
+        assert!(shadow_view_allowed(&g, "eve", alice));
+        // players never see other hands, and observers are not watchable
+        assert!(!shadow_view_allowed(&g, "alice", bob));
+        assert!(!shadow_view_allowed(&g, "eve", eve));
+        g.interact(
+            Action::SetGameShadowingPolicy(GameShadowingPolicy::SingleSessionOnly),
+            alice,
+            &logger(),
+        )
+        .unwrap();
+        assert!(!shadow_view_allowed(&g, "eve", alice));
     }
 
     #[test]

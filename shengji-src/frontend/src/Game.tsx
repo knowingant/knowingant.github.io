@@ -14,6 +14,7 @@ import TitleHandler from "./TitleHandler";
 import ResetButton from "./ResetButton";
 import RatedBanner from "./RatedBanner";
 import MatchSummaryModal from "./MatchSummaryModal";
+import WatchHand from "./WatchHand";
 import SeatProvider from "./SeatProvider";
 import { PhasePart } from "./phasePart";
 import { GameState } from "./gen-types";
@@ -185,6 +186,7 @@ const Game = (props: IProps): JSX.Element => {
           />
         )}
         <RatedBanner />
+        <WatchHand gameState={gameState} />
         {phase}
         {state.settings.showDebugInfo ? <DebugInfo /> : null}
       </div>
