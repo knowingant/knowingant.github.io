@@ -1,0 +1,141 @@
+\documentclass[11pt]{scrartcl}
+\usepackage[secthm]{evan}
+\usepackage[print]{mathteam}
+
+\author{Michael Luo}
+\title{Bounce}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Problems about bouncy balls or shortest paths. Many problems found by Claude Opus 5.5; filtering and editing by me. Inspired by \Cref{exa:mnhsml}.
+\end{abstract}
+
+\section{Examples}
+
+\begin{example}[Toy example]
+    You're standing at $(0,0)$ in a square room of mirrors with vertices at $(0,0)$, $(0,1)$, $(1,0)$, and $(1,1)$. At which angles to the $x$-axis can you point a laser such that it eventually hits a vertex?
+\end{example}
+
+\begin{example}[MNHSML 2026 Meet 1 B5] % 12
+    \label{exa:mnhsml}
+    A nonstandard billiard table is shaped like an isoceles triangle $ABC$ with $AB = BC$ and $\angle B = 6\dg$. A ball is launched from vertex $A$ toward a point $D$ on side $\ol{BC}$ such that $\angle BDA = 123\dg$. The ball bounces between sides $\ol{AB}$ and $\ol{BC}$ until it reaches vertex $C$. How many times does the ball bounce off the sides of the table before reaching $C$?
+\end{example}
+
+\begin{example}[HMMT November Team 2009/7] % 7
+    A ball is launched from a vertex of an equilateral triangle with side length $5$. It strikes the opposite side after traveling a distance of $\sqrt{19}$. How many times does the ball bounce before it returns to a vertex?
+\end{example}
+
+\begin{example}[HMMT General Part 2 2004/7] % 40\sqrt{29}
+    Farmer John is grazing his cows at the origin. There is a river that runs east to west $50$ feet north of the origin. The barn is $100$ feet to the south and $80$ feet to the east of the origin. Farmer John leads his cows to the river to take a swim, then the cows leave the river from the same place they entered and Farmer John leads them to the barn. He does this using the shortest path possible, and the total distance he travels is $d$ feet. Find the value of $d$.
+\end{example}
+
+\section{Problems}
+
+\begin{problem}[HMMT November General 2016/4] % 9
+    A rectangular pool table has vertices at $(0,0)$, $(12,0)$, $(0,10)$, and $(12,10)$. There are pockets only in the four corners. A ball is hit from $(0,0)$ along the line $y = x$ and bounces off several walls before eventually entering a pocket. Find the number of walls that the ball bounces off of before entering a pocket.
+\end{problem}
+
+\begin{problem}[HMMT November Team 2009/5] % 5
+    A ball inside a rectangular container of width $7$ and height $12$ is launched from the lower-left vertex of the container. It first strikes the right side of the container after traveling a distance of $\sqrt{53}$ (and strikes no other sides between its launch and its impact with the right side). How many times does the ball bounce before it returns to a vertex?
+\end{problem}
+
+\begin{problem}[HMMT November Theme 2022/4] % 7 or 15
+    Alice and Bob are flies with laser eyes. Since Bob has wronged Alice, Alice wants to blind him. If Alice aims directly for Bob, her lasers travel $16$ meters before hitting Bob. If Alice hits Bob by bounces her lasers off a flat mirror on the ground, her lasers travel $26$ meters before hitting Bob.
+    
+    Suppose Alice and Bob's altitudes are integers and Alice and Bob are not directly above each other. Compute all possible heights of Alice's tower.
+\end{problem}
+
+\begin{problem}[HMMT February Guts 2014/7] % 4\sqrt5
+    Wayzata Math Team is plotting to poison the city's water supply. They plan to set out from their headquarters at $(5,1)$ and put poison in two pipes, one along the line $y = x$ and one along the line $x = 7$. However, they need to get the job done quickly before Jerry Zhang catches them. What's the shortest distance they can travel to visit both pipes and then return to their headquarters?
+\end{problem}
+
+\begin{problem}[Classical] % 1013
+    Michael hits a ping-pong ball at a pair of walls facing each other in a V-shape with an angle of $\frac{2\pi}{2026}$ between them. Compute the maximum possible number of bounces. Assume Michael can hit the ball really hard.
+\end{problem}
+
+\begin{problem}[HMMT February Guts 2026/10] % 1
+    Srinivas picks a uniformly random direction and shoots a laser starting at point $(0,1)$ at his chosen direction. The laser bounces off the graph of $y = \lvert x\rvert$ whenever it makes contact. Compute the expected number of times the laser contacts the graph of $y = \lvert x\rvert$.
+\end{problem}
+
+% Filed under HMMT 2000 in HMMT's archive, but the page is headed "Rice Mathematics Tournament 2000"
+% and HMMT's old site listed its own 2000 problems as missing.
+\begin{problem}[RMT Geometry 2000/10] % 11
+    Let $C_1$ and $C_2$ be two concentric reflective hollow spheres of radius $R$ and $R\sqrt3$ respectively. From a point $P$ on the surface of $C_2$, a ray of light is emitted inward at $30\dg$ from the radial direction. The ray eventually returns to $P$. How many total reflections off of $C_1$ and $C_2$ does it take?
+\end{problem}
+
+\begin{problem}[HMMT February Guts 2013/16] % 3\sqrt{21}
+    The walls of a room are in the shape of a triangle $ABC$ with $\angle ABC = 90\dg$, $\angle BAC = 60\dg$, and $AB = 6$. Chong stands at the midpoint of $BC$ and rolls a ball toward $AB$. Suppose that the ball bounces off $AB$, then $AC$, then returns exactly to Chong. Find the length of the path of the ball.
+\end{problem}
+
+\begin{problem}[HMMT November Guts 2009/30] % 2/5
+    Regular hexagon $ABCDEF$ has side length $2$. A laser beam is fired inside the hexagon from point $A$ and hits $\ol{BC}$ at point $G$. The laser then reflects off $\ol{BC}$ and hits the midpoint of $\ol{DE}$. Find $BG$.
+\end{problem}
+
+\begin{problem}[HMMT November Team 2009/8] % 502
+    A ball is launched from a vertex of an equilateral triangle. In how many ways can the ball be launched so that it will return again to a vertex for the first time after $2009$ bounces?
+\end{problem}
+
+\begin{problem}[HMMT Geometry 1998/10] % (a) 27 bounces; (b) pocket H; (c) 208 feet
+    Lukas is playing pool on a table shaped like an equilateral triangle. The pockets are at the corners of the triangle and are labeled $C$, $H$, and $T$. Each side of the table is $16$ feet long. Lukas shoots a ball from corner $C$ of the table in such a way that on the second bounce, the ball hits $2$ feet away from him along side $CH$.
+    \begin{enumerate}[(a)]
+        \ii How many times will the ball bounce before hitting a pocket?
+        \ii Which pocket will the ball hit?
+        \ii How far will the ball travel before hitting the pocket?
+    \end{enumerate}
+\end{problem}
+
+\begin{problem}[Semi-joke]
+    Show that almost any shot on a standard rectangular pool table (varying the initial position and direction) will pass near $\eps$ of a pocket for any $\eps > 0$. (An informal argument is fine.)
+\end{problem}
+
+\begin{problem}[Math Prize for Girls 2022/1] % 7/2
+    Determine the real value of $t$ that minimizes the expression
+    \[\sqrt{t^2 + (t^2 - 1)^2} + \sqrt{(t - 14)^2 + (t^2 - 46)^2}.\]
+\end{problem}
+
+\begin{problem}[HMMT November General 2020/9] % 65∫
+    In the Cartesian plane, a perfectly reflective semicircular room is bounded by the upper half of the unit circle centered at $(0,0)$ and the line segment from $(-1,0)$ to $(1,0)$. David stands at the point $(-1,0)$ and shines a flashlight into the room at an angle of $46\dg$ above the horizontal. How many times does the light beam reflect off the walls before coming back to David at $(-1,0)$ for the first time?
+\end{problem}
+
+% Filed under HMMT 2000 in HMMT's archive, but the page is headed "Rice Mathematics Tournament 2000"
+% and HMMT's old site listed its own 2000 problems as missing.
+\begin{problem}[RMT Calculus 2000/10] % 12
+    A mirror is constructed in the shape of $y = \pm\sqrt x$ for $0 \le x \le 1$, and $y = \pm 1$ for $1 < x < 9$. A ray of light enters at $(10,1)$ with slope $1$. How many times does it bounce before leaving?
+\end{problem}
+
+\begin{problem}[HMMT November Guts 2012/33] % \tan^{-1}(1009/1005)
+    You are playing pool on a square table, and the cue ball is at the bottom left corner of the square. Find the smallest angle larger than $45\dg$ at which you could shoot the ball such that the ball bounces against walls exactly $2012$ times before arriving at a vertex of the square.
+\end{problem}
+
+\begin{problem}[HMMT February Geometry 2012/5] % 3/4
+    A mouse lives in a circular cage with completely reflective walls. At the edge of this cage, a small flashlight with vertex on the circle whose beam forms an angle of $15\dg$ is centered at an angle of $37.5\dg$ away from the center. The mouse will die in the dark. What fraction of the total area of the cage can keep the mouse alive?
+\end{problem}
+
+\begin{problem}[HMMT November Team 2019/9] % 28
+    Will stands at a point $P$ on the edge of a circular room with perfectly reflective walls. He shines two laser pointers into the room, forming angles of $n\dg$ and $(n+1)\dg$ with the tangent at $P$, where $n$ is a positive integer less than $90$. The lasers reflect off of the walls, illuminating the points they hit on the walls, until they reach $P$ again. ($P$ is also illuminated at the end.) What is the minimum possible number of illuminated points on the walls of the room?
+\end{problem}
+
+\begin{problem}[HMMT February Guts 2021/15] % 4 - \sqrt3
+    Two circles $\Gamma_1$ and $\Gamma_2$ of radius $1$ and $2$, respectively, are centered at the origin. A particle is placed at $(2,0)$ and is shot towards $\Gamma_1$. When it reaches $\Gamma_1$, it bounces off the circumference and heads back towards $\Gamma_2$. The particle continues bouncing off the two circles in this fashion.
+
+    If the particle is shot at an acute angle $\theta$ above the $x$-axis, it will bounce $11$ times before returning to $(2,0)$ for the first time. Compute $\cot\theta$.
+\end{problem}
+
+% Also Problem 16 on the Calculus & Geometry and Combinatorics & Geometry tests.
+\begin{problem}[HMMT February Algebra and Geometry 2011/16] % 2
+    Let $ABCD$ be a quadrilateral inscribed in the unit circle such that $\angle BAD = 30\dg$. Let $m$ denote the minimum value of $CP + PQ + CQ$, where $P$ and $Q$ may be any points lying along rays $AB$ and $AD$, respectively. Determine the maximum value of $m$.
+\end{problem}
+
+% Also HMMT February 2008 General Test Part 1, Problem 10.
+\begin{problem}[HMMT February Geometry 2008/8] % 2\sqrt{7/3} - 1
+    Let $ABC$ be an equilateral triangle with side length $2$, and let $\Gamma$ be a circle with radius $\frac 12$ centered at the center of the equilateral triangle. Determine the length of the shortest path that starts somewhere on $\Gamma$, visits all three sides of $ABC$, and ends somewhere on $\Gamma$ (not necessarily at the starting point).
+\end{problem}
+
+\begin{problem}[HMMT February Combinatorics 2021/6] % 129
+    A light pulse starts at a corner of a reflective square. It bounces around inside the square, reflecting off of the square's perimeter $n$ times before ending in a different corner. The path of the light pulse, when traced, divides the square into exactly $2021$ regions. Compute the smallest possible value of $n$.
+\end{problem}
+
+\end{document}

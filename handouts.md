@@ -152,12 +152,19 @@ Please let me know about any errors, if you have any questions, or if you want s
 [(pdf)](modular-arithmetic/modular-arithmetic.pdf) [(tex)](modular-arithmetic/modular-arithmetic.tex)
 
     A modular arithmetic problem set I prepared for Minnesota ARML.
-    The set is divided into Level 1, Level 10, Level 100, and Level 1000 problems.
+    Divided into Level 1, Level 10, Level 100, and Level 1000 problems.
+
+- **Bounce** 🌶–🌶🌶
+[(pdf)](bounce/bounce.pdf) [(tex)](bounce/bounce.tex)
+
+    Objects bouncing from walls: a themed problem set prepared for Minnetonka
+    Math Team in 2026.
 
 - **Trig from Complex** 🌶–🌶🌶
 [(pdf)](complex-trig/complex-trig.pdf) [(tex)](complex-trig/complex-trig.tex)
 
-    A lecture I gave to MN Youth Math Outreach in 2026.
+    Using complex numbers to solve trigonomtery problems. Originally produced
+    in 2026 for MN Youth Math Outreach.
 
 - **Vieta's formulas** 🌶–🌶🌶
 [(pdf)](vieta/vieta.pdf) [(tex)](vieta/vieta.tex)
