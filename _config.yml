@@ -11,7 +11,6 @@ header_pages:
   - citizenship.md
   - blfgsa.md
   - handouts.md
-  - diaries.md
 
 # Source of the shengji game is excluded from the Jekyll build; the built
 # frontend in shengji/ is published as-is (see scripts/build_shengji.sh).
