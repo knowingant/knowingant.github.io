@@ -7134,7 +7134,7 @@ var ChangeLog = function () {
             react.createElement("h2", null, "Change Log"),
             react.createElement("p", null, "11/10/2026:"),
             react.createElement("ul", null,
-                react.createElement("li", null, "\u6597\u5730\u4E3B / Dou Di Zhu: rated three-player matches with their own ladder. Choose it under room type in the lobby.")),
+                react.createElement("li", null, "Added \u6597\u5730\u4E3B / Dou Di Zhu.")),
             react.createElement("p", null, "11/8/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Spectators can watch a player's hand (room setting \u201Cshadowing\u201D), the room type can be switched between matches from the lobby, and the rules page draws its cards again."),
@@ -10301,4 +10301,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.de2272c8fc1fc73b4d68.js.map
+//# sourceMappingURL=main.b8222b0e5a3b112e59e8.js.map
