@@ -484,6 +484,27 @@ label {
   font-weight: normal;
 }
 
+/* Countdown until the bottom may be picked up: a corner badge, outside the
+   button's layout. */
+.pickup-button {
+  position: relative;
+}
+
+.pickup-wait {
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: #555;
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+}
+
 /* Lead groupings (natural choices and split throws). */
 .groupings button {
   margin: 2px 4px 2px 0;

@@ -78,9 +78,12 @@ const Cards = (props: IProps): JSX.Element => {
       .join(",");
   }, [hands.hands, props.playerId]);
 
-  // Load sorted cards when they change
+  // Load sorted cards when they change. The previous cards stay on screen
+  // until the new order arrives: swapping in a "loading" line on every
+  // change made the hand blink and everything below it jump (once per card
+  // during the draw). `isLoading` is only true before the very first sort.
   React.useEffect(() => {
-    setIsLoading(true);
+    let cancelled = false;
 
     const loadSortedCards = async () => {
       try {
@@ -132,10 +135,17 @@ const Cards = (props: IProps): JSX.Element => {
           unselectedGroups.forEach((g) => g.reverse());
         }
 
+        // A newer hand started sorting while this one was in flight.
+        if (cancelled) {
+          return;
+        }
         setSelectedCardGroups(selectedGroups);
         setUnselectedCardGroups(unselectedGroups);
         setIsLoading(false);
       } catch (error) {
+        if (cancelled) {
+          return;
+        }
         console.error("Error sorting cards:", error);
         // Fallback to unsorted display
         const fallbackSelected = props.selectedCards
@@ -152,6 +162,9 @@ const Cards = (props: IProps): JSX.Element => {
     };
 
     loadSortedCards();
+    return () => {
+      cancelled = true;
+    };
   }, [
     props.selectedCards,
     props.trump,

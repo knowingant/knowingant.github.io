@@ -354,10 +354,15 @@ class DrawInner extends React.Component<IDrawInnerProps, IDrawState> {
                           .first_landlord_selection_policy === "ByFirstBid" &&
                           this.props.state.bids[0].id !== playerId)))
                   }
-                  className="big"
+                  className="big pickup-button"
                 >
                   Pick up cards from the bottom
-                  {pickupWait > 0 ? ` (${pickupWait}s)` : ""}
+                  {/* A badge on the corner, so the countdown never changes
+                      the button's width (which re-wrapped the row and moved
+                      the hand). */}
+                  {pickupWait > 0 ? (
+                    <span className="pickup-wait">{pickupWait}s</span>
+                  ) : null}
                 </button>
                 <button
                   onClick={this.revealCard}

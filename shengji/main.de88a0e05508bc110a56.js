@@ -5995,9 +5995,12 @@ var Cards = function (props) {
         })
             .join(",");
     }, [hands.hands, props.playerId]);
-    // Load sorted cards when they change
+    // Load sorted cards when they change. The previous cards stay on screen
+    // until the new order arrives: swapping in a "loading" line on every
+    // change made the hand blink and everything below it jump (once per card
+    // during the draw). `isLoading` is only true before the very first sort.
     react.useEffect(function () {
-        setIsLoading(true);
+        var cancelled = false;
         var loadSortedCards = function () { return Cards_awaiter(void 0, void 0, void 0, function () {
             var selectedGroups, sorted, unselectedGroups, sorted, error_1, fallbackSelected, fallbackUnselected;
             return Cards_generator(this, function (_a) {
@@ -6050,12 +6053,19 @@ var Cards = function (props) {
                             unselectedGroups.reverse();
                             unselectedGroups.forEach(function (g) { return g.reverse(); });
                         }
+                        // A newer hand started sorting while this one was in flight.
+                        if (cancelled) {
+                            return [2 /*return*/];
+                        }
                         setSelectedCardGroups(selectedGroups);
                         setUnselectedCardGroups(unselectedGroups);
                         setIsLoading(false);
                         return [3 /*break*/, 6];
                     case 5:
                         error_1 = _a.sent();
+                        if (cancelled) {
+                            return [2 /*return*/];
+                        }
                         console.error("Error sorting cards:", error_1);
                         fallbackSelected = props.selectedCards
                             ? [props.selectedCards.map(function (c) { return ({ card: c, suit: null }); })]
@@ -6072,6 +6082,9 @@ var Cards = function (props) {
             });
         }); };
         loadSortedCards();
+        return function () {
+            cancelled = true;
+        };
     }, [
         props.selectedCards,
         props.trump,
@@ -6543,9 +6556,11 @@ var DrawInner = /** @class */ (function (_super) {
                                         .id !== playerId) ||
                                     (this.props.state.propagated
                                         .first_landlord_selection_policy === "ByFirstBid" &&
-                                        this.props.state.bids[0].id !== playerId))), className: "big" },
+                                        this.props.state.bids[0].id !== playerId))), className: "big pickup-button" },
                         "Pick up cards from the bottom",
-                        pickupWait > 0 ? " (".concat(pickupWait, "s)") : ""),
+                        pickupWait > 0 ? (react.createElement("span", { className: "pickup-wait" },
+                            pickupWait,
+                            "s")) : null),
                     react.createElement("button", { onClick: this.revealCard, disabled: landlord === null ||
                             landlord === undefined ||
                             this.props.state.deck.length > 0 ||
@@ -9750,4 +9765,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.dea38e3279a6726527d3.js.map
+//# sourceMappingURL=main.de88a0e05508bc110a56.js.map
