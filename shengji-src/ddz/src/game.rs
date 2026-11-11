@@ -271,7 +271,7 @@ impl Match {
     ) -> Result<Match, Error> {
         settings.validate()?;
         if seats.len() != SEATS {
-            bail!("Dou Di Zhu needs exactly 3 players");
+            bail!("Fight the Landlord needs exactly 3 players");
         }
         if deck.len() != 54 {
             bail!("the deck must have 54 cards");

@@ -400,7 +400,7 @@ export type GameState =
       Ddz: DdzPhase;
     };
 /**
- * The room type. Standard and OneVsOne play Tractor / Finding Friends with one seat per connection or two seats on the same team; DouDiZhu plays Dou Di Zhu with exactly three seats. Switched from the lobby between matches.
+ * The room type. Standard and OneVsOne play Tractor / Finding Friends with one seat per connection or two seats on the same team; DouDiZhu plays Fight the Landlord with exactly three seats. Switched from the lobby between matches.
  */
 export type PlayerMode = "Standard" | "OneVsOne" | "DouDiZhu";
 export type GameMode =
@@ -1059,7 +1059,7 @@ export interface GameScoreResult {
   [k: string]: unknown;
 }
 /**
- * Dou Di Zhu: is `selected` playable over `last` (any hand when leading), and what could be played from `hand`.
+ * Fight the Landlord: is `selected` playable over `last` (any hand when leading), and what could be played from `hand`.
  */
 export interface DdzPlaysRequest {
   hand?: Card[];
@@ -1200,7 +1200,7 @@ export interface PropagatedState {
   chat_link?: string | null;
   compound_formats?: CompoundFormats;
   /**
-   * Dou Di Zhu rooms: the match settings.
+   * Fight the Landlord rooms: the match settings.
    */
   ddz?: DdzSettings;
   first_landlord_selection_policy?: FirstLandlordSelectionPolicy & string;
@@ -1429,7 +1429,7 @@ export interface RatingChange {
   before: number;
   delta: number;
   /**
-   * Levels the user had climbed when the match ended (capped at N − 2). Dou Di Zhu: the user's match total in points.
+   * Levels the user had climbed when the match ended (capped at N − 2). Fight the Landlord: the user's match total in points.
    */
   levels: number;
   /**
@@ -1472,7 +1472,7 @@ export interface MatchStanding {
   [k: string]: unknown;
 }
 /**
- * One player's result in a Dou Di Zhu round.
+ * One player's result in a Fight the Landlord round.
  */
 export interface DdzSeatResult {
   delta: number;
@@ -1487,7 +1487,7 @@ export interface DdzSeatResult {
   [k: string]: unknown;
 }
 /**
- * One player's final standing in a Dou Di Zhu match, best first.
+ * One player's final standing in a Fight the Landlord match, best first.
  */
 export interface DdzStanding {
   name: string;

@@ -454,10 +454,10 @@ fn rated_row_with_result(
 }
 
 // ---------------------------------------------------------------------------
-// Dou Di Zhu
+// Fight the Landlord
 // ---------------------------------------------------------------------------
 
-/// A finished Dou Di Zhu round (from `DdzRoundFinished`).
+/// A finished Fight the Landlord round (from `DdzRoundFinished`).
 #[derive(Clone, Debug, PartialEq)]
 pub struct DdzRoundOutcome {
     pub room: String,
@@ -468,7 +468,7 @@ pub struct DdzRoundOutcome {
     pub results: Vec<DdzSeatResult>,
 }
 
-/// A finished Dou Di Zhu match (from `DdzMatchFinished`).
+/// A finished Fight the Landlord match (from `DdzMatchFinished`).
 #[derive(Clone, Debug, PartialEq)]
 pub struct DdzMatchOutcome {
     pub room: String,
@@ -501,7 +501,7 @@ pub fn ddz_results(points: &[i64]) -> Vec<&'static str> {
         .collect()
 }
 
-/// Record a finished Dou Di Zhu round for statistics. `levels_gained` holds
+/// Record a finished Fight the Landlord round for statistics. `levels_gained` holds
 /// the player's points for the round.
 pub fn record_ddz_round(db: &Db, outcome: &DdzRoundOutcome) -> DbResult<Option<i64>> {
     let names: Vec<String> = outcome.results.iter().map(|r| r.name.clone()).collect();
@@ -547,7 +547,7 @@ pub fn record_ddz_round(db: &Db, outcome: &DdzRoundOutcome) -> DbResult<Option<i
     })
 }
 
-/// Record a finished Dou Di Zhu match and, when the room is rated, apply the
+/// Record a finished Fight the Landlord match and, when the room is rated, apply the
 /// rating changes (one transaction, idempotent on `match_key`). In the
 /// `matches` tables `first_to_rank` holds the number of rounds, `levels` the
 /// points and `final_rank` the place.
@@ -568,7 +568,7 @@ pub fn apply_ddz_match(
     let mut reason = if !outcome.rated {
         Some("this room is unrated".to_string())
     } else if users.len() != 3 {
-        Some("Dou Di Zhu matches need exactly 3 players".to_string())
+        Some("Fight the Landlord matches need exactly 3 players".to_string())
     } else {
         None
     };
@@ -725,7 +725,7 @@ pub fn replay_ratings(db: &Db, config: &Config) -> DbResult<Vec<ReplayedMatch>> 
                 .iter()
                 .map(|p| db::get_rating(tx, p.user_id, m.mode, params))
                 .collect::<DbResult<_>>()?;
-            // Dou Di Zhu: wins and losses go by place, not by mean score.
+            // Fight the Landlord: wins and losses go by place, not by mean score.
             let mut ddz_result = None;
             let changes = if m.mode == RatingMode::Ddz {
                 let standings: Vec<PointsStanding> = m

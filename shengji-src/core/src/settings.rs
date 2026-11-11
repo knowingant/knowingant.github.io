@@ -212,8 +212,9 @@ pub enum GameVisibility {
 shengji_mechanics::impl_slog_value!(GameVisibility);
 
 /// The room type. Standard and OneVsOne play Tractor / Finding Friends with
-/// one seat per connection or two seats on the same team; DouDiZhu plays Dou
-/// Di Zhu with exactly three seats. Switched from the lobby between matches.
+/// one seat per connection or two seats on the same team; DouDiZhu plays
+/// Fight the Landlord with exactly three seats. Switched from the lobby
+/// between matches.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize, JsonSchema, Default)]
 pub enum PlayerMode {
     #[default]
@@ -397,7 +398,7 @@ pub struct PropagatedState {
     #[serde(default)]
     #[slog(skip)]
     pub(crate) start_votes: Vec<PlayerID>,
-    /// Dou Di Zhu rooms: the match settings.
+    /// Fight the Landlord rooms: the match settings.
     #[serde(default)]
     #[slog(skip)]
     pub(crate) ddz: shengji_ddz::Settings,

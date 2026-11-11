@@ -283,7 +283,7 @@ pub enum MessageVariant {
     DdzMatchAbandoned,
 }
 
-/// One player's result in a Dou Di Zhu round.
+/// One player's result in a Fight the Landlord round.
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 pub struct DdzSeatResult {
     pub player: PlayerID,
@@ -295,7 +295,7 @@ pub struct DdzSeatResult {
     pub total: i64,
 }
 
-/// One player's final standing in a Dou Di Zhu match, best first.
+/// One player's final standing in a Fight the Landlord match, best first.
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
 pub struct DdzStanding {
     pub player: PlayerID,

@@ -78,7 +78,7 @@ const Ladder = (props: ILadderProps): JSX.Element => {
   );
 };
 
-/// The ladders (team / 1v1 / Dou Di Zhu), side by side, with a refresh button.
+/// The ladders (team / 1v1 / Fight the Landlord), side by side, with a refresh button.
 const Leaderboard = (): JSX.Element => {
   const { state } = React.useContext(AppStateContext);
   const [team, setTeam] = React.useState<Loadable>(initial);
@@ -132,7 +132,7 @@ const Leaderboard = (): JSX.Element => {
         <Ladder mode="1v1" title="1v1 ladder" state={oneVsOne} highlight={me} />
         <Ladder
           mode="ddz"
-          title="Dou Di Zhu ladder"
+          title="Fight the Landlord ladder"
           state={ddz}
           highlight={me}
         />

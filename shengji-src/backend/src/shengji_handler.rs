@@ -839,7 +839,9 @@ async fn shadow_player<S: Storage<VersionedGame, E>, E: Send>(
         move |game, _| {
             if let Some(t) = target {
                 if !shadow_view_allowed(game, &username, t) {
-                    bail!("only spectators can watch a player's hand when the room allows shadowing");
+                    bail!(
+                        "only spectators can watch a player's hand when the room allows shadowing"
+                    );
                 }
             }
             *snapshot_.lock().unwrap() = Some(game.dump_state()?);
@@ -1013,7 +1015,7 @@ pub fn switch_player_mode(
                 }
                 associated_websockets.remove(&id);
             }
-            // Dou Di Zhu seats three: the rest watch.
+            // Fight the Landlord seats three: the rest watch.
             if mode == PlayerMode::DouDiZhu {
                 while p.players().len() > shengji_ddz::SEATS {
                     let last = p.players()[p.players().len() - 1].id;
@@ -1033,7 +1035,7 @@ pub fn switch_player_mode(
     let what = match mode {
         PlayerMode::OneVsOne => "1v1",
         PlayerMode::Standard => "Standard",
-        PlayerMode::DouDiZhu => "Dou Di Zhu",
+        PlayerMode::DouDiZhu => "Fight the Landlord",
     };
     Ok((
         vec![GameMessage::System {
@@ -1246,7 +1248,7 @@ pub fn guard_action(
             }
         }
         Action::MakePlayer(_) if ddz && state.players().len() >= shengji_ddz::SEATS => {
-            bail!("Dou Di Zhu seats three players");
+            bail!("Fight the Landlord seats three players");
         }
         Action::StartGame => {
             if !state.is_player(caller) {
@@ -1718,7 +1720,7 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
     Ok(())
 }
 
-/// The Dou Di Zhu round and match that `variants` say have just finished.
+/// The Fight the Landlord round and match that `variants` say have just finished.
 pub fn parse_ddz_outcomes<'a>(
     room: &str,
     rated: bool,

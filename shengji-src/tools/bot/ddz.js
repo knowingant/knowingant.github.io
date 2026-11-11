@@ -1,4 +1,4 @@
-// Dou Di Zhu for the test bot: lobby (settings, start votes), bidding,
+// Fight the Landlord for the test bot: lobby (settings, start votes), bidding,
 // doubling, play (the backend's own suggestions through `DdzPlays`) and the
 // "next round" click. See ddz/src/game.rs for the state it reads.
 

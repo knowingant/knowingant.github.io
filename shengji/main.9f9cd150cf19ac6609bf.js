@@ -1155,7 +1155,7 @@ function ladderName(mode) {
         case "1v1":
             return "1v1 ladder";
         case "ddz":
-            return "Dou Di Zhu ladder";
+            return "Fight the Landlord ladder";
         default:
             return "team ladder";
     }
@@ -2971,7 +2971,7 @@ var AccountPage = function (props) {
             react.createElement("p", { className: "auth-hint" }, "Every finished round and match counts here; the ladders above only count rated matches."),
             react.createElement(Stats, { stats: profile.stats }),
             profile.ddz_stats !== undefined && profile.ddz_stats.matches > 0 ? (react.createElement(react.Fragment, null,
-                react.createElement("h3", null, "Dou Di Zhu"),
+                react.createElement("h3", null, "Fight the Landlord"),
                 react.createElement(DdzStats, { stats: profile.ddz_stats }))) : null,
             react.createElement("h3", null, "Recent matches"),
             profile.recent_matches.length === 0 ? (react.createElement("p", { className: "auth-hint" }, "No finished matches yet.")) : (react.createElement("ul", { className: "account-matches" }, profile.recent_matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: profile.username })); })))));
@@ -3035,7 +3035,7 @@ var Ladder = function (props) {
         react.createElement("h4", null, props.title),
         body));
 };
-/// The ladders (team / 1v1 / Dou Di Zhu), side by side, with a refresh button.
+/// The ladders (team / 1v1 / Fight the Landlord), side by side, with a refresh button.
 var Leaderboard = function () {
     var _a, _b;
     var state = react.useContext(AppStateContext).state;
@@ -3071,7 +3071,7 @@ var Leaderboard = function () {
         react.createElement("div", { className: "leaderboard-tables" },
             react.createElement(Ladder, { mode: "team", title: "Team ladder", state: team, highlight: me }),
             react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", state: oneVsOne, highlight: me }),
-            react.createElement(Ladder, { mode: "ddz", title: "Dou Di Zhu ladder", state: ddz, highlight: me }))));
+            react.createElement(Ladder, { mode: "ddz", title: "Fight the Landlord ladder", state: ddz, highlight: me }))));
 };
 /* harmony default export */ const src_Leaderboard = (Leaderboard);
 
@@ -3095,9 +3095,9 @@ var Landing = function () {
         react.createElement("span", { className: "red" }, "Finding Friends"),
         " / \u6597\u5730\u4E3B /",
         " ",
-        react.createElement("span", { className: "red" }, "Dou Di Zhu")));
+        react.createElement("span", { className: "red" }, "Fight the Landlord")));
     var intro = (react.createElement(react.Fragment, null,
-        react.createElement("p", null, "Play rated \u5347\u7EA7 / Tractor / \u627E\u670B\u53CB / Finding Friends / \u6597\u5730\u4E3B / Dou Di Zhu online."),
+        react.createElement("p", null, "Play rated \u5347\u7EA7 / Tractor / \u627E\u670B\u53CB / Finding Friends / \u6597\u5730\u4E3B / Fight the Landlord online."),
         react.createElement("p", null,
             "If you're not familiar with the rules, check them out",
             " ",
@@ -5393,7 +5393,7 @@ var Initialize = function (props) {
                     react.createElement("select", { value: oneVsOne ? "OneVsOne" : "Standard", onChange: setPlayerMode, disabled: matchInProgress },
                         react.createElement("option", { value: "Standard" }, "Standard (4+ players)"),
                         react.createElement("option", { value: "OneVsOne" }, "1v1 (each player controls two hands)"),
-                        react.createElement("option", { value: "DouDiZhu" }, "\u6597\u5730\u4E3B / Dou Di Zhu (3 players)")))),
+                        react.createElement("option", { value: "DouDiZhu" }, "\u6597\u5730\u4E3B / Fight the Landlord (3 players)")))),
             react.createElement("div", null, oneVsOne ? (react.createElement("label", null, "Game mode: \u5347\u7EA7 / Tractor (1v1 rooms are always Tractor)")) : (react.createElement("label", null,
                 "Game mode:",
                 " ",
@@ -7134,7 +7134,7 @@ var ChangeLog = function () {
             react.createElement("h2", null, "Change Log"),
             react.createElement("p", null, "11/10/2026:"),
             react.createElement("ul", null,
-                react.createElement("li", null, "Added \u6597\u5730\u4E3B / Dou Di Zhu.")),
+                react.createElement("li", null, "Added \u6597\u5730\u4E3B / Fight the Landlord.")),
             react.createElement("p", null, "11/8/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Spectators can watch a player's hand (room setting \u201Cshadowing\u201D), the room type can be switched between matches from the lobby, and the rules page draws its cards again."),
@@ -9107,10 +9107,10 @@ var DEFAULT_DDZ_SETTINGS = {
 };
 var DdzTitle = function () { return (react.createElement("h1", null,
     "\u6597\u5730\u4E3B / ",
-    react.createElement("span", { className: "red" }, "Dou Di Zhu"),
+    react.createElement("span", { className: "red" }, "Fight the Landlord"),
     "\u00A0",
     react.createElement(src_SettingsButton, null))); };
-/// The lobby of a Dou Di Zhu room: who is in, the match settings, start.
+/// The lobby of a Fight the Landlord room: who is in, the match settings, start.
 var DdzLobby = function (props) {
     var _a, _b, _c;
     var send = react.useContext(WebsocketProvider_WebsocketContext).send;
@@ -9164,7 +9164,7 @@ var DdzLobby = function (props) {
                     react.createElement("select", { value: "DouDiZhu", onChange: function (evt) { return send({ SetPlayerMode: evt.target.value }); } },
                         react.createElement("option", { value: "Standard" }, "Standard (4+ players)"),
                         react.createElement("option", { value: "OneVsOne" }, "1v1 (each player controls two hands)"),
-                        react.createElement("option", { value: "DouDiZhu" }, "\u6597\u5730\u4E3B / Dou Di Zhu (3 players)")))),
+                        react.createElement("option", { value: "DouDiZhu" }, "\u6597\u5730\u4E3B / Fight the Landlord (3 players)")))),
             react.createElement("div", null,
                 react.createElement("label", null,
                     "Bidding:",
@@ -9224,7 +9224,7 @@ var LANDLORD = " (地主)";
 /// box keeps its size whatever is played into it.
 var Fan = function (props) { return (react.createElement("div", { className: "ddz-fan" }, props.cards.map(function (card, idx) { return (react.createElement("div", { className: "ddz-fan-card", key: idx },
     react.createElement(src_Card, { card: card, trump: DDZ_TRUMP, plain: true, smaller: true }))); }))); };
-/// A Dou Di Zhu match in progress: the three seats with what each last did,
+/// A Fight the Landlord match in progress: the three seats with what each last did,
 /// the bottom cards, and this player's hand and choices.
 var DdzTable = function (props) {
     var _a, _b, _c, _d;
@@ -10301,4 +10301,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.b8222b0e5a3b112e59e8.js.map
+//# sourceMappingURL=main.9f9cd150cf19ac6609bf.js.map

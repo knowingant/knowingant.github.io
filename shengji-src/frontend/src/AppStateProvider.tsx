@@ -41,7 +41,7 @@ export interface MatchFinishedSummary {
   matchKey: string;
   firstToRank: string;
   standings: MatchStanding[];
-  /// Set instead of the two fields above for a Dou Di Zhu match.
+  /// Set instead of the two fields above for a Fight the Landlord match.
   ddz?: { rounds: number; standings: DdzStanding[] };
 }
 

@@ -269,7 +269,7 @@ const AccountPage = (props: IProps): JSX.Element => {
         <Stats stats={profile.stats} />
         {profile.ddz_stats !== undefined && profile.ddz_stats.matches > 0 ? (
           <>
-            <h3>Dou Di Zhu</h3>
+            <h3>Fight the Landlord</h3>
             <DdzStats stats={profile.ddz_stats} />
           </>
         ) : null}

@@ -20,7 +20,7 @@ interface IProps {
   movableDisabled?: boolean;
   next?: number | null;
   name: string;
-  /// Shown after each player's name instead of their rank (Dou Di Zhu:
+  /// Shown after each player's name instead of their rank (Fight the Landlord:
   /// match totals).
   scores?: { [playerId: number]: string };
   hideRank?: boolean;

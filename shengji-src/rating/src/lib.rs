@@ -30,9 +30,9 @@ pub struct Params {
     pub initial_rating: f64,
     /// Lowest possible rating (applied after the update).
     pub rating_floor: f64,
-    /// Dou Di Zhu: `K = ddz_k_per_round · rounds`.
+    /// Fight the Landlord: `K = ddz_k_per_round · rounds`.
     pub ddz_k_per_round: f64,
-    /// Dou Di Zhu: a points gap of this much per round is a full margin.
+    /// Fight the Landlord: a points gap of this much per round is a full margin.
     pub ddz_margin_per_round: f64,
 }
 
@@ -164,7 +164,7 @@ pub fn rate_match(params: &Params, target_levels: usize, standings: &[Standing])
         .collect()
 }
 
-/// One player's result in a Dou Di Zhu match.
+/// One player's result in a Fight the Landlord match.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PointsStanding {
     /// Rating before the match.
@@ -173,8 +173,8 @@ pub struct PointsStanding {
     pub points: i64,
 }
 
-/// Rate a Dou Di Zhu match of `rounds` rounds (`../RATINGS.md`, "Dou Di
-/// Zhu"). Every player is scored against each of the others as in
+/// Rate a Fight the Landlord match of `rounds` rounds (`../RATINGS.md`, "Fight the
+/// Landlord"). Every player is scored against each of the others as in
 /// [`rate_match`], with the points gap as the margin:
 ///
 /// * `m_uv = (S_u − S_v) / (ddz_margin_per_round · rounds)`, clamped to ±1,
@@ -414,7 +414,7 @@ mod tests {
             .collect()
     }
 
-    // The tables in RATINGS.md ("Dou Di Zhu").
+    // The tables in RATINGS.md ("Fight the Landlord").
     #[test]
     fn ddz_equal_ratings_six_rounds() {
         let e = 1500.0;

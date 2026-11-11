@@ -32,15 +32,15 @@ separately (see `DEPLOY.md`) and its URL is configured in `runtime.js`.
    people to donate to him (Venmo `@Robert-Ying` / the Stripe link).
 9. **Removed**: Sentry, Twitter/OG metadata pointing at robertying.com,
    username/password accounts.
-10. **Dou Di Zhu**: a third room type on the same page and server, with its
-    own ladder (`ddz`). See "Dou Di Zhu" below.
+10. **Fight the Landlord**: a third room type on the same page and server, with its
+    own ladder (`ddz`). See "Fight the Landlord" below.
 
 ## Backend layout (Rust workspace)
 
 - `core/`, `mechanics/`, `storage/`, `wasm-rpc-impl/`: upstream, with the
   additions listed under "Core changes".
 - `rating/` (`shengji-rating`): pure rating math, unit tested, no I/O.
-- `ddz/` (`shengji-ddz`): Dou Di Zhu rules (hand types, bidding, play,
+- `ddz/` (`shengji-ddz`): Fight the Landlord rules (hand types, bidding, play,
   scoring, a match of N rounds), unit tested, no I/O.
 - `backend/src/db.rs`: SQLite (rusqlite, bundled) schema + queries.
 - `backend/src/auth.rs` (+ `auth/google.rs`, `auth/ratelimit.rs`): Google
@@ -159,7 +159,7 @@ allows it; the server re-checks on every state it forwards) and
 `{"SetPlayerMode": "Standard" | "OneVsOne" | "DouDiZhu"}` (lobby, between
 matches: switch the room type; the server adds or removes everyone's `u (2)`
 seats, orders `[A, B, A (2), B (2)]` in 1v1, keeps the first three players
-seated in Dou Di Zhu, and sends new `Joined` notices and `RoomRatings`).
+seated in Fight the Landlord, and sends new `Joined` notices and `RoomRatings`).
 
 Server → client (`GameMessage`) additions:
 
@@ -235,7 +235,7 @@ names of a connection. The first `State` may reach the client before
   `make_all_observers_into_players` is a no-op in 1v1 rooms and during a
   match.
 
-## Dou Di Zhu
+## Fight the Landlord
 
 A room whose `player_mode` is `DouDiZhu` plays 斗地主 instead of Tractor. It
 is the same room in every other respect: same join, chat, kick, observers,
@@ -279,7 +279,7 @@ hand-watching, state dump, `rated` setting and start votes.
   selection playable; plays available from the hand). The web client uses
   the first, the bot the second.
 - **Statistics**: `user_stats` is computed per game; `GET /api/users/:name`
-  returns Tractor's as `stats` (unchanged) and Dou Di Zhu's as `ddz_stats`.
+  returns Tractor's as `stats` (unchanged) and Fight the Landlord's as `ddz_stats`.
 - **Frontend**: `src/ddz/` (`DdzLobby`, `DdzTable`, `DdzHand`); `Game.tsx`
   picks them by room type. The leaderboard, account bar, account page, rated
   banner, match summary and chat take the third ladder.

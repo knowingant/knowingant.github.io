@@ -958,7 +958,7 @@ pub fn rounds_in_match(conn: &Connection, match_key: &str) -> DbResult<i64> {
 // ---------------------------------------------------------------------------
 
 /// Lifetime statistics of a user across all rounds and matches (rated or
-/// not) of one game: Dou Di Zhu (`ddz`), or everything else. For Dou Di Zhu
+/// not) of one game: Fight the Landlord (`ddz`), or everything else. For Fight the Landlord
 /// `levels_gained` is the sum of round points, a win is first place and a
 /// loss is last place.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]

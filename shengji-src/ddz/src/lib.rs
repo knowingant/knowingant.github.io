@@ -1,4 +1,4 @@
-//! Dou Di Zhu (斗地主) rules: hand types, bidding, play and scoring for a
+//! Fight the Landlord (斗地主) rules: hand types, bidding, play and scoring for a
 //! three-player match of a fixed number of rounds. Pure: no I/O.
 
 pub mod game;

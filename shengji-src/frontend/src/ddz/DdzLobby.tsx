@@ -18,7 +18,7 @@ export const DEFAULT_DDZ_SETTINGS: DdzSettings = {
 
 export const DdzTitle = (): JSX.Element => (
   <h1>
-    斗地主 / <span className="red">Dou Di Zhu</span>
+    斗地主 / <span className="red">Fight the Landlord</span>
     &nbsp;
     <SettingsButton />
   </h1>
@@ -29,7 +29,7 @@ interface IProps {
   name: string;
 }
 
-/// The lobby of a Dou Di Zhu room: who is in, the match settings, start.
+/// The lobby of a Fight the Landlord room: who is in, the match settings, start.
 const DdzLobby = (props: IProps): JSX.Element => {
   const { send } = React.useContext(WebsocketContext);
   const propagated = props.state.propagated;
@@ -122,7 +122,9 @@ const DdzLobby = (props: IProps): JSX.Element => {
               <option value="OneVsOne">
                 1v1 (each player controls two hands)
               </option>
-              <option value="DouDiZhu">斗地主 / Dou Di Zhu (3 players)</option>
+              <option value="DouDiZhu">
+                斗地主 / Fight the Landlord (3 players)
+              </option>
             </select>
           </label>
         </div>

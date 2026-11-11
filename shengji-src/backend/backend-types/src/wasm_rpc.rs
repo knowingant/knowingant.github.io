@@ -207,7 +207,7 @@ pub enum WasmRpcRequest {
     DdzPlays(DdzPlaysRequest),
 }
 
-/// Dou Di Zhu: is `selected` playable over `last` (any hand when leading),
+/// Fight the Landlord: is `selected` playable over `last` (any hand when leading),
 /// and what could be played from `hand`.
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
 pub struct DdzPlaysRequest {

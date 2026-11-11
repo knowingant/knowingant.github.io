@@ -17,15 +17,15 @@ const Landing = (): JSX.Element => {
     <h1>
       升级 / <span className="red">Tractor</span> / 找朋友 /{" "}
       <span className="red">Finding Friends</span> / 斗地主 /{" "}
-      <span className="red">Dou Di Zhu</span>
+      <span className="red">Fight the Landlord</span>
     </h1>
   );
 
   const intro = (
     <>
       <p>
-        Play rated 升级 / Tractor / 找朋友 / Finding Friends / 斗地主 / Dou Di
-        Zhu online.
+        Play rated 升级 / Tractor / 找朋友 / Finding Friends / 斗地主 / Fight
+        the Landlord online.
       </p>
       <p>
         If you&apos;re not familiar with the rules, check them out{" "}

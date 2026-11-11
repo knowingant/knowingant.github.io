@@ -67,7 +67,7 @@ pub struct RatingChange {
     pub after: i64,
     pub delta: i64,
     /// Levels the user had climbed when the match ended (capped at N − 2).
-    /// Dou Di Zhu: the user's match total in points.
+    /// Fight the Landlord: the user's match total in points.
     pub levels: i64,
     /// Mean score against the opposing users, in [0, 1].
     pub score: f64,

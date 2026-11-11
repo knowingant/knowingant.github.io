@@ -6,7 +6,7 @@ reaches N (N is a room setting, default 5, minimum 3). Only matches played
 with the room's "Rated" setting on count.
 
 Three independent ladders: `team` (Standard rooms, Tractor or Finding
-Friends), `1v1` (1v1 rooms) and `ddz` (Dou Di Zhu rooms, see the end).
+Friends), `1v1` (1v1 rooms) and `ddz` (Fight the Landlord rooms, see the end).
 Everyone starts at 1500.
 
 Implemented in the `rating` crate (`shengji-rating`), applied by
@@ -78,9 +78,9 @@ their own ratings. In Finding Friends every player has their own rank and
 is scored against everyone else, so two players who both reached N draw
 with each other (`s = 0.5`) and both beat everyone below them.
 
-## Dou Di Zhu
+## Fight the Landlord
 
-A Dou Di Zhu match is a fixed number of rounds `R` (3, 6, 9 or 12) between
+A Fight the Landlord match is a fixed number of rounds `R` (3, 6, 9 or 12) between
 three players. Each ends with a points total `S`; the three sum to zero.
 
 Every player is scored against each of the other two as above, with the

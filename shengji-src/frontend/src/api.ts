@@ -109,7 +109,7 @@ export interface ProfileMatch {
 /// `GET /api/users/:username`.
 export interface ProfileView extends UserView {
   stats: ProfileStats;
-  /// Dou Di Zhu only; `stats` is everything else.
+  /// Fight the Landlord only; `stats` is everything else.
   ddz_stats?: ProfileStats;
   recent_matches: ProfileMatch[];
 }
@@ -430,7 +430,7 @@ export function ladderName(mode: RatingMode): string {
     case "1v1":
       return "1v1 ladder";
     case "ddz":
-      return "Dou Di Zhu ladder";
+      return "Fight the Landlord ladder";
     default:
       return "team ladder";
   }

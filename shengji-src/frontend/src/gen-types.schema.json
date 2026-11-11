@@ -672,7 +672,7 @@
           "additionalProperties": false
         },
         {
-          "description": "Dou Di Zhu rooms, lobby: the match settings.",
+          "description": "Fight the Landlord rooms, lobby: the match settings.",
           "type": "object",
           "required": ["SetDdzSettings"],
           "properties": {
@@ -683,7 +683,7 @@
           "additionalProperties": false
         },
         {
-          "description": "Dou Di Zhu rooms, in a match.",
+          "description": "Fight the Landlord rooms, in a match.",
           "type": "object",
           "required": ["Ddz"],
           "properties": {
@@ -1167,7 +1167,7 @@
       }
     },
     "DdzPlaysRequest": {
-      "description": "Dou Di Zhu: is `selected` playable over `last` (any hand when leading), and what could be played from `hand`.",
+      "description": "Fight the Landlord: is `selected` playable over `last` (any hand when leading), and what could be played from `hand`.",
       "type": "object",
       "properties": {
         "hand": {
@@ -1430,7 +1430,7 @@
       }
     },
     "DdzSeatResult": {
-      "description": "One player's result in a Dou Di Zhu round.",
+      "description": "One player's result in a Fight the Landlord round.",
       "type": "object",
       "required": ["delta", "is_landlord", "name", "player", "total", "won"],
       "properties": {
@@ -1488,7 +1488,7 @@
       "enum": ["Bidding", "Doubling", "Playing", "Finished"]
     },
     "DdzStanding": {
-      "description": "One player's final standing in a Dou Di Zhu match, best first.",
+      "description": "One player's final standing in a Fight the Landlord match, best first.",
       "type": "object",
       "required": ["name", "place", "player", "points"],
       "properties": {
@@ -4015,7 +4015,7 @@
       }
     },
     "PlayerMode": {
-      "description": "The room type. Standard and OneVsOne play Tractor / Finding Friends with one seat per connection or two seats on the same team; DouDiZhu plays Dou Di Zhu with exactly three seats. Switched from the lobby between matches.",
+      "description": "The room type. Standard and OneVsOne play Tractor / Finding Friends with one seat per connection or two seats on the same team; DouDiZhu plays Fight the Landlord with exactly three seats. Switched from the lobby between matches.",
       "type": "string",
       "enum": ["Standard", "OneVsOne", "DouDiZhu"]
     },
@@ -4077,7 +4077,7 @@
           ]
         },
         "ddz": {
-          "description": "Dou Di Zhu rooms: the match settings.",
+          "description": "Fight the Landlord rooms: the match settings.",
           "default": {
             "bidding": "CallScore",
             "doubling": true,
@@ -4377,7 +4377,7 @@
           "format": "int64"
         },
         "levels": {
-          "description": "Levels the user had climbed when the match ended (capped at N − 2). Dou Di Zhu: the user's match total in points.",
+          "description": "Levels the user had climbed when the match ended (capped at N − 2). Fight the Landlord: the user's match total in points.",
           "type": "integer",
           "format": "int64"
         },

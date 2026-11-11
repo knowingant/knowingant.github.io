@@ -86,7 +86,7 @@ cd frontend && yarn types && yarn prettier --write && yarn lint --fix
 - **backend/**: Axum web server handling WebSocket connections and game API
 - **core/**: Game state management, message types, and serialization
 - **mechanics/**: Core game logic including bidding, tricks, and scoring
-- **ddz/**: Dou Di Zhu rules (a third room type; see DESIGN.md, "Dou Di Zhu")
+- **ddz/**: Fight the Landlord rules (a third room type; see DESIGN.md, "Fight the Landlord")
 - **storage/**: Storage abstraction layer supporting in-memory and Redis backends
 - **frontend/shengji-wasm/**: WebAssembly bindings for client-side game mechanics
 

@@ -63,9 +63,7 @@ const ChangeLog = (): JSX.Element => {
         <h2>Change Log</h2>
         <p>11/10/2026:</p>
         <ul>
-          <li>
-            Added 斗地主 / Dou Di Zhu.
-          </li>
+          <li>Added 斗地主 / Fight the Landlord.</li>
         </ul>
         <p>11/8/2026:</p>
         <ul>

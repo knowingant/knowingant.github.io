@@ -31,7 +31,7 @@ const Fan = (props: { cards: string[] }): JSX.Element => (
   </div>
 );
 
-/// A Dou Di Zhu match in progress: the three seats with what each last did,
+/// A Fight the Landlord match in progress: the three seats with what each last did,
 /// the bottom cards, and this player's hand and choices.
 const DdzTable = (props: IProps): JSX.Element => {
   const { send } = React.useContext(WebsocketContext);

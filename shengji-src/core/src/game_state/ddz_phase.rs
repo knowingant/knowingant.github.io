@@ -1,4 +1,4 @@
-//! A Dou Di Zhu match in progress. The rules live in `shengji_ddz`; this
+//! A Fight the Landlord match in progress. The rules live in `shengji_ddz`; this
 //! phase holds the room state around them and turns what happens into
 //! broadcasts.
 

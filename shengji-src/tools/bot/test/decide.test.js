@@ -721,7 +721,7 @@ test("decide dispatches on the phase and describeState is readable", async () =>
 });
 
 // ---------------------------------------------------------------------------
-// Dou Di Zhu
+// Fight the Landlord
 
 import { decideDdz, decideDdzLobby, strength } from "../ddz.js";
 
