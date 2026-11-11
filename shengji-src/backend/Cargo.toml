@@ -29,6 +29,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sha2 = "0.10"
 shengji-core = { path = "../core" }
+shengji-ddz = { path = "../ddz" }
 shengji-mechanics = { path = "../mechanics" }
 shengji-rating = { path = "../rating" }
 shengji-types = { path = "./backend-types" }

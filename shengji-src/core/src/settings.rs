@@ -211,14 +211,15 @@ pub enum GameVisibility {
 
 shengji_mechanics::impl_slog_value!(GameVisibility);
 
-/// Whether one connection controls one seat (Standard) or two seats on the
-/// same team (OneVsOne). This is fixed when the room is created; there is no
-/// client action to change it.
+/// The room type. Standard and OneVsOne play Tractor / Finding Friends with
+/// one seat per connection or two seats on the same team; DouDiZhu plays Dou
+/// Di Zhu with exactly three seats. Switched from the lobby between matches.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize, JsonSchema, Default)]
 pub enum PlayerMode {
     #[default]
     Standard,
     OneVsOne,
+    DouDiZhu,
 }
 
 shengji_mechanics::impl_slog_value!(PlayerMode);
@@ -396,6 +397,10 @@ pub struct PropagatedState {
     #[serde(default)]
     #[slog(skip)]
     pub(crate) start_votes: Vec<PlayerID>,
+    /// Dou Di Zhu rooms: the match settings.
+    #[serde(default)]
+    #[slog(skip)]
+    pub(crate) ddz: shengji_ddz::Settings,
 }
 
 impl Default for PropagatedState {
@@ -446,6 +451,7 @@ impl Default for PropagatedState {
             first_to_rank: default_first_to_rank(),
             match_key: String::new(),
             start_votes: Vec::new(),
+            ddz: shengji_ddz::Settings::default(),
         }
     }
 }
@@ -505,6 +511,32 @@ impl PropagatedState {
 
     pub fn start_votes(&self) -> &[PlayerID] {
         &self.start_votes
+    }
+
+    pub fn ddz_settings(&self) -> &shengji_ddz::Settings {
+        &self.ddz
+    }
+
+    pub fn set_ddz_settings(
+        &mut self,
+        settings: shengji_ddz::Settings,
+    ) -> Result<Vec<MessageVariant>, Error> {
+        settings.validate()?;
+        if settings != self.ddz {
+            self.ddz = settings.clone();
+            Ok(vec![MessageVariant::DdzSettingsSet { settings }])
+        } else {
+            Ok(vec![])
+        }
+    }
+
+    /// A fresh 16-byte hex identifier for a round or a match.
+    pub fn new_key() -> String {
+        use rand::RngCore;
+        let mut rng = rand::thread_rng();
+        (0..16)
+            .map(|_| format!("{:02x}", rng.next_u32() as u8))
+            .collect::<String>()
     }
 
     /// A match is in progress once its first round has finished (between

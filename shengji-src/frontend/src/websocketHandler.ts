@@ -2,7 +2,7 @@ import { AppState } from "./AppStateProvider";
 import beep from "./beep";
 import { GameMessage, RatingChange, RatingMode } from "./gen-types";
 import { Message } from "./ChatMessage";
-import { formatDelta } from "./api";
+import { formatDelta, ladderName } from "./api";
 
 const truncate =
   (length: number) =>
@@ -197,7 +197,7 @@ const roomRatingsHandler: WebsocketHandler = (
 };
 
 const formatMatchRated = (mode: RatingMode, changes: RatingChange[]): string =>
-  `Match rated (${mode === "1v1" ? "1v1" : "team"} ladder): ` +
+  `Match rated (${ladderName(mode)}): ` +
   changes
     .map(
       (c) => `${c.username} ${c.before} → ${c.after} (${formatDelta(c.delta)})`,
@@ -247,6 +247,20 @@ const matchFinishedHandler: WebsocketHandler = (
         matchKey: variant.match_key,
         firstToRank: variant.first_to_rank,
         standings: variant.standings,
+      },
+      lastMatchRated: null,
+    };
+  } else if (
+    "Broadcast" in message &&
+    message.Broadcast.data.variant.type === "DdzMatchFinished"
+  ) {
+    const variant = message.Broadcast.data.variant;
+    return {
+      lastMatchFinished: {
+        matchKey: variant.match_key,
+        firstToRank: "",
+        standings: [],
+        ddz: { rounds: variant.rounds, standings: variant.standings },
       },
       lastMatchRated: null,
     };

@@ -14,8 +14,7 @@ interface IProps {
 export const accountHref = (username: string): string =>
   `#user/${encodeURIComponent(username)}`;
 
-const ladderName = (mode: RatingMode): string =>
-  mode === "1v1" ? "1v1 ladder" : "team ladder";
+const ladderName = api.ladderName;
 
 /// "won" / "lost" / "drew", as a verb with the player as the subject.
 const resultVerb = (result: api.MatchResult): string => {
@@ -34,7 +33,7 @@ const withPercent = (count: number, total: number): string =>
   total > 0 ? `${count} (${Math.round((count / total) * 100)}%)` : `${count}`;
 
 const Ladders = (props: {
-  ratings: { team: RatingView; "1v1": RatingView };
+  ratings: { team: RatingView; "1v1": RatingView; ddz?: RatingView };
 }): JSX.Element => (
   <table className="leaderboard-table account-ladders">
     <thead>
@@ -46,7 +45,7 @@ const Ladders = (props: {
       </tr>
     </thead>
     <tbody>
-      {(["team", "1v1"] as RatingMode[]).map((mode) => {
+      {(["team", "1v1", "ddz"] as RatingMode[]).map((mode) => {
         const rating = props.ratings[mode];
         return (
           <tr key={mode}>
@@ -96,11 +95,43 @@ const Stats = (props: { stats: api.ProfileStats }): JSX.Element => {
   );
 };
 
+const DdzStats = (props: { stats: api.ProfileStats }): JSX.Element => {
+  const s = props.stats;
+  const rows: Array<[string, string]> = [
+    ["Rounds played", `${s.rounds}`],
+    ["Rounds won", withPercent(s.rounds_won, s.rounds)],
+    [
+      "Rounds as the landlord",
+      `${s.landlord_rounds} (won ${withPercent(s.landlord_wins, s.landlord_rounds)})`,
+    ],
+    ["Points", api.formatDelta(s.levels_gained)],
+    ["Matches played", `${s.matches}`],
+    [
+      "Matches 1st / 2nd / 3rd",
+      `${s.matches_won} / ${s.matches_drawn} / ${s.matches_lost}`,
+    ],
+    ["Rated matches", `${s.rated_matches}`],
+  ];
+  return (
+    <table className="leaderboard-table account-stats">
+      <tbody>
+        {rows.map(([label, value]) => (
+          <tr key={label}>
+            <td>{label}</td>
+            <td>{value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
 const Match = (props: {
   match: api.ProfileMatch;
   username: string;
 }): JSX.Element => {
   const { match, username } = props;
+  const ddz = match.mode === "ddz";
   const ratedLabel = !match.rated
     ? "unrated"
     : match.rating_applied === false
@@ -114,8 +145,12 @@ const Match = (props: {
         {ladderName(match.mode)}
         {" · "}
         {ratedLabel}
-        {" · "}
-        first to rank {match.first_to_rank}
+        {ddz ? null : (
+          <>
+            {" · "}
+            first to rank {match.first_to_rank}
+          </>
+        )}
         {" · "}
         {match.rounds === 1 ? "1 round" : `${match.rounds} rounds`}
       </div>
@@ -125,15 +160,26 @@ const Match = (props: {
             key={p.username}
             className={p.username === username ? "me" : undefined}
           >
-            <a href={accountHref(p.username)}>{p.username}</a> &mdash; rank{" "}
-            {p.final_rank} ({p.levels} {p.levels === 1 ? "level" : "levels"}),{" "}
-            {resultVerb(p.result)}
-            {p.result === "won" ? " 🏆" : ""}
+            {ddz ? (
+              <>
+                {p.final_rank}.{" "}
+                <a href={accountHref(p.username)}>{p.username}</a>{" "}
+                {api.formatDelta(p.levels)}
+              </>
+            ) : (
+              <>
+                <a href={accountHref(p.username)}>{p.username}</a> &mdash; rank{" "}
+                {p.final_rank} ({p.levels} {p.levels === 1 ? "level" : "levels"}
+                ), {resultVerb(p.result)}
+                {p.result === "won" ? " 🏆" : ""}
+              </>
+            )}
           </li>
         ))}
       </ul>
       <div className="account-match-outcome">
-        <strong>{username}</strong> {resultVerb(match.result)}
+        <strong>{username}</strong>{" "}
+        {ddz ? api.formatDelta(match.levels) : resultVerb(match.result)}
         {match.delta !== null &&
         match.delta !== undefined &&
         match.rating_before !== null &&
@@ -221,6 +267,12 @@ const AccountPage = (props: IProps): JSX.Element => {
           count rated matches.
         </p>
         <Stats stats={profile.stats} />
+        {profile.ddz_stats !== undefined && profile.ddz_stats.matches > 0 ? (
+          <>
+            <h3>Dou Di Zhu</h3>
+            <DdzStats stats={profile.ddz_stats} />
+          </>
+        ) : null}
         <h3>Recent matches</h3>
         {profile.recent_matches.length === 0 ? (
           <p className="auth-hint">No finished matches yet.</p>

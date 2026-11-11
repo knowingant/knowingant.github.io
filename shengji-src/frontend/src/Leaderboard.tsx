@@ -78,11 +78,12 @@ const Ladder = (props: ILadderProps): JSX.Element => {
   );
 };
 
-/// The two ladders (team / 1v1), side by side, with a refresh button.
+/// The ladders (team / 1v1 / Dou Di Zhu), side by side, with a refresh button.
 const Leaderboard = (): JSX.Element => {
   const { state } = React.useContext(AppStateContext);
   const [team, setTeam] = React.useState<Loadable>(initial);
   const [oneVsOne, setOneVsOne] = React.useState<Loadable>(initial);
+  const [ddz, setDdz] = React.useState<Loadable>(initial);
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
 
   const load = React.useCallback((): void => {
@@ -98,7 +99,11 @@ const Leaderboard = (): JSX.Element => {
           set((s) => ({ ...s, loading: false, error: api.errorMessage(e) })),
       );
     };
-    Promise.all([fetchOne("team", setTeam), fetchOne("1v1", setOneVsOne)])
+    Promise.all([
+      fetchOne("team", setTeam),
+      fetchOne("1v1", setOneVsOne),
+      fetchOne("ddz", setDdz),
+    ])
       .catch((e) => console.error(e))
       .then(() => setRefreshing(false));
   }, []);
@@ -125,6 +130,12 @@ const Leaderboard = (): JSX.Element => {
       <div className="leaderboard-tables">
         <Ladder mode="team" title="Team ladder" state={team} highlight={me} />
         <Ladder mode="1v1" title="1v1 ladder" state={oneVsOne} highlight={me} />
+        <Ladder
+          mode="ddz"
+          title="Dou Di Zhu ladder"
+          state={ddz}
+          highlight={me}
+        />
       </div>
     </div>
   );

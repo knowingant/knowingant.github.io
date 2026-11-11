@@ -31,8 +31,8 @@ use crate::{
     config::Config,
     db::{self, Db},
     ratings::{
-        self, seat2_name, username_for_seat, MatchOutcome, MatchResult, RoundOutcome,
-        SeatRoundResult, SEAT2_SUFFIX,
+        self, seat2_name, username_for_seat, DdzMatchOutcome, DdzRoundOutcome, MatchOutcome,
+        MatchResult, RoundOutcome, SeatRoundResult, SEAT2_SUFFIX,
     },
     serving_types::{JoinRoom, UserMessage, VersionedGame},
     state_dump::InMemoryStats,
@@ -197,7 +197,7 @@ pub fn valid_device_id(device_id: &str) -> bool {
 /// Names of the seats a user controls in a room with the given player mode.
 pub fn seat_names(username: &str, mode: PlayerMode) -> Vec<String> {
     match mode {
-        PlayerMode::Standard => vec![username.to_string()],
+        PlayerMode::Standard | PlayerMode::DouDiZhu => vec![username.to_string()],
         PlayerMode::OneVsOne => vec![username.to_string(), seat2_name(username)],
     }
 }
@@ -298,6 +298,23 @@ pub fn register_seats(
             let (id, m) = g.register(username.to_string())?;
             ids.push(id);
             msgs.extend(m);
+        }
+        PlayerMode::DouDiZhu => {
+            // Three seats: anyone joining a full lobby watches.
+            let state = g.state();
+            let full = matches!(state, GameState::Initialize(_))
+                && state.players().len() >= shengji_ddz::SEATS
+                && state.player_id(username).is_err();
+            match g.state_mut() {
+                GameState::Initialize(init) if full => {
+                    ids.push(init.propagated_mut().add_observer(username.to_string())?);
+                }
+                _ => {
+                    let (id, m) = g.register(username.to_string())?;
+                    ids.push(id);
+                    msgs.extend(m);
+                }
+            }
         }
         PlayerMode::OneVsOne => {
             let second = seat2_name(username);
@@ -525,8 +542,10 @@ async fn register_user<S: Storage<VersionedGame, E>, E: std::fmt::Debug + Send>(
         session.backend_storage.clone(),
         move |g, version, associated_websockets, _| {
             // `room_type` only applies to a room that does not exist yet.
-            if room_type == Some(PlayerMode::OneVsOne) && is_fresh_room(g.state()) {
-                g.set_player_mode(PlayerMode::OneVsOne)?;
+            if let Some(mode) = room_type.filter(|m| *m != PlayerMode::Standard) {
+                if is_fresh_room(g.state()) {
+                    g.set_player_mode(mode)?;
+                }
             }
             let (player_ids, register_msgs) = register_seats(g, &username_)?;
             info!(logger_, "Joining room"; "player_ids" => format!("{player_ids:?}"));
@@ -820,7 +839,7 @@ async fn shadow_player<S: Storage<VersionedGame, E>, E: Send>(
         move |game, _| {
             if let Some(t) = target {
                 if !shadow_view_allowed(game, &username, t) {
-                    bail!("only spectators can watch a player's hand, and only when the room allows shadowing");
+                    bail!("only spectators can watch a player's hand when the room allows shadowing");
                 }
             }
             *snapshot_.lock().unwrap() = Some(game.dump_state()?);
@@ -924,7 +943,7 @@ pub fn switch_player_mode(
     match mode {
         PlayerMode::OneVsOne => {
             if owners.len() > 2 {
-                bail!("a 1v1 room holds two players: make the others observers first");
+                bail!("only two players allowed in a 1v1 room: make the others observers first");
             }
             p.set_player_mode(mode)?;
             for owner in &owners {
@@ -972,7 +991,7 @@ pub fn switch_player_mode(
                 p.reorder_players(&ids)?;
             }
         }
-        PlayerMode::Standard => {
+        PlayerMode::Standard | PlayerMode::DouDiZhu => {
             p.set_player_mode(mode)?;
             let seconds: Vec<(PlayerID, bool)> = p
                 .players()
@@ -994,6 +1013,13 @@ pub fn switch_player_mode(
                 }
                 associated_websockets.remove(&id);
             }
+            // Dou Di Zhu seats three: the rest watch.
+            if mode == PlayerMode::DouDiZhu {
+                while p.players().len() > shengji_ddz::SEATS {
+                    let last = p.players()[p.players().len() - 1].id;
+                    p.make_observer(last)?;
+                }
+            }
         }
     }
     // Seats changed, so any "start" votes are stale.
@@ -1005,8 +1031,9 @@ pub fn switch_player_mode(
         notices.extend(joined_notices_for_user(state, owner, associated_websockets));
     }
     let what = match mode {
-        PlayerMode::OneVsOne => "1v1: each player controls both seats of their team",
-        PlayerMode::Standard => "Standard: one seat per player",
+        PlayerMode::OneVsOne => "1v1",
+        PlayerMode::Standard => "Standard",
+        PlayerMode::DouDiZhu => "Dou Di Zhu",
     };
     Ok((
         vec![GameMessage::System {
@@ -1121,6 +1148,8 @@ pub fn reset_confirmation_allowed(
 pub fn needs_unanimous_reset(state: &GameState) -> bool {
     match state {
         GameState::Play(p) => state.rated() && p.game_mode().friends_unresolved(),
+        // Two of three could otherwise abandon a match the third is winning.
+        GameState::Ddz(_) => state.rated(),
         _ => false,
     }
 }
@@ -1198,6 +1227,7 @@ pub fn guard_action(
     action: &Action,
 ) -> Result<(), anyhow::Error> {
     let one_vs_one = state.player_mode() == PlayerMode::OneVsOne;
+    let ddz = state.player_mode() == PlayerMode::DouDiZhu;
     match action {
         Action::ResetGame => {
             if !state.is_player(caller) {
@@ -1210,10 +1240,13 @@ pub fn guard_action(
                 bail!("only players can cancel a reset");
             }
         }
-        Action::SetRated(_) | Action::SetFirstToRank(_) => {
+        Action::SetRated(_) | Action::SetFirstToRank(_) | Action::SetDdzSettings(_) => {
             if !state.is_player(caller) {
                 bail!("only players can change the match settings");
             }
+        }
+        Action::MakePlayer(_) if ddz && state.players().len() >= shengji_ddz::SEATS => {
+            bail!("Dou Di Zhu seats three players");
         }
         Action::StartGame => {
             if !state.is_player(caller) {
@@ -1512,6 +1545,8 @@ struct PostAction {
     round: Option<RoundOutcome>,
     /// A match that just finished (recorded; rated if applicable).
     match_finished: Option<MatchOutcome>,
+    ddz_round: Option<DdzRoundOutcome>,
+    ddz_match: Option<DdzMatchOutcome>,
     /// `Joined` notices for connections whose seats changed.
     joined: Vec<(usize, GameMessage)>,
     all_names: Vec<String>,
@@ -1559,9 +1594,14 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
                 if let ResetVote::Waiting { votes, needed } =
                     record_reset_vote(game.state(), caller, reset_votes)
                 {
+                    let what = if matches!(game.state(), GameState::Ddz(_)) {
+                        "Ending a rated match early"
+                    } else {
+                        "Reset in a rated Finding Friends round"
+                    };
                     return Ok(vec![GameMessage::System {
                         message: format!(
-                            "Reset in a rated Finding Friends round needs everyone else to agree ({votes} of {needed})"
+                            "{what} needs everyone else to agree ({votes} of {needed})"
                         ),
                     }]);
                 }
@@ -1573,6 +1613,7 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
             );
             let phase = std::mem::discriminant(game.state());
             let pre = pre_round(game.state(), &action);
+            let rated_before = game.state().rated();
             let (msgs, joined) =
                 apply_action(game, caller, action, &logger, associated_websockets)?;
             if restarts_pickup_clock {
@@ -1597,10 +1638,14 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
                 ),
                 None => (None, None),
             };
+            let (ddz_round, ddz_match) =
+                parse_ddz_outcomes(&room, rated_before, msgs.iter().map(|(b, _)| b.variant()));
             let state = game.state();
             *post_.lock().unwrap() = Some(PostAction {
                 round,
                 match_finished,
+                ddz_round,
+                ddz_match,
                 joined,
                 all_names: room_names(state),
                 player_mode: state.player_mode(),
@@ -1630,11 +1675,93 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
         if let Some(outcome) = post.round {
             record_round(session, outcome).await;
         }
+        if let Some(outcome) = post.ddz_round {
+            let db = session.services.db.clone();
+            let key = outcome.round_key.clone();
+            match tokio::task::spawn_blocking(move || ratings::record_ddz_round(&db, &outcome))
+                .await
+            {
+                Ok(Ok(_)) => {}
+                other => {
+                    error!(session.logger, "Failed to record round"; "error" => format!("{other:?}"), "round_key" => key)
+                }
+            }
+        }
         if let Some(outcome) = post.match_finished {
-            handle_match_outcome(session, outcome, post.all_names).await?;
+            let (rated, key, mode) = (
+                outcome.rated,
+                outcome.match_key.clone(),
+                outcome.player_mode,
+            );
+            handle_match_outcome(
+                session,
+                move |db, config| ratings::apply_match(db, config, &outcome),
+                rated,
+                key,
+                mode,
+                post.all_names,
+            )
+            .await?;
+        } else if let Some(outcome) = post.ddz_match {
+            let (rated, key) = (outcome.rated, outcome.match_key.clone());
+            handle_match_outcome(
+                session,
+                move |db, config| ratings::apply_ddz_match(db, config, &outcome),
+                rated,
+                key,
+                PlayerMode::DouDiZhu,
+                post.all_names,
+            )
+            .await?;
         }
     }
     Ok(())
+}
+
+/// The Dou Di Zhu round and match that `variants` say have just finished.
+pub fn parse_ddz_outcomes<'a>(
+    room: &str,
+    rated: bool,
+    variants: impl IntoIterator<Item = &'a MessageVariant>,
+) -> (Option<DdzRoundOutcome>, Option<DdzMatchOutcome>) {
+    let mut round = None;
+    let mut finished = None;
+    for v in variants {
+        match v {
+            MessageVariant::DdzRoundFinished {
+                round_key,
+                match_key,
+                landlord_won,
+                stake,
+                results,
+                ..
+            } => {
+                round = Some(DdzRoundOutcome {
+                    room: room.to_string(),
+                    round_key: round_key.clone(),
+                    match_key: match_key.clone(),
+                    landlord_won: *landlord_won,
+                    stake: *stake,
+                    results: results.clone(),
+                });
+            }
+            MessageVariant::DdzMatchFinished {
+                match_key,
+                rounds,
+                standings,
+            } => {
+                finished = Some(DdzMatchOutcome {
+                    room: room.to_string(),
+                    match_key: match_key.clone(),
+                    rated,
+                    rounds: *rounds,
+                    standings: standings.clone(),
+                });
+            }
+            _ => {}
+        }
+    }
+    (round, finished)
 }
 
 /// Record a finished round for statistics (outside the storage lock).
@@ -1660,17 +1787,19 @@ async fn record_round<S: Storage<VersionedGame, E>, E: Send>(
     }
 }
 
-/// Record (and, if applicable, rate) a finished match, then tell the room.
+/// Record (and, if applicable, rate) a finished match with `apply`, then
+/// tell the room.
 async fn handle_match_outcome<S: Storage<VersionedGame, E>, E: Send>(
     session: &Session<S>,
-    outcome: MatchOutcome,
+    apply: impl FnOnce(&Db, &Config) -> db::DbResult<MatchResult> + Send + 'static,
+    rated: bool,
+    match_key: String,
+    player_mode: PlayerMode,
     all_names: Vec<String>,
 ) -> Result<(), E> {
     let db = session.services.db.clone();
     let config = session.services.config.clone();
-    let outcome_ = outcome.clone();
-    let result =
-        tokio::task::spawn_blocking(move || ratings::apply_match(&db, &config, &outcome_)).await;
+    let result = tokio::task::spawn_blocking(move || apply(&db, &config)).await;
     let notice = match result {
         Ok(Ok(MatchResult::Rated {
             match_id,
@@ -1680,7 +1809,7 @@ async fn handle_match_outcome<S: Storage<VersionedGame, E>, E: Send>(
             info!(session.logger, "Rated match";
                 "match_id" => match_id,
                 "mode" => mode.as_str(),
-                "match_key" => &outcome.match_key,
+                "match_key" => &match_key,
             );
             session
                 .backend_storage
@@ -1694,30 +1823,30 @@ async fn handle_match_outcome<S: Storage<VersionedGame, E>, E: Send>(
                     },
                 )
                 .await?;
-            publish_room_ratings(session, outcome.player_mode, &all_names).await;
+            publish_room_ratings(session, player_mode, &all_names).await;
             return Ok(());
         }
         Ok(Ok(MatchResult::Recorded { match_id, reason })) => {
-            info!(session.logger, "Match recorded without rating"; "match_id" => match_id, "reason" => &reason, "match_key" => &outcome.match_key);
-            if !outcome.rated {
+            info!(session.logger, "Match recorded without rating"; "match_id" => match_id, "reason" => &reason, "match_key" => &match_key);
+            if !rated {
                 // An unrated room: nothing to announce beyond MatchFinished.
                 return Ok(());
             }
             format!("Not rated: {reason}.")
         }
         Ok(Ok(MatchResult::Skipped(reason))) => {
-            info!(session.logger, "Match not recorded"; "reason" => &reason, "match_key" => &outcome.match_key);
-            if !outcome.rated {
+            info!(session.logger, "Match not recorded"; "reason" => &reason, "match_key" => &match_key);
+            if !rated {
                 return Ok(());
             }
             format!("Not rated: {reason}.")
         }
         Ok(Err(e)) => {
-            error!(session.logger, "Failed to record match"; "error" => format!("{e:?}"), "match_key" => &outcome.match_key);
+            error!(session.logger, "Failed to record match"; "error" => format!("{e:?}"), "match_key" => &match_key);
             "Not rated: internal error.".to_string()
         }
         Err(e) => {
-            error!(session.logger, "Match recording task failed"; "error" => format!("{e:?}"), "match_key" => &outcome.match_key);
+            error!(session.logger, "Match recording task failed"; "error" => format!("{e:?}"), "match_key" => &match_key);
             "Not rated: internal error.".to_string()
         }
     };
@@ -2603,5 +2732,140 @@ mod tests {
         assert!(
             parse_round_outcome("r", "k", "m", PlayerMode::Standard, won[1..].iter()).is_none()
         );
+    }
+
+    fn ddz_room() -> InteractiveGame {
+        let mut g = InteractiveGame::new();
+        g.set_player_mode(PlayerMode::DouDiZhu).unwrap();
+        g
+    }
+
+    #[test]
+    fn ddz_rooms_seat_three_and_the_rest_watch() {
+        let mut g = ddz_room();
+        for name in ["a", "b", "c", "d"] {
+            register_seats(&mut g, name).unwrap();
+        }
+        assert_eq!(names(g.state()), vec!["a", "b", "c"]);
+        assert_eq!(observer_names(g.state()), vec!["d"]);
+        // Rejoining keeps the seat.
+        let (ids, _) = register_seats(&mut g, "b").unwrap();
+        assert!(g.state().is_player(ids[0]));
+        // A watcher can't take a fourth seat.
+        let d = g.state().player_id("d").unwrap();
+        let a = g.state().player_id("a").unwrap();
+        assert!(guard_action(g.state(), a, &Action::MakePlayer(d)).is_err());
+        assert!(guard_action(
+            g.state(),
+            d,
+            &Action::SetDdzSettings(shengji_ddz::Settings::default())
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn switching_to_ddz_keeps_three_players() {
+        let mut g = InteractiveGame::new();
+        let mut sockets = HashMap::new();
+        for name in ["a", "b", "c", "d", "e"] {
+            register_seats(&mut g, name).unwrap();
+        }
+        let a = g.state().player_id("a").unwrap();
+        let (msgs, _) = switch_player_mode(&mut g, a, PlayerMode::DouDiZhu, &mut sockets).unwrap();
+        assert_eq!(msgs.len(), 1);
+        assert_eq!(g.state().player_mode(), PlayerMode::DouDiZhu);
+        assert_eq!(names(g.state()), vec!["a", "b", "c"]);
+        assert_eq!(observer_names(g.state()).len(), 2);
+        // And from a 1v1 room: the second seats go.
+        let mut g = one_vs_one_room();
+        register_seats(&mut g, "a").unwrap();
+        register_seats(&mut g, "b").unwrap();
+        let a = g.state().player_id("a").unwrap();
+        switch_player_mode(&mut g, a, PlayerMode::DouDiZhu, &mut sockets).unwrap();
+        assert_eq!(names(g.state()), vec!["a", "b"]);
+        assert!(observer_names(g.state()).is_empty());
+        // Back to Tractor.
+        switch_player_mode(&mut g, a, PlayerMode::Standard, &mut sockets).unwrap();
+        assert_eq!(g.state().player_mode(), PlayerMode::Standard);
+    }
+
+    #[test]
+    fn ddz_outcomes_are_read_from_the_broadcasts_and_resets_are_unanimous() {
+        let l = logger();
+        let mut g = ddz_room();
+        let mut ids = vec![];
+        for name in ["a", "b", "c"] {
+            ids.push(register_seats(&mut g, name).unwrap().0[0]);
+        }
+        let s = shengji_ddz::Settings {
+            rounds: 3,
+            doubling: false,
+            ..shengji_ddz::Settings::default()
+        };
+        g.interact(Action::SetDdzSettings(s), ids[0], &l).unwrap();
+        for id in &ids {
+            g.interact(Action::StartGame, *id, &l).unwrap();
+        }
+        assert!(needs_unanimous_reset(g.state()));
+        let mut votes = HashSet::new();
+        assert_eq!(
+            record_reset_vote(g.state(), ids[0], &mut votes),
+            ResetVote::Forward
+        );
+        g.interact(Action::ResetGame, ids[0], &l).unwrap();
+        assert_eq!(
+            record_reset_vote(g.state(), ids[1], &mut votes),
+            ResetVote::Waiting {
+                votes: 1,
+                needed: 2
+            }
+        );
+        assert_eq!(
+            record_reset_vote(g.state(), ids[2], &mut votes),
+            ResetVote::Forward
+        );
+        g.interact(Action::CancelResetGame, ids[0], &l).unwrap();
+
+        let mut rounds = 0;
+        let mut finished = None;
+        while finished.is_none() {
+            let phase = match g.state() {
+                GameState::Ddz(p) => p.clone(),
+                other => panic!("{:?}", other),
+            };
+            let round = &phase.game().round;
+            let seats = &phase.game().seats;
+            let (seat, action) = match round.stage {
+                shengji_ddz::Stage::Bidding => (round.turn.unwrap(), shengji_ddz::Action::Bid(3)),
+                shengji_ddz::Stage::Playing => {
+                    let seat = round.turn.unwrap();
+                    let last = round.last_play.as_ref().map(|l| &l.play);
+                    match shengji_ddz::suggestions(&round.hands[seat], last).first() {
+                        Some(cards) => (seat, shengji_ddz::Action::Play(cards.clone())),
+                        None => (seat, shengji_ddz::Action::Pass),
+                    }
+                }
+                shengji_ddz::Stage::Finished => (0, shengji_ddz::Action::NextRound),
+                shengji_ddz::Stage::Doubling => unreachable!(),
+            };
+            let msgs = g.interact(Action::Ddz(action), seats[seat], &l).unwrap();
+            let (round, m) =
+                parse_ddz_outcomes("room", true, msgs.iter().map(|(b, _)| b.variant()));
+            if let Some(round) = round {
+                rounds += 1;
+                assert_eq!(round.stake, 3);
+                assert_eq!(round.results.iter().map(|r| r.delta).sum::<i64>(), 0);
+                // The landlord alone, or both farmers.
+                let winners = round.results.iter().filter(|r| r.won).count();
+                assert_eq!(winners, if round.landlord_won { 1 } else { 2 });
+            }
+            finished = m;
+        }
+        let finished = finished.unwrap();
+        assert_eq!(rounds, 3);
+        assert_eq!(finished.rounds, 3);
+        assert!(finished.rated);
+        assert_eq!(finished.standings.len(), 3);
+        assert!(matches!(g.state(), GameState::Initialize(_)));
     }
 }

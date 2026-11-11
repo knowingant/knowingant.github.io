@@ -127,8 +127,8 @@ const JoinRoom = (props: IProps): JSX.Element => {
         <p>
           Rooms are <strong>rated by default</strong>, and they play{" "}
           <strong>matches</strong>: a match is &ldquo;first to rank N&rdquo; (5
-          by default). You can change N or turn rating off entirely in settings
-          before the match starts.
+          by default). You can change N or turn rating off in settings before
+          the match starts.
         </p>
         <p>
           If you&apos;re unfamiliar with the game, it might be helpful to{" "}
@@ -137,10 +137,7 @@ const JoinRoom = (props: IProps): JSX.Element => {
           </a>{" "}
           first.
         </p>
-        <p>
-          Once you are in the game, share the room link with at least three
-          friends (or one friend, for 1v1) to start playing!
-        </p>
+        <p>Once you are in the game, share the room link to start playing!</p>
         <p>
           Compared to the robertying site, the defaults here are fast autodraw
           and no taking back bids or plays.

@@ -16,6 +16,8 @@ import RatedBanner from "./RatedBanner";
 import MatchSummaryModal from "./MatchSummaryModal";
 import WatchHand from "./WatchHand";
 import SeatProvider from "./SeatProvider";
+import DdzLobby from "./ddz/DdzLobby";
+import DdzTable from "./ddz/DdzTable";
 import { PhasePart } from "./phasePart";
 import { GameState } from "./gen-types";
 
@@ -108,7 +110,14 @@ const Game = (props: IProps): JSX.Element => {
 
   let phase: JSX.Element | null;
   if ("Initialize" in gameState) {
-    phase = <Initialize state={gameState.Initialize} name={seatNames[0]} />;
+    phase =
+      gameState.Initialize.propagated.player_mode === "DouDiZhu" ? (
+        <DdzLobby state={gameState.Initialize} name={seatNames[0]} />
+      ) : (
+        <Initialize state={gameState.Initialize} name={seatNames[0]} />
+      );
+  } else if ("Ddz" in gameState) {
+    phase = <DdzTable state={gameState.Ddz} name={seatNames[0]} />;
   } else if (dualSeat && seats !== null) {
     // The board once, full width; the two seats side by side under it
     // (`.seats` is a two-column grid), so neither hand has to be scrolled

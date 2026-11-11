@@ -54,6 +54,9 @@ fn process_request(request: WasmRpcRequest) -> Result<WasmRpcResponse, String> {
                 results,
             }))
         }
+        WasmRpcRequest::DdzPlays(req) => {
+            Ok(WasmRpcResponse::DdzPlays(wasm_rpc_impl::ddz_plays(req)))
+        }
     }
 }
 

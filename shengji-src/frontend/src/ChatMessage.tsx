@@ -8,7 +8,7 @@ import {
   RatingChange,
   RatingMode,
 } from "./gen-types";
-import { formatDelta } from "./api";
+import { formatDelta, ladderName } from "./api";
 
 import type { JSX } from "react";
 
@@ -26,9 +26,6 @@ export interface MatchRatedUpdate {
   mode: RatingMode;
   changes: RatingChange[];
 }
-
-const ladderName = (mode: RatingMode): string =>
-  mode === "1v1" ? "1v1 ladder" : "team ladder";
 
 const renderMessage = (message: Message): JSX.Element => {
   const variant = message.data?.variant;
@@ -88,6 +85,15 @@ const renderMessage = (message: Message): JSX.Element => {
             : variant.cards.map((card, i) => (
                 <InlineCard card={card} key={i} />
               ))}
+        </span>
+      );
+    case "DdzBottom":
+      return (
+        <span>
+          Bottom:{" "}
+          {variant.cards.map((card, i) => (
+            <InlineCard card={card} key={i} />
+          ))}
         </span>
       );
     case "EndOfGameKittyReveal":

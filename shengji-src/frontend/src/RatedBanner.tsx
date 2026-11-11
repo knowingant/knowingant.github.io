@@ -25,6 +25,9 @@ export const propagatedOf = (
   if ("Play" in gameState) {
     return gameState.Play.propagated;
   }
+  if ("Ddz" in gameState) {
+    return gameState.Ddz.propagated;
+  }
   return null;
 };
 
@@ -64,6 +67,22 @@ const RatedBanner = (): JSX.Element | null => {
   }
   const oneVsOne = propagated.player_mode === "OneVsOne";
   const rated = isRated(propagated);
+  if (propagated.player_mode === "DouDiZhu") {
+    const game =
+      state.gameState !== null && "Ddz" in state.gameState
+        ? state.gameState.Ddz.game
+        : null;
+    const rounds = game?.settings.rounds ?? propagated.ddz?.rounds ?? 6;
+    return (
+      <div className={classNames("rated-banner", { rated, unrated: !rated })}>
+        {[
+          rated ? "Rated match" : "Unrated match",
+          `${rounds} rounds`,
+          game !== null ? `round ${game.round_number}` : "not started",
+        ].join(" · ")}
+      </div>
+    );
+  }
   const firstToRank = firstToRankOf(propagated);
   const roundsFinished = roundsFinishedOf(propagated);
   // Before the first round of a match starts the room sits in the lobby;

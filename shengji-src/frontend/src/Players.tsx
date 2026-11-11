@@ -20,6 +20,11 @@ interface IProps {
   movableDisabled?: boolean;
   next?: number | null;
   name: string;
+  /// Shown after each player's name instead of their rank (Dou Di Zhu:
+  /// match totals).
+  scores?: { [playerId: number]: string };
+  hideRank?: boolean;
+  landlordLabel?: string;
 }
 
 /// " (1512)"; "" when the rating is not known (nobody has sent us the
@@ -74,6 +79,10 @@ const Players = (props: IProps): JSX.Element => {
         {p.name}
       </a>
     );
+    if (props.hideRank === true) {
+      const score = props.scores?.[p.id];
+      return [nameLink, score === undefined ? rating : `${rating} ${score}`];
+    }
     if (p.metalevel <= 1) {
       return [nameLink, `${rating} (rank ${p.level})`];
     } else {
@@ -101,7 +110,7 @@ const Players = (props: IProps): JSX.Element => {
             const descriptor = makeDescriptor(player);
 
             if (player.id === landlord) {
-              descriptor.push(" (当庄)");
+              descriptor.push(props.landlordLabel ?? " (当庄)");
             }
             if (ownNames.has(player.name)) {
               descriptor.push(" (You!)");

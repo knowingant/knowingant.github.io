@@ -23,6 +23,7 @@ import {
   points,
   sortCards,
 } from "./cards.js";
+import { applyDdzBroadcast, decideDdz, decideDdzLobby, describeDdz } from "./ddz.js";
 
 /// Try to bid once this many cards are in hand ...
 export const BID_MIN_CARDS = 4;
@@ -215,14 +216,17 @@ export function applyBroadcast(ctx, variant) {
     case "GameEndedAutomatically":
       return { kind: "auto_end" };
     default:
-      return null;
+      return applyDdzBroadcast(ctx, variant);
   }
 }
 
 /// One line per standing, e.g. "alice 3 (1 level) WINNER; bob 2 (0 levels)".
 export function describeStandings(standings) {
   return (standings || [])
-    .map((s) => `${s.name} rank ${s.rank} (${s.levels} level${s.levels === 1 ? "" : "s"})${s.winner ? " WINNER" : ""}`)
+    .map((s) =>
+      s.points !== undefined
+        ? `${s.place}. ${s.name} ${s.points >= 0 ? "+" : ""}${s.points}`
+        : `${s.name} rank ${s.rank} (${s.levels} level${s.levels === 1 ? "" : "s"})${s.winner ? " WINNER" : ""}`)
     .join("; ");
 }
 
@@ -583,7 +587,7 @@ export async function decidePlay(play, ctx, rpc) {
 
 export function phaseOf(state) {
   if (!state || typeof state !== "object") return null;
-  for (const k of ["Initialize", "Draw", "Exchange", "Play"]) {
+  for (const k of ["Initialize", "Draw", "Exchange", "Play", "Ddz"]) {
     if (k in state) return k;
   }
   return null;
@@ -593,7 +597,11 @@ export function phaseOf(state) {
 export async function decide(state, ctx, rpc) {
   switch (phaseOf(state)) {
     case "Initialize":
-      return decideInitialize(state.Initialize, ctx);
+      return state.Initialize.propagated.player_mode === "DouDiZhu"
+        ? decideDdzLobby(state.Initialize, ctx)
+        : decideInitialize(state.Initialize, ctx);
+    case "Ddz":
+      return decideDdz(state.Ddz, ctx, rpc);
     case "Draw":
       return decideDraw(state.Draw, ctx, rpc);
     case "Exchange":
@@ -610,6 +618,7 @@ export async function decide(state, ctx, rpc) {
 export function describeState(state, ctx) {
   const phase = phaseOf(state);
   if (!phase) return "no state";
+  if (phase === "Ddz") return describeDdz(state.Ddz);
   const s = state[phase];
   const p = s.propagated;
   const names = (p.players || []).map((pl) => `${pl.name}#${pl.id}`).join(", ");

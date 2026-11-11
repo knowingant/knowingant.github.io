@@ -2,7 +2,7 @@ import * as React from "react";
 import ReactModal from "react-modal";
 import classNames from "classnames";
 import { AppStateContext, leaveRoom } from "./AppStateProvider";
-import { formatDelta } from "./api";
+import { formatDelta, ladderName } from "./api";
 
 import type { JSX } from "react";
 
@@ -38,25 +38,41 @@ const MatchSummaryModal = (): JSX.Element | null => {
       style={{ content: contentStyle }}
     >
       <h2>Match over</h2>
-      <p>First to rank {finished.firstToRank}.</p>
-      <ul className="match-standings">
-        {finished.standings.map((s) => (
-          <li
-            key={s.player}
-            className={classNames({ winner: s.winner })}
-            title={s.winner ? "Reached the target rank" : undefined}
-          >
-            {s.winner ? "🏆 " : ""}
-            <strong>{s.name}</strong> &mdash; rank {s.rank} ({s.levels}{" "}
-            {s.levels === 1 ? "level" : "levels"})
-          </li>
-        ))}
-      </ul>
+      {finished.ddz !== undefined ? (
+        <>
+          <p>{finished.ddz.rounds} rounds.</p>
+          <ul className="match-standings">
+            {finished.ddz.standings.map((s) => (
+              <li
+                key={s.player}
+                className={classNames({ winner: s.place === 1 })}
+              >
+                {s.place}. <strong>{s.name}</strong> {formatDelta(s.points)}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <>
+          <p>First to rank {finished.firstToRank}.</p>
+          <ul className="match-standings">
+            {finished.standings.map((s) => (
+              <li
+                key={s.player}
+                className={classNames({ winner: s.winner })}
+                title={s.winner ? "Reached the target rank" : undefined}
+              >
+                {s.winner ? "🏆 " : ""}
+                <strong>{s.name}</strong> &mdash; rank {s.rank} ({s.levels}{" "}
+                {s.levels === 1 ? "level" : "levels"})
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       {rated !== null ? (
         <>
-          <h3>
-            Rating changes ({rated.mode === "1v1" ? "1v1" : "team"} ladder)
-          </h3>
+          <h3>Rating changes ({ladderName(rated.mode)})</h3>
           <ul className="match-rating-changes">
             {rated.changes.map((c) => (
               <li key={c.username}>

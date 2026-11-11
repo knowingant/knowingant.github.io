@@ -8,3 +8,4 @@ publish = false
 [dependencies]
 shengji-types = { path = "../backend/backend-types" }
 shengji-mechanics = { path = "../mechanics" }
+shengji-ddz = { path = "../ddz" }

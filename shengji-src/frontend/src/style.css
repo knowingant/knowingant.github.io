@@ -846,3 +846,51 @@ label {
 .match-standings li.winner {
   font-weight: bold;
 }
+
+/* --- Dou Di Zhu --- */
+/* Three seats and the bottom in one row of fixed-size boxes: nothing below
+   moves when cards are played. */
+.ddz-table {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 10px;
+  padding: 10px;
+}
+
+.ddz-seat {
+  display: block;
+  min-width: 0;
+  margin: 0;
+}
+
+.ddz-fan {
+  display: flex;
+  justify-content: center;
+  height: 95px;
+  padding-bottom: 20px;
+}
+
+.ddz-fan-card {
+  flex: 0 1 20px;
+  min-width: 0;
+}
+
+.ddz-fan-card:last-child {
+  flex: 0 0 auto;
+}
+
+.ddz-note {
+  align-items: center;
+}
+
+.ddz-info {
+  min-height: 1.2em;
+  margin: 0 10px 10px;
+}
+
+/* As tall as a row of buttons, so the hand below stays put between turns. */
+.ddz-actions {
+  box-sizing: border-box;
+  height: 58px;
+  padding: 0 10px;
+}

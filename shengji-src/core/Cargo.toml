@@ -8,6 +8,7 @@ publish = false
 [dependencies]
 anyhow = "1.0"
 lazy_static = "1.0"
+shengji-ddz = { path = "../ddz" }
 shengji-mechanics = { path = "../mechanics" }
 rand = "0.8.5"
 serde = { version = "1.0", features = ["derive"] }

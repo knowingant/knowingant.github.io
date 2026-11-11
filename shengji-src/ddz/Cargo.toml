@@ -1,0 +1,13 @@
+[package]
+name = "shengji-ddz"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Dou Di Zhu rules: hand types, bidding, play and scoring"
+
+[dependencies]
+anyhow = "1.0"
+rand = "0.8.5"
+schemars = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+shengji-mechanics = { path = "../mechanics" }

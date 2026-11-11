@@ -7,7 +7,7 @@ use ruzstd::frame_decoder::FrameDecoder;
 use ruzstd::streaming_decoder::StreamingDecoder;
 use shengji_types::wasm_rpc::{
     CanPlayCardsRequest, CardInfoRequest, ComputeDeckLenRequest, ComputeScoreRequest,
-    DecomposeTrickFormatRequest, ExplainScoringRequest, FindValidBidsRequest,
+    DdzPlaysRequest, DecomposeTrickFormatRequest, ExplainScoringRequest, FindValidBidsRequest,
     FindViablePlaysRequest, NextThresholdReachableRequest, NextThresholdReachableResponse,
     SortAndGroupCardsRequest,
 };
@@ -102,6 +102,13 @@ pub fn compute_score(req: JsValue) -> Result<JsValue, JsValue> {
 pub fn get_card_info(req: JsValue) -> Result<JsValue, JsValue> {
     let request: CardInfoRequest = req.into_serde().map_err(|e| e.to_string())?;
     let result = wasm_rpc_impl::get_card_info(request);
+    Ok(JsValue::from_serde(&result).map_err(|e| e.to_string())?)
+}
+
+#[wasm_bindgen]
+pub fn ddz_plays(req: JsValue) -> Result<JsValue, JsValue> {
+    let request: DdzPlaysRequest = req.into_serde().map_err(|e| e.to_string())?;
+    let result = wasm_rpc_impl::ddz_plays(request);
     Ok(JsValue::from_serde(&result).map_err(|e| e.to_string())?)
 }
 

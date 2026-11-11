@@ -1412,6 +1412,7 @@ const Initialize = (props: IProps): JSX.Element => {
               <option value="OneVsOne">
                 1v1 (each player controls two hands)
               </option>
+              <option value="DouDiZhu">斗地主 / Dou Di Zhu (3 players)</option>
             </select>
           </label>
         </div>

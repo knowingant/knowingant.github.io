@@ -192,9 +192,8 @@ const WebsocketProvider: React.FunctionComponent<
           errors: [
             ...stateRef.current.errors,
             `Could not connect to the game server at ${apiHost()}. ` +
-              "Ad blockers and filtered networks (school, library or office " +
-              "wifi) often block it: allow that address or switch networks, " +
-              "then reload.",
+              "Try disabling your ad blocker. If you're on a filtered network, " +
+              "use a VPN or switch networks.",
           ],
         });
       }

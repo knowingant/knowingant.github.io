@@ -212,6 +212,11 @@ var createAsyncFunctions = function (useWasm, wasmModule) {
                     return [2 /*return*/, { results: results }];
                 });
             }); },
+            ddzPlays: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, wasmModule.ddz_plays(req)];
+                });
+            }); },
         };
     }
     else {
@@ -334,6 +339,14 @@ var createAsyncFunctions = function (useWasm, wasmModule) {
                         case 1:
                             response = _a.sent();
                             return [2 /*return*/, response];
+                    }
+                });
+            }); },
+            ddzPlays: function (req) { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, callRpc(__assign({ type: "DdzPlays" }, req))];
+                        case 1: return [2 /*return*/, _a.sent()];
                     }
                 });
             }); },
@@ -785,6 +798,7 @@ var TimerProvider = function (props) { return react__WEBPACK_IMPORTED_MODULE_0__
 /* harmony export */   Ab: () => (/* binding */ googleSignIn),
 /* harmony export */   CW: () => (/* binding */ formatDelta),
 /* harmony export */   Ie: () => (/* binding */ logoutAll),
+/* harmony export */   UC: () => (/* binding */ ladderName),
 /* harmony export */   WG: () => (/* binding */ setToken),
 /* harmony export */   Xq: () => (/* binding */ formatRating),
 /* harmony export */   Yq: () => (/* binding */ formatDate),
@@ -1135,6 +1149,17 @@ function formatRatingWithRecord(r) {
     return "".concat(r.rating, " (").concat(matches, ", ").concat(formatRecord(r), ")");
 }
 /// `+180` / `−180` (a real minus sign), for a rating change.
+/// The ladder a rating mode names, e.g. "team ladder".
+function ladderName(mode) {
+    switch (mode) {
+        case "1v1":
+            return "1v1 ladder";
+        case "ddz":
+            return "Dou Di Zhu ladder";
+        default:
+            return "team ladder";
+    }
+}
 function formatDelta(delta) {
     return delta < 0 ? "\u2212".concat(Math.abs(delta)) : "+".concat(delta);
 }
@@ -1154,7 +1179,7 @@ function formatDate(unixSeconds) {
 
 /***/ }),
 
-/***/ 4658:
+/***/ 6443:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 
@@ -1619,7 +1644,7 @@ var roomRatingsHandler = function (_, message) {
     }
 };
 var formatMatchRated = function (mode, changes) {
-    return "Match rated (".concat(mode === "1v1" ? "1v1" : "team", " ladder): ") +
+    return "Match rated (".concat((0,api/* ladderName */.UC)(mode), "): ") +
         changes
             .map(function (c) { return "".concat(c.username, " ").concat(c.before, " \u2192 ").concat(c.after, " (").concat((0,api/* formatDelta */.CW)(c.delta), ")"); })
             .join(", ");
@@ -1659,6 +1684,19 @@ var matchFinishedHandler = function (_, message) {
                 matchKey: variant.match_key,
                 firstToRank: variant.first_to_rank,
                 standings: variant.standings,
+            },
+            lastMatchRated: null,
+        };
+    }
+    else if ("Broadcast" in message &&
+        message.Broadcast.data.variant.type === "DdzMatchFinished") {
+        var variant = message.Broadcast.data.variant;
+        return {
+            lastMatchFinished: {
+                matchKey: variant.match_key,
+                firstToRank: "",
+                standings: [],
+                ddz: { rounds: variant.rounds, standings: variant.standings },
             },
             lastMatchRated: null,
         };
@@ -1886,9 +1924,8 @@ var WebsocketProvider = function (props) {
                 updateStateRef.current({
                     errors: WebsocketProvider_spreadArray(WebsocketProvider_spreadArray([], stateRef.current.errors, true), [
                         "Could not connect to the game server at ".concat((0,api/* apiHost */.nz)(), ". ") +
-                            "Ad blockers and filtered networks (school, library or office " +
-                            "wifi) often block it: allow that address or switch networks, " +
-                            "then reload.",
+                            "Try disabling your ad blocker. If you're on a filtered network, " +
+                            "use a VPN or switch networks.",
                     ], false),
                 });
             }
@@ -2183,14 +2220,14 @@ var JoinRoom = function (props) {
                 ", and they play",
                 " ",
                 react.createElement("strong", null, "matches"),
-                ": a match is \u201Cfirst to rank N\u201D (5 by default). You can change N or turn rating off entirely in settings before the match starts."),
+                ": a match is \u201Cfirst to rank N\u201D (5 by default). You can change N or turn rating off in settings before the match starts."),
             react.createElement("p", null,
                 "If you're unfamiliar with the game, it might be helpful to",
                 " ",
                 react.createElement("a", { href: "rules.html", target: "_blank" }, "read the rules"),
                 " ",
                 "first."),
-            react.createElement("p", null, "Once you are in the game, share the room link with at least three friends (or one friend, for 1v1) to start playing!"),
+            react.createElement("p", null, "Once you are in the game, share the room link to start playing!"),
             react.createElement("p", null, "Compared to the robertying site, the defaults here are fast autodraw and no taking back bids or plays.")),
         react.createElement(src_PublicRoomsPane, { setRoomName: props.setRoomName })));
 };
@@ -2705,7 +2742,11 @@ var AccountBar = function () {
                 react.createElement("span", null,
                     "1v1",
                     " ",
-                    react.createElement("strong", null, api/* formatRatingWithRecord */.k6(user.ratings["1v1"])))),
+                    react.createElement("strong", null, api/* formatRatingWithRecord */.k6(user.ratings["1v1"]))),
+                react.createElement("span", null,
+                    "\u6597\u5730\u4E3B",
+                    " ",
+                    react.createElement("strong", null, api/* formatRatingWithRecord */.k6(user.ratings.ddz)))),
             react.createElement("span", { className: "account-actions" },
                 react.createElement("a", { href: "#user/".concat(encodeURIComponent(user.username)) }, "Your account page"),
                 " ",
@@ -2727,9 +2768,7 @@ var AccountBar = function () {
 var accountHref = function (username) {
     return "#user/".concat(encodeURIComponent(username));
 };
-var ladderName = function (mode) {
-    return mode === "1v1" ? "1v1 ladder" : "team ladder";
-};
+var ladderName = api/* ladderName */.UC;
 /// "won" / "lost" / "drew", as a verb with the player as the subject.
 var resultVerb = function (result) {
     switch (result) {
@@ -2752,7 +2791,7 @@ var Ladders = function (props) { return (react.createElement("table", { classNam
             react.createElement("th", null, "Rating"),
             react.createElement("th", null, "Matches"),
             react.createElement("th", null, "W\u2013L\u2013D"))),
-    react.createElement("tbody", null, ["team", "1v1"].map(function (mode) {
+    react.createElement("tbody", null, ["team", "1v1", "ddz"].map(function (mode) {
         var _a;
         var rating = props.ratings[mode];
         return (react.createElement("tr", { key: mode },
@@ -2790,8 +2829,34 @@ var Stats = function (props) {
                 react.createElement("td", null, value)));
         }))));
 };
+var DdzStats = function (props) {
+    var s = props.stats;
+    var rows = [
+        ["Rounds played", "".concat(s.rounds)],
+        ["Rounds won", withPercent(s.rounds_won, s.rounds)],
+        [
+            "Rounds as the landlord",
+            "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
+        ],
+        ["Points", api/* formatDelta */.CW(s.levels_gained)],
+        ["Matches played", "".concat(s.matches)],
+        [
+            "Matches 1st / 2nd / 3rd",
+            "".concat(s.matches_won, " / ").concat(s.matches_drawn, " / ").concat(s.matches_lost),
+        ],
+        ["Rated matches", "".concat(s.rated_matches)],
+    ];
+    return (react.createElement("table", { className: "leaderboard-table account-stats" },
+        react.createElement("tbody", null, rows.map(function (_a) {
+            var label = _a[0], value = _a[1];
+            return (react.createElement("tr", { key: label },
+                react.createElement("td", null, label),
+                react.createElement("td", null, value)));
+        }))));
+};
 var Match = function (props) {
     var match = props.match, username = props.username;
+    var ddz = match.mode === "ddz";
     var ratedLabel = !match.rated
         ? "unrated"
         : match.rating_applied === false
@@ -2804,12 +2869,19 @@ var Match = function (props) {
             ladderName(match.mode),
             " · ",
             ratedLabel,
-            " · ",
-            "first to rank ",
-            match.first_to_rank,
+            ddz ? null : (react.createElement(react.Fragment, null,
+                " · ",
+                "first to rank ",
+                match.first_to_rank)),
             " · ",
             match.rounds === 1 ? "1 round" : "".concat(match.rounds, " rounds")),
-        react.createElement("ul", { className: "account-match-players" }, match.players.map(function (p) { return (react.createElement("li", { key: p.username, className: p.username === username ? "me" : undefined },
+        react.createElement("ul", { className: "account-match-players" }, match.players.map(function (p) { return (react.createElement("li", { key: p.username, className: p.username === username ? "me" : undefined }, ddz ? (react.createElement(react.Fragment, null,
+            p.final_rank,
+            ".",
+            " ",
+            react.createElement("a", { href: accountHref(p.username) }, p.username),
+            " ",
+            api/* formatDelta */.CW(p.levels))) : (react.createElement(react.Fragment, null,
             react.createElement("a", { href: accountHref(p.username) }, p.username),
             " \u2014 rank",
             " ",
@@ -2818,14 +2890,13 @@ var Match = function (props) {
             p.levels,
             " ",
             p.levels === 1 ? "level" : "levels",
-            "),",
-            " ",
+            "), ",
             resultVerb(p.result),
-            p.result === "won" ? " 🏆" : "")); })),
+            p.result === "won" ? " 🏆" : "")))); })),
         react.createElement("div", { className: "account-match-outcome" },
             react.createElement("strong", null, username),
             " ",
-            resultVerb(match.result),
+            ddz ? api/* formatDelta */.CW(match.levels) : resultVerb(match.result),
             match.delta !== null &&
                 match.delta !== undefined &&
                 match.rating_before !== null &&
@@ -2899,6 +2970,9 @@ var AccountPage = function (props) {
             react.createElement("h3", null, "Statistics"),
             react.createElement("p", { className: "auth-hint" }, "Every finished round and match counts here; the ladders above only count rated matches."),
             react.createElement(Stats, { stats: profile.stats }),
+            profile.ddz_stats !== undefined && profile.ddz_stats.matches > 0 ? (react.createElement(react.Fragment, null,
+                react.createElement("h3", null, "Dou Di Zhu"),
+                react.createElement(DdzStats, { stats: profile.ddz_stats }))) : null,
             react.createElement("h3", null, "Recent matches"),
             profile.recent_matches.length === 0 ? (react.createElement("p", { className: "auth-hint" }, "No finished matches yet.")) : (react.createElement("ul", { className: "account-matches" }, profile.recent_matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: profile.username })); })))));
     }
@@ -2961,13 +3035,14 @@ var Ladder = function (props) {
         react.createElement("h4", null, props.title),
         body));
 };
-/// The two ladders (team / 1v1), side by side, with a refresh button.
+/// The ladders (team / 1v1 / Dou Di Zhu), side by side, with a refresh button.
 var Leaderboard = function () {
     var _a, _b;
     var state = react.useContext(AppStateContext).state;
     var _c = react.useState(initial), team = _c[0], setTeam = _c[1];
     var _d = react.useState(initial), oneVsOne = _d[0], setOneVsOne = _d[1];
-    var _e = react.useState(false), refreshing = _e[0], setRefreshing = _e[1];
+    var _e = react.useState(initial), ddz = _e[0], setDdz = _e[1];
+    var _f = react.useState(false), refreshing = _f[0], setRefreshing = _f[1];
     var load = react.useCallback(function () {
         setRefreshing(true);
         var fetchOne = function (mode, set) {
@@ -2976,7 +3051,11 @@ var Leaderboard = function () {
                 return set(function (s) { return (Leaderboard_assign(Leaderboard_assign({}, s), { loading: false, error: api/* errorMessage */.gJ(e) })); });
             });
         };
-        Promise.all([fetchOne("team", setTeam), fetchOne("1v1", setOneVsOne)])
+        Promise.all([
+            fetchOne("team", setTeam),
+            fetchOne("1v1", setOneVsOne),
+            fetchOne("ddz", setDdz),
+        ])
             .catch(function (e) { return console.error(e); })
             .then(function () { return setRefreshing(false); });
     }, []);
@@ -2991,7 +3070,8 @@ var Leaderboard = function () {
             react.createElement("button", { type: "button", className: "normal", onClick: load, disabled: refreshing }, refreshing ? "Refreshing…" : "Refresh")),
         react.createElement("div", { className: "leaderboard-tables" },
             react.createElement(Ladder, { mode: "team", title: "Team ladder", state: team, highlight: me }),
-            react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", state: oneVsOne, highlight: me }))));
+            react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", state: oneVsOne, highlight: me }),
+            react.createElement(Ladder, { mode: "ddz", title: "Dou Di Zhu ladder", state: ddz, highlight: me }))));
 };
 /* harmony default export */ const src_Leaderboard = (Leaderboard);
 
@@ -3012,9 +3092,12 @@ var Landing = function () {
         react.createElement("span", { className: "red" }, "Tractor"),
         " / \u627E\u670B\u53CB /",
         " ",
-        react.createElement("span", { className: "red" }, "Finding Friends")));
+        react.createElement("span", { className: "red" }, "Finding Friends"),
+        " / \u6597\u5730\u4E3B /",
+        " ",
+        react.createElement("span", { className: "red" }, "Dou Di Zhu")));
     var intro = (react.createElement(react.Fragment, null,
-        react.createElement("p", null, "Play rated \u5347\u7EA7 / Tractor / \u627E\u670B\u53CB / Finding Friends online."),
+        react.createElement("p", null, "Play rated \u5347\u7EA7 / Tractor / \u627E\u670B\u53CB / Finding Friends / \u6597\u5730\u4E3B / Dou Di Zhu online."),
         react.createElement("p", null,
             "If you're not familiar with the rules, check them out",
             " ",
@@ -3339,6 +3422,9 @@ var propagatedOf = function (gameState) {
     if ("Play" in gameState) {
         return gameState.Play.propagated;
     }
+    if ("Ddz" in gameState) {
+        return gameState.Ddz.propagated;
+    }
     return null;
 };
 /// `rated` defaults to true on the server (serde default), so a missing
@@ -3366,6 +3452,7 @@ var roundsFinishedOf = function (propagated) {
 /// Visible in every phase; the settings themselves are changed from the
 /// Initialize phase's game settings.
 var RatedBanner = function () {
+    var _a, _b, _c;
     var state = react.useContext(AppStateContext).state;
     var propagated = propagatedOf(state.gameState);
     if (propagated === null) {
@@ -3373,6 +3460,17 @@ var RatedBanner = function () {
     }
     var oneVsOne = propagated.player_mode === "OneVsOne";
     var rated = isRated(propagated);
+    if (propagated.player_mode === "DouDiZhu") {
+        var game = state.gameState !== null && "Ddz" in state.gameState
+            ? state.gameState.Ddz.game
+            : null;
+        var rounds = (_c = (_a = game === null || game === void 0 ? void 0 : game.settings.rounds) !== null && _a !== void 0 ? _a : (_b = propagated.ddz) === null || _b === void 0 ? void 0 : _b.rounds) !== null && _c !== void 0 ? _c : 6;
+        return (react.createElement("div", { className: classnames_default()("rated-banner", { rated: rated, unrated: !rated }) }, [
+            rated ? "Rated match" : "Unrated match",
+            "".concat(rounds, " rounds"),
+            game !== null ? "round ".concat(game.round_number) : "not started",
+        ].join(" · ")));
+    }
     var firstToRank = firstToRankOf(propagated);
     var roundsFinished = roundsFinishedOf(propagated);
     // Before the first round of a match starts the room sits in the lobby;
@@ -3923,10 +4021,15 @@ var Players = function (props) {
             : ((_a = ratings[p.name]) !== null && _a !== void 0 ? _a : ratings[seatUsername(p.name)]);
     };
     var makeDescriptor = function (p) {
+        var _a;
         var rating = ratingSuffix(ratingFor(p));
         // The account page is a hash route on this very page, so a bare hash is
         // enough; open it in a new tab so nobody loses their seat.
         var nameLink = (react.createElement("a", { key: "name-".concat(p.id), href: accountHref(seatUsername(p.name)), target: "_blank", rel: "noreferrer", title: "".concat(seatUsername(p.name), "'s account page") }, p.name));
+        if (props.hideRank === true) {
+            var score = (_a = props.scores) === null || _a === void 0 ? void 0 : _a[p.id];
+            return [nameLink, score === undefined ? rating : "".concat(rating, " ").concat(score)];
+        }
         if (p.metalevel <= 1) {
             return [nameLink, "".concat(rating, " (rank ").concat(p.level, ")")];
         }
@@ -3943,6 +4046,7 @@ var Players = function (props) {
         react.createElement("tbody", null,
             react.createElement("tr", null,
                 players.map(function (player) {
+                    var _a;
                     var className = classnames_default()("player", {
                         landlord: player.id === landlord || (landlords_team === null || landlords_team === void 0 ? void 0 : landlords_team.includes(player.id)),
                         movable: movable,
@@ -3950,7 +4054,7 @@ var Players = function (props) {
                     });
                     var descriptor = makeDescriptor(player);
                     if (player.id === landlord) {
-                        descriptor.push(" (当庄)");
+                        descriptor.push((_a = props.landlordLabel) !== null && _a !== void 0 ? _a : " (当庄)");
                     }
                     if (ownNames.has(player.name)) {
                         descriptor.push(" (You!)");
@@ -5288,7 +5392,8 @@ var Initialize = function (props) {
                     " ",
                     react.createElement("select", { value: oneVsOne ? "OneVsOne" : "Standard", onChange: setPlayerMode, disabled: matchInProgress },
                         react.createElement("option", { value: "Standard" }, "Standard (4+ players)"),
-                        react.createElement("option", { value: "OneVsOne" }, "1v1 (each player controls two hands)")))),
+                        react.createElement("option", { value: "OneVsOne" }, "1v1 (each player controls two hands)"),
+                        react.createElement("option", { value: "DouDiZhu" }, "\u6597\u5730\u4E3B / Dou Di Zhu (3 players)")))),
             react.createElement("div", null, oneVsOne ? (react.createElement("label", null, "Game mode: \u5347\u7EA7 / Tractor (1v1 rooms are always Tractor)")) : (react.createElement("label", null,
                 "Game mode:",
                 " ",
@@ -5764,7 +5869,7 @@ var Card = function (props) {
                 react.createElement(src_InlineCard, { card: props.card })));
         };
         var icon = function (offset) {
-            if (isLoading || !cardInfo)
+            if (isLoading || !cardInfo || props.plain === true)
                 return null;
             return (react.createElement("div", { className: "card-icon", style: { bottom: "".concat(offset, "px") } },
                 cardInfo.effective_suit === "Trump" && settings.trumpCardIcon,
@@ -7000,7 +7105,7 @@ var Credits_contentStyle = {
     left: "50%",
     transform: "translate(-50%, -50%)",
 };
-var changeLogVersion = 28;
+var changeLogVersion = 29;
 var ChangeLog = function () {
     var _a = react.useState(false), modalOpen = _a[0], setModalOpen = _a[1];
     var _b = react.useContext(AppStateContext), state = _b.state, updateState = _b.updateState;
@@ -7027,6 +7132,9 @@ var ChangeLog = function () {
             react.createElement("p", null, "There are a wide variety of game settings which may suit the way you normally play, e.g. changing the number of decks, how scoring works, etc. These can be changed before every round."),
             react.createElement("p", null, "There are also a bunch of UI customizations that you may want to turn on (or leave off) -- click the gear icon at the top of the screen once you're in the game."),
             react.createElement("h2", null, "Change Log"),
+            react.createElement("p", null, "11/10/2026:"),
+            react.createElement("ul", null,
+                react.createElement("li", null, "\u6597\u5730\u4E3B / Dou Di Zhu: rated three-player matches with their own ladder. Choose it under room type in the lobby.")),
             react.createElement("p", null, "11/8/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Spectators can watch a player's hand (room setting \u201Cshadowing\u201D), the room type can be switched between matches from the lobby, and the rules page draws its cards again."),
@@ -7344,9 +7452,6 @@ var ChatInput_templateObject_1, ChatInput_templateObject_2;
 
 
 
-var ChatMessage_ladderName = function (mode) {
-    return mode === "1v1" ? "1v1 ladder" : "team ladder";
-};
 var renderMessage = function (message) {
     var _a, _b, _c, _d, _e;
     var variant = (_a = message.data) === null || _a === void 0 ? void 0 : _a.variant;
@@ -7389,6 +7494,11 @@ var renderMessage = function (message) {
                         ui > 0 ? " + " : null,
                         unit.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); }))); })
                     : variant.cards.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); })));
+        case "DdzBottom":
+            return (react.createElement("span", null,
+                "Bottom:",
+                " ",
+                variant.cards.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); })));
         case "EndOfGameKittyReveal":
             return (react.createElement("span", null,
                 variant.cards.map(function (card, i) { return (react.createElement(src_InlineCard, { card: card, key: i })); }),
@@ -7475,7 +7585,7 @@ var renderMatchRated = function (message, ratings) { return (react.createElement
         ": "),
     react.createElement("span", null,
         "Match rated (",
-        ChatMessage_ladderName(ratings.mode),
+        (0,api/* ladderName */.UC)(ratings.mode),
         ")"),
     react.createElement("ul", null, ratings.changes.map(function (c) { return (react.createElement("li", { key: c.username },
         react.createElement("span", { className: "ratings-update-user" }, c.username),
@@ -8407,7 +8517,7 @@ var Play = function (props) {
                 isCurrentPlayerTurn &&
                 grouping.length > 1 && (react.createElement("div", { className: "groupings" },
                 naturalGroupings.length > 1 && chosen === null && (react.createElement(react.Fragment, null,
-                    react.createElement("p", null, "This play can be read in more than one way. Which did you mean?"),
+                    react.createElement("p", null, "Select interpretation:"),
                     naturalGroupings.map(function (g, gidx) { return (react.createElement("button", { key: gidx, onClick: function (evt) {
                             evt.preventDefault();
                             setChosen(g);
@@ -8418,15 +8528,13 @@ var Play = function (props) {
                             setShowMoreGroupings(!showMoreGroupings);
                         } }, showMoreGroupings
                         ? "Hide other groupings"
-                        : "Other ways to throw these cards"))),
-                showMoreGroupings && (react.createElement("div", { className: "other-groupings" },
-                    react.createElement("p", { className: "auth-hint" }, "Throw rules apply to every part: if another player can beat any part, the throw fails."),
-                    Play_spreadArray(Play_spreadArray([], naturalGroupings, true), otherGroupings, true).map(function (g, gidx) { return (react.createElement("button", { key: gidx, onClick: function (evt) {
-                            evt.preventDefault();
-                            setChosen(g);
-                        }, className: classnames_default()("normal", {
-                            "grouping-chosen": chosen === g,
-                        }) }, describeGrouping(g))); }))),
+                        : "Other ways to throw"))),
+                showMoreGroupings && (react.createElement("div", { className: "other-groupings" }, Play_spreadArray(Play_spreadArray([], naturalGroupings, true), otherGroupings, true).map(function (g, gidx) { return (react.createElement("button", { key: gidx, onClick: function (evt) {
+                        evt.preventDefault();
+                        setChosen(g);
+                    }, className: classnames_default()("normal", {
+                        "grouping-chosen": chosen === g,
+                    }) }, describeGrouping(g))); }))),
                 chosen !== null && chosen.natural === false && (react.createElement("p", null,
                     "Playing as ",
                     describeGrouping(chosen))))),
@@ -8670,6 +8778,11 @@ var findRequester = function (state) {
         observers = state.Play.propagated.observers;
         requested = state.Play.player_requested_reset;
     }
+    else if ("Ddz" in state) {
+        players = state.Ddz.propagated.players;
+        observers = state.Ddz.propagated.observers;
+        requested = state.Ddz.player_requested_reset;
+    }
     if (requested === null || requested === undefined) {
         return undefined;
     }
@@ -8744,25 +8857,35 @@ var MatchSummaryModal = function () {
     };
     return (react.createElement((lib_default()), { isOpen: true, onRequestClose: close, shouldCloseOnOverlayClick: true, shouldCloseOnEsc: true, style: { content: MatchSummaryModal_contentStyle } },
         react.createElement("h2", null, "Match over"),
-        react.createElement("p", null,
-            "First to rank ",
-            finished.firstToRank,
-            "."),
-        react.createElement("ul", { className: "match-standings" }, finished.standings.map(function (s) { return (react.createElement("li", { key: s.player, className: classnames_default()({ winner: s.winner }), title: s.winner ? "Reached the target rank" : undefined },
-            s.winner ? "🏆 " : "",
-            react.createElement("strong", null, s.name),
-            " \u2014 rank ",
-            s.rank,
-            " (",
-            s.levels,
-            " ",
-            s.levels === 1 ? "level" : "levels",
-            ")")); })),
+        finished.ddz !== undefined ? (react.createElement(react.Fragment, null,
+            react.createElement("p", null,
+                finished.ddz.rounds,
+                " rounds."),
+            react.createElement("ul", { className: "match-standings" }, finished.ddz.standings.map(function (s) { return (react.createElement("li", { key: s.player, className: classnames_default()({ winner: s.place === 1 }) },
+                s.place,
+                ". ",
+                react.createElement("strong", null, s.name),
+                " ",
+                (0,api/* formatDelta */.CW)(s.points))); })))) : (react.createElement(react.Fragment, null,
+            react.createElement("p", null,
+                "First to rank ",
+                finished.firstToRank,
+                "."),
+            react.createElement("ul", { className: "match-standings" }, finished.standings.map(function (s) { return (react.createElement("li", { key: s.player, className: classnames_default()({ winner: s.winner }), title: s.winner ? "Reached the target rank" : undefined },
+                s.winner ? "🏆 " : "",
+                react.createElement("strong", null, s.name),
+                " \u2014 rank ",
+                s.rank,
+                " (",
+                s.levels,
+                " ",
+                s.levels === 1 ? "level" : "levels",
+                ")")); })))),
         rated !== null ? (react.createElement(react.Fragment, null,
             react.createElement("h3", null,
                 "Rating changes (",
-                rated.mode === "1v1" ? "1v1" : "team",
-                " ladder)"),
+                (0,api/* ladderName */.UC)(rated.mode),
+                ")"),
             react.createElement("ul", { className: "match-rating-changes" }, rated.changes.map(function (c) { return (react.createElement("li", { key: c.username },
                 react.createElement("strong", null, c.username),
                 " ",
@@ -8783,7 +8906,87 @@ var MatchSummaryModal = function () {
 };
 /* harmony default export */ const src_MatchSummaryModal = (MatchSummaryModal);
 
+;// ./src/ddz/ddzCards.ts
+var ddzCards_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+/// Cards are drawn with the shared `Card` component, which wants a trump.
+var DDZ_TRUMP = { NoTrump: {} };
+var SMALL_JOKER = "🃟";
+var BIG_JOKER = "🃏";
+var UNKNOWN_CARD = "🂠";
+var ORDER = [
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A",
+    "2",
+];
+/// 3 is lowest, then up to A, 2, small joker, big joker. Unknown cards: -1.
+var ddzRank = function (card) {
+    var _a;
+    if (card === BIG_JOKER) {
+        return 14;
+    }
+    if (card === SMALL_JOKER) {
+        return 13;
+    }
+    var number = (_a = cardLookup[card]) === null || _a === void 0 ? void 0 : _a.number;
+    return number === null || number === undefined ? -1 : ORDER.indexOf(number);
+};
+/// Highest first, suits in a fixed order within a rank.
+var sortDdz = function (cards) {
+    return ddzCards_spreadArray([], cards, true).sort(function (a, b) { return ddzRank(b) - ddzRank(a) || a.localeCompare(b); });
+};
+
+;// ./src/ddz/DdzHand.tsx
+var DdzHand_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+/// A hand, highest card first. With `selected` the chosen cards move to a
+/// row above, as in the Tractor hand.
+var DdzHand = function (props) {
+    var cards = props.cards, selected = props.selected, onSelect = props.onSelect;
+    var selectable = selected !== undefined && onSelect !== undefined;
+    var chosen = selectable ? sortDdz(selected) : [];
+    var rest = sortDdz(selectable ? array.minus(cards, selected) : cards);
+    var row = function (list, onClick) {
+        return list.map(function (card, idx) { return (react.createElement(src_Card, { key: "".concat(card, "-").concat(idx), card: card, trump: DDZ_TRUMP, plain: true, collapseRight: idx !== list.length - 1, onClick: onClick === undefined ? undefined : function () { return onClick(card); } })); });
+    };
+    return (react.createElement("div", { className: "hand" },
+        selectable ? (react.createElement("div", { className: "selected-cards" }, chosen.length > 0 ? (row(chosen, function (card) { return onSelect(array.minus(selected, [card])); })) : (react.createElement(src_Card, { card: "\uD83C\uDCA0", trump: DDZ_TRUMP, plain: true })))) : null,
+        react.createElement("div", { className: classnames_default()("unselected-cards", { unclickable: !selectable }) }, row(rest, selectable ? function (card) { return onSelect(DdzHand_spreadArray(DdzHand_spreadArray([], selected, true), [card], false)); } : undefined))));
+};
+/* harmony default export */ const ddz_DdzHand = (DdzHand);
+
 ;// ./src/WatchHand.tsx
+
 
 
 
@@ -8807,13 +9010,14 @@ var handsOf = function (gameState) {
 /// player instead of for us, so their cards arrive with the next state and
 /// are shown here. Players never see this.
 var WatchHand = function (props) {
-    var _a, _b;
+    var _a, _b, _c;
     var state = react.useContext(AppStateContext).state;
     var send = react.useContext(WebsocketProvider_WebsocketContext).send;
-    var _c = react.useState(null), target = _c[0], setTarget = _c[1];
+    var _d = react.useState(null), target = _d[0], setTarget = _d[1];
     var propagated = propagatedOf(props.gameState);
     var phase = handsOf(props.gameState);
-    if (propagated === null || phase === null) {
+    var ddz = "Ddz" in props.gameState ? props.gameState.Ddz.game : null;
+    if (propagated === null || (phase === null && ddz === null)) {
         return null;
     }
     var players = propagated.players;
@@ -8825,7 +9029,7 @@ var WatchHand = function (props) {
     var watching = target !== null && players.some(function (p) { return p.id === target; }) ? target : null;
     return (react.createElement("div", { className: "watch-hand" },
         react.createElement("label", null,
-            "Watch a player's hand:",
+            "Watch:",
             " ",
             react.createElement("select", { value: watching === null ? "" : String(watching), onChange: function (evt) {
                     var v = evt.target.value === "" ? null : parseInt(evt.target.value, 10);
@@ -8834,8 +9038,10 @@ var WatchHand = function (props) {
                 } },
                 react.createElement("option", { value: "" }, "nobody"),
                 players.map(function (p) { return (react.createElement("option", { key: p.id, value: String(p.id) }, p.name)); }))),
-        watching !== null ? (react.createElement("div", { className: "watch-hand-cards" },
-            react.createElement(src_Cards, { hands: phase.hands, playerId: watching, trump: phase.trump }))) : null));
+        watching !== null && phase !== null ? (react.createElement("div", { className: "watch-hand-cards" },
+            react.createElement(src_Cards, { hands: phase.hands, playerId: watching, trump: phase.trump }))) : null,
+        watching !== null && ddz !== null && ddz.round.stage !== "Finished" ? (react.createElement("div", { className: "watch-hand-cards" },
+            react.createElement(ddz_DdzHand, { cards: (_c = ddz.round.hands[ddz.seats.indexOf(watching)]) !== null && _c !== void 0 ? _c : [] }))) : null));
 };
 /* harmony default export */ const src_WatchHand = (WatchHand);
 
@@ -8874,6 +9080,330 @@ var useSeatSend = function () {
 };
 /* harmony default export */ const src_SeatProvider = (SeatProvider);
 
+;// ./src/ddz/DdzLobby.tsx
+var DdzLobby_assign = (undefined && undefined.__assign) || function () {
+    DdzLobby_assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return DdzLobby_assign.apply(this, arguments);
+};
+
+
+
+
+
+
+
+var DEFAULT_DDZ_SETTINGS = {
+    rounds: 6,
+    bidding: "CallScore",
+    doubling: true,
+    multiplier_cap: null,
+};
+var DdzTitle = function () { return (react.createElement("h1", null,
+    "\u6597\u5730\u4E3B / ",
+    react.createElement("span", { className: "red" }, "Dou Di Zhu"),
+    "\u00A0",
+    react.createElement(src_SettingsButton, null))); };
+/// The lobby of a Dou Di Zhu room: who is in, the match settings, start.
+var DdzLobby = function (props) {
+    var _a, _b, _c;
+    var send = react.useContext(WebsocketProvider_WebsocketContext).send;
+    var propagated = props.state.propagated;
+    var settings = (_a = propagated.ddz) !== null && _a !== void 0 ? _a : DEFAULT_DDZ_SETTINGS;
+    var rated = isRated(propagated);
+    var players = propagated.players;
+    var me = players.find(function (p) { return p.name === props.name; });
+    var votes = (_b = propagated.start_votes) !== null && _b !== void 0 ? _b : [];
+    var voted = me !== undefined && votes.includes(me.id);
+    var progress = "".concat(votes.length, "/").concat(players.length);
+    var set = function (change) {
+        return send({ Action: { SetDdzSettings: DdzLobby_assign(DdzLobby_assign({}, settings), change) } });
+    };
+    return (react.createElement("div", null,
+        react.createElement(DdzTitle, null),
+        react.createElement(src_Players, { players: players, observers: propagated.observers, landlord: null, next: null, movable: true, name: props.name, hideRank: true }),
+        react.createElement("p", null,
+            "Send link to other players to allow them to join the game:",
+            " ",
+            react.createElement("a", { href: window.location.href, target: "_blank", rel: "noreferrer" },
+                react.createElement("code", null, window.location.href))),
+        players.length === 3 ? (react.createElement(react.Fragment, null,
+            react.createElement("button", { className: "big", onClick: function () { return send({ Action: "StartGame" }); } }, voted
+                ? "You're ready \u2014 waiting for the others (".concat(progress, ")")
+                : "Start match (".concat(progress, " ready)")),
+            react.createElement(src_ReadyCheck, null))) : (react.createElement("h2", null, "Waiting for players...")),
+        react.createElement(src_Kicker, { players: players, onKick: function (playerId) { return send({ Kick: playerId }); } }),
+        react.createElement("div", { className: "game-settings" },
+            react.createElement("h3", null, "Game settings"),
+            react.createElement("div", null,
+                react.createElement("label", null,
+                    "Rated:",
+                    " ",
+                    react.createElement("select", { value: rated ? "yes" : "no", onChange: function (evt) {
+                            return send({ Action: { SetRated: evt.target.value === "yes" } });
+                        } },
+                        react.createElement("option", { value: "yes" }, "Yes"),
+                        react.createElement("option", { value: "no" }, "No")))),
+            react.createElement("div", null,
+                react.createElement("label", null,
+                    "Rounds:",
+                    " ",
+                    react.createElement("select", { value: settings.rounds, onChange: function (evt) {
+                            return set({ rounds: parseInt(evt.target.value, 10) });
+                        } }, [3, 6, 9, 12].map(function (n) { return (react.createElement("option", { value: n, key: n }, n)); })))),
+            react.createElement("div", null,
+                react.createElement("label", null,
+                    "Room type:",
+                    " ",
+                    react.createElement("select", { value: "DouDiZhu", onChange: function (evt) { return send({ SetPlayerMode: evt.target.value }); } },
+                        react.createElement("option", { value: "Standard" }, "Standard (4+ players)"),
+                        react.createElement("option", { value: "OneVsOne" }, "1v1 (each player controls two hands)"),
+                        react.createElement("option", { value: "DouDiZhu" }, "\u6597\u5730\u4E3B / Dou Di Zhu (3 players)")))),
+            react.createElement("div", null,
+                react.createElement("label", null,
+                    "Bidding:",
+                    " ",
+                    react.createElement("select", { value: settings.bidding, onChange: function (evt) {
+                            return set({ bidding: evt.target.value });
+                        } },
+                        react.createElement("option", { value: "CallScore" }, "\u53EB\u5206 / bid 1 to 3"),
+                        react.createElement("option", { value: "Grab" }, "\u62A2\u5730\u4E3B / call and grab")))),
+            react.createElement("div", null,
+                react.createElement("label", null,
+                    "Doubling:",
+                    " ",
+                    react.createElement("select", { value: settings.doubling ? "yes" : "no", onChange: function (evt) { return set({ doubling: evt.target.value === "yes" }); } },
+                        react.createElement("option", { value: "yes" }, "Yes"),
+                        react.createElement("option", { value: "no" }, "No")))),
+            react.createElement("div", null,
+                react.createElement("label", null,
+                    "Multiplier cap:",
+                    " ",
+                    react.createElement("select", { value: (_c = settings.multiplier_cap) !== null && _c !== void 0 ? _c : "", onChange: function (evt) {
+                            return set({
+                                multiplier_cap: evt.target.value === ""
+                                    ? null
+                                    : parseInt(evt.target.value, 10),
+                            });
+                        } },
+                        react.createElement("option", { value: "" }, "None"),
+                        [4, 8, 16, 32, 64].map(function (n) { return (react.createElement("option", { value: n, key: n },
+                            "\u00D7",
+                            n)); })))))));
+};
+/* harmony default export */ const ddz_DdzLobby = (DdzLobby);
+
+;// ./src/ddz/DdzTable.tsx
+var DdzTable_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+
+
+
+
+
+var LANDLORD = " (地主)";
+/// A row of small cards that overlap more as they get crowded, so a seat's
+/// box keeps its size whatever is played into it.
+var Fan = function (props) { return (react.createElement("div", { className: "ddz-fan" }, props.cards.map(function (card, idx) { return (react.createElement("div", { className: "ddz-fan-card", key: idx },
+    react.createElement(src_Card, { card: card, trump: DDZ_TRUMP, plain: true, smaller: true }))); }))); };
+/// A Dou Di Zhu match in progress: the three seats with what each last did,
+/// the bottom cards, and this player's hand and choices.
+var DdzTable = function (props) {
+    var _a, _b, _c, _d;
+    var send = react.useContext(WebsocketProvider_WebsocketContext).send;
+    var engine = useEngine();
+    var _e = react.useState([]), selected = _e[0], setSelected = _e[1];
+    var _f = react.useState(false), canPlay = _f[0], setCanPlay = _f[1];
+    var _g = props.state, propagated = _g.propagated, game = _g.game;
+    var round = game.round;
+    var players = propagated.players;
+    var nameOf = function (seat) { var _a, _b; return (_b = (_a = players.find(function (p) { return p.id === game.seats[seat]; })) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : ""; };
+    var me = players.find(function (p) { return p.name === props.name; });
+    var mySeat = me === undefined ? -1 : game.seats.indexOf(me.id);
+    var landlord = (_a = round.landlord) !== null && _a !== void 0 ? _a : null;
+    var myTurn = mySeat >= 0 && round.turn === mySeat;
+    var hand = mySeat >= 0 ? round.hands[mySeat] : [];
+    var last = (_b = round.last_play) !== null && _b !== void 0 ? _b : null;
+    var act = function (action) { return send({ Action: { Ddz: action } }); };
+    // Cards that left the hand can't stay selected.
+    var handKey = sortDdz(hand).join("");
+    react.useEffect(function () {
+        setSelected(function (s) {
+            var left = DdzTable_spreadArray([], hand, true);
+            var kept = s.filter(function (c) {
+                var i = left.indexOf(c);
+                if (i < 0) {
+                    return false;
+                }
+                left.splice(i, 1);
+                return true;
+            });
+            return kept.length === s.length ? s : kept;
+        });
+    }, [handKey]);
+    var playing = round.stage === "Playing" && myTurn;
+    var lastKey = JSON.stringify((_c = last === null || last === void 0 ? void 0 : last.play) !== null && _c !== void 0 ? _c : null);
+    var selectedKey = sortDdz(selected).join("");
+    react.useEffect(function () {
+        var _a;
+        if (!playing || selected.length === 0) {
+            setCanPlay(false);
+            return;
+        }
+        var cancelled = false;
+        engine
+            .ddzPlays({ hand: [], selected: selected, last: (_a = last === null || last === void 0 ? void 0 : last.play) !== null && _a !== void 0 ? _a : null })
+            .then(function (r) {
+            if (!cancelled) {
+                setCanPlay(r.play !== null && r.play !== undefined);
+            }
+        })
+            .catch(function (e) { return console.error(e); });
+        return function () {
+            cancelled = true;
+        };
+    }, [playing, selectedKey, lastKey, engine]);
+    var scores = {};
+    game.seats.forEach(function (id, seat) {
+        scores[id] = "(".concat((0,api/* formatDelta */.CW)(game.totals[seat]), ")");
+    });
+    /// What a seat's box shows: its cards on the table, or a word.
+    var seatNote = function (seat) {
+        if (round.stage === "Bidding") {
+            var bid = round.bids[seat];
+            if (bid === null || bid === undefined) {
+                return "";
+            }
+            if (bid === 0) {
+                return "Pass";
+            }
+            if (game.settings.bidding === "CallScore") {
+                return "".concat(bid);
+            }
+            return round.caller === seat ? "Call" : "Grab";
+        }
+        if (round.stage === "Doubling") {
+            var d = round.doubles[seat];
+            if (d === null || d === undefined) {
+                return "";
+            }
+            var word = seat === landlord ? "Redouble" : "Double";
+            return d ? word : "No ".concat(word.toLowerCase());
+        }
+        var shown = round.table[seat];
+        return shown !== null && shown !== undefined && shown.length === 0
+            ? "Pass"
+            : "";
+    };
+    var seatCards = function (seat) {
+        var _a, _b;
+        if (round.stage === "Finished") {
+            // Everyone's remaining cards, except the last play of the winner.
+            return round.hands[seat].length > 0
+                ? sortDdz(round.hands[seat])
+                : ((_a = round.table[seat]) !== null && _a !== void 0 ? _a : []);
+        }
+        if (round.stage !== "Playing") {
+            return [];
+        }
+        return (_b = round.table[seat]) !== null && _b !== void 0 ? _b : [];
+    };
+    var result = (_d = round.result) !== null && _d !== void 0 ? _d : null;
+    var seats = game.seats.map(function (id, seat) {
+        var cards = seatCards(seat);
+        var note = seatNote(seat);
+        return (react.createElement("div", { key: id, className: classnames_default()("labeled-play", "ddz-seat", {
+                landlord: seat === landlord,
+            }) },
+            cards.length > 0 ? (react.createElement(Fan, { cards: cards })) : (react.createElement("div", { className: "ddz-fan ddz-note" }, note)),
+            react.createElement("div", { className: classnames_default()("label", { next: round.turn === seat }) },
+                nameOf(seat),
+                seat === landlord ? LANDLORD : "",
+                result !== null
+                    ? " ".concat((0,api/* formatDelta */.CW)(result.deltas[seat]))
+                    : " \u00B7 ".concat(round.hands[seat].length))));
+    });
+    var info = [];
+    if (landlord !== null) {
+        info.push("Stake ".concat(round.stake));
+        var doubled = round.doubles.filter(function (d, seat) { return seat !== landlord && d === true; }).length;
+        if (doubled > 0) {
+            info.push(round.doubles[landlord] === true ? "redoubled" : "doubled");
+        }
+        if (round.bombs > 0) {
+            info.push("bombs ".concat(round.bombs));
+        }
+        if ((result === null || result === void 0 ? void 0 : result.spring) === true) {
+            info.push("spring");
+        }
+    }
+    var actions = null;
+    if (mySeat >= 0) {
+        if (round.stage === "Bidding" && myTurn) {
+            actions =
+                game.settings.bidding === "CallScore" ? (react.createElement(react.Fragment, null,
+                    react.createElement("button", { className: "big", onClick: function () { return act({ Bid: 0 }); } }, "Pass"),
+                    [1, 2, 3].map(function (n) { return (react.createElement("button", { className: "big", key: n, disabled: n <= round.stake, onClick: function () { return act({ Bid: n }); } }, n)); }))) : (react.createElement(react.Fragment, null,
+                    react.createElement("button", { className: "big", onClick: function () { return act({ Bid: 0 }); } }, "Pass"),
+                    react.createElement("button", { className: "big", onClick: function () { return act({ Bid: 1 }); } }, round.caller === null || round.caller === undefined
+                        ? "Call"
+                        : "Grab")));
+        }
+        else if (round.stage === "Doubling" &&
+            (round.doubles[mySeat] === null || round.doubles[mySeat] === undefined) &&
+            (mySeat !== landlord || myTurn)) {
+            var word = mySeat === landlord ? "Redouble" : "Double";
+            actions = (react.createElement(react.Fragment, null,
+                react.createElement("button", { className: "big", onClick: function () { return act({ Double: false }); } },
+                    "No ",
+                    word.toLowerCase()),
+                react.createElement("button", { className: "big", onClick: function () { return act({ Double: true }); } }, word)));
+        }
+        else if (round.stage === "Playing" && myTurn) {
+            actions = (react.createElement(react.Fragment, null,
+                react.createElement("button", { className: "big", disabled: last === null, onClick: function () { return act("Pass"); } }, "Pass"),
+                react.createElement("button", { className: "big", disabled: !canPlay, onClick: function () { return act({ Play: selected }); } }, "Play")));
+        }
+        else if (round.stage === "Finished") {
+            actions = (react.createElement("button", { className: "big", onClick: function () { return act("NextRound"); } }, game.round_number >= game.settings.rounds
+                ? "End match"
+                : "Next round"));
+        }
+    }
+    return (react.createElement("div", null,
+        react.createElement(DdzTitle, null),
+        react.createElement(src_Players, { players: players, observers: propagated.observers, landlord: landlord === null ? null : game.seats[landlord], next: round.turn === null || round.turn === undefined
+                ? null
+                : game.seats[round.turn], name: props.name, hideRank: true, scores: scores, landlordLabel: LANDLORD }),
+        react.createElement("div", { className: "ddz-table" },
+            seats,
+            react.createElement("div", { className: "labeled-play ddz-seat" },
+                react.createElement(Fan, { cards: round.bottom }),
+                react.createElement("div", { className: "label" }, "Bottom"))),
+        react.createElement("p", { className: "ddz-info" }, info.join(" · ")),
+        mySeat >= 0 ? react.createElement("div", { className: "ddz-actions" }, actions) : null,
+        mySeat >= 0 && round.stage !== "Finished" ? (react.createElement(ddz_DdzHand, { cards: hand, selected: selected, onSelect: setSelected })) : null));
+};
+/* harmony default export */ const ddz_DdzTable = (DdzTable);
+
 ;// ./src/Game.tsx
 var Game_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -8911,6 +9441,8 @@ var Game_generator = (undefined && undefined.__generator) || function (thisArg, 
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+
+
 
 
 
@@ -8988,7 +9520,11 @@ var Game = function (props) {
     };
     var phase;
     if ("Initialize" in gameState) {
-        phase = react.createElement(src_Initialize, { state: gameState.Initialize, name: seatNames[0] });
+        phase =
+            gameState.Initialize.propagated.player_mode === "DouDiZhu" ? (react.createElement(ddz_DdzLobby, { state: gameState.Initialize, name: seatNames[0] })) : (react.createElement(src_Initialize, { state: gameState.Initialize, name: seatNames[0] }));
+    }
+    else if ("Ddz" in gameState) {
+        phase = react.createElement(ddz_DdzTable, { state: gameState.Ddz, name: seatNames[0] });
     }
     else if (dualSeat && seats !== null) {
         // The board once, full width; the two seats side by side under it
@@ -9512,7 +10048,7 @@ var Timeout = function (props) {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"4574419b5f3a3438d95d"}[chunkId] + ".js";
+/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"4e95d985c0ac6d36f86f"}[chunkId] + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -9760,9 +10296,9 @@ var Timeout = function (props) {
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(4658)))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(6443)))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.de88a0e05508bc110a56.js.map
+//# sourceMappingURL=main.de2272c8fc1fc73b4d68.js.map

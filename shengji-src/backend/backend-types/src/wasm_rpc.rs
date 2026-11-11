@@ -204,6 +204,26 @@ pub enum WasmRpcRequest {
     ComputeScore(ComputeScoreRequest),
     ComputeDeckLen(ComputeDeckLenRequest),
     BatchGetCardInfo(BatchCardInfoRequest),
+    DdzPlays(DdzPlaysRequest),
+}
+
+/// Dou Di Zhu: is `selected` playable over `last` (any hand when leading),
+/// and what could be played from `hand`.
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
+pub struct DdzPlaysRequest {
+    #[serde(default)]
+    pub hand: Vec<Card>,
+    #[serde(default)]
+    pub selected: Vec<Card>,
+    #[serde(default)]
+    pub last: Option<shengji_ddz::Play>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
+pub struct DdzPlaysResponse {
+    /// What `selected` is, when it may be played now.
+    pub play: Option<shengji_ddz::Play>,
+    pub suggestions: Vec<Vec<Card>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
@@ -224,5 +244,6 @@ pub enum WasmRpcResponse {
     ComputeScore(ComputeScoreResponse),
     ComputeDeckLen(ComputeDeckLenResponse),
     BatchGetCardInfo(BatchCardInfoResponse),
+    DdzPlays(DdzPlaysResponse),
     Error(String),
 }

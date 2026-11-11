@@ -5,7 +5,7 @@
 /***/ ((module, exports, __webpack_require__) => {
 
 /* harmony import */ var WEBPACK_IMPORTED_MODULE_0 = __webpack_require__(9901);
-module.exports = __webpack_require__.v(exports, module.id, "d8468b0a237769ab81ca", {
+module.exports = __webpack_require__.v(exports, module.id, "ff18d88157e352d6594a", {
 	"./shengji-core_bg.js": {
 		"__wbg_new_227d7c05414eb861": WEBPACK_IMPORTED_MODULE_0/* .__wbg_new_227d7c05414eb861 */ .mX,
 		"__wbg_stack_3b0d974bbf31e44f": WEBPACK_IMPORTED_MODULE_0/* .__wbg_stack_3b0d974bbf31e44f */ .b9,
@@ -31,6 +31,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   can_play_cards: () => (/* reexport safe */ _shengji_core_bg_js__WEBPACK_IMPORTED_MODULE_0__.cd),
 /* harmony export */   compute_deck_len: () => (/* reexport safe */ _shengji_core_bg_js__WEBPACK_IMPORTED_MODULE_0__.Sz),
 /* harmony export */   compute_score: () => (/* reexport safe */ _shengji_core_bg_js__WEBPACK_IMPORTED_MODULE_0__.F3),
+/* harmony export */   ddz_plays: () => (/* reexport safe */ _shengji_core_bg_js__WEBPACK_IMPORTED_MODULE_0__.nz),
 /* harmony export */   decompose_trick_format: () => (/* reexport safe */ _shengji_core_bg_js__WEBPACK_IMPORTED_MODULE_0__.c$),
 /* harmony export */   explain_scoring: () => (/* reexport safe */ _shengji_core_bg_js__WEBPACK_IMPORTED_MODULE_0__.qX),
 /* harmony export */   find_valid_bids: () => (/* reexport safe */ _shengji_core_bg_js__WEBPACK_IMPORTED_MODULE_0__.c7),
@@ -80,6 +81,7 @@ __webpack_async_result__();
 /* harmony export */   lI: () => (/* binding */ __wbg_set_wasm),
 /* harmony export */   mX: () => (/* binding */ __wbg_new_227d7c05414eb861),
 /* harmony export */   mo: () => (/* binding */ zstd_decompress),
+/* harmony export */   nz: () => (/* binding */ ddz_plays),
 /* harmony export */   qX: () => (/* binding */ explain_scoring),
 /* harmony export */   rM: () => (/* binding */ sort_and_group_cards),
 /* harmony export */   sq: () => (/* binding */ __wbg___wbindgen_throw_5d9e815e6fdf150f)
@@ -114,6 +116,18 @@ function compute_deck_len(req) {
  */
 function compute_score(req) {
     const ret = wasm.compute_score(req);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
+ * @param {any} req
+ * @returns {any}
+ */
+function ddz_plays(req) {
+    const ret = wasm.ddz_plays(req);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
@@ -415,4 +429,4 @@ function __wbg_set_wasm(val) {
 /***/ })
 
 }]);
-//# sourceMappingURL=411.4574419b5f3a3438d95d.js.map
+//# sourceMappingURL=411.4e95d985c0ac6d36f86f.js.map

@@ -9,11 +9,13 @@ use shengji_mechanics::types::PlayerID;
 use crate::message::MessageVariant;
 use crate::settings::{PlayerMode, PropagatedState};
 
+pub mod ddz_phase;
 pub mod draw_phase;
 pub mod exchange_phase;
 pub mod initialize_phase;
 pub mod play_phase;
 
+use ddz_phase::DdzPhase;
 use draw_phase::DrawPhase;
 use exchange_phase::ExchangePhase;
 use initialize_phase::InitializePhase;
@@ -26,6 +28,7 @@ pub enum GameState {
     Draw(DrawPhase),
     Exchange(ExchangePhase),
     Play(PlayPhase),
+    Ddz(DdzPhase),
 }
 
 impl GameState {
@@ -34,6 +37,7 @@ impl GameState {
             GameState::Play(p) => Ok(p.next_player()?),
             GameState::Draw(p) => Ok(p.next_player()?),
             GameState::Exchange(p) => Ok(p.next_player()?),
+            GameState::Ddz(p) => Ok(p.next_player()?),
             _ => bail!("Not valid in this phase!"),
         }
     }
@@ -44,6 +48,7 @@ impl GameState {
             GameState::Draw(p) => p.propagated(),
             GameState::Exchange(p) => p.propagated(),
             GameState::Play(p) => p.propagated(),
+            GameState::Ddz(p) => p.propagated(),
         }
     }
 
@@ -94,6 +99,9 @@ impl GameState {
             GameState::Draw(ref mut p) => p.add_observer(name).map(|id| (id, vec![])),
             GameState::Exchange(ref mut p) => p.add_observer(name).map(|id| (id, vec![])),
             GameState::Play(ref mut p) => p.add_observer(name).map(|id| (id, vec![])),
+            GameState::Ddz(ref mut p) => {
+                p.propagated_mut().add_observer(name).map(|id| (id, vec![]))
+            }
         }
     }
 
@@ -115,6 +123,7 @@ impl GameState {
             GameState::Draw(ref mut p) => p.remove_observer(id).map(|()| vec![]),
             GameState::Exchange(ref mut p) => p.remove_observer(id).map(|()| vec![]),
             GameState::Play(ref mut p) => p.remove_observer(id).map(|()| vec![]),
+            GameState::Ddz(ref mut p) => p.propagated_mut().remove_observer(id).map(|()| vec![]),
         }
     }
 
@@ -124,6 +133,7 @@ impl GameState {
             GameState::Draw(ref mut p) => p.propagated_mut().set_chat_link(chat_link),
             GameState::Exchange(ref mut p) => p.propagated_mut().set_chat_link(chat_link),
             GameState::Play(ref mut p) => p.propagated_mut().set_chat_link(chat_link),
+            GameState::Ddz(ref mut p) => p.propagated_mut().set_chat_link(chat_link),
         }
     }
 
@@ -151,6 +161,13 @@ impl GameState {
                 }
                 Ok(m)
             }
+            GameState::Ddz(ref mut p) => {
+                let (s, m) = p.request_reset(player)?;
+                if let Some(s) = s {
+                    *self = GameState::Initialize(s);
+                }
+                Ok(m)
+            }
         }
     }
 
@@ -168,6 +185,11 @@ impl GameState {
                 }
             }
             GameState::Play(ref mut p) => {
+                if let Some(m) = p.cancel_reset() {
+                    return Ok(vec![m]);
+                }
+            }
+            GameState::Ddz(ref mut p) => {
                 if let Some(m) = p.cancel_reset() {
                     return Ok(vec![m]);
                 }
@@ -194,6 +216,9 @@ impl GameState {
             GameState::Play(ref mut p) => {
                 p.destructively_redact_for_players(ids);
             }
+            GameState::Ddz(ref mut p) => {
+                p.destructively_redact_for_players(ids);
+            }
         }
         s
     }
@@ -205,6 +230,7 @@ impl GameState {
             GameState::Draw(p) => p.reset_requester(),
             GameState::Exchange(p) => p.reset_requester(),
             GameState::Play(p) => p.reset_requester(),
+            GameState::Ddz(p) => p.reset_requester(),
         }
     }
 

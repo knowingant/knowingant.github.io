@@ -719,3 +719,105 @@ test("decide dispatches on the phase and describeState is readable", async () =>
   assert.match(describeState({ Play: playState() }, alice()), /^Play: queue=\[0,1,2,3\]/);
   assert.equal(describeState(null, alice()), "no state");
 });
+
+// ---------------------------------------------------------------------------
+// Dou Di Zhu
+
+import { decideDdz, decideDdzLobby, strength } from "../ddz.js";
+
+const ddzLobby = (players, extra = {}) => ({
+  propagated: {
+    players: players.map((id) => ({ id, name: `p${id}` })),
+    observers: [],
+    player_mode: "DouDiZhu",
+    rated: true,
+    start_votes: [],
+    ddz: { rounds: 6, bidding: "CallScore", doubling: true, multiplier_cap: null },
+    ...extra,
+  },
+});
+
+const ddzPhase = (round, settings = {}) => ({
+  propagated: { players: [0, 1, 2].map((id) => ({ id, name: `p${id}` })), observers: [] },
+  game: {
+    settings: { rounds: 3, bidding: "CallScore", doubling: true, multiplier_cap: null, ...settings },
+    seats: [0, 1, 2],
+    round_number: 1,
+    totals: [0, 0, 0],
+    round: {
+      hands: [[S("3")], [S("4")], [S("5")]],
+      bottom: [],
+      stage: "Playing",
+      turn: 0,
+      bids: [null, null, null],
+      caller: null,
+      stake: 0,
+      landlord: 0,
+      doubles: [null, null, null],
+      last_play: null,
+      table: [null, null, null],
+      ...round,
+    },
+  },
+});
+
+test("ddz lobby: the leader sets the settings, then everyone votes", () => {
+  const leader = newContext({ seats: [0], isLeader: true, ddz: { rounds: 3 } });
+  const other = newContext({ seats: [1], ddz: { rounds: 3 } });
+  let actions = decideDdzLobby(ddzLobby([0, 1, 2]), leader);
+  assert.deepEqual(actions[0].action.SetDdzSettings.rounds, 3);
+  const set = ddzLobby([0, 1, 2], {
+    ddz: { rounds: 3, bidding: "CallScore", doubling: true, multiplier_cap: null },
+  });
+  assert.deepEqual(decideDdzLobby(set, leader)[0].action, "StartGame");
+  assert.deepEqual(decideDdzLobby(set, other)[0].action, "StartGame");
+  assert.deepEqual(decideDdzLobby(ddzLobby([0, 1], { ddz: set.propagated.ddz }), other), []);
+  set.propagated.start_votes = [1];
+  assert.deepEqual(decideDdzLobby(set, other), []);
+});
+
+test("ddz: bids by strength, plays the first suggestion, passes otherwise", async () => {
+  assert.equal(strength([BIG_JOKER, SMALL_JOKER, S("2"), S("A")]), 10);
+  const ctx = newContext({ seats: [0], isLeader: true });
+  const strong = [BIG_JOKER, SMALL_JOKER, S("2"), H("2")];
+  let a = await decideDdz(ddzPhase({ stage: "Bidding", hands: [strong, [], []] }), ctx);
+  assert.deepEqual(a[0].action, { Ddz: { Bid: 3 } });
+  a = await decideDdz(ddzPhase({ stage: "Bidding", hands: [[S("3")], [], []] }), ctx);
+  assert.deepEqual(a[0].action, { Ddz: { Bid: 0 } });
+  a = await decideDdz(ddzPhase({ stage: "Bidding", turn: 1 }), ctx);
+  assert.deepEqual(a, []);
+
+  const rpc = async (type, body) => {
+    assert.equal(type, "DdzPlays");
+    return { play: null, suggestions: body.last ? [] : [[S("3")]] };
+  };
+  a = await decideDdz(ddzPhase({}), ctx, rpc);
+  assert.deepEqual(a[0].action, { Ddz: { Play: [S("3")] } });
+  const last = { seat: 2, cards: [S("5")], play: { kind: "Single", rank: 2, len: 1, size: 1 } };
+  a = await decideDdz(ddzPhase({ last_play: last }), ctx, rpc);
+  assert.deepEqual(a[0].action, { Ddz: "Pass" });
+  a = await decideDdz(ddzPhase({ stage: "Finished", turn: null }), ctx, rpc);
+  assert.deepEqual(a[0].action, { Ddz: "NextRound" });
+  a = await decideDdz(ddzPhase({ stage: "Finished", turn: null }), newContext({ seats: [1] }), rpc);
+  assert.deepEqual(a, []);
+});
+
+test("ddz broadcasts count rounds and matches", () => {
+  const ctx = newContext({});
+  const round = applyBroadcast(ctx, {
+    type: "DdzRoundFinished",
+    round: 1,
+    results: [{ name: "a", won: true, is_landlord: true, delta: 6 }],
+  });
+  assert.equal(round.kind, "round");
+  assert.equal(round.result.a.ranks_up, 6);
+  const match = applyBroadcast(ctx, {
+    type: "DdzMatchFinished",
+    match_key: "k",
+    rounds: 3,
+    standings: [{ name: "a", points: 6, place: 1 }],
+  });
+  assert.equal(match.kind, "match");
+  assert.equal(ctx.matchesFinished, 1);
+  assert.equal(describeStandings(match.standings), "1. a +6");
+});

@@ -30,6 +30,10 @@ pub struct Params {
     pub initial_rating: f64,
     /// Lowest possible rating (applied after the update).
     pub rating_floor: f64,
+    /// Dou Di Zhu: `K = ddz_k_per_round · rounds`.
+    pub ddz_k_per_round: f64,
+    /// Dou Di Zhu: a points gap of this much per round is a full margin.
+    pub ddz_margin_per_round: f64,
 }
 
 impl Default for Params {
@@ -39,6 +43,8 @@ impl Default for Params {
             elo_scale: 400.0,
             initial_rating: 1500.0,
             rating_floor: 0.0,
+            ddz_k_per_round: 8.0,
+            ddz_margin_per_round: 6.0,
         }
     }
 }
@@ -151,6 +157,73 @@ pub fn rate_match(params: &Params, target_levels: usize, standings: &[Standing])
             Change {
                 before: u.rating,
                 after,
+                score,
+                expected,
+            }
+        })
+        .collect()
+}
+
+/// One player's result in a Dou Di Zhu match.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PointsStanding {
+    /// Rating before the match.
+    pub rating: f64,
+    /// Match total (the three totals sum to zero).
+    pub points: i64,
+}
+
+/// Rate a Dou Di Zhu match of `rounds` rounds (`../RATINGS.md`, "Dou Di
+/// Zhu"). Every player is scored against each of the others as in
+/// [`rate_match`], with the points gap as the margin:
+///
+/// * `m_uv = (S_u − S_v) / (ddz_margin_per_round · rounds)`, clamped to ±1,
+/// * `Δ_u = K · mean_v (s_uv − E_uv)` with `K = ddz_k_per_round · rounds`,
+/// * first place never loses points and last place never gains any; the
+///   middle seat moves either way.
+pub fn rate_points_match(
+    params: &Params,
+    rounds: usize,
+    standings: &[PointsStanding],
+) -> Vec<Change> {
+    let rounds = rounds.max(1) as f64;
+    let k = params.ddz_k_per_round * rounds;
+    let full = params.ddz_margin_per_round * rounds;
+    let best = standings.iter().map(|s| s.points).max();
+    let worst = standings.iter().map(|s| s.points).min();
+    standings
+        .iter()
+        .enumerate()
+        .map(|(i, u)| {
+            let mut n = 0usize;
+            let mut sum_s = 0.0;
+            let mut sum_e = 0.0;
+            for (_, v) in standings.iter().enumerate().filter(|(j, _)| *j != i) {
+                sum_s += score_for_margin((u.points - v.points) as f64 / full);
+                sum_e += expected_score(params, u.rating, v.rating);
+                n += 1;
+            }
+            if n == 0 {
+                return Change {
+                    before: u.rating,
+                    after: u.rating,
+                    score: 0.5,
+                    expected: 0.5,
+                };
+            }
+            let score = sum_s / n as f64;
+            let expected = sum_e / n as f64;
+            let mut after = u.rating + k * (score - expected);
+            if best != worst {
+                if Some(u.points) == best {
+                    after = after.max(u.rating);
+                } else if Some(u.points) == worst {
+                    after = after.min(u.rating);
+                }
+            }
+            Change {
+                before: u.rating,
+                after: after.max(params.rating_floor),
                 score,
                 expected,
             }
@@ -325,5 +398,70 @@ mod tests {
         // below zero gets floored.
         let c = two(0, 3, 0.005, 1500.0, 3);
         assert_eq!(c[0].after, 0.0);
+    }
+
+    fn ddz(rounds: usize, players: &[(f64, i64)]) -> Vec<f64> {
+        let standings: Vec<PointsStanding> = players
+            .iter()
+            .map(|(rating, points)| PointsStanding {
+                rating: *rating,
+                points: *points,
+            })
+            .collect();
+        rate_points_match(&p(), rounds, &standings)
+            .iter()
+            .map(|c| (c.delta() * 10.0).round() / 10.0)
+            .collect()
+    }
+
+    // The tables in RATINGS.md ("Dou Di Zhu").
+    #[test]
+    fn ddz_equal_ratings_six_rounds() {
+        let e = 1500.0;
+        assert_eq!(
+            ddz(6, &[(e, 30), (e, -6), (e, -24)]),
+            vec![24.0, -0.6, -23.4]
+        );
+        assert_eq!(ddz(6, &[(e, 4), (e, 2), (e, -6)]), vec![22.0, 0.2, -22.2]);
+        assert_eq!(
+            ddz(6, &[(e, 12), (e, 12), (e, -24)]),
+            vec![12.0, 12.0, -24.0]
+        );
+        assert_eq!(ddz(6, &[(e, 0), (e, 0), (e, 0)]), vec![0.0, 0.0, 0.0]);
+    }
+
+    #[test]
+    fn ddz_unequal_ratings() {
+        assert_eq!(
+            ddz(6, &[(1700.0, 30), (1500.0, -6), (1500.0, -24)]),
+            vec![11.5, 5.6, -17.2]
+        );
+        assert_eq!(
+            ddz(6, &[(1500.0, 30), (1500.0, -6), (1700.0, -24)]),
+            vec![30.2, 5.6, -35.9]
+        );
+    }
+
+    #[test]
+    fn ddz_k_grows_with_rounds() {
+        let e = 1500.0;
+        for (rounds, win) in [(3, 12.0), (6, 24.0), (9, 36.0), (12, 48.0)] {
+            let big = 100 * rounds as i64;
+            assert_eq!(ddz(rounds, &[(e, big), (e, 0), (e, -big)])[0], win);
+        }
+    }
+
+    #[test]
+    fn ddz_first_never_loses_last_never_gains_middle_moves() {
+        // A heavy favourite who only just comes first would lose points on
+        // expectation alone; the clamp holds them at zero.
+        let c = ddz(6, &[(2300.0, 1), (1500.0, 0), (1500.0, -1)]);
+        assert_eq!(c[0], 0.0);
+        // The same favourite in the middle is not protected.
+        let c = ddz(6, &[(1500.0, 1), (2300.0, 0), (1500.0, -1)]);
+        assert!(c[1] < -10.0, "{c:?}");
+        // An underdog who comes last would gain on expectation alone.
+        let c = ddz(6, &[(2300.0, 1), (2300.0, 0), (700.0, -1)]);
+        assert_eq!(c[2], 0.0);
     }
 }

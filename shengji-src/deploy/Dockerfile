@@ -20,6 +20,7 @@ COPY shengji-src/Cargo.toml shengji-src/Cargo.lock ./
 COPY shengji-src/backend/Cargo.toml backend/Cargo.toml
 COPY shengji-src/backend/backend-types/Cargo.toml backend/backend-types/Cargo.toml
 COPY shengji-src/core/Cargo.toml core/Cargo.toml
+COPY shengji-src/ddz/Cargo.toml ddz/Cargo.toml
 COPY shengji-src/mechanics/Cargo.toml mechanics/Cargo.toml
 COPY shengji-src/rating/Cargo.toml rating/Cargo.toml
 COPY shengji-src/storage/Cargo.toml storage/Cargo.toml
@@ -27,17 +28,18 @@ COPY shengji-src/wasm-rpc-impl/Cargo.toml wasm-rpc-impl/Cargo.toml
 COPY shengji-src/frontend/json-schema-bin/Cargo.toml frontend/json-schema-bin/Cargo.toml
 COPY shengji-src/frontend/shengji-wasm/Cargo.toml frontend/shengji-wasm/Cargo.toml
 # Dummy sources so `cargo build` can resolve the workspace and compile deps.
-RUN mkdir -p backend/src backend/backend-types/src core/src mechanics/src rating/src \
+RUN mkdir -p backend/src backend/backend-types/src core/src ddz/src mechanics/src rating/src \
       storage/src wasm-rpc-impl/src frontend/json-schema-bin/src frontend/shengji-wasm/src \
     && echo 'fn main() {}' > backend/src/main.rs \
     && echo 'fn main() {}' > frontend/json-schema-bin/src/main.rs \
-    && for d in backend/backend-types core mechanics rating storage wasm-rpc-impl frontend/shengji-wasm; do echo '' > $d/src/lib.rs; done \
+    && for d in backend/backend-types core ddz mechanics rating storage wasm-rpc-impl frontend/shengji-wasm; do echo '' > $d/src/lib.rs; done \
     && touch backend/backend-types/dict.zstd \
     && cargo build --release --bin shengji 2>/dev/null || true
 
 # Real sources.
 COPY shengji-src/backend backend
 COPY shengji-src/core core
+COPY shengji-src/ddz ddz
 COPY shengji-src/mechanics mechanics
 COPY shengji-src/rating rating
 COPY shengji-src/storage storage
@@ -46,7 +48,7 @@ COPY shengji-src/frontend/json-schema-bin frontend/json-schema-bin
 COPY shengji-src/frontend/shengji-wasm frontend/shengji-wasm
 # The backend's tests reference this file; keep the path valid for cargo.
 COPY shengji-src/frontend/src/generated frontend/src/generated
-RUN touch backend/src/main.rs backend/backend-types/src/lib.rs core/src/lib.rs \
+RUN touch backend/src/main.rs backend/backend-types/src/lib.rs core/src/lib.rs ddz/src/lib.rs \
       mechanics/src/lib.rs rating/src/lib.rs storage/src/lib.rs wasm-rpc-impl/src/lib.rs \
     && cargo build --release --bin shengji
 

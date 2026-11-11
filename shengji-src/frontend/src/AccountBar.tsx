@@ -57,6 +57,10 @@ const AccountBar = (): JSX.Element | null => {
             1v1{" "}
             <strong>{api.formatRatingWithRecord(user.ratings["1v1"])}</strong>
           </span>
+          <span>
+            斗地主{" "}
+            <strong>{api.formatRatingWithRecord(user.ratings.ddz)}</strong>
+          </span>
         </span>
         <span className="account-actions">
           <a href={`#user/${encodeURIComponent(user.username)}`}>

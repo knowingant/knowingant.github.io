@@ -234,6 +234,83 @@ pub enum MessageVariant {
     CompoundFormatsSet {
         compound_formats: CompoundFormats,
     },
+    DdzSettingsSet {
+        settings: shengji_ddz::Settings,
+    },
+    DdzMatchStarted {
+        rounds: usize,
+    },
+    DdzBid {
+        value: u8,
+        method: shengji_ddz::BiddingMethod,
+        /// Grab bidding: someone had already called.
+        grab: bool,
+    },
+    DdzRedeal,
+    DdzLandlord {
+        landlord: PlayerID,
+        stake: u32,
+    },
+    DdzDoubles {
+        players: Vec<PlayerID>,
+    },
+    DdzRedouble {
+        redoubled: bool,
+    },
+    DdzBottom {
+        cards: Vec<Card>,
+    },
+    DdzPassed,
+    DdzRoundFinished {
+        round_key: String,
+        match_key: String,
+        round: usize,
+        landlord: PlayerID,
+        landlord_won: bool,
+        stake: u32,
+        bombs: u32,
+        spring: bool,
+        results: Vec<DdzSeatResult>,
+    },
+    DdzNextRound {
+        round: usize,
+    },
+    DdzMatchFinished {
+        match_key: String,
+        rounds: usize,
+        standings: Vec<DdzStanding>,
+    },
+    DdzMatchAbandoned,
+}
+
+/// One player's result in a Dou Di Zhu round.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct DdzSeatResult {
+    pub player: PlayerID,
+    pub name: String,
+    pub is_landlord: bool,
+    pub won: bool,
+    pub delta: i64,
+    /// Match total after this round.
+    pub total: i64,
+}
+
+/// One player's final standing in a Dou Di Zhu match, best first.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct DdzStanding {
+    pub player: PlayerID,
+    pub name: String,
+    pub points: i64,
+    /// 1 to 3; ties share a place.
+    pub place: usize,
+}
+
+fn signed(n: i64) -> String {
+    if n > 0 {
+        format!("+{n}")
+    } else {
+        n.to_string()
+    }
 }
 
 impl MessageVariant {
@@ -448,6 +525,35 @@ impl MessageVariant {
                 format!("{} enabled rainbow tricks (minimum {} cards)", n?, n_cards),
             CompoundFormatsSet { compound_formats: CompoundFormats { rainbows: None } } =>
                 format!("{} disabled rainbow tricks", n?),
+            DdzSettingsSet { .. } => format!("{} changed the settings", n?),
+            DdzMatchStarted { rounds } => format!("Match started: {rounds} rounds"),
+            DdzBid { value: 0, .. } => format!("{} passed", n?),
+            DdzBid { method: shengji_ddz::BiddingMethod::CallScore, value, .. } => format!("{} bid {value}", n?),
+            DdzBid { grab: false, .. } => format!("{} called", n?),
+            DdzBid { grab: true, .. } => format!("{} grabbed", n?),
+            DdzRedeal => "Nobody bid: redeal".to_string(),
+            DdzLandlord { landlord, stake } => format!("{} is the landlord at {stake}", player_name(*landlord)?),
+            DdzDoubles { players } if players.is_empty() => "Nobody doubled".to_string(),
+            DdzDoubles { players } => format!(
+                "{} doubled",
+                players.iter().map(|p| player_name(*p)).collect::<Result<Vec<_>, _>>()?.join(" and ")
+            ),
+            DdzRedouble { redoubled: true } => format!("{} redoubled", n?),
+            DdzRedouble { redoubled: false } => format!("{} did not redouble", n?),
+            DdzBottom { ref cards } => format!("Bottom: {}", cards.iter().map(|c| c.as_char()).collect::<String>()),
+            DdzPassed => format!("{} passed", n?),
+            DdzRoundFinished { round, landlord, landlord_won, results, .. } => format!(
+                "Round {round}: {} {}. {}",
+                player_name(*landlord)?,
+                if *landlord_won { "won" } else { "lost" },
+                results.iter().map(|r| format!("{} {}", r.name, signed(r.delta))).collect::<Vec<_>>().join(", ")
+            ),
+            DdzNextRound { round } => format!("Round {round}"),
+            DdzMatchFinished { standings, .. } => format!(
+                "Match over: {}",
+                standings.iter().map(|s| format!("{} {}", s.name, signed(s.points))).collect::<Vec<_>>().join(", ")
+            ),
+            DdzMatchAbandoned => "Match abandoned".to_string(),
         })
     }
 }

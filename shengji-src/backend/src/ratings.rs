@@ -13,9 +13,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use slog::error;
 
+use shengji_core::message::{DdzSeatResult, DdzStanding};
 use shengji_core::settings::{GameModeSettings, MatchStanding, PlayerMode};
 use shengji_mechanics::types::Rank;
-use shengji_rating::{rate_match, Change, Standing};
+use shengji_rating::{rate_match, rate_points_match, Change, PointsStanding, Standing};
 use shengji_types::{RatingChange, RatingMode, RatingView};
 
 use crate::auth::{self, ApiError};
@@ -423,18 +424,271 @@ pub fn apply_match(db: &Db, config: &Config, outcome: &MatchOutcome) -> DbResult
 /// A ladder row after one more rated match: new rating, and the match
 /// counted as a win, loss or draw by the mean score.
 fn rated_row(row: &db::RatingRow, change: &Change, at: i64) -> db::RatingRow {
+    let result = if change.score > 0.5 {
+        "won"
+    } else if change.score < 0.5 {
+        "lost"
+    } else {
+        "drawn"
+    };
+    rated_row_with_result(row, change, at, result)
+}
+
+/// As [`rated_row`], with the win / loss / draw decided by the caller.
+fn rated_row_with_result(
+    row: &db::RatingRow,
+    change: &Change,
+    at: i64,
+    result: &str,
+) -> db::RatingRow {
     let mut new_row = row.clone();
     new_row.rating = change.after;
     new_row.matches += 1;
-    if change.score > 0.5 {
-        new_row.wins += 1;
-    } else if change.score < 0.5 {
-        new_row.losses += 1;
-    } else {
-        new_row.draws += 1;
+    match result {
+        "won" => new_row.wins += 1,
+        "lost" => new_row.losses += 1,
+        _ => new_row.draws += 1,
     }
     new_row.updated_at = Some(at);
     new_row
+}
+
+// ---------------------------------------------------------------------------
+// Dou Di Zhu
+// ---------------------------------------------------------------------------
+
+/// A finished Dou Di Zhu round (from `DdzRoundFinished`).
+#[derive(Clone, Debug, PartialEq)]
+pub struct DdzRoundOutcome {
+    pub room: String,
+    pub round_key: String,
+    pub match_key: String,
+    pub landlord_won: bool,
+    pub stake: u32,
+    pub results: Vec<DdzSeatResult>,
+}
+
+/// A finished Dou Di Zhu match (from `DdzMatchFinished`).
+#[derive(Clone, Debug, PartialEq)]
+pub struct DdzMatchOutcome {
+    pub room: String,
+    pub match_key: String,
+    /// The room's `rated` setting.
+    pub rated: bool,
+    pub rounds: usize,
+    /// Best first.
+    pub standings: Vec<DdzStanding>,
+}
+
+/// "won" for the best total, "lost" for the worst, "drawn" in between (and
+/// for everyone when all totals are equal).
+pub fn ddz_results(points: &[i64]) -> Vec<&'static str> {
+    let best = points.iter().max().copied();
+    let worst = points.iter().min().copied();
+    points
+        .iter()
+        .map(|p| {
+            if best == worst {
+                "drawn"
+            } else if Some(*p) == best {
+                "won"
+            } else if Some(*p) == worst {
+                "lost"
+            } else {
+                "drawn"
+            }
+        })
+        .collect()
+}
+
+/// Record a finished Dou Di Zhu round for statistics. `levels_gained` holds
+/// the player's points for the round.
+pub fn record_ddz_round(db: &Db, outcome: &DdzRoundOutcome) -> DbResult<Option<i64>> {
+    let names: Vec<String> = outcome.results.iter().map(|r| r.name.clone()).collect();
+    db.transaction(|tx| {
+        let users = db::get_users_by_usernames(tx, &names)?;
+        let mut players = Vec::with_capacity(outcome.results.len());
+        for r in &outcome.results {
+            match users.get(&r.name) {
+                Some(u) => players.push(RoundPlayerRecord {
+                    user_id: u.id,
+                    is_defender: r.is_landlord,
+                    is_landlord: r.is_landlord,
+                    won: r.won,
+                    levels_gained: r.delta,
+                }),
+                None => return Ok(None),
+            }
+        }
+        let farmers: i64 = outcome
+            .results
+            .iter()
+            .filter(|r| !r.is_landlord)
+            .map(|r| r.delta)
+            .sum();
+        match db::insert_round(
+            tx,
+            &RoundRecord {
+                round_key: outcome.round_key.clone(),
+                match_key: outcome.match_key.clone(),
+                room: outcome.room.clone(),
+                mode: RatingMode::Ddz,
+                played_at: db::now_secs(),
+                landlord_won: outcome.landlord_won,
+                level_delta: i64::from(outcome.stake),
+                non_landlords_points: farmers,
+            },
+            &players,
+        ) {
+            Ok(id) => Ok(Some(id)),
+            Err(DbError::Duplicate) => Ok(None),
+            Err(e) => Err(e),
+        }
+    })
+}
+
+/// Record a finished Dou Di Zhu match and, when the room is rated, apply the
+/// rating changes (one transaction, idempotent on `match_key`). In the
+/// `matches` tables `first_to_rank` holds the number of rounds, `levels` the
+/// points and `final_rank` the place.
+pub fn apply_ddz_match(
+    db: &Db,
+    config: &Config,
+    outcome: &DdzMatchOutcome,
+) -> DbResult<MatchResult> {
+    let users = &outcome.standings;
+    if users.is_empty() {
+        return Ok(MatchResult::Skipped("no players".to_string()));
+    }
+    let names: Vec<String> = users.iter().map(|u| u.name.clone()).collect();
+    let mode = RatingMode::Ddz;
+    let params = &config.rating_params;
+    let points: Vec<i64> = users.iter().map(|u| u.points).collect();
+    let results = ddz_results(&points);
+    let mut reason = if !outcome.rated {
+        Some("this room is unrated".to_string())
+    } else if users.len() != 3 {
+        Some("Dou Di Zhu matches need exactly 3 players".to_string())
+    } else {
+        None
+    };
+
+    db.transaction(|tx| {
+        if db::match_exists(tx, &outcome.match_key)? {
+            return Ok(MatchResult::Skipped(
+                "this match was already recorded".to_string(),
+            ));
+        }
+        let accounts = db::get_users_by_usernames(tx, &names)?;
+        let mut ids = Vec::with_capacity(users.len());
+        for u in users {
+            match accounts.get(&u.name) {
+                Some(a) => ids.push(a.id),
+                None => {
+                    return Ok(MatchResult::Skipped(format!(
+                        "{} is not a registered account",
+                        u.name
+                    )))
+                }
+            }
+        }
+        if reason.is_none() {
+            if let Some((a, b, _)) = db::shared_devices(tx, &ids, SHARED_DEVICE_WINDOW_SECS)?
+                .into_iter()
+                .next()
+            {
+                let name = |id: i64| {
+                    users
+                        .iter()
+                        .zip(ids.iter())
+                        .find(|(_, i)| **i == id)
+                        .map(|(u, _)| u.name.clone())
+                        .unwrap_or_default()
+                };
+                reason = Some(format!(
+                    "{} and {} played from the same device",
+                    name(a),
+                    name(b)
+                ));
+            }
+        }
+        let apply = reason.is_none();
+        let now = db::now_secs();
+        let rows: Vec<db::RatingRow> = ids
+            .iter()
+            .map(|&id| db::get_rating(tx, id, mode, params))
+            .collect::<DbResult<_>>()?;
+        let changes = if apply {
+            let standings: Vec<PointsStanding> = users
+                .iter()
+                .zip(rows.iter())
+                .map(|(u, r)| PointsStanding {
+                    rating: r.rating,
+                    points: u.points,
+                })
+                .collect();
+            rate_points_match(params, outcome.rounds, &standings)
+        } else {
+            vec![]
+        };
+        let mut players = Vec::with_capacity(users.len());
+        let mut change_views = Vec::with_capacity(users.len());
+        for (i, u) in users.iter().enumerate() {
+            let (before, after, score) = if apply {
+                let c = changes[i];
+                db::upsert_rating(tx, &rated_row_with_result(&rows[i], &c, now, results[i]))?;
+                let b = c.before.round() as i64;
+                let a = c.after.round() as i64;
+                change_views.push(RatingChange {
+                    username: u.name.clone(),
+                    before: b,
+                    after: a,
+                    delta: a - b,
+                    levels: u.points,
+                    score: c.score,
+                });
+                (Some(c.before), Some(c.after), Some(c.score))
+            } else {
+                (None, None, None)
+            };
+            players.push(MatchPlayerRecord {
+                user_id: ids[i],
+                side: i as i64,
+                levels: u.points,
+                final_rank: u.place.to_string(),
+                result: results[i].to_string(),
+                rating_before: before,
+                rating_after: after,
+                score,
+            });
+        }
+        let match_id = db::insert_match(
+            tx,
+            &MatchRecord {
+                match_key: outcome.match_key.clone(),
+                room: outcome.room.clone(),
+                mode,
+                rated: outcome.rated,
+                rating_applied: apply,
+                first_to_rank: outcome.rounds.to_string(),
+                finished_at: now,
+                rounds: outcome.rounds as i64,
+            },
+            &players,
+        )?;
+        Ok(if apply {
+            MatchResult::Rated {
+                match_id,
+                mode,
+                changes: change_views,
+            }
+        } else {
+            MatchResult::Recorded {
+                match_id,
+                reason: reason.clone().unwrap_or_default(),
+            }
+        })
+    })
 }
 
 /// One match's rating changes as rewritten by [`replay_ratings`]: per user,
@@ -466,29 +720,56 @@ pub fn replay_ratings(db: &Db, config: &Config) -> DbResult<Vec<ReplayedMatch>> 
         db::clear_ratings(tx)?;
         let mut report = Vec::with_capacity(matches.len());
         for m in &matches {
-            let t = Rank::from_str(&m.first_to_rank)
-                .map(|r| r.index())
-                .unwrap_or(1)
-                .max(1);
             let rows: Vec<db::RatingRow> = m
                 .players
                 .iter()
                 .map(|p| db::get_rating(tx, p.user_id, m.mode, params))
                 .collect::<DbResult<_>>()?;
-            let standings: Vec<Standing> = m
+            // Dou Di Zhu: wins and losses go by place, not by mean score.
+            let mut ddz_result = None;
+            let changes = if m.mode == RatingMode::Ddz {
+                let standings: Vec<PointsStanding> = m
+                    .players
+                    .iter()
+                    .zip(rows.iter())
+                    .map(|(p, r)| PointsStanding {
+                        rating: r.rating,
+                        points: p.levels,
+                    })
+                    .collect();
+                let points: Vec<i64> = m.players.iter().map(|p| p.levels).collect();
+                ddz_result = Some(ddz_results(&points));
+                rate_points_match(params, m.rounds.max(1) as usize, &standings)
+            } else {
+                let t = Rank::from_str(&m.first_to_rank)
+                    .map(|r| r.index())
+                    .unwrap_or(1)
+                    .max(1);
+                let standings: Vec<Standing> = m
+                    .players
+                    .iter()
+                    .zip(rows.iter())
+                    .map(|(p, r)| Standing {
+                        rating: r.rating,
+                        levels: p.levels.max(0) as usize,
+                        side: p.side.max(0) as usize,
+                    })
+                    .collect();
+                rate_match(params, t, &standings)
+            };
+            let mut players = Vec::with_capacity(m.players.len());
+            for (i, ((p, row), c)) in m
                 .players
                 .iter()
                 .zip(rows.iter())
-                .map(|(p, r)| Standing {
-                    rating: r.rating,
-                    levels: p.levels.max(0) as usize,
-                    side: p.side.max(0) as usize,
-                })
-                .collect();
-            let changes = rate_match(params, t, &standings);
-            let mut players = Vec::with_capacity(m.players.len());
-            for ((p, row), c) in m.players.iter().zip(rows.iter()).zip(changes.iter()) {
-                db::upsert_rating(tx, &rated_row(row, c, m.finished_at))?;
+                .zip(changes.iter())
+                .enumerate()
+            {
+                let new_row = match &ddz_result {
+                    Some(results) => rated_row_with_result(row, c, m.finished_at, results[i]),
+                    None => rated_row(row, c, m.finished_at),
+                };
+                db::upsert_rating(tx, &new_row)?;
                 db::update_match_player_rating(tx, m.id, p.user_id, c.before, c.after, c.score)?;
                 players.push(ReplayedPlayer {
                     username: p.username.clone(),
@@ -580,7 +861,7 @@ async fn leaderboard(
         .as_deref()
         .unwrap_or("team")
         .parse()
-        .map_err(|_| ApiError::bad_request("mode must be team or 1v1"))?;
+        .map_err(|_| ApiError::bad_request("mode must be team, 1v1 or ddz"))?;
     let limit = match q.limit.as_deref() {
         None => DEFAULT_LEADERBOARD_LIMIT,
         Some(s) => s
@@ -597,9 +878,10 @@ async fn leaderboard(
 /// The account page payload (DESIGN.md, "Account pages").
 pub fn profile_view(db: &Db, config: &Config, user: &db::User) -> DbResult<Value> {
     let mut v = auth::user_view(db, config, user);
-    let (stats, recent) = db.with(|c| {
+    let (stats, ddz_stats, recent) = db.with(|c| {
         Ok((
-            db::user_stats(c, user.id)?,
+            db::user_stats(c, user.id, false)?,
+            db::user_stats(c, user.id, true)?,
             db::recent_matches_for_user(c, user.id, RECENT_MATCHES)?,
         ))
     })?;
@@ -641,6 +923,7 @@ pub fn profile_view(db: &Db, config: &Config, user: &db::User) -> DbResult<Value
         .collect();
     if let Some(obj) = v.as_object_mut() {
         obj.insert("stats".to_string(), json!(stats));
+        obj.insert("ddz_stats".to_string(), json!(ddz_stats));
         obj.insert("recent_matches".to_string(), json!(recent));
     }
     Ok(v)
@@ -882,7 +1165,7 @@ mod tests {
             .with(|c| db::get_user_by_username(c, "alice"))
             .unwrap()
             .unwrap();
-        let stats = db.with(|c| db::user_stats(c, u.id)).unwrap();
+        let stats = db.with(|c| db::user_stats(c, u.id, false)).unwrap();
         assert_eq!(
             (stats.matches, stats.matches_won, stats.rated_matches),
             (2, 2, 0)
@@ -995,7 +1278,7 @@ mod tests {
             .with(|c| db::get_user_by_username(c, "alice"))
             .unwrap()
             .unwrap();
-        let stats = db.with(|c| db::user_stats(c, a.id)).unwrap();
+        let stats = db.with(|c| db::user_stats(c, a.id, false)).unwrap();
         assert_eq!(
             (
                 stats.rounds,
@@ -1005,5 +1288,188 @@ mod tests {
             ),
             (1, 1, 1, 2)
         );
+    }
+
+    fn ddz_outcome(rated: bool, key: &str, totals: [(&str, i64); 3]) -> DdzMatchOutcome {
+        let mut standings: Vec<DdzStanding> = totals
+            .iter()
+            .enumerate()
+            .map(|(i, (name, points))| DdzStanding {
+                player: PlayerID(i),
+                name: name.to_string(),
+                points: *points,
+                place: 1 + totals.iter().filter(|(_, p)| p > points).count(),
+            })
+            .collect();
+        standings.sort_by_key(|s| std::cmp::Reverse(s.points));
+        DdzMatchOutcome {
+            room: "0123456789abcdef".to_string(),
+            match_key: key.to_string(),
+            rated,
+            rounds: 6,
+            standings,
+        }
+    }
+
+    #[test]
+    fn ddz_match_is_rated_on_its_own_ladder_once() {
+        let db = Db::open_in_memory().unwrap();
+        let cfg = config();
+        make_users(&db, &["alice", "bob", "carol"]);
+        let outcome = ddz_outcome(true, "d1", [("alice", 30), ("bob", -6), ("carol", -24)]);
+        let changes = match apply_ddz_match(&db, &cfg, &outcome).unwrap() {
+            MatchResult::Rated { mode, changes, .. } => {
+                assert_eq!(mode, RatingMode::Ddz);
+                changes
+            }
+            other => panic!("{:?}", other),
+        };
+        let by_name = |n: &str| changes.iter().find(|c| c.username == n).unwrap();
+        assert_eq!(by_name("alice").after, 1524);
+        assert_eq!(by_name("bob").after, 1499);
+        assert_eq!(by_name("carol").after, 1477);
+        assert_eq!(by_name("alice").levels, 30);
+        assert!(matches!(
+            apply_ddz_match(&db, &cfg, &outcome).unwrap(),
+            MatchResult::Skipped(_)
+        ));
+
+        // First place is a win, last a loss, the middle a draw.
+        let ladder = leaderboard_view(&db, RatingMode::Ddz, 10).unwrap();
+        let row = |n: &str| ladder.iter().find(|e| e.username == n).unwrap();
+        assert_eq!((row("alice").wins, row("alice").losses), (1, 0));
+        assert_eq!(
+            (row("bob").wins, row("bob").losses, row("bob").draws),
+            (0, 0, 1)
+        );
+        assert_eq!((row("carol").wins, row("carol").losses), (0, 1));
+        // The other ladders are untouched.
+        assert!(leaderboard_view(&db, RatingMode::Team, 10)
+            .unwrap()
+            .is_empty());
+        assert!(leaderboard_view(&db, RatingMode::OneVsOne, 10)
+            .unwrap()
+            .is_empty());
+
+        let alice = db
+            .with(|c| db::get_user_by_username(c, "alice"))
+            .unwrap()
+            .unwrap();
+        let profile = profile_view(&db, &cfg, &alice).unwrap();
+        assert_eq!(profile["ratings"]["ddz"]["rating"], 1524);
+        assert_eq!(profile["ratings"]["team"]["matches"], 0);
+        assert_eq!(profile["ddz_stats"]["matches"], 1);
+        assert_eq!(profile["ddz_stats"]["matches_won"], 1);
+        assert_eq!(profile["stats"]["matches"], 0);
+        let recent = &profile["recent_matches"][0];
+        assert_eq!(recent["mode"], "ddz");
+        assert_eq!(recent["levels"], 30);
+        assert_eq!(recent["result"], "won");
+        assert_eq!(recent["delta"], 24);
+        assert_eq!(recent["rounds"], 6);
+    }
+
+    #[test]
+    fn ddz_unrated_and_short_matches_are_recorded_without_rating() {
+        let db = Db::open_in_memory().unwrap();
+        let cfg = config();
+        make_users(&db, &["alice", "bob", "carol"]);
+        let outcome = ddz_outcome(false, "d1", [("alice", 3), ("bob", 0), ("carol", -3)]);
+        assert!(matches!(
+            apply_ddz_match(&db, &cfg, &outcome).unwrap(),
+            MatchResult::Recorded { .. }
+        ));
+        assert!(leaderboard_view(&db, RatingMode::Ddz, 10)
+            .unwrap()
+            .is_empty());
+        let mut outcome = ddz_outcome(true, "d2", [("alice", 3), ("bob", 0), ("dave", -3)]);
+        assert!(matches!(
+            apply_ddz_match(&db, &cfg, &outcome).unwrap(),
+            MatchResult::Skipped(_)
+        ));
+        outcome.standings.pop();
+        outcome.match_key = "d3".to_string();
+        assert!(matches!(
+            apply_ddz_match(&db, &cfg, &outcome).unwrap(),
+            MatchResult::Recorded { .. }
+        ));
+    }
+
+    #[test]
+    fn replay_covers_both_games() {
+        let db = Db::open_in_memory().unwrap();
+        let cfg = config();
+        make_users(&db, &["alice", "bob", "carol"]);
+        apply_match(&db, &cfg, &outcome_1v1(true, "r1")).unwrap();
+        apply_ddz_match(
+            &db,
+            &cfg,
+            &ddz_outcome(true, "d1", [("alice", 30), ("bob", -6), ("carol", -24)]),
+        )
+        .unwrap();
+        apply_ddz_match(
+            &db,
+            &cfg,
+            &ddz_outcome(true, "d2", [("alice", -8), ("bob", 4), ("carol", 4)]),
+        )
+        .unwrap();
+        let snapshot = |db: &Db, mode: RatingMode| -> Vec<(String, i64, i64, i64, i64, i64)> {
+            leaderboard_view(db, mode, 10)
+                .unwrap()
+                .into_iter()
+                .map(|e| (e.username, e.rating, e.matches, e.wins, e.losses, e.draws))
+                .collect()
+        };
+        let ddz_before = snapshot(&db, RatingMode::Ddz);
+        let one_before = snapshot(&db, RatingMode::OneVsOne);
+        let report = replay_ratings(&db, &cfg).unwrap();
+        assert_eq!(report.len(), 3);
+        for m in &report {
+            for p in &m.players {
+                assert_eq!(p.stored, Some(p.replayed));
+            }
+        }
+        assert_eq!(snapshot(&db, RatingMode::Ddz), ddz_before);
+        assert_eq!(snapshot(&db, RatingMode::OneVsOne), one_before);
+    }
+
+    #[test]
+    fn ddz_rounds_are_kept_apart_from_tractor_statistics() {
+        let db = Db::open_in_memory().unwrap();
+        make_users(&db, &["alice", "bob", "carol"]);
+        let result = |i: usize, name: &str, landlord: bool, delta: i64| DdzSeatResult {
+            player: PlayerID(i),
+            name: name.to_string(),
+            is_landlord: landlord,
+            won: delta > 0,
+            delta,
+            total: delta,
+        };
+        let outcome = DdzRoundOutcome {
+            room: "0123456789abcdef".to_string(),
+            round_key: "k1".to_string(),
+            match_key: "m1".to_string(),
+            landlord_won: true,
+            stake: 3,
+            results: vec![
+                result(0, "alice", true, 12),
+                result(1, "bob", false, -6),
+                result(2, "carol", false, -6),
+            ],
+        };
+        assert!(record_ddz_round(&db, &outcome).unwrap().is_some());
+        assert!(record_ddz_round(&db, &outcome).unwrap().is_none());
+        let alice = db
+            .with(|c| db::get_user_by_username(c, "alice"))
+            .unwrap()
+            .unwrap();
+        let ddz = db.with(|c| db::user_stats(c, alice.id, true)).unwrap();
+        assert_eq!((ddz.rounds, ddz.rounds_won), (1, 1));
+        assert_eq!((ddz.landlord_rounds, ddz.landlord_wins), (1, 1));
+        assert_eq!(ddz.levels_gained, 12);
+        let tractor = db.with(|c| db::user_stats(c, alice.id, false)).unwrap();
+        assert_eq!(tractor, db::UserStats::default());
+        assert_eq!(ddz_results(&[5, 5, -10]), vec!["won", "won", "lost"]);
+        assert_eq!(ddz_results(&[0, 0, 0]), vec!["drawn", "drawn", "drawn"]);
     }
 }

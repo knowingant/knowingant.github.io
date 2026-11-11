@@ -24,6 +24,8 @@ interface IProps {
   trump: Trump;
   collapseRight?: boolean;
   smaller?: boolean;
+  /// No trump or point icons (games where neither exists).
+  plain?: boolean;
   className?: string;
   onClick?: (event: React.MouseEvent) => void;
   onMouseEnter?: (event: React.MouseEvent) => void;
@@ -266,7 +268,7 @@ const Card = (props: IProps): JSX.Element => {
     };
 
     const icon = (offset: number): JSX.Element | null => {
-      if (isLoading || !cardInfo) return null;
+      if (isLoading || !cardInfo || props.plain === true) return null;
       return (
         <div className="card-icon" style={{ bottom: `${offset}px` }}>
           {cardInfo.effective_suit === "Trump" && settings.trumpCardIcon}

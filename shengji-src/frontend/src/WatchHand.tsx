@@ -3,6 +3,7 @@ import Cards from "./Cards";
 import { AppStateContext } from "./AppStateProvider";
 import { WebsocketContext } from "./WebsocketProvider";
 import { propagatedOf } from "./RatedBanner";
+import DdzHand from "./ddz/DdzHand";
 import type { GameState, Hands, Trump } from "./gen-types";
 
 import type { JSX } from "react";
@@ -34,7 +35,8 @@ const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
 
   const propagated = propagatedOf(props.gameState);
   const phase = handsOf(props.gameState);
-  if (propagated === null || phase === null) {
+  const ddz = "Ddz" in props.gameState ? props.gameState.Ddz.game : null;
+  if (propagated === null || (phase === null && ddz === null)) {
     return null;
   }
   const players = propagated.players;
@@ -49,7 +51,7 @@ const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
   return (
     <div className="watch-hand">
       <label>
-        Watch a player&apos;s hand:{" "}
+        Watch:{" "}
         <select
           value={watching === null ? "" : String(watching)}
           onChange={(evt) => {
@@ -67,9 +69,14 @@ const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
           ))}
         </select>
       </label>
-      {watching !== null ? (
+      {watching !== null && phase !== null ? (
         <div className="watch-hand-cards">
           <Cards hands={phase.hands} playerId={watching} trump={phase.trump} />
+        </div>
+      ) : null}
+      {watching !== null && ddz !== null && ddz.round.stage !== "Finished" ? (
+        <div className="watch-hand-cards">
+          <DdzHand cards={ddz.round.hands[ddz.seats.indexOf(watching)] ?? []} />
         </div>
       ) : null}
     </div>

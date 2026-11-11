@@ -128,6 +128,42 @@ impl InteractiveGame {
                 self.state.set_chat_link(link.clone())?;
                 vec![]
             }
+            (Action::StartGame, GameState::Initialize(ref mut state))
+                if state.player_mode() == PlayerMode::DouDiZhu =>
+            {
+                if state.players().len() != shengji_ddz::SEATS {
+                    bail!("Dou Di Zhu needs exactly 3 players");
+                }
+                let (votes, needed) = state.vote_to_start(id)?;
+                if !state.all_players_voted_to_start() {
+                    info!(logger, "Start vote"; "votes" => votes, "needed" => needed);
+                    return self.hydrate_messages(
+                        id,
+                        vec![MessageVariant::StartVote {
+                            player: id,
+                            votes,
+                            needed,
+                        }],
+                    );
+                }
+                info!(logger, "Starting Dou Di Zhu match");
+                let ddz = crate::game_state::ddz_phase::DdzPhase::start(state.propagated())?;
+                let rounds = ddz.game().settings.rounds;
+                self.state = GameState::Ddz(ddz);
+                vec![MessageVariant::DdzMatchStarted { rounds }]
+            }
+            (Action::SetDdzSettings(ref settings), GameState::Initialize(ref mut state)) => {
+                info!(logger, "Setting Dou Di Zhu settings");
+                state.set_ddz_settings(settings.clone())?
+            }
+            (Action::Ddz(action), GameState::Ddz(ref mut state)) => {
+                let (next, msgs) = state.act(id, action)?;
+                if let Some(next) = next {
+                    info!(logger, "Dou Di Zhu match finished");
+                    self.state = GameState::Initialize(next);
+                }
+                msgs
+            }
             (Action::StartGame, GameState::Initialize(ref mut state)) => {
                 let mut msgs = vec![];
                 let new_match = state.awaiting_start_votes();
@@ -569,6 +605,10 @@ pub enum Action {
     EndGameEarly,
     StartNewGame,
     Beep,
+    /// Dou Di Zhu rooms, lobby: the match settings.
+    SetDdzSettings(shengji_ddz::Settings),
+    /// Dou Di Zhu rooms, in a match.
+    Ddz(shengji_ddz::Action),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

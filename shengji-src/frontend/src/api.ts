@@ -11,7 +11,7 @@ export interface UserView {
   username: string;
   /// Unix seconds.
   created_at: number;
-  ratings: { team: RatingView; "1v1": RatingView };
+  ratings: { team: RatingView; "1v1": RatingView; ddz: RatingView };
 }
 
 export interface AuthSession {
@@ -109,6 +109,8 @@ export interface ProfileMatch {
 /// `GET /api/users/:username`.
 export interface ProfileView extends UserView {
   stats: ProfileStats;
+  /// Dou Di Zhu only; `stats` is everything else.
+  ddz_stats?: ProfileStats;
   recent_matches: ProfileMatch[];
 }
 
@@ -422,6 +424,18 @@ export function formatRatingWithRecord(
 }
 
 /// `+180` / `−180` (a real minus sign), for a rating change.
+/// The ladder a rating mode names, e.g. "team ladder".
+export function ladderName(mode: RatingMode): string {
+  switch (mode) {
+    case "1v1":
+      return "1v1 ladder";
+    case "ddz":
+      return "Dou Di Zhu ladder";
+    default:
+      return "team ladder";
+  }
+}
+
 export function formatDelta(delta: number): string {
   return delta < 0 ? `−${Math.abs(delta)}` : `+${delta}`;
 }

@@ -29,6 +29,10 @@ const findRequester = (state: GameState): string | undefined => {
     players = state.Play.propagated.players;
     observers = state.Play.propagated.observers;
     requested = state.Play.player_requested_reset;
+  } else if ("Ddz" in state) {
+    players = state.Ddz.propagated.players;
+    observers = state.Ddz.propagated.observers;
+    requested = state.Ddz.player_requested_reset;
   }
   if (requested === null || requested === undefined) {
     return undefined;

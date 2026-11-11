@@ -33,6 +33,17 @@ node bot.js --host http://localhost:3030 --room fedcba9876543210 \
   --users carol,dave,erin,frank --room-type Standard --matches 1 --first-to 3
 ```
 
+Dou Di Zhu (3 users; the backend's own suggestions choose the plays):
+
+```sh
+node bot.js --host http://localhost:3030 --room 00000000000000d1 \
+  --users alice,bob,carol --room-type DouDiZhu --matches 1 --ddz-rounds 3
+```
+
+`--ddz-bidding Grab`, `--ddz-no-doubling` and `--ddz-manual-next` (a human in
+the room clicks "Next round") are the other Dou Di Zhu options. With fewer
+than three users the bot waits for people to take the other seats.
+
 Options:
 
 | flag | meaning |

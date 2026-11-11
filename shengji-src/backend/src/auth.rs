@@ -161,7 +161,7 @@ pub fn user_for_token(db: &Db, token: &str) -> Option<User> {
         .flatten()
 }
 
-/// The `user` object of DESIGN.md: `{id, username, ratings: {team, "1v1"}}`.
+/// The `user` object of DESIGN.md: `{id, username, ratings: {team, "1v1", ddz}}`.
 pub fn user_view(db: &Db, config: &Config, user: &User) -> Value {
     let rating = |mode: RatingMode| {
         db.with(|c| db::get_rating(c, user.id, mode, &config.rating_params))
@@ -175,6 +175,7 @@ pub fn user_view(db: &Db, config: &Config, user: &User) -> Value {
         "ratings": {
             "team": rating(RatingMode::Team),
             "1v1": rating(RatingMode::OneVsOne),
+            "ddz": rating(RatingMode::Ddz),
         },
     })
 }

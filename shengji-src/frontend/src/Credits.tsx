@@ -11,7 +11,7 @@ const contentStyle: React.CSSProperties = {
   transform: "translate(-50%, -50%)",
 };
 
-const changeLogVersion: number = 28;
+const changeLogVersion: number = 29;
 
 const ChangeLog = (): JSX.Element => {
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
@@ -61,6 +61,12 @@ const ChangeLog = (): JSX.Element => {
           you&apos;re in the game.
         </p>
         <h2>Change Log</h2>
+        <p>11/10/2026:</p>
+        <ul>
+          <li>
+            Added 斗地主 / Dou Di Zhu.
+          </li>
+        </ul>
         <p>11/8/2026:</p>
         <ul>
           <li>

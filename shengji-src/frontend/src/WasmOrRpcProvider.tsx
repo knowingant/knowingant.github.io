@@ -28,6 +28,8 @@ import {
   CanPlayCardsResponse,
   FindViablePlaysRequest,
   FindViablePlaysResult,
+  DdzPlaysRequest,
+  DdzPlaysResponse,
 } from "./gen-types";
 
 import type { JSX } from "react";
@@ -50,7 +52,8 @@ type WasmRpcRequest =
   | ({ type: "ComputeScore" } & ComputeScoreRequest)
   | ({ type: "NextThresholdReachable" } & NextThresholdReachableRequest)
   | { type: "ComputeDeckLen"; decks: Deck[] }
-  | ({ type: "BatchGetCardInfo" } & BatchCardInfoRequest);
+  | ({ type: "BatchGetCardInfo" } & BatchCardInfoRequest)
+  | ({ type: "DdzPlays" } & DdzPlaysRequest);
 
 // Helper to make RPC calls to the server
 async function callRpc<T>(request: WasmRpcRequest): Promise<T> {
@@ -171,6 +174,9 @@ const createAsyncFunctions = (
         const results = req.requests.map((r) => wasmModule.get_card_info(r));
         return { results };
       },
+      ddzPlays: async (req: DdzPlaysRequest): Promise<DdzPlaysResponse> => {
+        return wasmModule.ddz_plays(req);
+      },
     };
   } else {
     // WASM not available, use RPC calls
@@ -263,6 +269,12 @@ const createAsyncFunctions = (
         });
         return response;
       },
+      ddzPlays: async (req: DdzPlaysRequest): Promise<DdzPlaysResponse> => {
+        return await callRpc<DdzPlaysResponse>({
+          type: "DdzPlays",
+          ...req,
+        });
+      },
     };
   }
 };
@@ -292,6 +304,7 @@ export interface EngineContext {
   batchGetCardInfo: (
     req: BatchCardInfoRequest,
   ) => Promise<BatchCardInfoResponse>;
+  ddzPlays: (req: DdzPlaysRequest) => Promise<DdzPlaysResponse>;
   decodeWireFormat: (req: Uint8Array) => unknown;
   isUsingWasm: boolean;
 }

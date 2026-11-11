@@ -775,6 +775,7 @@ pub struct RatedMatchRow {
     pub id: i64,
     pub mode: RatingMode,
     pub first_to_rank: String,
+    pub rounds: i64,
     pub finished_at: i64,
     pub players: Vec<RatedMatchPlayer>,
 }
@@ -792,7 +793,7 @@ pub struct RatedMatchPlayer {
 /// Every match whose ratings were applied, oldest first.
 pub fn rated_matches_in_order(conn: &Connection) -> DbResult<Vec<RatedMatchRow>> {
     let mut stmt = conn.prepare(
-        "SELECT id, mode, first_to_rank, finished_at FROM matches \
+        "SELECT id, mode, first_to_rank, finished_at, rounds FROM matches \
          WHERE rating_applied = 1 ORDER BY id ASC",
     )?;
     let heads = stmt
@@ -802,6 +803,7 @@ pub fn rated_matches_in_order(conn: &Connection) -> DbResult<Vec<RatedMatchRow>>
                 id: row.get(0)?,
                 mode: parse_mode(mode, 1)?,
                 first_to_rank: row.get(2)?,
+                rounds: row.get(4)?,
                 finished_at: row.get(3)?,
                 players: vec![],
             })
@@ -956,7 +958,9 @@ pub fn rounds_in_match(conn: &Connection, match_key: &str) -> DbResult<i64> {
 // ---------------------------------------------------------------------------
 
 /// Lifetime statistics of a user across all rounds and matches (rated or
-/// not).
+/// not) of one game: Dou Di Zhu (`ddz`), or everything else. For Dou Di Zhu
+/// `levels_gained` is the sum of round points, a win is first place and a
+/// loss is last place.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct UserStats {
     pub rounds: i64,
@@ -973,7 +977,8 @@ pub struct UserStats {
     pub rated_matches: i64,
 }
 
-pub fn user_stats(conn: &Connection, user_id: i64) -> DbResult<UserStats> {
+pub fn user_stats(conn: &Connection, user_id: i64, ddz: bool) -> DbResult<UserStats> {
+    let game = if ddz { "= 'ddz'" } else { "<> 'ddz'" };
     let (
         rounds,
         rounds_won,
@@ -983,12 +988,15 @@ pub fn user_stats(conn: &Connection, user_id: i64) -> DbResult<UserStats> {
         landlord_wins,
         levels_gained,
     ) = conn.query_row(
-        "SELECT COUNT(*), COALESCE(SUM(won), 0), COALESCE(SUM(is_defender), 0), \
-                    COALESCE(SUM(CASE WHEN is_defender = 1 AND won = 1 THEN 1 ELSE 0 END), 0), \
-                    COALESCE(SUM(is_landlord), 0), \
-                    COALESCE(SUM(CASE WHEN is_landlord = 1 AND won = 1 THEN 1 ELSE 0 END), 0), \
-                    COALESCE(SUM(levels_gained), 0) \
-             FROM round_players WHERE user_id = ?1",
+        &format!(
+            "SELECT COUNT(*), COALESCE(SUM(rp.won), 0), COALESCE(SUM(rp.is_defender), 0), \
+                    COALESCE(SUM(CASE WHEN rp.is_defender = 1 AND rp.won = 1 THEN 1 ELSE 0 END), 0), \
+                    COALESCE(SUM(rp.is_landlord), 0), \
+                    COALESCE(SUM(CASE WHEN rp.is_landlord = 1 AND rp.won = 1 THEN 1 ELSE 0 END), 0), \
+                    COALESCE(SUM(rp.levels_gained), 0) \
+             FROM round_players rp JOIN rounds r ON r.id = rp.round_id \
+             WHERE rp.user_id = ?1 AND r.mode {game}"
+        ),
         params![user_id],
         |r| {
             Ok((
@@ -1003,12 +1011,15 @@ pub fn user_stats(conn: &Connection, user_id: i64) -> DbResult<UserStats> {
         },
     )?;
     let (matches, matches_won, matches_lost, matches_drawn, rated_matches) = conn.query_row(
-        "SELECT COUNT(*), \
+        &format!(
+            "SELECT COUNT(*), \
                 COALESCE(SUM(CASE WHEN mp.result = 'won' THEN 1 ELSE 0 END), 0), \
                 COALESCE(SUM(CASE WHEN mp.result = 'lost' THEN 1 ELSE 0 END), 0), \
                 COALESCE(SUM(CASE WHEN mp.result = 'drawn' THEN 1 ELSE 0 END), 0), \
                 COALESCE(SUM(m.rating_applied), 0) \
-         FROM match_players mp JOIN matches m ON m.id = mp.match_id WHERE mp.user_id = ?1",
+             FROM match_players mp JOIN matches m ON m.id = mp.match_id \
+             WHERE mp.user_id = ?1 AND m.mode {game}"
+        ),
         params![user_id],
         |r| {
             Ok((
@@ -1248,7 +1259,7 @@ mod tests {
         assert_eq!(recent[0].players[0].username, "a");
         assert_eq!(recent[0].players[1].result, "lost");
 
-        let stats = user_stats(&conn, a.id).unwrap();
+        let stats = user_stats(&conn, a.id, false).unwrap();
         assert_eq!(
             stats,
             UserStats {
@@ -1266,9 +1277,9 @@ mod tests {
                 rated_matches: 1,
             }
         );
-        let stats_b = user_stats(&conn, b.id).unwrap();
+        let stats_b = user_stats(&conn, b.id, false).unwrap();
         assert_eq!(stats_b.matches_lost, 1);
         assert_eq!(stats_b.defender_rounds, 0);
-        assert_eq!(user_stats(&conn, 999).unwrap(), UserStats::default());
+        assert_eq!(user_stats(&conn, 999, false).unwrap(), UserStats::default());
     }
 }

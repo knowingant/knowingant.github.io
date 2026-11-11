@@ -11,6 +11,8 @@ pub enum RatingMode {
     Team,
     #[serde(rename = "1v1")]
     OneVsOne,
+    #[serde(rename = "ddz")]
+    Ddz,
 }
 
 impl RatingMode {
@@ -18,6 +20,7 @@ impl RatingMode {
         match self {
             RatingMode::Team => "team",
             RatingMode::OneVsOne => "1v1",
+            RatingMode::Ddz => "ddz",
         }
     }
 
@@ -25,6 +28,7 @@ impl RatingMode {
         match mode {
             shengji_core::settings::PlayerMode::Standard => RatingMode::Team,
             shengji_core::settings::PlayerMode::OneVsOne => RatingMode::OneVsOne,
+            shengji_core::settings::PlayerMode::DouDiZhu => RatingMode::Ddz,
         }
     }
 }
@@ -35,6 +39,7 @@ impl std::str::FromStr for RatingMode {
         match s {
             "team" => Ok(RatingMode::Team),
             "1v1" => Ok(RatingMode::OneVsOne),
+            "ddz" => Ok(RatingMode::Ddz),
             other => Err(format!("unknown rating mode {other:?}")),
         }
     }
@@ -62,6 +67,7 @@ pub struct RatingChange {
     pub after: i64,
     pub delta: i64,
     /// Levels the user had climbed when the match ended (capped at N − 2).
+    /// Dou Di Zhu: the user's match total in points.
     pub levels: i64,
     /// Mean score against the opposing users, in [0, 1].
     pub score: f64,

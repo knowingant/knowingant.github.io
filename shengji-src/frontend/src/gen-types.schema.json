@@ -12,6 +12,8 @@
     "card_info_request",
     "compute_score_request",
     "compute_score_response",
+    "ddz_plays_request",
+    "ddz_plays_response",
     "decompose_trick_format_request",
     "decompose_trick_format_response",
     "decomposed_trick_format",
@@ -56,6 +58,12 @@
     },
     "compute_score_response": {
       "$ref": "#/definitions/ComputeScoreResponse"
+    },
+    "ddz_plays_request": {
+      "$ref": "#/definitions/DdzPlaysRequest"
+    },
+    "ddz_plays_response": {
+      "$ref": "#/definitions/DdzPlaysResponse"
     },
     "decompose_trick_format_request": {
       "$ref": "#/definitions/DecomposeTrickFormatRequest"
@@ -662,6 +670,28 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "description": "Dou Di Zhu rooms, lobby: the match settings.",
+          "type": "object",
+          "required": ["SetDdzSettings"],
+          "properties": {
+            "SetDdzSettings": {
+              "$ref": "#/definitions/DdzSettings"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Dou Di Zhu rooms, in a match.",
+          "type": "object",
+          "required": ["Ddz"],
+          "properties": {
+            "Ddz": {
+              "$ref": "#/definitions/DdzAction"
+            }
+          },
+          "additionalProperties": false
         }
       ]
     },
@@ -940,6 +970,545 @@
         },
         "score": {
           "$ref": "#/definitions/GameScoreResult"
+        }
+      }
+    },
+    "DdzAction": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["Pass"]
+        },
+        {
+          "description": "Call score: 0 passes, 1 to 3 bids. Grab: 0 declines, 1 calls or grabs.",
+          "type": "object",
+          "required": ["Bid"],
+          "properties": {
+            "Bid": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["Double"],
+          "properties": {
+            "Double": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["Play"],
+          "properties": {
+            "Play": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Card"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "After a round: deal the next one, or end the match after the last.",
+          "type": "string",
+          "enum": ["NextRound"]
+        }
+      ]
+    },
+    "DdzBiddingMethod": {
+      "oneOf": [
+        {
+          "description": "叫分: one bid of 1, 2 or 3 each; the highest takes it.",
+          "type": "string",
+          "enum": ["CallScore"]
+        },
+        {
+          "description": "抢地主: the first to call may be outbid once by each player still in; every grab doubles the stake.",
+          "type": "string",
+          "enum": ["Grab"]
+        }
+      ]
+    },
+    "DdzKind": {
+      "type": "string",
+      "enum": [
+        "Single",
+        "Pair",
+        "Triple",
+        "TripleSingle",
+        "TriplePair",
+        "Straight",
+        "PairStraight",
+        "Airplane",
+        "AirplaneSingles",
+        "AirplanePairs",
+        "FourTwoSingles",
+        "FourTwoPairs",
+        "Bomb",
+        "Rocket"
+      ]
+    },
+    "DdzLastPlay": {
+      "type": "object",
+      "required": ["cards", "play", "seat"],
+      "properties": {
+        "cards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Card"
+          }
+        },
+        "play": {
+          "$ref": "#/definitions/DdzPlay"
+        },
+        "seat": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        }
+      }
+    },
+    "DdzMatch": {
+      "type": "object",
+      "required": [
+        "history",
+        "round",
+        "round_number",
+        "seats",
+        "settings",
+        "totals"
+      ],
+      "properties": {
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DdzRoundResult"
+          }
+        },
+        "round": {
+          "$ref": "#/definitions/DdzRound"
+        },
+        "round_number": {
+          "description": "1-based.",
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "seats": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0.0
+          }
+        },
+        "settings": {
+          "$ref": "#/definitions/DdzSettings"
+        },
+        "totals": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "DdzPhase": {
+      "type": "object",
+      "required": ["game", "propagated"],
+      "properties": {
+        "game": {
+          "$ref": "#/definitions/DdzMatch"
+        },
+        "player_requested_reset": {
+          "type": ["integer", "null"],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "propagated": {
+          "$ref": "#/definitions/PropagatedState"
+        }
+      }
+    },
+    "DdzPlay": {
+      "description": "A classified set of cards.",
+      "type": "object",
+      "required": ["kind", "len", "rank", "size"],
+      "properties": {
+        "kind": {
+          "$ref": "#/definitions/DdzKind"
+        },
+        "len": {
+          "description": "Ranks in the body: straight length, number of pairs or triples.",
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "rank": {
+          "description": "Rank of the body (the top rank of a sequence).",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "size": {
+          "description": "Number of cards.",
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        }
+      }
+    },
+    "DdzPlaysRequest": {
+      "description": "Dou Di Zhu: is `selected` playable over `last` (any hand when leading), and what could be played from `hand`.",
+      "type": "object",
+      "properties": {
+        "hand": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Card"
+          }
+        },
+        "last": {
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DdzPlay"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "selected": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Card"
+          }
+        }
+      }
+    },
+    "DdzPlaysResponse": {
+      "type": "object",
+      "required": ["suggestions"],
+      "properties": {
+        "play": {
+          "description": "What `selected` is, when it may be played now.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DdzPlay"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Card"
+            }
+          }
+        }
+      }
+    },
+    "DdzRound": {
+      "type": "object",
+      "required": [
+        "bid_queue",
+        "bids",
+        "bombs",
+        "bottom",
+        "caller_answered",
+        "dead_deals",
+        "doubles",
+        "first_bidder",
+        "grabbed",
+        "hands",
+        "plays",
+        "stage",
+        "stake",
+        "table"
+      ],
+      "properties": {
+        "bid_queue": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0.0
+          }
+        },
+        "bids": {
+          "description": "Each seat's bid in this deal (0 is a pass).",
+          "type": "array",
+          "items": {
+            "type": ["integer", "null"],
+            "format": "uint8",
+            "minimum": 0.0
+          }
+        },
+        "bombs": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "bottom": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Card"
+          }
+        },
+        "caller": {
+          "description": "Grab bidding: the seat that called.",
+          "type": ["integer", "null"],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "caller_answered": {
+          "type": "boolean"
+        },
+        "candidate": {
+          "type": ["integer", "null"],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "dead_deals": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "doubles": {
+          "description": "Farmers: doubled or not. Landlord: redoubled or not.",
+          "type": "array",
+          "items": {
+            "type": ["boolean", "null"]
+          }
+        },
+        "first_bidder": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "grabbed": {
+          "type": "boolean"
+        },
+        "hands": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Card"
+            }
+          }
+        },
+        "landlord": {
+          "type": ["integer", "null"],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "last_play": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DdzLastPlay"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "plays": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          }
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DdzRoundResult"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stage": {
+          "$ref": "#/definitions/DdzStage"
+        },
+        "stake": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "table": {
+          "description": "Each seat's latest action in the current trick (empty is a pass).",
+          "type": "array",
+          "items": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/definitions/Card"
+            }
+          }
+        },
+        "turn": {
+          "description": "The seat to act, when it is one seat's turn.",
+          "type": ["integer", "null"],
+          "format": "uint",
+          "minimum": 0.0
+        }
+      }
+    },
+    "DdzRoundResult": {
+      "type": "object",
+      "required": [
+        "bombs",
+        "deltas",
+        "landlord",
+        "landlord_won",
+        "multipliers",
+        "round",
+        "spring",
+        "stake"
+      ],
+      "properties": {
+        "bombs": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "deltas": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "landlord": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "landlord_won": {
+          "type": "boolean"
+        },
+        "multipliers": {
+          "description": "Per seat; the landlord's entry is the sum of the farmers'.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          }
+        },
+        "round": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "spring": {
+          "type": "boolean"
+        },
+        "stake": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      }
+    },
+    "DdzSeatResult": {
+      "description": "One player's result in a Dou Di Zhu round.",
+      "type": "object",
+      "required": ["delta", "is_landlord", "name", "player", "total", "won"],
+      "properties": {
+        "delta": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "is_landlord": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "player": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "total": {
+          "description": "Match total after this round.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "won": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DdzSettings": {
+      "type": "object",
+      "required": ["bidding", "doubling", "rounds"],
+      "properties": {
+        "bidding": {
+          "$ref": "#/definitions/DdzBiddingMethod"
+        },
+        "doubling": {
+          "description": "Farmers may double; the landlord may redouble those who did.",
+          "type": "boolean"
+        },
+        "multiplier_cap": {
+          "description": "Upper bound on a farmer's multiplier (bombs, spring, doubles).",
+          "type": ["integer", "null"],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "rounds": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        }
+      }
+    },
+    "DdzStage": {
+      "type": "string",
+      "enum": ["Bidding", "Doubling", "Playing", "Finished"]
+    },
+    "DdzStanding": {
+      "description": "One player's final standing in a Dou Di Zhu match, best first.",
+      "type": "object",
+      "required": ["name", "place", "player", "points"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "place": {
+          "description": "1 to 3; ties share a place.",
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "player": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "points": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
@@ -1846,6 +2415,16 @@
           "properties": {
             "Play": {
               "$ref": "#/definitions/PlayPhase"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["Ddz"],
+          "properties": {
+            "Ddz": {
+              "$ref": "#/definitions/DdzPhase"
             }
           },
           "additionalProperties": false
@@ -2944,6 +3523,251 @@
               "enum": ["CompoundFormatsSet"]
             }
           }
+        },
+        {
+          "type": "object",
+          "required": ["settings", "type"],
+          "properties": {
+            "settings": {
+              "$ref": "#/definitions/DdzSettings"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzSettingsSet"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["rounds", "type"],
+          "properties": {
+            "rounds": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzMatchStarted"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["grab", "method", "type", "value"],
+          "properties": {
+            "grab": {
+              "description": "Grab bidding: someone had already called.",
+              "type": "boolean"
+            },
+            "method": {
+              "$ref": "#/definitions/DdzBiddingMethod"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzBid"]
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["DdzRedeal"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["landlord", "stake", "type"],
+          "properties": {
+            "landlord": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "stake": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzLandlord"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["players", "type"],
+          "properties": {
+            "players": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint",
+                "minimum": 0.0
+              }
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzDoubles"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["redoubled", "type"],
+          "properties": {
+            "redoubled": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzRedouble"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["cards", "type"],
+          "properties": {
+            "cards": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Card"
+              }
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzBottom"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["DdzPassed"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "bombs",
+            "landlord",
+            "landlord_won",
+            "match_key",
+            "results",
+            "round",
+            "round_key",
+            "spring",
+            "stake",
+            "type"
+          ],
+          "properties": {
+            "bombs": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "landlord": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "landlord_won": {
+              "type": "boolean"
+            },
+            "match_key": {
+              "type": "string"
+            },
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DdzSeatResult"
+              }
+            },
+            "round": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "round_key": {
+              "type": "string"
+            },
+            "spring": {
+              "type": "boolean"
+            },
+            "stake": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzRoundFinished"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["round", "type"],
+          "properties": {
+            "round": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzNextRound"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["match_key", "rounds", "standings", "type"],
+          "properties": {
+            "match_key": {
+              "type": "string"
+            },
+            "rounds": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "standings": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DdzStanding"
+              }
+            },
+            "type": {
+              "type": "string",
+              "enum": ["DdzMatchFinished"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["DdzMatchAbandoned"]
+            }
+          }
         }
       ]
     },
@@ -3191,9 +4015,9 @@
       }
     },
     "PlayerMode": {
-      "description": "Whether one connection controls one seat (Standard) or two seats on the same team (OneVsOne). This is fixed when the room is created; there is no client action to change it.",
+      "description": "The room type. Standard and OneVsOne play Tractor / Finding Friends with one seat per connection or two seats on the same team; DouDiZhu plays Dou Di Zhu with exactly three seats. Switched from the lobby between matches.",
       "type": "string",
-      "enum": ["Standard", "OneVsOne"]
+      "enum": ["Standard", "OneVsOne", "DouDiZhu"]
     },
     "PropagatedState": {
       "type": "object",
@@ -3249,6 +4073,20 @@
           "allOf": [
             {
               "$ref": "#/definitions/CompoundFormats"
+            }
+          ]
+        },
+        "ddz": {
+          "description": "Dou Di Zhu rooms: the match settings.",
+          "default": {
+            "bidding": "CallScore",
+            "doubling": true,
+            "multiplier_cap": null,
+            "rounds": 6
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/DdzSettings"
             }
           ]
         },
@@ -3539,7 +4377,7 @@
           "format": "int64"
         },
         "levels": {
-          "description": "Levels the user had climbed when the match ended (capped at N − 2).",
+          "description": "Levels the user had climbed when the match ended (capped at N − 2). Dou Di Zhu: the user's match total in points.",
           "type": "integer",
           "format": "int64"
         },
@@ -3556,7 +4394,7 @@
     "RatingMode": {
       "description": "Which rating ladder a room plays on.",
       "type": "string",
-      "enum": ["team", "1v1"]
+      "enum": ["team", "1v1", "ddz"]
     },
     "RatingView": {
       "description": "A user's rating on one ladder, as shown to clients.",

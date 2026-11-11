@@ -2,6 +2,7 @@ import * as React from "react";
 import gameStatistics, { GameStatistics } from "./state/GameStatistics";
 import settings, { Settings } from "./state/Settings";
 import {
+  DdzStanding,
   GameState,
   MatchStanding,
   PlayerMode,
@@ -40,6 +41,8 @@ export interface MatchFinishedSummary {
   matchKey: string;
   firstToRank: string;
   standings: MatchStanding[];
+  /// Set instead of the two fields above for a Dou Di Zhu match.
+  ddz?: { rounds: number; standings: DdzStanding[] };
 }
 
 /// The rating changes of the match that just ended (the `MatchRated`

@@ -261,6 +261,8 @@ fn main() {
                         game_state = GameState::Initialize(init);
                         break;
                     }
+                    // This example only simulates Tractor.
+                    GameState::Ddz(_) => break,
                 }
                 let serialized = serde_json::to_vec(&game_state).unwrap();
                 f.write_all(&serialized).unwrap();

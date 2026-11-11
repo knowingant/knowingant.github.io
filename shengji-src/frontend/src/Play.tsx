@@ -479,10 +479,7 @@ const Play = (props: IProps): JSX.Element => {
               <div className="groupings">
                 {naturalGroupings.length > 1 && chosen === null && (
                   <>
-                    <p>
-                      This play can be read in more than one way. Which did you
-                      mean?
-                    </p>
+                    <p>Select interpretation:</p>
                     {naturalGroupings.map((g, gidx) => (
                       <button
                         key={gidx}
@@ -508,16 +505,12 @@ const Play = (props: IProps): JSX.Element => {
                     >
                       {showMoreGroupings
                         ? "Hide other groupings"
-                        : "Other ways to throw these cards"}
+                        : "Other ways to throw"}
                     </a>
                   </p>
                 )}
                 {showMoreGroupings && (
                   <div className="other-groupings">
-                    <p className="auth-hint">
-                      Throw rules apply to every part: if another player can
-                      beat any part, the throw fails.
-                    </p>
                     {[...naturalGroupings, ...otherGroupings].map((g, gidx) => (
                       <button
                         key={gidx}

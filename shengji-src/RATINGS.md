@@ -5,8 +5,9 @@ everyone starts at rank 2 and the match ends the moment any player's rank
 reaches N (N is a room setting, default 5, minimum 3). Only matches played
 with the room's "Rated" setting on count.
 
-Two independent ladders: `team` (Standard rooms, Tractor or Finding Friends)
-and `1v1` (1v1 rooms). Everyone starts at 1500.
+Three independent ladders: `team` (Standard rooms, Tractor or Finding
+Friends), `1v1` (1v1 rooms) and `ddz` (Dou Di Zhu rooms, see the end).
+Everyone starts at 1500.
 
 Implemented in the `rating` crate (`shengji-rating`), applied by
 `backend/src/ratings.rs`. The numbers below are pinned by that crate's
@@ -76,6 +77,39 @@ get the same score against each opponent; their changes differ only through
 their own ratings. In Finding Friends every player has their own rank and
 is scored against everyone else, so two players who both reached N draw
 with each other (`s = 0.5`) and both beat everyone below them.
+
+## Dou Di Zhu
+
+A Dou Di Zhu match is a fixed number of rounds `R` (3, 6, 9 or 12) between
+three players. Each ends with a points total `S`; the three sum to zero.
+
+Every player is scored against each of the other two as above, with the
+points gap as the margin:
+
+```
+margin  m_uv = (S_u − S_v) / (6 · R)     clamped to [−1, 1]
+score   s_uv as above (0.95 + 0.05·m, 0.05 + 0.05·m, or 0.5)
+Δ_u = K(R) · mean_v (s_uv − E_uv),       K(R) = 8 · R
+```
+
+First place never loses points and last place never gains any; the middle
+seat moves either way. (Tractor's rule, "whoever scored above ½", would make
+second place jump between 0 and −13 on a one-point difference.)
+
+Six rounds, totals +30 / −6 / −24:
+
+| ratings (1st / 2nd / 3rd) | 1st | 2nd | 3rd |
+|---|---|---|---|
+| 1500 / 1500 / 1500 | +24.0 | −0.6 | −23.4 |
+| 1700 / 1500 / 1500 | +11.5 | +5.6 | −17.2 |
+| 1500 / 1500 / 1700 | +30.2 | +5.6 | −35.9 |
+
+Other results between equals: +4 / +2 / −6 gives +22.0 / +0.2 / −22.2; a tie
+for first at +12 / +12 / −24 gives +12 / +12 / −24. First or last among
+equals moves about ±12 (3 rounds), ±24 (6), ±36 (9), ±48 (12).
+
+On the ladder a first place counts as a win, a last place as a loss and the
+middle as a draw.
 
 ## Changing the formula
 

@@ -8,11 +8,12 @@ use shengji_mechanics::{
 
 use shengji_types::wasm_rpc::{
     CanPlayCardsRequest, CanPlayCardsResponse, CardInfo, CardInfoRequest, ComputeDeckLenRequest,
-    ComputeDeckLenResponse, ComputeScoreRequest, ComputeScoreResponse, DecomposeTrickFormatRequest,
-    DecomposeTrickFormatResponse, DecomposedTrickFormat, ExplainScoringRequest,
-    ExplainScoringResponse, FindValidBidsRequest, FindValidBidsResult, FindViablePlaysRequest,
-    FindViablePlaysResult, FoundViablePlay, NextThresholdReachableRequest, ScoreSegment,
-    SortAndGroupCardsRequest, SortAndGroupCardsResponse, SuitGroup,
+    ComputeDeckLenResponse, ComputeScoreRequest, ComputeScoreResponse, DdzPlaysRequest,
+    DdzPlaysResponse, DecomposeTrickFormatRequest, DecomposeTrickFormatResponse,
+    DecomposedTrickFormat, ExplainScoringRequest, ExplainScoringResponse, FindValidBidsRequest,
+    FindValidBidsResult, FindViablePlaysRequest, FindViablePlaysResult, FoundViablePlay,
+    NextThresholdReachableRequest, ScoreSegment, SortAndGroupCardsRequest,
+    SortAndGroupCardsResponse, SuitGroup,
 };
 
 pub fn find_viable_plays(req: FindViablePlaysRequest) -> FindViablePlaysResult {
@@ -271,5 +272,12 @@ pub fn get_card_info(req: CardInfoRequest) -> CardInfo {
         number: info.number.map(|s| s.to_string()),
         points: info.points,
         effective_suit,
+    }
+}
+
+pub fn ddz_plays(req: DdzPlaysRequest) -> DdzPlaysResponse {
+    DdzPlaysResponse {
+        play: shengji_ddz::playable(&req.selected, req.last.as_ref()),
+        suggestions: shengji_ddz::suggestions(&req.hand, req.last.as_ref()),
     }
 }

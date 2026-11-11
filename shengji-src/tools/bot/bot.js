@@ -32,7 +32,11 @@ function usage(msg) {
   --host URL            backend origin, e.g. http://localhost:3030 (required)
   --room NAME           16 hex character room name (required)
   --users a,b           comma separated usernames: 2 for OneVsOne, 4 for Standard
-  --room-type TYPE      OneVsOne (default) or Standard
+  --room-type TYPE      OneVsOne (default), Standard or DouDiZhu
+  --ddz-rounds N        DouDiZhu: rounds per match, 3/6/9/12 (default 3)
+  --ddz-bidding METHOD  DouDiZhu: CallScore (default) or Grab
+  --ddz-no-doubling     DouDiZhu: turn doubling off
+  --ddz-manual-next     DouDiZhu: leave "next round" to a human in the room
   --matches N           whole matches to play before exiting (default 1)
   --first-to RANK       "first to rank N" match length, 3..A/NT (default 3);
                         --first-to keep leaves the room's own setting alone
@@ -62,6 +66,7 @@ export function parseArgs(argv) {
     deviceIdPrefix: "bot-",
     deviceId: true,
     verbose: false,
+    ddz: { rounds: 3, bidding: "CallScore", doubling: true },
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -93,6 +98,18 @@ export function parseArgs(argv) {
         break;
       case "--unrated":
         opts.rated = false;
+        break;
+      case "--ddz-rounds":
+        opts.ddz.rounds = Number(next());
+        break;
+      case "--ddz-bidding":
+        opts.ddz.bidding = next();
+        break;
+      case "--ddz-no-doubling":
+        opts.ddz.doubling = false;
+        break;
+      case "--ddz-manual-next":
+        opts.ddzManualNext = true;
         break;
       case "--timeout":
         opts.timeout = Number(next());
@@ -126,8 +143,15 @@ export function parseArgs(argv) {
     usage("--room must be 16 hex characters");
   }
   if (!opts.users || opts.users.length === 0) usage("--users is required");
-  if (!["OneVsOne", "Standard"].includes(opts.roomType)) {
-    usage("--room-type must be OneVsOne or Standard");
+  if (!["OneVsOne", "Standard", "DouDiZhu"].includes(opts.roomType)) {
+    usage("--room-type must be OneVsOne, Standard or DouDiZhu");
+  }
+  if (opts.roomType === "DouDiZhu" && opts.users.length > 3) {
+    usage("DouDiZhu rooms take at most 3 users");
+  }
+  if (![3, 6, 9, 12].includes(opts.ddz.rounds)) usage("--ddz-rounds must be 3, 6, 9 or 12");
+  if (!["CallScore", "Grab"].includes(opts.ddz.bidding)) {
+    usage("--ddz-bidding must be CallScore or Grab");
   }
   // Fewer users than seats is allowed: the missing players are expected to
   // be humans joining the same room (e.g. one bot user vs. you in a browser).
@@ -242,7 +266,17 @@ function ratingView(r) {
 export function profileLines(username, user) {
   const out = [];
   const rt = user.ratings || {};
-  out.push(`${username}: team ${ratingView(rt.team)} | 1v1 ${ratingView(rt["1v1"])}`);
+  out.push(
+    `${username}: team ${ratingView(rt.team)} | 1v1 ${ratingView(rt["1v1"])} | ddz ${ratingView(rt.ddz)}`,
+  );
+  const d = user.ddz_stats;
+  if (d && d.rounds > 0) {
+    out.push(
+      `  ddz stats: rounds ${d.rounds} (${d.rounds_won} won), landlord ${d.landlord_wins}/${d.landlord_rounds}, ` +
+        `points ${d.levels_gained}, matches ${d.matches} (${d.matches_won} first, ${d.matches_drawn} second, ` +
+        `${d.matches_lost} third, ${d.rated_matches} rated)`,
+    );
+  }
   const s = user.stats || {};
   out.push(
     `  stats: rounds ${s.rounds} (${s.rounds_won} won), landlord ${s.landlord_wins}/${s.landlord_rounds}, ` +
@@ -297,6 +331,8 @@ class Connection {
       matchesWanted: bot.opts.matches,
       firstToRank: bot.opts.firstToRank,
       rated: bot.opts.rated,
+      ddz: bot.opts.ddz,
+      ddzManualNext: !!bot.opts.ddzManualNext,
       warn: (m) => log(`[${username}] warning: ${m}`),
     });
     this.lastPhase = null;

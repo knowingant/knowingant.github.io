@@ -173,6 +173,12 @@ export type Action =
        * @maxItems 2
        */
       PlayCardsWithHint: [Card[], TrickUnit[]];
+    }
+  | {
+      SetDdzSettings: DdzSettings;
+    }
+  | {
+      Ddz: DdzAction;
     };
 export type Number = string;
 export type FriendSelectionPolicy =
@@ -259,6 +265,19 @@ export type Trump =
       };
     };
 export type Suit = string;
+export type DdzBiddingMethod = "CallScore" | "Grab";
+export type DdzAction =
+  | "Pass"
+  | {
+      Bid: number;
+    }
+  | {
+      Double: boolean;
+    }
+  | {
+      Play: Card[];
+    }
+  | "NextRound";
 export type EffectiveSuit =
   | "Unknown"
   | "Clubs"
@@ -266,6 +285,21 @@ export type EffectiveSuit =
   | "Spades"
   | "Hearts"
   | "Trump";
+export type DdzKind =
+  | "Single"
+  | "Pair"
+  | "Triple"
+  | "TripleSingle"
+  | "TriplePair"
+  | "Straight"
+  | "PairStraight"
+  | "Airplane"
+  | "AirplaneSingles"
+  | "AirplanePairs"
+  | "FourTwoSingles"
+  | "FourTwoPairs"
+  | "Bomb"
+  | "Rocket";
 export type GameMessage =
   | {
       State: {
@@ -361,11 +395,14 @@ export type GameState =
     }
   | {
       Play: PlayPhase;
+    }
+  | {
+      Ddz: DdzPhase;
     };
 /**
- * Whether one connection controls one seat (Standard) or two seats on the same team (OneVsOne). This is fixed when the room is created; there is no client action to change it.
+ * The room type. Standard and OneVsOne play Tractor / Finding Friends with one seat per connection or two seats on the same team; DouDiZhu plays Dou Di Zhu with exactly three seats. Switched from the lobby between matches.
  */
-export type PlayerMode = "Standard" | "OneVsOne";
+export type PlayerMode = "Standard" | "OneVsOne" | "DouDiZhu";
 export type GameMode =
   | "Tractor"
   | {
@@ -375,10 +412,11 @@ export type GameMode =
         [k: string]: unknown;
       };
     };
+export type DdzStage = "Bidding" | "Doubling" | "Playing" | "Finished";
 /**
  * Which rating ladder a room plays on.
  */
-export type RatingMode = "team" | "1v1";
+export type RatingMode = "team" | "1v1" | "ddz";
 export type MessageVariant =
   | {
       type: "ResetRequested";
@@ -738,6 +776,84 @@ export type MessageVariant =
       compound_formats: CompoundFormats;
       type: "CompoundFormatsSet";
       [k: string]: unknown;
+    }
+  | {
+      settings: DdzSettings;
+      type: "DdzSettingsSet";
+      [k: string]: unknown;
+    }
+  | {
+      rounds: number;
+      type: "DdzMatchStarted";
+      [k: string]: unknown;
+    }
+  | {
+      /**
+       * Grab bidding: someone had already called.
+       */
+      grab: boolean;
+      method: DdzBiddingMethod;
+      type: "DdzBid";
+      value: number;
+      [k: string]: unknown;
+    }
+  | {
+      type: "DdzRedeal";
+      [k: string]: unknown;
+    }
+  | {
+      landlord: number;
+      stake: number;
+      type: "DdzLandlord";
+      [k: string]: unknown;
+    }
+  | {
+      players: number[];
+      type: "DdzDoubles";
+      [k: string]: unknown;
+    }
+  | {
+      redoubled: boolean;
+      type: "DdzRedouble";
+      [k: string]: unknown;
+    }
+  | {
+      cards: Card[];
+      type: "DdzBottom";
+      [k: string]: unknown;
+    }
+  | {
+      type: "DdzPassed";
+      [k: string]: unknown;
+    }
+  | {
+      bombs: number;
+      landlord: number;
+      landlord_won: boolean;
+      match_key: string;
+      results: DdzSeatResult[];
+      round: number;
+      round_key: string;
+      spring: boolean;
+      stake: number;
+      type: "DdzRoundFinished";
+      [k: string]: unknown;
+    }
+  | {
+      round: number;
+      type: "DdzNextRound";
+      [k: string]: unknown;
+    }
+  | {
+      match_key: string;
+      rounds: number;
+      standings: DdzStanding[];
+      type: "DdzMatchFinished";
+      [k: string]: unknown;
+    }
+  | {
+      type: "DdzMatchAbandoned";
+      [k: string]: unknown;
     };
 
 export interface _Combined {
@@ -750,6 +866,8 @@ export interface _Combined {
   card_info_request: CardInfoRequest;
   compute_score_request: ComputeScoreRequest;
   compute_score_response: ComputeScoreResponse;
+  ddz_plays_request: DdzPlaysRequest;
+  ddz_plays_response: DdzPlaysResponse;
   decompose_trick_format_request: DecomposeTrickFormatRequest;
   decompose_trick_format_response: DecomposeTrickFormatResponse;
   decomposed_trick_format: DecomposedTrickFormat;
@@ -829,6 +947,19 @@ export interface FriendSelection {
 export interface OrderedCard {
   card: Card;
   trump: Trump;
+  [k: string]: unknown;
+}
+export interface DdzSettings {
+  bidding: DdzBiddingMethod;
+  /**
+   * Farmers may double; the landlord may redouble those who did.
+   */
+  doubling: boolean;
+  /**
+   * Upper bound on a farmer's multiplier (bombs, spring, doubles).
+   */
+  multiplier_cap?: number | null;
+  rounds: number;
   [k: string]: unknown;
 }
 export interface BatchCardInfoRequest {
@@ -925,6 +1056,42 @@ export interface GameScoreResult {
   landlord_delta: number;
   landlord_won: boolean;
   non_landlord_delta: number;
+  [k: string]: unknown;
+}
+/**
+ * Dou Di Zhu: is `selected` playable over `last` (any hand when leading), and what could be played from `hand`.
+ */
+export interface DdzPlaysRequest {
+  hand?: Card[];
+  last?: DdzPlay | null;
+  selected?: Card[];
+  [k: string]: unknown;
+}
+/**
+ * A classified set of cards.
+ */
+export interface DdzPlay {
+  kind: DdzKind;
+  /**
+   * Ranks in the body: straight length, number of pairs or triples.
+   */
+  len: number;
+  /**
+   * Rank of the body (the top rank of a sequence).
+   */
+  rank: number;
+  /**
+   * Number of cards.
+   */
+  size: number;
+  [k: string]: unknown;
+}
+export interface DdzPlaysResponse {
+  /**
+   * What `selected` is, when it may be played now.
+   */
+  play?: DdzPlay | null;
+  suggestions: Card[][];
   [k: string]: unknown;
 }
 export interface DecomposeTrickFormatRequest {
@@ -1032,6 +1199,10 @@ export interface PropagatedState {
   bomb_policy?: BombPolicy & string;
   chat_link?: string | null;
   compound_formats?: CompoundFormats;
+  /**
+   * Dou Di Zhu rooms: the match settings.
+   */
+  ddz?: DdzSettings;
   first_landlord_selection_policy?: FirstLandlordSelectionPolicy & string;
   /**
    * The match ends when any player reaches this rank ("first to rank N").
@@ -1154,6 +1325,82 @@ export interface PlayPhase {
   trump: Trump;
   [k: string]: unknown;
 }
+export interface DdzPhase {
+  game: DdzMatch;
+  player_requested_reset?: number | null;
+  propagated: PropagatedState;
+  [k: string]: unknown;
+}
+export interface DdzMatch {
+  history: DdzRoundResult[];
+  round: DdzRound;
+  /**
+   * 1-based.
+   */
+  round_number: number;
+  seats: number[];
+  settings: DdzSettings;
+  totals: number[];
+  [k: string]: unknown;
+}
+export interface DdzRoundResult {
+  bombs: number;
+  deltas: number[];
+  landlord: number;
+  landlord_won: boolean;
+  /**
+   * Per seat; the landlord's entry is the sum of the farmers'.
+   */
+  multipliers: number[];
+  round: number;
+  spring: boolean;
+  stake: number;
+  [k: string]: unknown;
+}
+export interface DdzRound {
+  bid_queue: number[];
+  /**
+   * Each seat's bid in this deal (0 is a pass).
+   */
+  bids: (number | null)[];
+  bombs: number;
+  bottom: Card[];
+  /**
+   * Grab bidding: the seat that called.
+   */
+  caller?: number | null;
+  caller_answered: boolean;
+  candidate?: number | null;
+  dead_deals: number;
+  /**
+   * Farmers: doubled or not. Landlord: redoubled or not.
+   */
+  doubles: (boolean | null)[];
+  first_bidder: number;
+  grabbed: boolean;
+  hands: Card[][];
+  landlord?: number | null;
+  last_play?: DdzLastPlay | null;
+  plays: number[];
+  result?: DdzRoundResult | null;
+  stage: DdzStage;
+  stake: number;
+  /**
+   * Each seat's latest action in the current trick (empty is a pass).
+   */
+  table: (Card[] | null)[];
+  /**
+   * The seat to act, when it is one seat's turn.
+   */
+  turn?: number | null;
+  [k: string]: unknown;
+}
+export interface DdzLastPlay {
+  cards: Card[];
+  play: DdzPlay;
+  seat: number;
+  [k: string]: unknown;
+}
 /**
  * A user's rating on one ladder, as shown to clients.
  */
@@ -1182,7 +1429,7 @@ export interface RatingChange {
   before: number;
   delta: number;
   /**
-   * Levels the user had climbed when the match ended (capped at N − 2).
+   * Levels the user had climbed when the match ended (capped at N − 2). Dou Di Zhu: the user's match total in points.
    */
   levels: number;
   /**
@@ -1222,6 +1469,34 @@ export interface MatchStanding {
    * Whether this player reached the target rank.
    */
   winner: boolean;
+  [k: string]: unknown;
+}
+/**
+ * One player's result in a Dou Di Zhu round.
+ */
+export interface DdzSeatResult {
+  delta: number;
+  is_landlord: boolean;
+  name: string;
+  player: number;
+  /**
+   * Match total after this round.
+   */
+  total: number;
+  won: boolean;
+  [k: string]: unknown;
+}
+/**
+ * One player's final standing in a Dou Di Zhu match, best first.
+ */
+export interface DdzStanding {
+  name: string;
+  /**
+   * 1 to 3; ties share a place.
+   */
+  place: number;
+  player: number;
+  points: number;
   [k: string]: unknown;
 }
 export interface NextThresholdReachableRequest {

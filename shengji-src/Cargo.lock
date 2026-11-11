@@ -1822,6 +1822,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "shengji-core",
+ "shengji-ddz",
  "shengji-mechanics",
  "shengji-rating",
  "shengji-types",
@@ -1849,11 +1850,23 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "shengji-ddz",
  "shengji-mechanics",
  "slog",
  "slog_derive",
  "thiserror 1.0.69",
  "url",
+]
+
+[[package]]
+name = "shengji-ddz"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "rand 0.8.5",
+ "schemars",
+ "serde",
+ "shengji-mechanics",
 ]
 
 [[package]]
@@ -1901,6 +1914,7 @@ dependencies = [
  "schemars",
  "serde",
  "shengji-core",
+ "shengji-ddz",
  "shengji-mechanics",
 ]
 
@@ -2640,6 +2654,7 @@ dependencies = [
 name = "wasm-rpc-impl"
 version = "0.1.0"
 dependencies = [
+ "shengji-ddz",
  "shengji-mechanics",
  "shengji-types",
 ]
