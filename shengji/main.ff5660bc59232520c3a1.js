@@ -8906,87 +8906,7 @@ var MatchSummaryModal = function () {
 };
 /* harmony default export */ const src_MatchSummaryModal = (MatchSummaryModal);
 
-;// ./src/ddz/ddzCards.ts
-var ddzCards_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-
-/// Cards are drawn with the shared `Card` component, which wants a trump.
-var DDZ_TRUMP = { NoTrump: {} };
-var SMALL_JOKER = "🃟";
-var BIG_JOKER = "🃏";
-var UNKNOWN_CARD = "🂠";
-var ORDER = [
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "J",
-    "Q",
-    "K",
-    "A",
-    "2",
-];
-/// 3 is lowest, then up to A, 2, small joker, big joker. Unknown cards: -1.
-var ddzRank = function (card) {
-    var _a;
-    if (card === BIG_JOKER) {
-        return 14;
-    }
-    if (card === SMALL_JOKER) {
-        return 13;
-    }
-    var number = (_a = cardLookup[card]) === null || _a === void 0 ? void 0 : _a.number;
-    return number === null || number === undefined ? -1 : ORDER.indexOf(number);
-};
-/// Highest first, suits in a fixed order within a rank.
-var sortDdz = function (cards) {
-    return ddzCards_spreadArray([], cards, true).sort(function (a, b) { return ddzRank(b) - ddzRank(a) || a.localeCompare(b); });
-};
-
-;// ./src/ddz/DdzHand.tsx
-var DdzHand_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-
-
-
-
-
-/// A hand, highest card first. With `selected` the chosen cards move to a
-/// row above, as in the Tractor hand.
-var DdzHand = function (props) {
-    var cards = props.cards, selected = props.selected, onSelect = props.onSelect;
-    var selectable = selected !== undefined && onSelect !== undefined;
-    var chosen = selectable ? sortDdz(selected) : [];
-    var rest = sortDdz(selectable ? array.minus(cards, selected) : cards);
-    var row = function (list, onClick) {
-        return list.map(function (card, idx) { return (react.createElement(src_Card, { key: "".concat(card, "-").concat(idx), card: card, trump: DDZ_TRUMP, plain: true, collapseRight: idx !== list.length - 1, onClick: onClick === undefined ? undefined : function () { return onClick(card); } })); });
-    };
-    return (react.createElement("div", { className: "hand" },
-        selectable ? (react.createElement("div", { className: "selected-cards" }, chosen.length > 0 ? (row(chosen, function (card) { return onSelect(array.minus(selected, [card])); })) : (react.createElement(src_Card, { card: "\uD83C\uDCA0", trump: DDZ_TRUMP, plain: true })))) : null,
-        react.createElement("div", { className: classnames_default()("unselected-cards", { unclickable: !selectable }) }, row(rest, selectable ? function (card) { return onSelect(DdzHand_spreadArray(DdzHand_spreadArray([], selected, true), [card], false)); } : undefined))));
-};
-/* harmony default export */ const ddz_DdzHand = (DdzHand);
-
 ;// ./src/WatchHand.tsx
-
 
 
 
@@ -9008,12 +8928,13 @@ var handsOf = function (gameState) {
 /// For spectators: a picker for the player whose hand to watch. The choice
 /// is sent to the server (`Shadow`), which then redacts the state for that
 /// player instead of for us, so their cards arrive with the next state and
-/// are shown here. Players never see this.
+/// are shown here. In a Dou Di Zhu room watching shows every hand, and the
+/// table draws them itself. Players never see this.
 var WatchHand = function (props) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     var state = react.useContext(AppStateContext).state;
     var send = react.useContext(WebsocketProvider_WebsocketContext).send;
-    var _d = react.useState(null), target = _d[0], setTarget = _d[1];
+    var _e = react.useState(null), target = _e[0], setTarget = _e[1];
     var propagated = propagatedOf(props.gameState);
     var phase = handsOf(props.gameState);
     var ddz = "Ddz" in props.gameState ? props.gameState.Ddz.game : null;
@@ -9037,11 +8958,9 @@ var WatchHand = function (props) {
                     send({ Shadow: v });
                 } },
                 react.createElement("option", { value: "" }, "nobody"),
-                players.map(function (p) { return (react.createElement("option", { key: p.id, value: String(p.id) }, p.name)); }))),
+                ddz !== null ? (react.createElement("option", { value: String((_d = watching !== null && watching !== void 0 ? watching : (_c = players[0]) === null || _c === void 0 ? void 0 : _c.id) !== null && _d !== void 0 ? _d : "") }, "everyone")) : (players.map(function (p) { return (react.createElement("option", { key: p.id, value: String(p.id) }, p.name)); })))),
         watching !== null && phase !== null ? (react.createElement("div", { className: "watch-hand-cards" },
-            react.createElement(src_Cards, { hands: phase.hands, playerId: watching, trump: phase.trump }))) : null,
-        watching !== null && ddz !== null && ddz.round.stage !== "Finished" ? (react.createElement("div", { className: "watch-hand-cards" },
-            react.createElement(ddz_DdzHand, { cards: (_c = ddz.round.hands[ddz.seats.indexOf(watching)]) !== null && _c !== void 0 ? _c : [] }))) : null));
+            react.createElement(src_Cards, { hands: phase.hands, playerId: watching, trump: phase.trump }))) : null));
 };
 /* harmony default export */ const src_WatchHand = (WatchHand);
 
@@ -9198,6 +9117,92 @@ var DdzLobby = function (props) {
                             n)); })))))));
 };
 /* harmony default export */ const ddz_DdzLobby = (DdzLobby);
+
+;// ./src/ddz/ddzCards.ts
+var ddzCards_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+/// Cards are drawn with the shared `Card` component, which wants a trump.
+var DDZ_TRUMP = { NoTrump: {} };
+var SMALL_JOKER = "🃟";
+var BIG_JOKER = "🃏";
+var UNKNOWN_CARD = "🂠";
+var ORDER = [
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A",
+    "2",
+];
+/// 3 is lowest, then up to A, 2, small joker, big joker. Unknown cards: -1.
+var ddzRank = function (card) {
+    var _a;
+    if (card === BIG_JOKER) {
+        return 14;
+    }
+    if (card === SMALL_JOKER) {
+        return 13;
+    }
+    var number = (_a = cardLookup[card]) === null || _a === void 0 ? void 0 : _a.number;
+    return number === null || number === undefined ? -1 : ORDER.indexOf(number);
+};
+/// Lowest first (highest first with `reverse`), suits in a fixed order
+/// within a rank.
+var sortDdz = function (cards, reverse) {
+    if (reverse === void 0) { reverse = false; }
+    return ddzCards_spreadArray([], cards, true).sort(function (a, b) {
+        return (reverse ? ddzRank(b) - ddzRank(a) : ddzRank(a) - ddzRank(b)) ||
+            a.localeCompare(b);
+    });
+};
+
+;// ./src/ddz/DdzHand.tsx
+var DdzHand_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+
+/// A hand, lowest card first (the "reverse card order" setting flips it,
+/// as in Tractor). With `selected` the chosen cards move to a row above.
+var DdzHand = function (props) {
+    var cards = props.cards, selected = props.selected, onSelect = props.onSelect;
+    var reverseCardOrder = react.useContext(SettingsContext).reverseCardOrder;
+    var selectable = selected !== undefined && onSelect !== undefined;
+    var chosen = selectable ? sortDdz(selected, reverseCardOrder) : [];
+    var rest = sortDdz(selectable ? array.minus(cards, selected) : cards, reverseCardOrder);
+    var row = function (list, onClick) {
+        return list.map(function (card, idx) { return (react.createElement(src_Card, { key: "".concat(card, "-").concat(idx), card: card, trump: DDZ_TRUMP, plain: true, smaller: props.smaller, collapseRight: idx !== list.length - 1, onClick: onClick === undefined ? undefined : function () { return onClick(card); } })); });
+    };
+    return (react.createElement("div", { className: "hand" },
+        selectable ? (react.createElement("div", { className: "selected-cards" }, chosen.length > 0 ? (row(chosen, function (card) { return onSelect(array.minus(selected, [card])); })) : (react.createElement(src_Card, { card: "\uD83C\uDCA0", trump: DDZ_TRUMP, plain: true })))) : null,
+        react.createElement("div", { className: classnames_default()("unselected-cards", { unclickable: !selectable }) }, row(rest, selectable ? function (card) { return onSelect(DdzHand_spreadArray(DdzHand_spreadArray([], selected, true), [card], false)); } : undefined))));
+};
+/* harmony default export */ const ddz_DdzHand = (DdzHand);
 
 ;// ./src/ddz/DdzTable.tsx
 var DdzTable_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
@@ -9396,11 +9401,21 @@ var DdzTable = function (props) {
         react.createElement("div", { className: "ddz-table" },
             seats,
             react.createElement("div", { className: "labeled-play ddz-seat" },
-                react.createElement(Fan, { cards: round.bottom }),
+                react.createElement(Fan, { cards: sortDdz(round.bottom) }),
                 react.createElement("div", { className: "label" }, "Bottom"))),
         react.createElement("p", { className: "ddz-info" }, info.join(" · ")),
         mySeat >= 0 ? react.createElement("div", { className: "ddz-actions" }, actions) : null,
-        mySeat >= 0 && round.stage !== "Finished" ? (react.createElement(ddz_DdzHand, { cards: hand, selected: selected, onSelect: setSelected })) : null));
+        mySeat >= 0 && round.stage !== "Finished" ? (react.createElement(ddz_DdzHand, { cards: hand, selected: selected, onSelect: setSelected })) : null,
+        mySeat < 0 && round.stage !== "Finished"
+            ? game.seats.map(function (id, seat) {
+                // A spectator who is watching gets every hand face up.
+                return round.hands[seat].some(function (c) { return c !== UNKNOWN_CARD; }) ? (react.createElement("div", { className: "ddz-watched", key: id },
+                    react.createElement("div", { className: classnames_default()({ next: round.turn === seat }) },
+                        nameOf(seat),
+                        seat === landlord ? LANDLORD : ""),
+                    react.createElement(ddz_DdzHand, { cards: round.hands[seat], smaller: true }))) : null;
+            })
+            : null));
 };
 /* harmony default export */ const ddz_DdzTable = (DdzTable);
 
@@ -10048,7 +10063,7 @@ var Timeout = function (props) {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"4e95d985c0ac6d36f86f"}[chunkId] + ".js";
+/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"182f34d87e08376e8de5"}[chunkId] + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -10301,4 +10316,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.9f9cd150cf19ac6609bf.js.map
+//# sourceMappingURL=main.ff5660bc59232520c3a1.js.map

@@ -8,7 +8,7 @@ import { formatDelta } from "../api";
 import { DdzPhase } from "../gen-types";
 import DdzHand from "./DdzHand";
 import { DdzTitle } from "./DdzLobby";
-import { DDZ_TRUMP, sortDdz } from "./ddzCards";
+import { DDZ_TRUMP, UNKNOWN_CARD, sortDdz } from "./ddzCards";
 
 import type { JSX } from "react";
 
@@ -281,7 +281,7 @@ const DdzTable = (props: IProps): JSX.Element => {
       <div className="ddz-table">
         {seats}
         <div className="labeled-play ddz-seat">
-          <Fan cards={round.bottom} />
+          <Fan cards={sortDdz(round.bottom)} />
           <div className="label">Bottom</div>
         </div>
       </div>
@@ -290,6 +290,20 @@ const DdzTable = (props: IProps): JSX.Element => {
       {mySeat >= 0 && round.stage !== "Finished" ? (
         <DdzHand cards={hand} selected={selected} onSelect={setSelected} />
       ) : null}
+      {mySeat < 0 && round.stage !== "Finished"
+        ? game.seats.map((id, seat) =>
+            // A spectator who is watching gets every hand face up.
+            round.hands[seat].some((c) => c !== UNKNOWN_CARD) ? (
+              <div className="ddz-watched" key={id}>
+                <div className={classNames({ next: round.turn === seat })}>
+                  {nameOf(seat)}
+                  {seat === landlord ? LANDLORD : ""}
+                </div>
+                <DdzHand cards={round.hands[seat]} smaller={true} />
+              </div>
+            ) : null,
+          )
+        : null}
     </div>
   );
 };

@@ -46,11 +46,9 @@ fn suit_order(card: Card) -> u8 {
     }
 }
 
-/// Highest first; unknown cards last.
+/// Lowest first, as hands are shown.
 pub fn sort_hand(cards: &mut [Card]) {
-    cards.sort_by_key(|c| {
-        std::cmp::Reverse((rank(*c).map(|r| r as i16).unwrap_or(-1), suit_order(*c)))
-    });
+    cards.sort_by_key(|c| (rank(*c).map(|r| r as i16).unwrap_or(-1), suit_order(*c)));
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]

@@ -3,7 +3,6 @@ import Cards from "./Cards";
 import { AppStateContext } from "./AppStateProvider";
 import { WebsocketContext } from "./WebsocketProvider";
 import { propagatedOf } from "./RatedBanner";
-import DdzHand from "./ddz/DdzHand";
 import type { GameState, Hands, Trump } from "./gen-types";
 
 import type { JSX } from "react";
@@ -27,7 +26,8 @@ const handsOf = (
 /// For spectators: a picker for the player whose hand to watch. The choice
 /// is sent to the server (`Shadow`), which then redacts the state for that
 /// player instead of for us, so their cards arrive with the next state and
-/// are shown here. Players never see this.
+/// are shown here. In a Dou Di Zhu room watching shows every hand, and the
+/// table draws them itself. Players never see this.
 const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
   const { state } = React.useContext(AppStateContext);
   const { send } = React.useContext(WebsocketContext);
@@ -62,21 +62,22 @@ const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
           }}
         >
           <option value="">nobody</option>
-          {players.map((p) => (
-            <option key={p.id} value={String(p.id)}>
-              {p.name}
+          {ddz !== null ? (
+            <option value={String(watching ?? players[0]?.id ?? "")}>
+              everyone
             </option>
-          ))}
+          ) : (
+            players.map((p) => (
+              <option key={p.id} value={String(p.id)}>
+                {p.name}
+              </option>
+            ))
+          )}
         </select>
       </label>
       {watching !== null && phase !== null ? (
         <div className="watch-hand-cards">
           <Cards hands={phase.hands} playerId={watching} trump={phase.trump} />
-        </div>
-      ) : null}
-      {watching !== null && ddz !== null && ddz.round.stage !== "Finished" ? (
-        <div className="watch-hand-cards">
-          <DdzHand cards={ddz.round.hands[ddz.seats.indexOf(watching)] ?? []} />
         </div>
       ) : null}
     </div>

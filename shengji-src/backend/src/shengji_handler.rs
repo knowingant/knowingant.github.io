@@ -497,10 +497,8 @@ async fn player_subscribe_task(
             // A spectator who asked to watch a player sees the state as that
             // player does, for as long as the room and their own seats allow.
             let target = *shadow.lock().unwrap();
-            if let Some(t) = target {
-                if shadow_view_allowed(&g, &username, t) {
-                    ids = vec![t];
-                }
+            if let Some(watched) = target.and_then(|t| watched_seats(&g, &username, t)) {
+                ids = watched;
             }
             match g.dump_state_for_players(&ids) {
                 Ok(state) => GameMessage::State { state },
@@ -821,6 +819,25 @@ pub fn shadow_view_allowed(game: &InteractiveGame, username: &str, target: Playe
         && !seat_ids(state, username)
             .iter()
             .any(|id| state.is_player(*id))
+}
+
+/// The seats a spectator watching `target` sees the hands of: that player's,
+/// or every player's in a Dou Di Zhu room. `None` when watching is not
+/// allowed (see [`shadow_view_allowed`]).
+pub fn watched_seats(
+    game: &InteractiveGame,
+    username: &str,
+    target: PlayerID,
+) -> Option<Vec<PlayerID>> {
+    if !shadow_view_allowed(game, username, target) {
+        return None;
+    }
+    let state = game.state();
+    Some(if state.player_mode() == PlayerMode::DouDiZhu {
+        state.players().iter().map(|p| p.id).collect()
+    } else {
+        vec![target]
+    })
 }
 
 /// `UserMessage::Shadow`: check the request against the room, remember it
@@ -2869,5 +2886,47 @@ mod tests {
         assert!(finished.rated);
         assert_eq!(finished.standings.len(), 3);
         assert!(matches!(g.state(), GameState::Initialize(_)));
+    }
+
+    #[test]
+    fn a_ddz_spectator_who_watches_sees_every_hand() {
+        let l = logger();
+        let mut g = ddz_room();
+        let mut ids = vec![];
+        for name in ["a", "b", "c"] {
+            ids.push(register_seats(&mut g, name).unwrap().0[0]);
+        }
+        for id in &ids {
+            g.interact(Action::StartGame, *id, &l).unwrap();
+        }
+        let watcher = register_seats(&mut g, "eve").unwrap().0[0];
+        assert!(!g.state().is_player(watcher));
+        assert_eq!(watched_seats(&g, "eve", ids[1]), Some(ids.clone()));
+        // Players never get the others' hands this way.
+        assert_eq!(watched_seats(&g, "a", ids[1]), None);
+        let seen = g
+            .dump_state_for_players(&watched_seats(&g, "eve", ids[0]).unwrap())
+            .unwrap();
+        match seen {
+            GameState::Ddz(p) => {
+                let round = &p.game().round;
+                assert!(round.hands.concat().iter().all(|c| *c != Card::Unknown));
+                // The bottom stays down until play starts, for everyone.
+                assert!(round.bottom.iter().all(|c| *c == Card::Unknown));
+            }
+            other => panic!("{:?}", other),
+        }
+        // In a Tractor room it is still one hand.
+        let mut g = InteractiveGame::new();
+        let alice = register_seats(&mut g, "alice").unwrap().0[0];
+        for name in ["bob", "carol", "dave"] {
+            register_seats(&mut g, name).unwrap();
+        }
+        for name in ["alice", "bob", "carol", "dave"] {
+            let id = g.state().player_id(name).unwrap();
+            g.interact(Action::StartGame, id, &l).unwrap();
+        }
+        register_seats(&mut g, "eve").unwrap();
+        assert_eq!(watched_seats(&g, "eve", alice), Some(vec![alice]));
     }
 }

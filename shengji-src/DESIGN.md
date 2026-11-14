@@ -155,7 +155,8 @@ Client → server (`UserMessage`) as upstream plus
 connection controls; plain `{"Action": ...}` acts as the first seat),
 `{"Shadow": <player_id> | null}` (spectators only: receive the state as that
 player sees it, i.e. with their hand, while the room's shadowing policy
-allows it; the server re-checks on every state it forwards) and
+allows it; the server re-checks on every state it forwards; in a Dou Di Zhu
+room watching anyone shows every player's hand) and
 `{"SetPlayerMode": "Standard" | "OneVsOne" | "DouDiZhu"}` (lobby, between
 matches: switch the room type; the server adds or removes everyone's `u (2)`
 seats, orders `[A, B, A (2), B (2)]` in 1v1, keeps the first three players
@@ -257,7 +258,9 @@ hand-watching, state dump, `rated` setting and start votes.
 - **State**: `GameState::Ddz(DdzPhase)` holds the `PropagatedState` and the
   `shengji_ddz::Match`. Redaction: other hands until the round is over, the
   bottom until play starts, the other farmer's doubling choice until both
-  have chosen. Settings are `PropagatedState.ddz` (`Action::SetDdzSettings`,
+  have chosen. A spectator who watches (`Shadow`) gets all three hands, and
+  the table lists them under the seats. Hands and plays are ordered lowest
+  card first. Settings are `PropagatedState.ddz` (`Action::SetDdzSettings`,
   lobby only). `StartGame` needs exactly three players and all their votes.
 - **Actions**: `{"Ddz": {"Bid": n}}`, `{"Ddz": {"Double": bool}}`,
   `{"Ddz": {"Play": [cards]}}`, `{"Ddz": "Pass"}`, `{"Ddz": "NextRound"}`

@@ -36,6 +36,11 @@ export const ddzRank = (card: string): number => {
   return number === null || number === undefined ? -1 : ORDER.indexOf(number);
 };
 
-/// Highest first, suits in a fixed order within a rank.
-export const sortDdz = (cards: string[]): string[] =>
-  [...cards].sort((a, b) => ddzRank(b) - ddzRank(a) || a.localeCompare(b));
+/// Lowest first (highest first with `reverse`), suits in a fixed order
+/// within a rank.
+export const sortDdz = (cards: string[], reverse: boolean = false): string[] =>
+  [...cards].sort(
+    (a, b) =>
+      (reverse ? ddzRank(b) - ddzRank(a) : ddzRank(a) - ddzRank(b)) ||
+      a.localeCompare(b),
+  );

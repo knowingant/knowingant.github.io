@@ -894,3 +894,17 @@ label {
   height: 58px;
   padding: 0 10px;
 }
+
+/* A spectator's view of the three hands, one under the other. */
+.ddz-watched {
+  padding: 0 10px 8px;
+}
+
+.ddz-watched .hand .unselected-cards {
+  padding: 0;
+}
+
+/* No room needed above the cards: they can't be picked, so never lift. */
+.ddz-watched .hand .unselected-cards .card {
+  margin-top: 4px;
+}

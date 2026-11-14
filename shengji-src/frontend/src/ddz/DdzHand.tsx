@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "classnames";
 import Card from "../Card";
 import ArrayUtils from "../util/array";
+import { SettingsContext } from "../AppStateProvider";
 import { DDZ_TRUMP, sortDdz } from "./ddzCards";
 
 import type { JSX } from "react";
@@ -11,15 +12,20 @@ interface IProps {
   /// Selectable when both are given.
   selected?: string[];
   onSelect?: (selected: string[]) => void;
+  smaller?: boolean;
 }
 
-/// A hand, highest card first. With `selected` the chosen cards move to a
-/// row above, as in the Tractor hand.
+/// A hand, lowest card first (the "reverse card order" setting flips it,
+/// as in Tractor). With `selected` the chosen cards move to a row above.
 const DdzHand = (props: IProps): JSX.Element => {
   const { cards, selected, onSelect } = props;
+  const { reverseCardOrder } = React.useContext(SettingsContext);
   const selectable = selected !== undefined && onSelect !== undefined;
-  const chosen = selectable ? sortDdz(selected) : [];
-  const rest = sortDdz(selectable ? ArrayUtils.minus(cards, selected) : cards);
+  const chosen = selectable ? sortDdz(selected, reverseCardOrder) : [];
+  const rest = sortDdz(
+    selectable ? ArrayUtils.minus(cards, selected) : cards,
+    reverseCardOrder,
+  );
 
   const row = (
     list: string[],
@@ -31,6 +37,7 @@ const DdzHand = (props: IProps): JSX.Element => {
         card={card}
         trump={DDZ_TRUMP}
         plain={true}
+        smaller={props.smaller}
         collapseRight={idx !== list.length - 1}
         onClick={onClick === undefined ? undefined : () => onClick(card)}
       />
