@@ -12,7 +12,9 @@
 # Only Rust is compiled here (no node/wasm), which keeps the build simple and
 # reproducible. Build the frontend locally with scripts/build_shengji.sh.
 
-FROM rust:1-bookworm AS builder
+# Pinned: the `redis` 0.23 dependency of `storage/` stops compiling on Rust
+# 1.100 (never-type fallback). Move this forward together with that crate.
+FROM rust:1.98-bookworm AS builder
 WORKDIR /app
 
 # Cache dependencies: copy manifests first.
