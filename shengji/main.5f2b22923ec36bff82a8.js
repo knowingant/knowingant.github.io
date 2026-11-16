@@ -1547,15 +1547,16 @@ var headerMessageHandler = function (_, message) {
         return null;
     }
 };
-var lastBeeped = performance.now();
+var BEEP_MS = 2000;
+var lastBeeped = performance.now() - BEEP_MS;
 var beepHandler = function (message) {
     if ("Beep" in message) {
         var now = performance.now();
         // Rate-limit beeps to prevent annoyance.
-        if (now - lastBeeped >= 1000) {
-            // Full volume: a beep is someone asking you to hurry up, and at the
-            // old level (3) it was easy to miss.
-            src_beep(100, 261.63, 400);
+        if (now - lastBeeped >= BEEP_MS) {
+            // Full volume and comically long: a beep is someone asking you to
+            // hurry up. One at a time, so they never overlap.
+            src_beep(100, 261.63, BEEP_MS);
             lastBeeped = now;
         }
     }
@@ -2789,6 +2790,24 @@ var resultVerb = function (result) {
 var withPercent = function (count, total) {
     return total > 0 ? "".concat(count, " (").concat(Math.round((count / total) * 100), "%)") : "".concat(count);
 };
+/// `+0.08 (won +1.09, lost −0.90)`: the net levels per round against the
+/// other side, then the average gain in rounds won and the average the other
+/// side gained in rounds lost.
+var averageRankChange = function (s) {
+    var _a;
+    var conceded = (_a = s.levels_conceded) !== null && _a !== void 0 ? _a : 0;
+    var lost = s.rounds - s.rounds_won;
+    if (s.rounds === 0) {
+        return "0";
+    }
+    var signed = function (x) {
+        return "".concat(x < 0 ? "−" : "+").concat(Math.abs(x).toFixed(2));
+    };
+    var net = (s.levels_gained - conceded) / s.rounds;
+    var gain = s.rounds_won > 0 ? s.levels_gained / s.rounds_won : 0;
+    var loss = lost > 0 ? conceded / lost : 0;
+    return "".concat(signed(net), " (won ").concat(signed(gain), ", lost ").concat(signed(-loss), ")");
+};
 var Ladders = function (props) { return (react.createElement("table", { className: "leaderboard-table account-ladders" },
     react.createElement("thead", null,
         react.createElement("tr", null,
@@ -2819,6 +2838,7 @@ var Stats = function (props) {
             "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
         ],
         ["Levels gained", "".concat(s.levels_gained)],
+        ["Average rank gain / loss per round", averageRankChange(s)],
         ["Matches played", "".concat(s.matches)],
         [
             "Matches won / lost / drawn",
@@ -10337,4 +10357,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.9295704dc3830b64f282.js.map
+//# sourceMappingURL=main.5f2b22923ec36bff82a8.js.map

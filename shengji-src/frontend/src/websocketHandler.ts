@@ -78,15 +78,16 @@ const headerMessageHandler: WebsocketHandler = (
   }
 };
 
-let lastBeeped = performance.now();
+const BEEP_MS = 2000;
+let lastBeeped = performance.now() - BEEP_MS;
 const beepHandler = (message: GameMessage): void => {
   if ("Beep" in message) {
     const now = performance.now();
     // Rate-limit beeps to prevent annoyance.
-    if (now - lastBeeped >= 1000) {
-      // Full volume: a beep is someone asking you to hurry up, and at the
-      // old level (3) it was easy to miss.
-      beep(100, 261.63, 400);
+    if (now - lastBeeped >= BEEP_MS) {
+      // Full volume and comically long: a beep is someone asking you to
+      // hurry up. One at a time, so they never overlap.
+      beep(100, 261.63, BEEP_MS);
       lastBeeped = now;
     }
   }

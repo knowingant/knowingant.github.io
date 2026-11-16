@@ -32,6 +32,23 @@ const resultVerb = (result: api.MatchResult): string => {
 const withPercent = (count: number, total: number): string =>
   total > 0 ? `${count} (${Math.round((count / total) * 100)}%)` : `${count}`;
 
+/// `+0.08 (won +1.09, lost −0.90)`: the net levels per round against the
+/// other side, then the average gain in rounds won and the average the other
+/// side gained in rounds lost.
+const averageRankChange = (s: api.ProfileStats): string => {
+  const conceded = s.levels_conceded ?? 0;
+  const lost = s.rounds - s.rounds_won;
+  if (s.rounds === 0) {
+    return "0";
+  }
+  const signed = (x: number): string =>
+    `${x < 0 ? "−" : "+"}${Math.abs(x).toFixed(2)}`;
+  const net = (s.levels_gained - conceded) / s.rounds;
+  const gain = s.rounds_won > 0 ? s.levels_gained / s.rounds_won : 0;
+  const loss = lost > 0 ? conceded / lost : 0;
+  return `${signed(net)} (won ${signed(gain)}, lost ${signed(-loss)})`;
+};
+
 const Ladders = (props: {
   ratings: { team: RatingView; "1v1": RatingView; ddz?: RatingView };
 }): JSX.Element => (
@@ -74,6 +91,7 @@ const Stats = (props: { stats: api.ProfileStats }): JSX.Element => {
       `${s.landlord_rounds} (won ${withPercent(s.landlord_wins, s.landlord_rounds)})`,
     ],
     ["Levels gained", `${s.levels_gained}`],
+    ["Average rank gain / loss per round", averageRankChange(s)],
     ["Matches played", `${s.matches}`],
     [
       "Matches won / lost / drawn",

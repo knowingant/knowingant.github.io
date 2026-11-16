@@ -970,6 +970,10 @@ pub struct UserStats {
     pub landlord_rounds: i64,
     pub landlord_wins: i64,
     pub levels_gained: i64,
+    /// Levels the other side gained in the rounds this user lost (Tractor;
+    /// not meaningful for Fight the Landlord, whose points are already
+    /// signed).
+    pub levels_conceded: i64,
     pub matches: i64,
     pub matches_won: i64,
     pub matches_lost: i64,
@@ -987,13 +991,15 @@ pub fn user_stats(conn: &Connection, user_id: i64, ddz: bool) -> DbResult<UserSt
         landlord_rounds,
         landlord_wins,
         levels_gained,
+        levels_conceded,
     ) = conn.query_row(
         &format!(
             "SELECT COUNT(*), COALESCE(SUM(rp.won), 0), COALESCE(SUM(rp.is_defender), 0), \
                     COALESCE(SUM(CASE WHEN rp.is_defender = 1 AND rp.won = 1 THEN 1 ELSE 0 END), 0), \
                     COALESCE(SUM(rp.is_landlord), 0), \
                     COALESCE(SUM(CASE WHEN rp.is_landlord = 1 AND rp.won = 1 THEN 1 ELSE 0 END), 0), \
-                    COALESCE(SUM(rp.levels_gained), 0) \
+                    COALESCE(SUM(rp.levels_gained), 0), \
+                    COALESCE(SUM(CASE WHEN rp.won = 0 THEN r.level_delta ELSE 0 END), 0) \
              FROM round_players rp JOIN rounds r ON r.id = rp.round_id \
              WHERE rp.user_id = ?1 AND r.mode {game}"
         ),
@@ -1007,6 +1013,7 @@ pub fn user_stats(conn: &Connection, user_id: i64, ddz: bool) -> DbResult<UserSt
                 r.get::<_, i64>(4)?,
                 r.get::<_, i64>(5)?,
                 r.get::<_, i64>(6)?,
+                r.get::<_, i64>(7)?,
             ))
         },
     )?;
@@ -1039,6 +1046,7 @@ pub fn user_stats(conn: &Connection, user_id: i64, ddz: bool) -> DbResult<UserSt
         landlord_rounds,
         landlord_wins,
         levels_gained,
+        levels_conceded,
         matches,
         matches_won,
         matches_lost,
@@ -1270,6 +1278,7 @@ mod tests {
                 landlord_rounds: 1,
                 landlord_wins: 1,
                 levels_gained: 3,
+                levels_conceded: 0,
                 matches: 1,
                 matches_won: 1,
                 matches_lost: 0,
@@ -1280,6 +1289,8 @@ mod tests {
         let stats_b = user_stats(&conn, b.id, false).unwrap();
         assert_eq!(stats_b.matches_lost, 1);
         assert_eq!(stats_b.defender_rounds, 0);
+        // b lost the round in which a's side went up three levels.
+        assert_eq!((stats_b.levels_gained, stats_b.levels_conceded), (0, 3));
         assert_eq!(user_stats(&conn, 999, false).unwrap(), UserStats::default());
     }
 }

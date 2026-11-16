@@ -63,6 +63,8 @@ export interface ProfileStats {
   landlord_rounds: number;
   landlord_wins: number;
   levels_gained: number;
+  /// Levels the other side gained in rounds this account lost (Tractor).
+  levels_conceded: number;
   matches: number;
   matches_won: number;
   matches_lost: number;
