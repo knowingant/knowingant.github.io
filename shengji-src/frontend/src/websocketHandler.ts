@@ -84,7 +84,9 @@ const beepHandler = (message: GameMessage): void => {
     const now = performance.now();
     // Rate-limit beeps to prevent annoyance.
     if (now - lastBeeped >= 1000) {
-      beep(3, 261.63, 200);
+      // Full volume: a beep is someone asking you to hurry up, and at the
+      // old level (3) it was easy to miss.
+      beep(100, 261.63, 400);
       lastBeeped = now;
     }
   }

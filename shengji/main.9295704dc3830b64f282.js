@@ -1446,6 +1446,9 @@ var getContext = src_memoize(function () { return new window.AudioContext(); });
 var beep = function (vol, freq, duration) {
     if (window.AudioContext !== undefined) {
         var beepContext = getContext();
+        // Browsers keep a context suspended until the page has been interacted
+        // with; resuming is a no-op otherwise.
+        void beepContext.resume();
         var v = beepContext.createOscillator();
         var u = beepContext.createGain();
         v.connect(u);
@@ -1550,7 +1553,9 @@ var beepHandler = function (message) {
         var now = performance.now();
         // Rate-limit beeps to prevent annoyance.
         if (now - lastBeeped >= 1000) {
-            src_beep(3, 261.63, 200);
+            // Full volume: a beep is someone asking you to hurry up, and at the
+            // old level (3) it was easy to miss.
+            src_beep(100, 261.63, 400);
             lastBeeped = now;
         }
     }
@@ -9234,6 +9239,7 @@ var DdzTable_spreadArray = (undefined && undefined.__spreadArray) || function (t
 
 
 
+
 var LANDLORD = " (地主)";
 /// A row of small cards that overlap more as they get crowded, so a seat's
 /// box keeps its size whatever is played into it.
@@ -9414,7 +9420,12 @@ var DdzTable = function (props) {
                 react.createElement(Fan, { cards: sortDdz(round.bottom) }),
                 react.createElement("div", { className: "label" }, "Bottom"))),
         react.createElement("p", { className: "ddz-info" }, info.join(" · ")),
-        mySeat >= 0 ? react.createElement("div", { className: "ddz-actions" }, actions) : null,
+        mySeat >= 0 ? (react.createElement("div", { className: "ddz-actions" },
+            actions,
+            round.stage !== "Finished" &&
+                round.turn !== null &&
+                round.turn !== undefined &&
+                round.turn !== mySeat ? (react.createElement(src_BeepButton, null)) : null)) : null,
         mySeat >= 0 && round.stage !== "Finished" ? (react.createElement(ddz_DdzHand, { cards: hand, selected: selected, onSelect: setSelected })) : null,
         mySeat < 0 && round.stage !== "Finished"
             ? game.seats.map(function (id, seat) {
@@ -10326,4 +10337,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.30d7c03583e2686d1366.js.map
+//# sourceMappingURL=main.9295704dc3830b64f282.js.map

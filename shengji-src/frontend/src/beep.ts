@@ -5,6 +5,9 @@ const getContext = memoize(() => new window.AudioContext());
 const beep = (vol: number, freq: number, duration: number): void => {
   if (window.AudioContext !== undefined) {
     const beepContext = getContext();
+    // Browsers keep a context suspended until the page has been interacted
+    // with; resuming is a no-op otherwise.
+    void beepContext.resume();
     const v = beepContext.createOscillator();
     const u = beepContext.createGain();
     v.connect(u);

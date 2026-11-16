@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "classnames";
 import Card from "../Card";
 import Players from "../Players";
+import BeepButton from "../BeepButton";
 import { WebsocketContext } from "../WebsocketProvider";
 import { useEngine } from "../useEngine";
 import { formatDelta } from "../api";
@@ -286,7 +287,19 @@ const DdzTable = (props: IProps): JSX.Element => {
         </div>
       </div>
       <p className="ddz-info">{info.join(" · ")}</p>
-      {mySeat >= 0 ? <div className="ddz-actions">{actions}</div> : null}
+      {mySeat >= 0 ? (
+        <div className="ddz-actions">
+          {actions}
+          {/* Only when one specific other player is being waited on (not
+              during the farmers' simultaneous doubling choice). */}
+          {round.stage !== "Finished" &&
+          round.turn !== null &&
+          round.turn !== undefined &&
+          round.turn !== mySeat ? (
+            <BeepButton />
+          ) : null}
+        </div>
+      ) : null}
       {mySeat >= 0 && round.stage !== "Finished" ? (
         <DdzHand cards={hand} selected={selected} onSelect={setSelected} />
       ) : null}
