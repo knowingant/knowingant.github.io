@@ -8287,10 +8287,20 @@ var Play = function (props) {
         });
     }); };
     var playCards = function () {
-        if (chosen === null) {
+        var _a;
+        // Only a lead needs its grouping chosen (it sets the trick's format).
+        // When following, the format is already set and the server ignores the
+        // hint, so cards that happen to group in more than one way (4 555 66 is
+        // a triple, a pair and a single, or a tractor and two singles) must still
+        // go out.
+        var leading = playPhase.trick.played_cards.length === 0;
+        if (leading && chosen === null) {
             return;
         }
-        send({ Action: { PlayCardsWithHint: [selected, chosen.grouping] } });
+        var hint = (_a = chosen !== null && chosen !== void 0 ? chosen : grouping[0]) !== null && _a !== void 0 ? _a : null;
+        send(hint !== null
+            ? { Action: { PlayCardsWithHint: [selected, hint.grouping] } }
+            : { Action: { PlayCards: selected } });
         setSelected([]);
         setGrouping([]);
         setChosen(null);
@@ -10316,4 +10326,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.ff5660bc59232520c3a1.js.map
+//# sourceMappingURL=main.30d7c03583e2686d1366.js.map

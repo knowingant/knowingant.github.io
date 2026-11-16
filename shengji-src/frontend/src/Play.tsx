@@ -94,10 +94,21 @@ const Play = (props: IProps): JSX.Element => {
   };
 
   const playCards = (): void => {
-    if (chosen === null) {
+    // Only a lead needs its grouping chosen (it sets the trick's format).
+    // When following, the format is already set and the server ignores the
+    // hint, so cards that happen to group in more than one way (4 555 66 is
+    // a triple, a pair and a single, or a tractor and two singles) must still
+    // go out.
+    const leading = playPhase.trick.played_cards.length === 0;
+    if (leading && chosen === null) {
       return;
     }
-    send({ Action: { PlayCardsWithHint: [selected, chosen.grouping] } });
+    const hint = chosen ?? grouping[0] ?? null;
+    send(
+      hint !== null
+        ? { Action: { PlayCardsWithHint: [selected, hint.grouping] } }
+        : { Action: { PlayCards: selected } },
+    );
     setSelected([]);
     setGrouping([]);
     setChosen(null);
