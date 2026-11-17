@@ -6,13 +6,10 @@ permalink: /diaries/
 
 I keep a diary in PDF form.
 The PDFs are posted here, but you need a password to read them.
-If you'd like to read my diaries, request to join my Discord server at
+Get the passwords by requesting to join my Discord server at
 [https://discord.gg/5W9w2rBPmZ](https://discord.gg/5W9w2rBPmZ).
-If you're in this server, I will also ping you every time a new entry drops.
-I will approve your request iff I know you well enough.
 
-Please do not share the passwords with anyone not in the server.
-If you do so, I will slime you out.
+Please do not share the passwords; I will slime you out.
 
 # List of characters
 
@@ -25,6 +22,7 @@ The list is a work in progress.
 
 On Monday, April 6, 2026, I started keeping a diary daily.
 These diaries are published once a week on Sunday nights.
+- [Week 14](/assets/diaries/week15/week15.pdf)
 - [Week 14](/assets/diaries/week14/week14.pdf)
 - [Week 13](/assets/diaries/week13/week13.pdf)
 - [Week 12](/assets/diaries/week12/week12.pdf)
