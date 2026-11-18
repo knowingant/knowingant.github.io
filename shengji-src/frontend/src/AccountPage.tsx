@@ -28,11 +28,11 @@ const resultVerb = (result: api.MatchResult): string => {
   }
 };
 
-/// `47 (68%)`, or just `0` when there is nothing to take a percentage of.
+/// `47 (68.12%)`, or just `0` when there is nothing to take a percentage of.
 const withPercent = (count: number, total: number): string =>
-  total > 0 ? `${count} (${Math.round((count / total) * 100)}%)` : `${count}`;
+  total > 0 ? `${count} (${((count / total) * 100).toFixed(2)}%)` : `${count}`;
 
-/// `+0.08 (won +1.09, lost −0.90)`: the net levels per round against the
+/// `+0.0776 (won +1.0965, lost −0.9068)`: the net levels per round against the
 /// other side, then the average gain in rounds won and the average the other
 /// side gained in rounds lost.
 const averageRankChange = (s: api.ProfileStats): string => {
@@ -42,7 +42,7 @@ const averageRankChange = (s: api.ProfileStats): string => {
     return "0";
   }
   const signed = (x: number): string =>
-    `${x < 0 ? "−" : "+"}${Math.abs(x).toFixed(2)}`;
+    `${x < 0 ? "−" : "+"}${Math.abs(x).toFixed(4)}`;
   const net = (s.levels_gained - conceded) / s.rounds;
   const gain = s.rounds_won > 0 ? s.levels_gained / s.rounds_won : 0;
   const loss = lost > 0 ? conceded / lost : 0;

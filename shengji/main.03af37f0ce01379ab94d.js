@@ -2786,11 +2786,11 @@ var resultVerb = function (result) {
             return "drew";
     }
 };
-/// `47 (68%)`, or just `0` when there is nothing to take a percentage of.
+/// `47 (68.12%)`, or just `0` when there is nothing to take a percentage of.
 var withPercent = function (count, total) {
-    return total > 0 ? "".concat(count, " (").concat(Math.round((count / total) * 100), "%)") : "".concat(count);
+    return total > 0 ? "".concat(count, " (").concat(((count / total) * 100).toFixed(2), "%)") : "".concat(count);
 };
-/// `+0.08 (won +1.09, lost −0.90)`: the net levels per round against the
+/// `+0.0776 (won +1.0965, lost −0.9068)`: the net levels per round against the
 /// other side, then the average gain in rounds won and the average the other
 /// side gained in rounds lost.
 var averageRankChange = function (s) {
@@ -2801,7 +2801,7 @@ var averageRankChange = function (s) {
         return "0";
     }
     var signed = function (x) {
-        return "".concat(x < 0 ? "−" : "+").concat(Math.abs(x).toFixed(2));
+        return "".concat(x < 0 ? "−" : "+").concat(Math.abs(x).toFixed(4));
     };
     var net = (s.levels_gained - conceded) / s.rounds;
     var gain = s.rounds_won > 0 ? s.levels_gained / s.rounds_won : 0;
@@ -10357,4 +10357,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.5f2b22923ec36bff82a8.js.map
+//# sourceMappingURL=main.03af37f0ce01379ab94d.js.map
