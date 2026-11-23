@@ -3,6 +3,7 @@ import { AppStateContext } from "./AppStateProvider";
 import Landing from "./Landing";
 import Game from "./Game";
 import AccountPage from "./AccountPage";
+import Leaderboard from "./Leaderboard";
 import Credits from "./Credits";
 import TitleHandler from "./TitleHandler";
 
@@ -19,6 +20,12 @@ export const accountRouteUsername = (hash: string): string | null => {
   return username.length > 0 ? username : null;
 };
 
+/// Whether the hash is the `#leaderboard` page.
+export const isLeaderboardRoute = (hash: string): boolean => {
+  const trimmed = hash.startsWith("#") ? hash.slice(1) : hash;
+  return trimmed === "leaderboard";
+};
+
 /// `window.location.hash`, kept up to date as the user follows in-page
 /// links (`#user/<name>`, "back to the lobby") and uses the back button.
 const useHash = (): string => {
@@ -32,11 +39,12 @@ const useHash = (): string => {
 };
 
 /// Top-level switch between the landing page (sign-in / join room), an
-/// account page and the in-room game view. Everything shared (header
-/// messages, dark mode) lives here.
+/// account page, the leaderboards and the in-room game view. Everything
+/// shared (header messages, dark mode) lives here.
 const Root = (): JSX.Element => {
   const { state } = React.useContext(AppStateContext);
-  const accountUsername = accountRouteUsername(useHash());
+  const hash = useHash();
+  const accountUsername = accountRouteUsername(hash);
 
   const [previousHeaderMessages, setPreviousHeaderMessages] = React.useState<
     string[]
@@ -79,6 +87,18 @@ const Root = (): JSX.Element => {
       ))}
     </div>
   ) : null;
+
+  if (isLeaderboardRoute(hash)) {
+    return (
+      <div>
+        {headerMessages}
+        <Leaderboard />
+        <hr />
+        <Credits />
+        <TitleHandler playerName={state.name} />
+      </div>
+    );
+  }
 
   if (accountUsername !== null) {
     return (

@@ -604,9 +604,52 @@ label {
 
 /* --- landing/auth --- */
 .auth,
-.account-bar,
-.leaderboard {
-  max-width: 760px;
+.account-bar {
+  max-width: 800px;
+}
+
+/* The leaderboards have a page of their own: wider than the lobby's column,
+   so the ladders sit side by side instead of wrapping onto a second line. */
+.leaderboard-page {
+  width: 95%;
+  max-width: 1200px;
+  /* override .game's desktop minimums so phones don't scroll sideways */
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+@media (max-width: 700px) {
+  .leaderboard-page {
+    width: 100%;
+  }
+  .ladder {
+    overflow-x: auto;
+  }
+  .leaderboard-controls label,
+  .leaderboard-controls select {
+    display: block;
+    width: 100%;
+  }
+  .leaderboard-controls select {
+    margin-top: 4px;
+  }
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 3px 4px;
+    white-space: nowrap;
+    font-size: 0.9em;
+  }
+  .leaderboard-table th:nth-child(2),
+  .leaderboard-table td:nth-child(2) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+.leaderboard-page h3 {
+  margin: 18px 0 4px;
 }
 
 .auth-form label {
@@ -720,16 +763,17 @@ label {
   font-weight: bold;
 }
 
-.leaderboard-tables {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  align-items: flex-start;
+.leaderboard-controls {
+  margin: 8px 0 12px;
+}
+
+.leaderboard-controls select {
+  font-size: 1em;
+  max-width: 100%;
 }
 
 .ladder {
-  flex: 1 1 300px;
-  min-width: 280px;
+  max-width: 700px;
 }
 
 .ladder h4 {
@@ -895,9 +939,10 @@ label {
   padding: 0 10px;
 }
 
-/* A spectator's view of the three hands, one under the other. */
+/* A spectator's view of the three hands, one under the other, under the
+   "Watch" picker at the top of the game (as in Tractor). */
 .ddz-watched {
-  padding: 0 10px 8px;
+  padding: 0 0 8px;
 }
 
 .ddz-watched .hand .unselected-cards {

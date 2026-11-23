@@ -1159,21 +1159,22 @@ pub fn reset_confirmation_allowed(
     Ok(())
 }
 
-/// Whether a reset here needs *every* other player's confirmation: a rated
-/// Finding Friends round in which at least one friend is still unrevealed.
-/// The landlord's hidden friends count as "the other team", so the team rule
-/// alone would let a friend confirm a reset to dodge a loss (DESIGN.md,
-/// "Reset guards").
-pub fn needs_unanimous_reset(state: &GameState) -> bool {
+/// Whether a confirmation here goes through `record_reset_vote` instead of
+/// the team rule: a rated Finding Friends round in which at least one friend
+/// is still unrevealed (the landlord's hidden friends count as "the other
+/// team", so the team rule alone would let a friend confirm a reset to dodge
+/// a loss), and any rated Fight the Landlord match. One other player's
+/// agreement is enough in both cases (DESIGN.md, "Reset guards").
+pub fn needs_second_player_reset(state: &GameState) -> bool {
     match state {
         GameState::Play(p) => state.rated() && p.game_mode().friends_unresolved(),
-        // Two of three could otherwise abandon a match the third is winning.
         GameState::Ddz(_) => state.rated(),
         _ => false,
     }
 }
 
-/// Outcome of a `ResetGame` in a round that needs unanimous confirmation.
+/// Outcome of a `ResetGame` in a round that needs another player's
+/// confirmation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ResetVote {
     /// Hand the action to the core: it records the request, or completes the
@@ -1185,7 +1186,8 @@ pub enum ResetVote {
 
 /// Record `caller`'s confirmation of a pending reset and decide whether the
 /// reset may go through. Only players can vote (observers never reach here),
-/// and the requester's own vote never counts towards the total.
+/// and the requester's own vote never counts. One other player is enough: a
+/// player who has had to leave cannot be waited on to end a match.
 pub fn record_reset_vote(
     state: &GameState,
     caller: PlayerID,
@@ -1199,19 +1201,12 @@ pub fn record_reset_vote(
         None => return ResetVote::Forward,
         Some(r) => r,
     };
-    let others = state
-        .players()
-        .iter()
-        .map(|p| p.id)
-        .filter(|id| *id != requester)
-        .collect::<Vec<_>>();
-    let confirmed = others.iter().filter(|id| votes.contains(id)).count();
-    if confirmed >= others.len() {
+    if votes.iter().any(|id| *id != requester) {
         ResetVote::Forward
     } else {
         ResetVote::Waiting {
-            votes: confirmed,
-            needed: others.len(),
+            votes: 0,
+            needed: 1,
         }
     }
 }
@@ -1220,14 +1215,15 @@ pub fn record_reset_vote(
 /// come from the other team in a rated Play phase, and from a different
 /// user in 1v1 rooms. A repeated request by the requester is a no-op in the
 /// core, so it is allowed through. Rated Finding Friends rounds with hidden
-/// friends use `record_reset_vote` instead of the team rule.
+/// friends, and rated Fight the Landlord matches, use `record_reset_vote`
+/// instead of the team rule.
 pub fn check_reset_confirmation(state: &GameState, caller: PlayerID) -> Result<(), anyhow::Error> {
     let requester = match state.reset_requester() {
         Some(r) if r != caller => r,
         _ => return Ok(()),
     };
     let same_team_in_rated_play = match state {
-        GameState::Play(p) if state.rated() && !needs_unanimous_reset(state) => {
+        GameState::Play(p) if state.rated() && !needs_second_player_reset(state) => {
             let team = p.landlords_team();
             Some(team.contains(&requester) == team.contains(&caller))
         }
@@ -1608,8 +1604,8 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
                 }
             }
             let restarts_pickup_clock = resets_pickup_timer(game.state(), &action);
-            // A reset in a rated Finding Friends round needs everyone else.
-            if matches!(action, Action::ResetGame) && needs_unanimous_reset(game.state()) {
+            // A reset here needs one other player to agree.
+            if matches!(action, Action::ResetGame) && needs_second_player_reset(game.state()) {
                 if let ResetVote::Waiting { votes, needed } =
                     record_reset_vote(game.state(), caller, reset_votes)
                 {
@@ -1620,7 +1616,7 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
                     };
                     return Ok(vec![GameMessage::System {
                         message: format!(
-                            "{what} needs everyone else to agree ({votes} of {needed})"
+                            "{what} needs another player to agree ({votes} of {needed})"
                         ),
                     }]);
                 }
@@ -2490,10 +2486,10 @@ mod tests {
     }
 
     #[test]
-    fn reset_guard_in_rated_finding_friends_needs_every_other_player() {
+    fn reset_guard_in_rated_finding_friends_needs_one_other_player() {
         let (state, landlord) = finding_friends_play_phase(["p1", "p2", "p3", "p4"]);
         // An unrevealed friend would otherwise count as "the other team".
-        assert!(needs_unanimous_reset(&state));
+        assert!(needs_second_player_reset(&state));
         let others: Vec<PlayerID> = state
             .players()
             .iter()
@@ -2514,44 +2510,31 @@ mod tests {
         g.interact(Action::ResetGame, landlord, &logger()).unwrap();
         assert_eq!(g.state().reset_requester(), Some(landlord));
 
-        // The team rule no longer decides; every other player must confirm.
+        // The team rule no longer decides; one other player is enough. The
+        // requester's own vote is not a second player.
         assert!(guard_action(g.state(), others[0], &Action::ResetGame).is_ok());
         assert_eq!(
-            record_reset_vote(g.state(), others[0], &mut votes),
+            record_reset_vote(g.state(), landlord, &mut votes),
             ResetVote::Waiting {
-                votes: 1,
-                needed: 3
+                votes: 0,
+                needed: 1
             }
         );
-        // Voting twice does not count twice, and observers never count.
-        assert_eq!(
-            record_reset_vote(g.state(), others[0], &mut votes),
-            ResetVote::Waiting {
-                votes: 1,
-                needed: 3
-            }
-        );
+        // Observers never count.
         assert!(guard_action(g.state(), observer, &Action::ResetGame).is_err());
         assert_eq!(
             record_reset_vote(g.state(), observer, &mut votes),
             ResetVote::Waiting {
-                votes: 1,
-                needed: 3
+                votes: 0,
+                needed: 1
             }
         );
+        // One Confirmation completes it, and the core resets the round.
         assert_eq!(
             record_reset_vote(g.state(), others[1], &mut votes),
-            ResetVote::Waiting {
-                votes: 2,
-                needed: 3
-            }
-        );
-        // The last one completes it, and the core resets the round.
-        assert_eq!(
-            record_reset_vote(g.state(), others[2], &mut votes),
             ResetVote::Forward
         );
-        g.interact(Action::ResetGame, others[2], &logger()).unwrap();
+        g.interact(Action::ResetGame, others[1], &logger()).unwrap();
         assert!(matches!(g.state(), GameState::Initialize(_)));
 
         // Unrated, or Tractor: the usual "other team" rule applies instead.
@@ -2559,7 +2542,7 @@ mod tests {
         if let GameState::Play(p) = &mut unrated {
             p.propagated_mut().set_rated(false).unwrap();
         }
-        assert!(!needs_unanimous_reset(&unrated));
+        assert!(!needs_second_player_reset(&unrated));
         let other = unrated
             .players()
             .iter()
@@ -2569,7 +2552,7 @@ mod tests {
         let mut g = InteractiveGame::new_from_state(unrated);
         g.interact(Action::ResetGame, landlord, &logger()).unwrap();
         assert!(guard_action(g.state(), other, &Action::ResetGame).is_ok());
-        assert!(!needs_unanimous_reset(&play_phase(
+        assert!(!needs_second_player_reset(&play_phase(
             ["p1", "p2", "p3", "p4"],
             false
         )));
@@ -2809,7 +2792,7 @@ mod tests {
     }
 
     #[test]
-    fn ddz_outcomes_are_read_from_the_broadcasts_and_resets_are_unanimous() {
+    fn ddz_outcomes_are_read_from_the_broadcasts_and_resets_need_one_other_player() {
         let l = logger();
         let mut g = ddz_room();
         let mut ids = vec![];
@@ -2825,22 +2808,24 @@ mod tests {
         for id in &ids {
             g.interact(Action::StartGame, *id, &l).unwrap();
         }
-        assert!(needs_unanimous_reset(g.state()));
+        assert!(needs_second_player_reset(g.state()));
         let mut votes = HashSet::new();
         assert_eq!(
             record_reset_vote(g.state(), ids[0], &mut votes),
             ResetVote::Forward
         );
         g.interact(Action::ResetGame, ids[0], &l).unwrap();
+        // The requester's own vote is not a second player; one other player
+        // is enough to abandon the match.
         assert_eq!(
-            record_reset_vote(g.state(), ids[1], &mut votes),
+            record_reset_vote(g.state(), ids[0], &mut votes),
             ResetVote::Waiting {
-                votes: 1,
-                needed: 2
+                votes: 0,
+                needed: 1
             }
         );
         assert_eq!(
-            record_reset_vote(g.state(), ids[2], &mut votes),
+            record_reset_vote(g.state(), ids[1], &mut votes),
             ResetVote::Forward
         );
         g.interact(Action::CancelResetGame, ids[0], &l).unwrap();

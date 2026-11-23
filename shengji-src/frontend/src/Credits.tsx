@@ -11,7 +11,7 @@ const contentStyle: React.CSSProperties = {
   transform: "translate(-50%, -50%)",
 };
 
-const changeLogVersion: number = 29;
+const changeLogVersion: number = 30;
 
 const ChangeLog = (): JSX.Element => {
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
@@ -61,6 +61,22 @@ const ChangeLog = (): JSX.Element => {
           you&apos;re in the game.
         </p>
         <h2>Change Log</h2>
+        <p>11/23/2026:</p>
+        <ul>
+          <li>
+            The leaderboards have a page of their own (linked from the lobby),
+            with the best average levels gained per round in Tractor and the
+            best average points per round in Fight the Landlord.
+          </li>
+          <li>
+            A spectator watching a hand in Fight the Landlord now sees the cards
+            at the top, as in Tractor.
+          </li>
+          <li>
+            Any two players can agree to reset a game that is in progress, so a
+            player having to leave does not hold the room up.
+          </li>
+        </ul>
         <p>11/10/2026:</p>
         <ul>
           <li>Added 斗地主 / Fight the Landlord.</li>

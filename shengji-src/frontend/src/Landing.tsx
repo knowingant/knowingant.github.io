@@ -3,13 +3,13 @@ import Errors from "./Errors";
 import JoinRoom from "./JoinRoom";
 import Auth from "./Auth";
 import AccountBar from "./AccountBar";
-import Leaderboard from "./Leaderboard";
 import { AppStateContext } from "./AppStateProvider";
 
 import type { JSX } from "react";
 
 /// The landing page: title, sign-in / registration, and (once signed in)
-/// the account bar, the join-room form and the leaderboard.
+/// the account bar and the join-room form. The leaderboards live on their
+/// own page (`#leaderboard`).
 const Landing = (): JSX.Element => {
   const { state, updateState } = React.useContext(AppStateContext);
 
@@ -51,7 +51,6 @@ const Landing = (): JSX.Element => {
             window.location.hash = roomName;
           }}
         />
-        <Leaderboard />
       </>
     );
   }
@@ -63,6 +62,10 @@ const Landing = (): JSX.Element => {
         {title}
         {intro}
         {content}
+        <p>
+          See the <a href="#leaderboard">leaderboards</a>: the three ladders,
+          and the best average levels and points per round.
+        </p>
       </div>
     </>
   );

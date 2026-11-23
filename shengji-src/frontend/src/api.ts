@@ -53,6 +53,23 @@ export interface LeaderboardResponse {
   entries: LeaderboardEntry[];
 }
 
+/// One row of `GET /api/leaderboard/per_round`.
+export interface PerRoundEntry {
+  username: string;
+  rounds: number;
+  /// Sum of the levels gained (Tractor) or points (Fight the Landlord).
+  total: number;
+  /// `total / rounds`.
+  average: number;
+}
+
+/// `GET /api/leaderboard/per_round`.
+export interface PerRoundResponse {
+  /// Rounds a player needs in that game before being listed.
+  min_rounds: number;
+  entries: PerRoundEntry[];
+}
+
 /// The "how did this account do" block of `GET /api/users/:username`. Every
 /// finished round and match counts here, rated or not.
 export interface ProfileStats {
@@ -367,6 +384,18 @@ export function fetchLeaderboard(
 ): Promise<LeaderboardResponse> {
   return apiFetch<LeaderboardResponse>(
     `/api/leaderboard?mode=${encodeURIComponent(mode)}&limit=${limit}`,
+    { auth: false },
+  );
+}
+
+/// `GET /api/leaderboard/per_round` (public): best average per round, over
+/// every finished round of that game (rated or not).
+export function fetchPerRoundLeaderboard(
+  game: "tractor" | "ddz",
+  limit: number = 50,
+): Promise<PerRoundResponse> {
+  return apiFetch<PerRoundResponse>(
+    `/api/leaderboard/per_round?game=${encodeURIComponent(game)}&limit=${limit}`,
     { auth: false },
   );
 }

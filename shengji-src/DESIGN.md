@@ -92,6 +92,13 @@ the frontend clears its stored token on that response.
 - `GET /api/leaderboard?mode=team|1v1|ddz&limit=50` →
   `{"entries": [{username, rating, matches, wins, losses, draws}]}` (users
   with ≥ 1 rated match on that ladder, by rating desc)
+- `GET /api/leaderboard/per_round?game=tractor|ddz&limit=50` →
+  `{"min_rounds": 5, "entries": [{username, rounds, total, average}]}`: best
+  average per round over every finished round (rated or not). `tractor`
+  averages `round_players.levels_gained` (levels climbed per round) over all
+  non-Fight-the-Landlord rooms; `ddz` averages the round's points, which are
+  stored in the same column and may be negative. Players with fewer than
+  `min_rounds` rounds are left out.
 - `GET /api/users/:username` → `profile` (see "Account pages")
 
 `user` = `{id, username, ratings: {team: RatingView, "1v1": RatingView, ddz: RatingView}}`,
@@ -259,8 +266,8 @@ hand-watching, state dump, `rated` setting and start votes.
   `shengji_ddz::Match`. Redaction: other hands until the round is over, the
   bottom until play starts, the other farmer's doubling choice until both
   have chosen. A spectator who watches (`Shadow`) gets all three hands, and
-  the table lists them under the seats. Hands and plays are ordered lowest
-  card first. Settings are `PropagatedState.ddz` (`Action::SetDdzSettings`,
+  `WatchHand` lists them above the table, where Tractor's watched hand goes.
+  Hands and plays are ordered lowest card first. Settings are `PropagatedState.ddz` (`Action::SetDdzSettings`,
   lobby only). `StartGame` needs exactly three players and all their votes.
 - **Actions**: `{"Ddz": {"Bid": n}}`, `{"Ddz": {"Double": bool}}`,
   `{"Ddz": {"Play": [cards]}}`, `{"Ddz": "Pass"}`, `{"Ddz": "NextRound"}`
@@ -320,9 +327,10 @@ Reset guards (rating-dodge prevention), enforced in the handler before
 room during the Play phase, the confirming `ResetGame` must come from a
 player on a different team than the requester (Tractor:
 `PlayPhase::landlords_team()`; 1v1: a different user); in Finding Friends
-while any friend is still unrevealed, the reset needs every other player's
-confirmation (`reset_votes` on `VersionedGame`; cleared on cancel or phase
-change).
+while any friend is still unrevealed, and in a rated Fight the Landlord
+match, one other player's confirmation is enough (`reset_votes` on
+`VersionedGame`; cleared on cancel or phase change). Two players agreeing is
+always sufficient, so a player who has had to leave cannot hold the room up.
 
 ## 1v1 rooms (backend)
 
@@ -374,7 +382,10 @@ renders this; `AccountBar`, leaderboard rows and player names link to it.
   vibecoded/idiot notice). Signed in → `AccountBar` (username, ratings,
   profile link, sign out), `JoinRoom` (room code), leaderboard.
 - Hash routing: `#<16-char room>` joins a room; `#user/<name>` shows an
-  account page (`AccountPage.tsx`).
+  account page (`AccountPage.tsx`); `#leaderboard` shows the leaderboards
+  (`Leaderboard.tsx`: the three rating ladders plus levels gained per round
+  in Tractor and points per round in Fight the Landlord), linked from the
+  lobby instead of sitting on it.
 - In room (`Game.tsx`): `RatedBanner` ("Rated match · first to 5 · round
   2" / "Unrated"), `Initialize.tsx` with the Rated and First-to-rank
   selects (disabled while a match is in progress) and a Start button that

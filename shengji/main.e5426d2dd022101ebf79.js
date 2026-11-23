@@ -798,6 +798,7 @@ var TimerProvider = function (props) { return react__WEBPACK_IMPORTED_MODULE_0__
 /* harmony export */   Ab: () => (/* binding */ googleSignIn),
 /* harmony export */   CW: () => (/* binding */ formatDelta),
 /* harmony export */   Ie: () => (/* binding */ logoutAll),
+/* harmony export */   RM: () => (/* binding */ fetchPerRoundLeaderboard),
 /* harmony export */   UC: () => (/* binding */ ladderName),
 /* harmony export */   WG: () => (/* binding */ setToken),
 /* harmony export */   Xq: () => (/* binding */ formatRating),
@@ -1106,6 +1107,12 @@ function logoutAll(token) {
 function fetchLeaderboard(mode, limit) {
     if (limit === void 0) { limit = 50; }
     return apiFetch("/api/leaderboard?mode=".concat(encodeURIComponent(mode), "&limit=").concat(limit), { auth: false });
+}
+/// `GET /api/leaderboard/per_round` (public): best average per round, over
+/// every finished round of that game (rated or not).
+function fetchPerRoundLeaderboard(game, limit) {
+    if (limit === void 0) { limit = 50; }
+    return apiFetch("/api/leaderboard/per_round?game=".concat(encodeURIComponent(game), "&limit=").concat(limit), { auth: false });
 }
 /// `GET /api/users/:username` (public). A 404 means there is no such
 /// account.
@@ -2221,20 +2228,12 @@ var JoinRoom = function (props) {
         react.createElement("div", null,
             react.createElement("p", null, "Pick a room code above (or roll the dice) to create a new room, or enter the code of an existing room to (re-)join it."),
             react.createElement("p", null,
-                "Rooms are ",
-                react.createElement("strong", null, "rated by default"),
-                ", and they play",
-                " ",
-                react.createElement("strong", null, "matches"),
-                ": a match is \u201Cfirst to rank N\u201D (5 by default). You can change N or turn rating off in settings before the match starts."),
-            react.createElement("p", null,
                 "If you're unfamiliar with the game, it might be helpful to",
                 " ",
                 react.createElement("a", { href: "rules.html", target: "_blank" }, "read the rules"),
                 " ",
                 "first."),
-            react.createElement("p", null, "Once you are in the game, share the room link to start playing!"),
-            react.createElement("p", null, "Compared to the robertying site, the defaults here are fast autodraw and no taking back bids or plays.")),
+            react.createElement("p", null, "Once you are in the game, share the link to start playing!")),
         react.createElement(src_PublicRoomsPane, { setRoomName: props.setRoomName })));
 };
 /* harmony default export */ const src_JoinRoom = (JoinRoom);
@@ -2766,340 +2765,6 @@ var AccountBar = function () {
 };
 /* harmony default export */ const src_AccountBar = (AccountBar);
 
-;// ./src/AccountPage.tsx
-
-
-/// The link to another account page. The base URL is the page itself, so a
-/// bare hash is enough.
-var accountHref = function (username) {
-    return "#user/".concat(encodeURIComponent(username));
-};
-var ladderName = api/* ladderName */.UC;
-/// "won" / "lost" / "drew", as a verb with the player as the subject.
-var resultVerb = function (result) {
-    switch (result) {
-        case "won":
-            return "won";
-        case "lost":
-            return "lost";
-        default:
-            return "drew";
-    }
-};
-/// `47 (68.12%)`, or just `0` when there is nothing to take a percentage of.
-var withPercent = function (count, total) {
-    return total > 0 ? "".concat(count, " (").concat(((count / total) * 100).toFixed(2), "%)") : "".concat(count);
-};
-/// `+0.0776 (won +1.0965, lost −0.9068)`: the net levels per round against the
-/// other side, then the average gain in rounds won and the average the other
-/// side gained in rounds lost.
-var averageRankChange = function (s) {
-    var _a;
-    var conceded = (_a = s.levels_conceded) !== null && _a !== void 0 ? _a : 0;
-    var lost = s.rounds - s.rounds_won;
-    if (s.rounds === 0) {
-        return "0";
-    }
-    var signed = function (x) {
-        return "".concat(x < 0 ? "−" : "+").concat(Math.abs(x).toFixed(4));
-    };
-    var net = (s.levels_gained - conceded) / s.rounds;
-    var gain = s.rounds_won > 0 ? s.levels_gained / s.rounds_won : 0;
-    var loss = lost > 0 ? conceded / lost : 0;
-    return "".concat(signed(net), " (won ").concat(signed(gain), ", lost ").concat(signed(-loss), ")");
-};
-var Ladders = function (props) { return (react.createElement("table", { className: "leaderboard-table account-ladders" },
-    react.createElement("thead", null,
-        react.createElement("tr", null,
-            react.createElement("th", null, "Ladder"),
-            react.createElement("th", null, "Rating"),
-            react.createElement("th", null, "Matches"),
-            react.createElement("th", null, "W\u2013L\u2013D"))),
-    react.createElement("tbody", null, ["team", "1v1", "ddz"].map(function (mode) {
-        var _a;
-        var rating = props.ratings[mode];
-        return (react.createElement("tr", { key: mode },
-            react.createElement("td", null, ladderName(mode)),
-            react.createElement("td", null, api/* formatRating */.Xq(rating)),
-            react.createElement("td", null, (_a = rating === null || rating === void 0 ? void 0 : rating.matches) !== null && _a !== void 0 ? _a : 0),
-            react.createElement("td", null, api/* formatWinLossDraw */.po(rating))));
-    })))); };
-var Stats = function (props) {
-    var s = props.stats;
-    var rows = [
-        ["Rounds played", "".concat(s.rounds)],
-        ["Rounds won", withPercent(s.rounds_won, s.rounds)],
-        [
-            "Rounds on the defending team",
-            "".concat(s.defender_rounds, " (won ").concat(withPercent(s.defender_wins, s.defender_rounds), ")"),
-        ],
-        [
-            "Rounds as the landlord",
-            "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
-        ],
-        ["Levels gained", "".concat(s.levels_gained)],
-        ["Average rank gain / loss per round", averageRankChange(s)],
-        ["Matches played", "".concat(s.matches)],
-        [
-            "Matches won / lost / drawn",
-            "".concat(s.matches_won, " / ").concat(s.matches_lost, " / ").concat(s.matches_drawn),
-        ],
-        ["Rated matches", "".concat(s.rated_matches)],
-    ];
-    return (react.createElement("table", { className: "leaderboard-table account-stats" },
-        react.createElement("tbody", null, rows.map(function (_a) {
-            var label = _a[0], value = _a[1];
-            return (react.createElement("tr", { key: label },
-                react.createElement("td", null, label),
-                react.createElement("td", null, value)));
-        }))));
-};
-var DdzStats = function (props) {
-    var s = props.stats;
-    var rows = [
-        ["Rounds played", "".concat(s.rounds)],
-        ["Rounds won", withPercent(s.rounds_won, s.rounds)],
-        [
-            "Rounds as the landlord",
-            "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
-        ],
-        ["Points", api/* formatDelta */.CW(s.levels_gained)],
-        ["Matches played", "".concat(s.matches)],
-        [
-            "Matches 1st / 2nd / 3rd",
-            "".concat(s.matches_won, " / ").concat(s.matches_drawn, " / ").concat(s.matches_lost),
-        ],
-        ["Rated matches", "".concat(s.rated_matches)],
-    ];
-    return (react.createElement("table", { className: "leaderboard-table account-stats" },
-        react.createElement("tbody", null, rows.map(function (_a) {
-            var label = _a[0], value = _a[1];
-            return (react.createElement("tr", { key: label },
-                react.createElement("td", null, label),
-                react.createElement("td", null, value)));
-        }))));
-};
-var Match = function (props) {
-    var match = props.match, username = props.username;
-    var ddz = match.mode === "ddz";
-    var ratedLabel = !match.rated
-        ? "unrated"
-        : match.rating_applied === false
-            ? "rated (ratings were not applied)"
-            : "rated";
-    return (react.createElement("li", { className: "account-match" },
-        react.createElement("div", { className: "account-match-header" },
-            react.createElement("strong", null, api/* formatDate */.Yq(match.finished_at)),
-            " · ",
-            ladderName(match.mode),
-            " · ",
-            ratedLabel,
-            ddz ? null : (react.createElement(react.Fragment, null,
-                " · ",
-                "first to rank ",
-                match.first_to_rank)),
-            " · ",
-            match.rounds === 1 ? "1 round" : "".concat(match.rounds, " rounds")),
-        react.createElement("ul", { className: "account-match-players" }, match.players.map(function (p) { return (react.createElement("li", { key: p.username, className: p.username === username ? "me" : undefined }, ddz ? (react.createElement(react.Fragment, null,
-            p.final_rank,
-            ".",
-            " ",
-            react.createElement("a", { href: accountHref(p.username) }, p.username),
-            " ",
-            api/* formatDelta */.CW(p.levels))) : (react.createElement(react.Fragment, null,
-            react.createElement("a", { href: accountHref(p.username) }, p.username),
-            " \u2014 rank",
-            " ",
-            p.final_rank,
-            " (",
-            p.levels,
-            " ",
-            p.levels === 1 ? "level" : "levels",
-            "), ",
-            resultVerb(p.result),
-            p.result === "won" ? " 🏆" : "")))); })),
-        react.createElement("div", { className: "account-match-outcome" },
-            react.createElement("strong", null, username),
-            " ",
-            ddz ? api/* formatDelta */.CW(match.levels) : resultVerb(match.result),
-            match.delta !== null &&
-                match.delta !== undefined &&
-                match.rating_before !== null &&
-                match.rating_after !== null ? (react.createElement(react.Fragment, null,
-                ": ",
-                match.rating_before,
-                " \u2192 ",
-                match.rating_after,
-                " (",
-                api/* formatDelta */.CW(match.delta),
-                ")")) : (react.createElement(react.Fragment, null, " (no rating change)")))));
-};
-/// The `#user/<username>` route: one account's ratings, statistics and
-/// recent matches, from `GET /api/users/:username`.
-var AccountPage = function (props) {
-    var username = props.username;
-    var _a = react.useState(null), profile = _a[0], setProfile = _a[1];
-    var _b = react.useState(true), loading = _b[0], setLoading = _b[1];
-    var _c = react.useState(false), notFound = _c[0], setNotFound = _c[1];
-    var _d = react.useState(null), error = _d[0], setError = _d[1];
-    react.useEffect(function () {
-        var cancelled = false;
-        setLoading(true);
-        setNotFound(false);
-        setError(null);
-        setProfile(null);
-        api/* fetchProfile */.eO(username).then(function (p) {
-            if (!cancelled) {
-                setProfile(p);
-                setLoading(false);
-            }
-        }, function (e) {
-            if (cancelled) {
-                return;
-            }
-            if (e instanceof api/* ApiError */.hD && e.status === 404) {
-                setNotFound(true);
-            }
-            else {
-                setError(api/* errorMessage */.gJ(e));
-            }
-            setLoading(false);
-        });
-        return function () {
-            cancelled = true;
-        };
-    }, [username]);
-    var body;
-    if (loading) {
-        body = react.createElement("p", { className: "auth-hint" }, "Loading\u2026");
-    }
-    else if (notFound) {
-        body = (react.createElement("p", { className: "auth-error" },
-            "No such user: nobody plays here under the name",
-            " ",
-            react.createElement("strong", null, username),
-            "."));
-    }
-    else if (profile === null) {
-        body = (react.createElement("p", { className: "auth-error" },
-            "Could not load this account: ", error !== null && error !== void 0 ? error : "unknown error"));
-    }
-    else {
-        body = (react.createElement(react.Fragment, null,
-            react.createElement("h2", null, profile.username),
-            react.createElement("p", { className: "auth-hint" },
-                "Member since ",
-                api/* formatDate */.Yq(profile.created_at)),
-            react.createElement("h3", null, "Ladders"),
-            react.createElement(Ladders, { ratings: profile.ratings }),
-            react.createElement("h3", null, "Statistics"),
-            react.createElement("p", { className: "auth-hint" }, "Every finished round and match counts here; the ladders above only count rated matches."),
-            react.createElement(Stats, { stats: profile.stats }),
-            profile.ddz_stats !== undefined && profile.ddz_stats.matches > 0 ? (react.createElement(react.Fragment, null,
-                react.createElement("h3", null, "Fight the Landlord"),
-                react.createElement(DdzStats, { stats: profile.ddz_stats }))) : null,
-            react.createElement("h3", null, "Recent matches"),
-            profile.recent_matches.length === 0 ? (react.createElement("p", { className: "auth-hint" }, "No finished matches yet.")) : (react.createElement("ul", { className: "account-matches" }, profile.recent_matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: profile.username })); })))));
-    }
-    return (react.createElement("div", { className: "game account-page" },
-        react.createElement("p", null,
-            react.createElement("a", { href: "#" }, "\u2190 Back to the lobby")),
-        body));
-};
-/* harmony default export */ const src_AccountPage = (AccountPage);
-
-;// ./src/Leaderboard.tsx
-var Leaderboard_assign = (undefined && undefined.__assign) || function () {
-    Leaderboard_assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return Leaderboard_assign.apply(this, arguments);
-};
-
-
-
-
-var initial = { loading: true, error: null, data: null };
-var Ladder = function (props) {
-    var _a;
-    var state = props.state;
-    var body;
-    if (state.data === null && state.loading) {
-        body = react.createElement("p", { className: "auth-hint" }, "Loading\u2026");
-    }
-    else if (state.data === null) {
-        body = (react.createElement("p", { className: "auth-error" },
-            "Could not load: ", (_a = state.error) !== null && _a !== void 0 ? _a : "unknown error"));
-    }
-    else if (state.data.entries.length === 0) {
-        body = (react.createElement("p", { className: "auth-hint" }, "Nobody has finished a rated match on this ladder yet. Play one!"));
-    }
-    else {
-        body = (react.createElement("table", { className: "leaderboard-table" },
-            react.createElement("thead", null,
-                react.createElement("tr", null,
-                    react.createElement("th", null, "#"),
-                    react.createElement("th", null, "Player"),
-                    react.createElement("th", null, "Rating"),
-                    react.createElement("th", null, "Matches"),
-                    react.createElement("th", { title: "wins\u2013losses\u2013draws" }, "W\u2013L\u2013D"))),
-            react.createElement("tbody", null, state.data.entries.map(function (entry, idx) { return (react.createElement("tr", { key: entry.username, className: entry.username === props.highlight ? "me" : "" },
-                react.createElement("td", null, idx + 1),
-                react.createElement("td", null,
-                    react.createElement("a", { href: accountHref(entry.username) }, entry.username)),
-                react.createElement("td", null, entry.rating),
-                react.createElement("td", null, entry.matches),
-                react.createElement("td", null, api/* formatWinLossDraw */.po(entry)))); }))));
-    }
-    return (react.createElement("div", { className: "ladder" },
-        react.createElement("h4", null, props.title),
-        body));
-};
-/// The ladders (team / 1v1 / Fight the Landlord), side by side, with a refresh button.
-var Leaderboard = function () {
-    var _a, _b;
-    var state = react.useContext(AppStateContext).state;
-    var _c = react.useState(initial), team = _c[0], setTeam = _c[1];
-    var _d = react.useState(initial), oneVsOne = _d[0], setOneVsOne = _d[1];
-    var _e = react.useState(initial), ddz = _e[0], setDdz = _e[1];
-    var _f = react.useState(false), refreshing = _f[0], setRefreshing = _f[1];
-    var load = react.useCallback(function () {
-        setRefreshing(true);
-        var fetchOne = function (mode, set) {
-            set(function (s) { return (Leaderboard_assign(Leaderboard_assign({}, s), { loading: true })); });
-            return api/* fetchLeaderboard */.kK(mode).then(function (data) { return set({ loading: false, error: null, data: data }); }, function (e) {
-                return set(function (s) { return (Leaderboard_assign(Leaderboard_assign({}, s), { loading: false, error: api/* errorMessage */.gJ(e) })); });
-            });
-        };
-        Promise.all([
-            fetchOne("team", setTeam),
-            fetchOne("1v1", setOneVsOne),
-            fetchOne("ddz", setDdz),
-        ])
-            .catch(function (e) { return console.error(e); })
-            .then(function () { return setRefreshing(false); });
-    }, []);
-    react.useEffect(function () {
-        load();
-    }, [load]);
-    var me = (_b = (_a = state.auth) === null || _a === void 0 ? void 0 : _a.user.username) !== null && _b !== void 0 ? _b : null;
-    return (react.createElement("div", { className: "leaderboard" },
-        react.createElement("h3", null,
-            "Leaderboard",
-            " ",
-            react.createElement("button", { type: "button", className: "normal", onClick: load, disabled: refreshing }, refreshing ? "Refreshing…" : "Refresh")),
-        react.createElement("div", { className: "leaderboard-tables" },
-            react.createElement(Ladder, { mode: "team", title: "Team ladder", state: team, highlight: me }),
-            react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", state: oneVsOne, highlight: me }),
-            react.createElement(Ladder, { mode: "ddz", title: "Fight the Landlord ladder", state: ddz, highlight: me }))));
-};
-/* harmony default export */ const src_Leaderboard = (Leaderboard);
-
 ;// ./src/Landing.tsx
 
 
@@ -3107,9 +2772,9 @@ var Leaderboard = function () {
 
 
 
-
 /// The landing page: title, sign-in / registration, and (once signed in)
-/// the account bar, the join-room form and the leaderboard.
+/// the account bar and the join-room form. The leaderboards live on their
+/// own page (`#leaderboard`).
 var Landing = function () {
     var _a = react.useContext(AppStateContext), state = _a.state, updateState = _a.updateState;
     var title = (react.createElement("h1", null,
@@ -3141,15 +2806,18 @@ var Landing = function () {
             react.createElement(src_JoinRoom, { name: state.auth.user.username, room_name: state.roomName, setRoomName: function (roomName) {
                     updateState({ roomName: roomName });
                     window.location.hash = roomName;
-                } }),
-            react.createElement(src_Leaderboard, null)));
+                } })));
     }
     return (react.createElement(react.Fragment, null,
         react.createElement(src_Errors, { errors: state.errors }),
         react.createElement("div", { className: "game" },
             title,
             intro,
-            content)));
+            content,
+            react.createElement("p", null,
+                "See the ",
+                react.createElement("a", { href: "#leaderboard" }, "leaderboards"),
+                ": the three ladders, and the best average levels and points per round."))));
 };
 /* harmony default export */ const src_Landing = (Landing);
 
@@ -4010,6 +3678,248 @@ function MovePlayerButton(relative, children) {
 }
 var MovePlayerLeft = MovePlayerButton(-1, "<");
 var MovePlayerRight = MovePlayerButton(1, ">");
+
+;// ./src/AccountPage.tsx
+
+
+/// The link to another account page. The base URL is the page itself, so a
+/// bare hash is enough.
+var accountHref = function (username) {
+    return "#user/".concat(encodeURIComponent(username));
+};
+var ladderName = api/* ladderName */.UC;
+/// "won" / "lost" / "drew", as a verb with the player as the subject.
+var resultVerb = function (result) {
+    switch (result) {
+        case "won":
+            return "won";
+        case "lost":
+            return "lost";
+        default:
+            return "drew";
+    }
+};
+/// `47 (68.12%)`, or just `0` when there is nothing to take a percentage of.
+var withPercent = function (count, total) {
+    return total > 0 ? "".concat(count, " (").concat(((count / total) * 100).toFixed(2), "%)") : "".concat(count);
+};
+/// `+0.0776 (won +1.0965, lost −0.9068)`: the net levels per round against the
+/// other side, then the average gain in rounds won and the average the other
+/// side gained in rounds lost.
+var averageRankChange = function (s) {
+    var _a;
+    var conceded = (_a = s.levels_conceded) !== null && _a !== void 0 ? _a : 0;
+    var lost = s.rounds - s.rounds_won;
+    if (s.rounds === 0) {
+        return "0";
+    }
+    var signed = function (x) {
+        return "".concat(x < 0 ? "−" : "+").concat(Math.abs(x).toFixed(4));
+    };
+    var net = (s.levels_gained - conceded) / s.rounds;
+    var gain = s.rounds_won > 0 ? s.levels_gained / s.rounds_won : 0;
+    var loss = lost > 0 ? conceded / lost : 0;
+    return "".concat(signed(net), " (won ").concat(signed(gain), ", lost ").concat(signed(-loss), ")");
+};
+var Ladders = function (props) { return (react.createElement("table", { className: "leaderboard-table account-ladders" },
+    react.createElement("thead", null,
+        react.createElement("tr", null,
+            react.createElement("th", null, "Ladder"),
+            react.createElement("th", null, "Rating"),
+            react.createElement("th", null, "Matches"),
+            react.createElement("th", null, "W\u2013L\u2013D"))),
+    react.createElement("tbody", null, ["team", "1v1", "ddz"].map(function (mode) {
+        var _a;
+        var rating = props.ratings[mode];
+        return (react.createElement("tr", { key: mode },
+            react.createElement("td", null, ladderName(mode)),
+            react.createElement("td", null, api/* formatRating */.Xq(rating)),
+            react.createElement("td", null, (_a = rating === null || rating === void 0 ? void 0 : rating.matches) !== null && _a !== void 0 ? _a : 0),
+            react.createElement("td", null, api/* formatWinLossDraw */.po(rating))));
+    })))); };
+var Stats = function (props) {
+    var s = props.stats;
+    var rows = [
+        ["Rounds played", "".concat(s.rounds)],
+        ["Rounds won", withPercent(s.rounds_won, s.rounds)],
+        [
+            "Rounds on the defending team",
+            "".concat(s.defender_rounds, " (won ").concat(withPercent(s.defender_wins, s.defender_rounds), ")"),
+        ],
+        [
+            "Rounds as the landlord",
+            "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
+        ],
+        ["Levels gained", "".concat(s.levels_gained)],
+        ["Average rank gain / loss per round", averageRankChange(s)],
+        ["Matches played", "".concat(s.matches)],
+        [
+            "Matches won / lost / drawn",
+            "".concat(s.matches_won, " / ").concat(s.matches_lost, " / ").concat(s.matches_drawn),
+        ],
+        ["Rated matches", "".concat(s.rated_matches)],
+    ];
+    return (react.createElement("table", { className: "leaderboard-table account-stats" },
+        react.createElement("tbody", null, rows.map(function (_a) {
+            var label = _a[0], value = _a[1];
+            return (react.createElement("tr", { key: label },
+                react.createElement("td", null, label),
+                react.createElement("td", null, value)));
+        }))));
+};
+var DdzStats = function (props) {
+    var s = props.stats;
+    var rows = [
+        ["Rounds played", "".concat(s.rounds)],
+        ["Rounds won", withPercent(s.rounds_won, s.rounds)],
+        [
+            "Rounds as the landlord",
+            "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
+        ],
+        ["Points", api/* formatDelta */.CW(s.levels_gained)],
+        ["Matches played", "".concat(s.matches)],
+        [
+            "Matches 1st / 2nd / 3rd",
+            "".concat(s.matches_won, " / ").concat(s.matches_drawn, " / ").concat(s.matches_lost),
+        ],
+        ["Rated matches", "".concat(s.rated_matches)],
+    ];
+    return (react.createElement("table", { className: "leaderboard-table account-stats" },
+        react.createElement("tbody", null, rows.map(function (_a) {
+            var label = _a[0], value = _a[1];
+            return (react.createElement("tr", { key: label },
+                react.createElement("td", null, label),
+                react.createElement("td", null, value)));
+        }))));
+};
+var Match = function (props) {
+    var match = props.match, username = props.username;
+    var ddz = match.mode === "ddz";
+    var ratedLabel = !match.rated
+        ? "unrated"
+        : match.rating_applied === false
+            ? "rated (ratings were not applied)"
+            : "rated";
+    return (react.createElement("li", { className: "account-match" },
+        react.createElement("div", { className: "account-match-header" },
+            react.createElement("strong", null, api/* formatDate */.Yq(match.finished_at)),
+            " · ",
+            ladderName(match.mode),
+            " · ",
+            ratedLabel,
+            ddz ? null : (react.createElement(react.Fragment, null,
+                " · ",
+                "first to rank ",
+                match.first_to_rank)),
+            " · ",
+            match.rounds === 1 ? "1 round" : "".concat(match.rounds, " rounds")),
+        react.createElement("ul", { className: "account-match-players" }, match.players.map(function (p) { return (react.createElement("li", { key: p.username, className: p.username === username ? "me" : undefined }, ddz ? (react.createElement(react.Fragment, null,
+            p.final_rank,
+            ".",
+            " ",
+            react.createElement("a", { href: accountHref(p.username) }, p.username),
+            " ",
+            api/* formatDelta */.CW(p.levels))) : (react.createElement(react.Fragment, null,
+            react.createElement("a", { href: accountHref(p.username) }, p.username),
+            " \u2014 rank",
+            " ",
+            p.final_rank,
+            " (",
+            p.levels,
+            " ",
+            p.levels === 1 ? "level" : "levels",
+            "), ",
+            resultVerb(p.result),
+            p.result === "won" ? " 🏆" : "")))); })),
+        react.createElement("div", { className: "account-match-outcome" },
+            react.createElement("strong", null, username),
+            " ",
+            ddz ? api/* formatDelta */.CW(match.levels) : resultVerb(match.result),
+            match.delta !== null &&
+                match.delta !== undefined &&
+                match.rating_before !== null &&
+                match.rating_after !== null ? (react.createElement(react.Fragment, null,
+                ": ",
+                match.rating_before,
+                " \u2192 ",
+                match.rating_after,
+                " (",
+                api/* formatDelta */.CW(match.delta),
+                ")")) : (react.createElement(react.Fragment, null, " (no rating change)")))));
+};
+/// The `#user/<username>` route: one account's ratings, statistics and
+/// recent matches, from `GET /api/users/:username`.
+var AccountPage = function (props) {
+    var username = props.username;
+    var _a = react.useState(null), profile = _a[0], setProfile = _a[1];
+    var _b = react.useState(true), loading = _b[0], setLoading = _b[1];
+    var _c = react.useState(false), notFound = _c[0], setNotFound = _c[1];
+    var _d = react.useState(null), error = _d[0], setError = _d[1];
+    react.useEffect(function () {
+        var cancelled = false;
+        setLoading(true);
+        setNotFound(false);
+        setError(null);
+        setProfile(null);
+        api/* fetchProfile */.eO(username).then(function (p) {
+            if (!cancelled) {
+                setProfile(p);
+                setLoading(false);
+            }
+        }, function (e) {
+            if (cancelled) {
+                return;
+            }
+            if (e instanceof api/* ApiError */.hD && e.status === 404) {
+                setNotFound(true);
+            }
+            else {
+                setError(api/* errorMessage */.gJ(e));
+            }
+            setLoading(false);
+        });
+        return function () {
+            cancelled = true;
+        };
+    }, [username]);
+    var body;
+    if (loading) {
+        body = react.createElement("p", { className: "auth-hint" }, "Loading\u2026");
+    }
+    else if (notFound) {
+        body = (react.createElement("p", { className: "auth-error" },
+            "No such user: nobody plays here under the name",
+            " ",
+            react.createElement("strong", null, username),
+            "."));
+    }
+    else if (profile === null) {
+        body = (react.createElement("p", { className: "auth-error" },
+            "Could not load this account: ", error !== null && error !== void 0 ? error : "unknown error"));
+    }
+    else {
+        body = (react.createElement(react.Fragment, null,
+            react.createElement("h2", null, profile.username),
+            react.createElement("p", { className: "auth-hint" },
+                "Member since ",
+                api/* formatDate */.Yq(profile.created_at)),
+            react.createElement("h3", null, "Ladders"),
+            react.createElement(Ladders, { ratings: profile.ratings }),
+            react.createElement("h3", null, "Statistics"),
+            react.createElement("p", { className: "auth-hint" }, "Every finished round and match counts here; the ladders above only count rated matches."),
+            react.createElement(Stats, { stats: profile.stats }),
+            profile.ddz_stats !== undefined && profile.ddz_stats.matches > 0 ? (react.createElement(react.Fragment, null,
+                react.createElement("h3", null, "Fight the Landlord"),
+                react.createElement(DdzStats, { stats: profile.ddz_stats }))) : null,
+            react.createElement("h3", null, "Recent matches"),
+            profile.recent_matches.length === 0 ? (react.createElement("p", { className: "auth-hint" }, "No finished matches yet.")) : (react.createElement("ul", { className: "account-matches" }, profile.recent_matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: profile.username })); })))));
+    }
+    return (react.createElement("div", { className: "game account-page" },
+        react.createElement("p", null,
+            react.createElement("a", { href: "#" }, "\u2190 Back to the lobby")),
+        body));
+};
+/* harmony default export */ const src_AccountPage = (AccountPage);
 
 ;// ./src/Players.tsx
 
@@ -7130,7 +7040,7 @@ var Credits_contentStyle = {
     left: "50%",
     transform: "translate(-50%, -50%)",
 };
-var changeLogVersion = 29;
+var changeLogVersion = 30;
 var ChangeLog = function () {
     var _a = react.useState(false), modalOpen = _a[0], setModalOpen = _a[1];
     var _b = react.useContext(AppStateContext), state = _b.state, updateState = _b.updateState;
@@ -7157,6 +7067,11 @@ var ChangeLog = function () {
             react.createElement("p", null, "There are a wide variety of game settings which may suit the way you normally play, e.g. changing the number of decks, how scoring works, etc. These can be changed before every round."),
             react.createElement("p", null, "There are also a bunch of UI customizations that you may want to turn on (or leave off) -- click the gear icon at the top of the screen once you're in the game."),
             react.createElement("h2", null, "Change Log"),
+            react.createElement("p", null, "11/23/2026:"),
+            react.createElement("ul", null,
+                react.createElement("li", null, "The leaderboards have a page of their own (linked from the lobby), with the best average levels gained per round in Tractor and the best average points per round in Fight the Landlord."),
+                react.createElement("li", null, "A spectator watching a hand in Fight the Landlord now sees the cards at the top, as in Tractor."),
+                react.createElement("li", null, "Any two players can agree to reset a game that is in progress, so a player having to leave does not hold the room up.")),
             react.createElement("p", null, "11/10/2026:"),
             react.createElement("ul", null,
                 react.createElement("li", null, "Added \u6597\u5730\u4E3B / Fight the Landlord.")),
@@ -8941,12 +8856,102 @@ var MatchSummaryModal = function () {
 };
 /* harmony default export */ const src_MatchSummaryModal = (MatchSummaryModal);
 
+;// ./src/ddz/ddzCards.ts
+var ddzCards_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+/// Cards are drawn with the shared `Card` component, which wants a trump.
+var DDZ_TRUMP = { NoTrump: {} };
+var SMALL_JOKER = "🃟";
+var BIG_JOKER = "🃏";
+var UNKNOWN_CARD = "🂠";
+var ORDER = [
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A",
+    "2",
+];
+/// 3 is lowest, then up to A, 2, small joker, big joker. Unknown cards: -1.
+var ddzRank = function (card) {
+    var _a;
+    if (card === BIG_JOKER) {
+        return 14;
+    }
+    if (card === SMALL_JOKER) {
+        return 13;
+    }
+    var number = (_a = cardLookup[card]) === null || _a === void 0 ? void 0 : _a.number;
+    return number === null || number === undefined ? -1 : ORDER.indexOf(number);
+};
+/// Lowest first (highest first with `reverse`), suits in a fixed order
+/// within a rank.
+var sortDdz = function (cards, reverse) {
+    if (reverse === void 0) { reverse = false; }
+    return ddzCards_spreadArray([], cards, true).sort(function (a, b) {
+        return (reverse ? ddzRank(b) - ddzRank(a) : ddzRank(a) - ddzRank(b)) ||
+            a.localeCompare(b);
+    });
+};
+
+;// ./src/ddz/DdzHand.tsx
+var DdzHand_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+
+/// A hand, lowest card first (the "reverse card order" setting flips it,
+/// as in Tractor). With `selected` the chosen cards move to a row above.
+var DdzHand = function (props) {
+    var cards = props.cards, selected = props.selected, onSelect = props.onSelect;
+    var reverseCardOrder = react.useContext(SettingsContext).reverseCardOrder;
+    var selectable = selected !== undefined && onSelect !== undefined;
+    var chosen = selectable ? sortDdz(selected, reverseCardOrder) : [];
+    var rest = sortDdz(selectable ? array.minus(cards, selected) : cards, reverseCardOrder);
+    var row = function (list, onClick) {
+        return list.map(function (card, idx) { return (react.createElement(src_Card, { key: "".concat(card, "-").concat(idx), card: card, trump: DDZ_TRUMP, plain: true, smaller: props.smaller, collapseRight: idx !== list.length - 1, onClick: onClick === undefined ? undefined : function () { return onClick(card); } })); });
+    };
+    return (react.createElement("div", { className: "hand" },
+        selectable ? (react.createElement("div", { className: "selected-cards" }, chosen.length > 0 ? (row(chosen, function (card) { return onSelect(array.minus(selected, [card])); })) : (react.createElement(src_Card, { card: "\uD83C\uDCA0", trump: DDZ_TRUMP, plain: true })))) : null,
+        react.createElement("div", { className: classnames_default()("unselected-cards", { unclickable: !selectable }) }, row(rest, selectable ? function (card) { return onSelect(DdzHand_spreadArray(DdzHand_spreadArray([], selected, true), [card], false)); } : undefined))));
+};
+/* harmony default export */ const ddz_DdzHand = (DdzHand);
+
 ;// ./src/WatchHand.tsx
 
 
 
 
 
+
+
+
+var LANDLORD = " (地主)";
 /// The hands and trump of the current phase, or null in the lobby.
 var handsOf = function (gameState) {
     if ("Draw" in gameState) {
@@ -8963,8 +8968,9 @@ var handsOf = function (gameState) {
 /// For spectators: a picker for the player whose hand to watch. The choice
 /// is sent to the server (`Shadow`), which then redacts the state for that
 /// player instead of for us, so their cards arrive with the next state and
-/// are shown here. In a Dou Di Zhu room watching shows every hand, and the
-/// table draws them itself. Players never see this.
+/// are shown here, above the table, in every room type. In a Dou Di Zhu room
+/// watching shows every hand, and all of them are listed under the picker.
+/// Players never see this.
 var WatchHand = function (props) {
     var _a, _b, _c, _d;
     var state = react.useContext(AppStateContext).state;
@@ -8983,6 +8989,10 @@ var WatchHand = function (props) {
         return null;
     }
     var watching = target !== null && players.some(function (p) { return p.id === target; }) ? target : null;
+    // Once the round is over the table shows the remaining cards itself.
+    var watchedDdz = ddz !== null && watching !== null && ddz.round.stage !== "Finished"
+        ? ddz
+        : null;
     return (react.createElement("div", { className: "watch-hand" },
         react.createElement("label", null,
             "Watch:",
@@ -8995,7 +9005,22 @@ var WatchHand = function (props) {
                 react.createElement("option", { value: "" }, "nobody"),
                 ddz !== null ? (react.createElement("option", { value: String((_d = watching !== null && watching !== void 0 ? watching : (_c = players[0]) === null || _c === void 0 ? void 0 : _c.id) !== null && _d !== void 0 ? _d : "") }, "everyone")) : (players.map(function (p) { return (react.createElement("option", { key: p.id, value: String(p.id) }, p.name)); })))),
         watching !== null && phase !== null ? (react.createElement("div", { className: "watch-hand-cards" },
-            react.createElement(src_Cards, { hands: phase.hands, playerId: watching, trump: phase.trump }))) : null));
+            react.createElement(src_Cards, { hands: phase.hands, playerId: watching, trump: phase.trump }))) : null,
+        watchedDdz !== null ? (react.createElement("div", { className: "watch-hand-cards" }, watchedDdz.seats.map(function (id, seat) {
+            var _a, _b, _c;
+            var hand = (_a = watchedDdz.round.hands[seat]) !== null && _a !== void 0 ? _a : [];
+            // Only hands the server sent face up (it redacts them unless the
+            // room's shadowing policy let us watch).
+            if (!hand.some(function (card) { return card !== UNKNOWN_CARD; })) {
+                return null;
+            }
+            return (react.createElement("div", { className: "ddz-watched", key: id },
+                react.createElement("div", { className: classnames_default()({
+                        next: watchedDdz.round.turn === seat,
+                    }) }, (_c = (_b = players.find(function (p) { return p.id === id; })) === null || _b === void 0 ? void 0 : _b.name) !== null && _c !== void 0 ? _c : "",
+                    watchedDdz.round.landlord === seat ? LANDLORD : ""),
+                react.createElement(ddz_DdzHand, { cards: hand, smaller: true })));
+        }))) : null));
 };
 /* harmony default export */ const src_WatchHand = (WatchHand);
 
@@ -9153,92 +9178,6 @@ var DdzLobby = function (props) {
 };
 /* harmony default export */ const ddz_DdzLobby = (DdzLobby);
 
-;// ./src/ddz/ddzCards.ts
-var ddzCards_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-
-/// Cards are drawn with the shared `Card` component, which wants a trump.
-var DDZ_TRUMP = { NoTrump: {} };
-var SMALL_JOKER = "🃟";
-var BIG_JOKER = "🃏";
-var UNKNOWN_CARD = "🂠";
-var ORDER = [
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "J",
-    "Q",
-    "K",
-    "A",
-    "2",
-];
-/// 3 is lowest, then up to A, 2, small joker, big joker. Unknown cards: -1.
-var ddzRank = function (card) {
-    var _a;
-    if (card === BIG_JOKER) {
-        return 14;
-    }
-    if (card === SMALL_JOKER) {
-        return 13;
-    }
-    var number = (_a = cardLookup[card]) === null || _a === void 0 ? void 0 : _a.number;
-    return number === null || number === undefined ? -1 : ORDER.indexOf(number);
-};
-/// Lowest first (highest first with `reverse`), suits in a fixed order
-/// within a rank.
-var sortDdz = function (cards, reverse) {
-    if (reverse === void 0) { reverse = false; }
-    return ddzCards_spreadArray([], cards, true).sort(function (a, b) {
-        return (reverse ? ddzRank(b) - ddzRank(a) : ddzRank(a) - ddzRank(b)) ||
-            a.localeCompare(b);
-    });
-};
-
-;// ./src/ddz/DdzHand.tsx
-var DdzHand_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-
-
-
-
-
-
-/// A hand, lowest card first (the "reverse card order" setting flips it,
-/// as in Tractor). With `selected` the chosen cards move to a row above.
-var DdzHand = function (props) {
-    var cards = props.cards, selected = props.selected, onSelect = props.onSelect;
-    var reverseCardOrder = react.useContext(SettingsContext).reverseCardOrder;
-    var selectable = selected !== undefined && onSelect !== undefined;
-    var chosen = selectable ? sortDdz(selected, reverseCardOrder) : [];
-    var rest = sortDdz(selectable ? array.minus(cards, selected) : cards, reverseCardOrder);
-    var row = function (list, onClick) {
-        return list.map(function (card, idx) { return (react.createElement(src_Card, { key: "".concat(card, "-").concat(idx), card: card, trump: DDZ_TRUMP, plain: true, smaller: props.smaller, collapseRight: idx !== list.length - 1, onClick: onClick === undefined ? undefined : function () { return onClick(card); } })); });
-    };
-    return (react.createElement("div", { className: "hand" },
-        selectable ? (react.createElement("div", { className: "selected-cards" }, chosen.length > 0 ? (row(chosen, function (card) { return onSelect(array.minus(selected, [card])); })) : (react.createElement(src_Card, { card: "\uD83C\uDCA0", trump: DDZ_TRUMP, plain: true })))) : null,
-        react.createElement("div", { className: classnames_default()("unselected-cards", { unclickable: !selectable }) }, row(rest, selectable ? function (card) { return onSelect(DdzHand_spreadArray(DdzHand_spreadArray([], selected, true), [card], false)); } : undefined))));
-};
-/* harmony default export */ const ddz_DdzHand = (DdzHand);
-
 ;// ./src/ddz/DdzTable.tsx
 var DdzTable_spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
     if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
@@ -9260,7 +9199,7 @@ var DdzTable_spreadArray = (undefined && undefined.__spreadArray) || function (t
 
 
 
-var LANDLORD = " (地主)";
+var DdzTable_LANDLORD = " (地主)";
 /// A row of small cards that overlap more as they get crowded, so a seat's
 /// box keeps its size whatever is played into it.
 var Fan = function (props) { return (react.createElement("div", { className: "ddz-fan" }, props.cards.map(function (card, idx) { return (react.createElement("div", { className: "ddz-fan-card", key: idx },
@@ -9377,7 +9316,7 @@ var DdzTable = function (props) {
             cards.length > 0 ? (react.createElement(Fan, { cards: cards })) : (react.createElement("div", { className: "ddz-fan ddz-note" }, note)),
             react.createElement("div", { className: classnames_default()("label", { next: round.turn === seat }) },
                 nameOf(seat),
-                seat === landlord ? LANDLORD : "",
+                seat === landlord ? DdzTable_LANDLORD : "",
                 result !== null
                     ? " ".concat((0,api/* formatDelta */.CW)(result.deltas[seat]))
                     : " \u00B7 ".concat(round.hands[seat].length))));
@@ -9433,7 +9372,7 @@ var DdzTable = function (props) {
         react.createElement(DdzTitle, null),
         react.createElement(src_Players, { players: players, observers: propagated.observers, landlord: landlord === null ? null : game.seats[landlord], next: round.turn === null || round.turn === undefined
                 ? null
-                : game.seats[round.turn], name: props.name, hideRank: true, scores: scores, landlordLabel: LANDLORD }),
+                : game.seats[round.turn], name: props.name, hideRank: true, scores: scores, landlordLabel: DdzTable_LANDLORD }),
         react.createElement("div", { className: "ddz-table" },
             seats,
             react.createElement("div", { className: "labeled-play ddz-seat" },
@@ -9446,17 +9385,7 @@ var DdzTable = function (props) {
                 round.turn !== null &&
                 round.turn !== undefined &&
                 round.turn !== mySeat ? (react.createElement(src_BeepButton, null)) : null)) : null,
-        mySeat >= 0 && round.stage !== "Finished" ? (react.createElement(ddz_DdzHand, { cards: hand, selected: selected, onSelect: setSelected })) : null,
-        mySeat < 0 && round.stage !== "Finished"
-            ? game.seats.map(function (id, seat) {
-                // A spectator who is watching gets every hand face up.
-                return round.hands[seat].some(function (c) { return c !== UNKNOWN_CARD; }) ? (react.createElement("div", { className: "ddz-watched", key: id },
-                    react.createElement("div", { className: classnames_default()({ next: round.turn === seat }) },
-                        nameOf(seat),
-                        seat === landlord ? LANDLORD : ""),
-                    react.createElement(ddz_DdzHand, { cards: round.hands[seat], smaller: true }))) : null;
-            })
-            : null));
+        mySeat >= 0 && round.stage !== "Finished" ? (react.createElement(ddz_DdzHand, { cards: hand, selected: selected, onSelect: setSelected })) : null));
 };
 /* harmony default export */ const ddz_DdzTable = (DdzTable);
 
@@ -9630,7 +9559,192 @@ var Game = function (props) {
 };
 /* harmony default export */ const src_Game = (Game);
 
+;// ./src/Leaderboard.tsx
+var Leaderboard_assign = (undefined && undefined.__assign) || function () {
+    Leaderboard_assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return Leaderboard_assign.apply(this, arguments);
+};
+
+
+
+
+var initialRating = {
+    loading: true,
+    error: null,
+    data: null,
+};
+var initialPerRound = {
+    loading: true,
+    error: null,
+    data: null,
+};
+/// `+1.83` / `−0.50`: an average per round, to two decimals.
+var formatAverage = function (average) {
+    return "".concat(average < 0 ? "−" : "").concat(Math.abs(average).toFixed(2));
+};
+var Ladder = function (props) {
+    var _a;
+    var state = props.state;
+    var body;
+    if (state.data === null && state.loading) {
+        body = react.createElement("p", { className: "auth-hint" }, "Loading\u2026");
+    }
+    else if (state.data === null) {
+        body = (react.createElement("p", { className: "auth-error" },
+            "Could not load: ", (_a = state.error) !== null && _a !== void 0 ? _a : "unknown error"));
+    }
+    else if (state.data.entries.length === 0) {
+        body = (react.createElement("p", { className: "auth-hint" }, "Nobody has finished a rated match on this ladder yet. Play one!"));
+    }
+    else {
+        body = (react.createElement("table", { className: "leaderboard-table" },
+            react.createElement("thead", null,
+                react.createElement("tr", null,
+                    react.createElement("th", null, "#"),
+                    react.createElement("th", null, "Player"),
+                    react.createElement("th", null, "Rating"),
+                    react.createElement("th", null, "Matches"),
+                    react.createElement("th", { title: "wins\u2013losses\u2013draws" }, "W\u2013L\u2013D"))),
+            react.createElement("tbody", null, state.data.entries.map(function (entry, idx) { return (react.createElement("tr", { key: entry.username, className: entry.username === props.highlight ? "me" : "" },
+                react.createElement("td", null, idx + 1),
+                react.createElement("td", null,
+                    react.createElement("a", { href: accountHref(entry.username) }, entry.username)),
+                react.createElement("td", null, entry.rating),
+                react.createElement("td", null, entry.matches),
+                react.createElement("td", null, api/* formatWinLossDraw */.po(entry)))); }))));
+    }
+    return (react.createElement("div", { className: "ladder" },
+        react.createElement("h4", null, props.title),
+        body));
+};
+/// Best average per round: levels climbed per round in Tractor, points per
+/// round in Fight the Landlord. Every finished round counts, rated or not.
+var PerRoundLadder = function (props) {
+    var _a;
+    var state = props.state;
+    var body;
+    if (state.data === null && state.loading) {
+        body = react.createElement("p", { className: "auth-hint" }, "Loading\u2026");
+    }
+    else if (state.data === null) {
+        body = (react.createElement("p", { className: "auth-error" },
+            "Could not load: ", (_a = state.error) !== null && _a !== void 0 ? _a : "unknown error"));
+    }
+    else if (state.data.entries.length === 0) {
+        body = react.createElement("p", { className: "auth-hint" }, "Not enough finished rounds yet.");
+    }
+    else {
+        body = (react.createElement("table", { className: "leaderboard-table" },
+            react.createElement("thead", null,
+                react.createElement("tr", null,
+                    react.createElement("th", null, "#"),
+                    react.createElement("th", null, "Player"),
+                    react.createElement("th", { title: "Average ".concat(props.unit, " per round") }, "Avg/round"),
+                    react.createElement("th", null, "Rounds"))),
+            react.createElement("tbody", null, state.data.entries.map(function (entry, idx) { return (react.createElement("tr", { key: entry.username, className: entry.username === props.highlight ? "me" : "" },
+                react.createElement("td", null, idx + 1),
+                react.createElement("td", null,
+                    react.createElement("a", { href: accountHref(entry.username) }, entry.username)),
+                react.createElement("td", null, formatAverage(entry.average)),
+                react.createElement("td", null, entry.rounds))); }))));
+    }
+    return (react.createElement("div", { className: "ladder" },
+        react.createElement("h4", null, props.title),
+        body));
+};
+/// The `#leaderboard` page: a dropdown picks one of the three rating ladders
+/// (team / 1v1 / Fight the Landlord) or the best average per round in Tractor
+/// or Fight the Landlord; a refresh button reloads them all.
+var Leaderboard = function () {
+    var _a, _b, _c, _d, _e, _f;
+    var state = react.useContext(AppStateContext).state;
+    var _g = react.useState(initialRating), team = _g[0], setTeam = _g[1];
+    var _h = react.useState(initialRating), oneVsOne = _h[0], setOneVsOne = _h[1];
+    var _j = react.useState(initialRating), ddz = _j[0], setDdz = _j[1];
+    var _k = react.useState(initialPerRound), tractor = _k[0], setTractor = _k[1];
+    var _l = react.useState(initialPerRound), ddzPoints = _l[0], setDdzPoints = _l[1];
+    var _m = react.useState("team"), view = _m[0], setView = _m[1];
+    var _o = react.useState(false), refreshing = _o[0], setRefreshing = _o[1];
+    var load = react.useCallback(function () {
+        setRefreshing(true);
+        var fetchRating = function (mode, set) {
+            set(function (s) { return (Leaderboard_assign(Leaderboard_assign({}, s), { loading: true })); });
+            return api/* fetchLeaderboard */.kK(mode).then(function (data) { return set({ loading: false, error: null, data: data }); }, function (e) {
+                return set(function (s) { return (Leaderboard_assign(Leaderboard_assign({}, s), { loading: false, error: api/* errorMessage */.gJ(e) })); });
+            });
+        };
+        var fetchPerRound = function (game, set) {
+            set(function (s) { return (Leaderboard_assign(Leaderboard_assign({}, s), { loading: true })); });
+            return api/* fetchPerRoundLeaderboard */.RM(game).then(function (data) { return set({ loading: false, error: null, data: data }); }, function (e) {
+                return set(function (s) { return (Leaderboard_assign(Leaderboard_assign({}, s), { loading: false, error: api/* errorMessage */.gJ(e) })); });
+            });
+        };
+        Promise.all([
+            fetchRating("team", setTeam),
+            fetchRating("1v1", setOneVsOne),
+            fetchRating("ddz", setDdz),
+            fetchPerRound("tractor", setTractor),
+            fetchPerRound("ddz", setDdzPoints),
+        ])
+            .catch(function (e) { return console.error(e); })
+            .then(function () { return setRefreshing(false); });
+    }, []);
+    react.useEffect(function () {
+        load();
+    }, [load]);
+    // The app has no viewport meta (the game table needs the desktop layout), so
+    // phones render this page at ~980px. Opt in to device width while it's open.
+    react.useEffect(function () {
+        var meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content = "width=device-width, initial-scale=1";
+        document.head.appendChild(meta);
+        return function () {
+            meta.remove();
+        };
+    }, []);
+    var me = (_b = (_a = state.auth) === null || _a === void 0 ? void 0 : _a.user.username) !== null && _b !== void 0 ? _b : null;
+    var minRounds = (_f = (_d = (_c = tractor.data) === null || _c === void 0 ? void 0 : _c.min_rounds) !== null && _d !== void 0 ? _d : (_e = ddzPoints.data) === null || _e === void 0 ? void 0 : _e.min_rounds) !== null && _f !== void 0 ? _f : 5;
+    return (react.createElement("div", { className: "game leaderboard-page" },
+        react.createElement("p", null,
+            react.createElement("a", { href: "#" }, "\u2190 Back to the lobby")),
+        react.createElement("h2", null,
+            "Leaderboards",
+            " ",
+            react.createElement("button", { type: "button", className: "normal", onClick: load, disabled: refreshing }, refreshing ? "Refreshing…" : "Refresh")),
+        react.createElement("div", { className: "leaderboard-controls" },
+            react.createElement("label", null,
+                "Show",
+                " ",
+                react.createElement("select", { value: view, onChange: function (e) { return setView(e.target.value); } },
+                    react.createElement("optgroup", { label: "Rating ladders" },
+                        react.createElement("option", { value: "team" }, "Team ladder"),
+                        react.createElement("option", { value: "1v1" }, "1v1 ladder"),
+                        react.createElement("option", { value: "ddz" }, "Fight the Landlord ladder")),
+                    react.createElement("optgroup", { label: "Per round" },
+                        react.createElement("option", { value: "tractor" }, "Tractor: levels gained per round"),
+                        react.createElement("option", { value: "ddz_points" }, "Fight the Landlord: points per round"))))),
+        view === "team" && (react.createElement(Ladder, { mode: "team", title: "Team ladder", state: team, highlight: me })),
+        view === "1v1" && (react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", state: oneVsOne, highlight: me })),
+        view === "ddz" && (react.createElement(Ladder, { mode: "ddz", title: "Fight the Landlord ladder", state: ddz, highlight: me })),
+        (view === "tractor" || view === "ddz_points") && (react.createElement(react.Fragment, null,
+            react.createElement("p", { className: "ladder-footnote" },
+                "Averages count every finished round, rated or not; a player needs at least ",
+                minRounds,
+                " rounds of that game to be listed."),
+            view === "tractor" ? (react.createElement(PerRoundLadder, { title: "Tractor: levels gained per round", unit: "levels", state: tractor, highlight: me })) : (react.createElement(PerRoundLadder, { title: "Fight the Landlord: points per round", unit: "points", state: ddzPoints, highlight: me }))))));
+};
+/* harmony default export */ const src_Leaderboard = (Leaderboard);
+
 ;// ./src/Root.tsx
+
 
 
 
@@ -9648,6 +9762,11 @@ var accountRouteUsername = function (hash) {
     var username = decodeURIComponent(trimmed.slice("user/".length)).trim();
     return username.length > 0 ? username : null;
 };
+/// Whether the hash is the `#leaderboard` page.
+var isLeaderboardRoute = function (hash) {
+    var trimmed = hash.startsWith("#") ? hash.slice(1) : hash;
+    return trimmed === "leaderboard";
+};
 /// `window.location.hash`, kept up to date as the user follows in-page
 /// links (`#user/<name>`, "back to the lobby") and uses the back button.
 var useHash = function () {
@@ -9660,11 +9779,12 @@ var useHash = function () {
     return hash;
 };
 /// Top-level switch between the landing page (sign-in / join room), an
-/// account page and the in-room game view. Everything shared (header
-/// messages, dark mode) lives here.
+/// account page, the leaderboards and the in-room game view. Everything
+/// shared (header messages, dark mode) lives here.
 var Root = function () {
     var state = react.useContext(AppStateContext).state;
-    var accountUsername = accountRouteUsername(useHash());
+    var hash = useHash();
+    var accountUsername = accountRouteUsername(hash);
     var _a = react.useState([]), previousHeaderMessages = _a[0], setPreviousHeaderMessages = _a[1];
     var _b = react.useState(state.headerMessages.length > 0), showHeaderMessages = _b[0], setShowHeaderMessages = _b[1];
     react.useEffect(function () {
@@ -9690,6 +9810,14 @@ var Root = function () {
         };
     }, [state.settings.darkMode]);
     var headerMessages = showHeaderMessages ? (react.createElement("div", { className: "header-message", onClick: function () { return setShowHeaderMessages(false); } }, state.headerMessages.map(function (msg, idx) { return (react.createElement("p", { key: idx }, msg)); }))) : null;
+    if (isLeaderboardRoute(hash)) {
+        return (react.createElement("div", null,
+            headerMessages,
+            react.createElement(src_Leaderboard, null),
+            react.createElement("hr", null),
+            react.createElement(src_Credits, null),
+            react.createElement(src_TitleHandler, { playerName: state.name })));
+    }
     if (accountUsername !== null) {
         return (react.createElement("div", null,
             headerMessages,
@@ -10357,4 +10485,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.03af37f0ce01379ab94d.js.map
+//# sourceMappingURL=main.e5426d2dd022101ebf79.js.map

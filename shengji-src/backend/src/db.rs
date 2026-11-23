@@ -595,6 +595,61 @@ pub fn leaderboard(
     Ok(rows.collect::<Result<Vec<_>, _>>()?)
 }
 
+/// One row of the per-round leaderboards: average levels gained (Tractor) or
+/// points (Fight the Landlord) over every finished round of that game.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PerRoundRow {
+    pub username: String,
+    pub rounds: i64,
+    pub total: i64,
+    pub average: f64,
+}
+
+/// Best average per round over every finished round (`rounds` /
+/// `round_players`, rated or not) of one game: Fight the Landlord (`ddz`), or
+/// everything else (Tractor, including 1v1 and Finding Friends rooms). For
+/// Fight the Landlord `round_players.levels_gained` is the round's points, so
+/// this is signed points per round; elsewhere it is levels climbed per round.
+/// Players with fewer than `min_rounds` rounds are left out, so one lucky
+/// round cannot top the table.
+pub fn per_round_leaders(
+    conn: &Connection,
+    ddz: bool,
+    min_rounds: i64,
+    limit: i64,
+) -> DbResult<Vec<PerRoundRow>> {
+    let game = if ddz { "= 'ddz'" } else { "<> 'ddz'" };
+    let mut stmt = conn.prepare(&format!(
+        "SELECT u.username, COUNT(*), COALESCE(SUM(rp.levels_gained), 0) \
+         FROM round_players rp JOIN rounds r ON r.id = rp.round_id \
+         JOIN users u ON u.id = rp.user_id \
+         WHERE r.mode {game} \
+         GROUP BY rp.user_id \
+         HAVING COUNT(*) >= ?1 \
+         ORDER BY CAST(COALESCE(SUM(rp.levels_gained), 0) AS REAL) / COUNT(*) DESC, \
+                  COUNT(*) DESC, u.username ASC \
+         LIMIT ?2"
+    ))?;
+    let rows = stmt.query_map(
+        params![min_rounds, if limit <= 0 { -1 } else { limit }],
+        |row| {
+            let rounds: i64 = row.get(1)?;
+            let total: i64 = row.get(2)?;
+            Ok(PerRoundRow {
+                username: row.get(0)?,
+                rounds,
+                total,
+                average: if rounds == 0 {
+                    0.0
+                } else {
+                    total as f64 / rounds as f64
+                },
+            })
+        },
+    )?;
+    Ok(rows.collect::<Result<Vec<_>, _>>()?)
+}
+
 // ---------------------------------------------------------------------------
 // Matches
 // ---------------------------------------------------------------------------
@@ -1093,6 +1148,69 @@ mod tests {
         // dev accounts have no google sub
         let d = create_user(&conn, "devuser", None, None).unwrap();
         assert!(d.google_sub.is_none());
+    }
+
+    #[test]
+    fn per_round_leaders_average_every_finished_round() {
+        let db = Db::open_in_memory().unwrap();
+        let conn = db.lock().unwrap();
+        let a = create_user(&conn, "a", Some("sa"), None).unwrap();
+        let b = create_user(&conn, "b", Some("sb"), None).unwrap();
+        let round = |key: &str, mode: RatingMode, a_levels: i64, b_levels: i64| {
+            insert_round(
+                &conn,
+                &RoundRecord {
+                    round_key: key.into(),
+                    match_key: "m1".into(),
+                    room: "room".into(),
+                    mode,
+                    played_at: 1,
+                    landlord_won: a_levels > 0,
+                    level_delta: a_levels.max(b_levels),
+                    non_landlords_points: 0,
+                },
+                &[
+                    RoundPlayerRecord {
+                        user_id: a.id,
+                        is_defender: true,
+                        is_landlord: true,
+                        won: a_levels > 0,
+                        levels_gained: a_levels,
+                    },
+                    RoundPlayerRecord {
+                        user_id: b.id,
+                        is_defender: false,
+                        is_landlord: false,
+                        won: b_levels > 0,
+                        levels_gained: b_levels,
+                    },
+                ],
+            )
+            .unwrap();
+        };
+        // Two Tractor rounds: a climbs 2 then 0 (average 1.0), b 0 then 1
+        // (average 0.5).
+        round("t1", RatingMode::Team, 2, 0);
+        round("t2", RatingMode::Team, 0, 1);
+        // One Fight the Landlord round, whose "levels" are points.
+        round("d1", RatingMode::Ddz, -6, 6);
+
+        let tractor = per_round_leaders(&conn, false, 2, 10).unwrap();
+        assert_eq!(tractor.len(), 2);
+        assert_eq!(tractor[0].username, "a");
+        assert_eq!((tractor[0].rounds, tractor[0].total), (2, 2));
+        assert!((tractor[0].average - 1.0).abs() < 1e-9);
+        assert_eq!(tractor[1].username, "b");
+        assert!((tractor[1].average - 0.5).abs() < 1e-9);
+        // The minimum rounds keeps one-round samples off the table.
+        assert!(per_round_leaders(&conn, false, 3, 10).unwrap().is_empty());
+
+        let ddz = per_round_leaders(&conn, true, 1, 10).unwrap();
+        assert_eq!(ddz.len(), 2);
+        assert_eq!(ddz[0].username, "b");
+        assert!((ddz[0].average - 6.0).abs() < 1e-9);
+        assert!((ddz[1].average + 6.0).abs() < 1e-9);
+        assert!(per_round_leaders(&conn, true, 2, 10).unwrap().is_empty());
     }
 
     #[test]

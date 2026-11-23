@@ -125,23 +125,13 @@ const JoinRoom = (props: IProps): JSX.Element => {
           enter the code of an existing room to (re-)join it.
         </p>
         <p>
-          Rooms are <strong>rated by default</strong>, and they play{" "}
-          <strong>matches</strong>: a match is &ldquo;first to rank N&rdquo; (5
-          by default). You can change N or turn rating off in settings before
-          the match starts.
-        </p>
-        <p>
           If you&apos;re unfamiliar with the game, it might be helpful to{" "}
           <a href="rules.html" target="_blank">
             read the rules
           </a>{" "}
           first.
         </p>
-        <p>Once you are in the game, share the room link to start playing!</p>
-        <p>
-          Compared to the robertying site, the defaults here are fast autodraw
-          and no taking back bids or plays.
-        </p>
+        <p>Once you are in the game, share the link to start playing!</p>
       </div>
       <PublicRoomsPane setRoomName={props.setRoomName} />
     </div>

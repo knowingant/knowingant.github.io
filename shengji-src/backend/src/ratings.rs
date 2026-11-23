@@ -808,10 +808,12 @@ impl RatingsState {
     }
 }
 
-/// Routes: `GET /api/leaderboard`, `GET /api/users/:username`.
+/// Routes: `GET /api/leaderboard`, `GET /api/leaderboard/per_round`,
+/// `GET /api/users/:username`.
 pub fn router(state: RatingsState) -> Router {
     Router::new()
         .route("/api/leaderboard", get(leaderboard))
+        .route("/api/leaderboard/per_round", get(per_round_leaderboard))
         .route("/api/users/:username", get(user_profile))
         .with_state(state)
 }
@@ -873,6 +875,52 @@ async fn leaderboard(
     };
     let entries = leaderboard_view(&state.db, mode, limit)?;
     Ok(Json(json!({ "entries": entries })))
+}
+
+/// Minimum finished rounds before a per-round average is listed: one lucky
+/// round should not top a leaderboard.
+pub const MIN_ROUNDS_FOR_AVERAGE: i64 = 5;
+
+#[derive(Deserialize)]
+struct PerRoundQuery {
+    game: Option<String>,
+    limit: Option<String>,
+}
+
+/// The best average per round in Tractor (`game=tractor`: levels gained per
+/// round) or Fight the Landlord (`game=ddz`: points per round), from every
+/// finished round (`rounds` / `round_players`), rated or not.
+pub fn per_round_leaderboard_view(
+    db: &Db,
+    ddz: bool,
+    limit: usize,
+) -> DbResult<Vec<db::PerRoundRow>> {
+    db.with(|c| db::per_round_leaders(c, ddz, MIN_ROUNDS_FOR_AVERAGE, limit as i64))
+}
+
+async fn per_round_leaderboard(
+    State(state): State<RatingsState>,
+    Query(q): Query<PerRoundQuery>,
+) -> Result<Json<Value>, ApiError> {
+    let ddz = match q.game.as_deref().unwrap_or("tractor") {
+        "tractor" => false,
+        "ddz" => true,
+        _ => return Err(ApiError::bad_request("game must be tractor or ddz")),
+    };
+    let limit = match q.limit.as_deref() {
+        None => DEFAULT_LEADERBOARD_LIMIT,
+        Some(s) => s
+            .parse::<usize>()
+            .ok()
+            .filter(|n| *n >= 1)
+            .ok_or_else(|| ApiError::bad_request("limit must be a positive number"))?
+            .min(MAX_LEADERBOARD_LIMIT),
+    };
+    let entries = per_round_leaderboard_view(&state.db, ddz, limit)?;
+    Ok(Json(json!({
+        "min_rounds": MIN_ROUNDS_FOR_AVERAGE,
+        "entries": entries,
+    })))
 }
 
 /// The account page payload (DESIGN.md, "Account pages").
