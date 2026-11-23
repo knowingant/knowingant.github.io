@@ -30,9 +30,9 @@ const initialPerRound: PerRoundLoadable = {
   data: null,
 };
 
-/// `+1.83` / `−0.50`: an average per round, to two decimals.
+/// `+1.8333` / `−0.5000`: an average per round, to four decimals.
 const formatAverage = (average: number): string =>
-  `${average < 0 ? "−" : ""}${Math.abs(average).toFixed(2)}`;
+  `${average < 0 ? "−" : ""}${Math.abs(average).toFixed(4)}`;
 
 type View = "team" | "1v1" | "ddz" | "tractor" | "ddz_points";
 

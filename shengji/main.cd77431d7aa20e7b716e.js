@@ -9599,9 +9599,9 @@ var initialPerRound = {
     error: null,
     data: null,
 };
-/// `+1.83` / `−0.50`: an average per round, to two decimals.
+/// `+1.8333` / `−0.5000`: an average per round, to four decimals.
 var formatAverage = function (average) {
-    return "".concat(average < 0 ? "−" : "").concat(Math.abs(average).toFixed(2));
+    return "".concat(average < 0 ? "−" : "").concat(Math.abs(average).toFixed(4));
 };
 var Ladder = function (props) {
     var _a;
@@ -10499,4 +10499,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.e91df3303c1e4db5a130.js.map
+//# sourceMappingURL=main.cd77431d7aa20e7b716e.js.map
