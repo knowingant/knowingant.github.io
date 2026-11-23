@@ -178,9 +178,10 @@ pub struct PointsStanding {
 /// [`rate_match`], with the points gap as the margin:
 ///
 /// * `m_uv = (S_u − S_v) / (ddz_margin_per_round · rounds)`, clamped to ±1,
-/// * `Δ_u = K · mean_v (s_uv − E_uv)` with `K = ddz_k_per_round · rounds`,
-/// * first place never loses points and last place never gains any; the
-///   middle seat moves either way.
+/// * `Δ_u = K · mean_v (s_uv − E_uv)` with `K = ddz_k_per_round · rounds`.
+///
+/// There is no clamp, so the three changes sum to zero (apart from the rating
+/// floor).
 pub fn rate_points_match(
     params: &Params,
     rounds: usize,
@@ -189,8 +190,6 @@ pub fn rate_points_match(
     let rounds = rounds.max(1) as f64;
     let k = params.ddz_k_per_round * rounds;
     let full = params.ddz_margin_per_round * rounds;
-    let best = standings.iter().map(|s| s.points).max();
-    let worst = standings.iter().map(|s| s.points).min();
     standings
         .iter()
         .enumerate()
@@ -213,14 +212,7 @@ pub fn rate_points_match(
             }
             let score = sum_s / n as f64;
             let expected = sum_e / n as f64;
-            let mut after = u.rating + k * (score - expected);
-            if best != worst {
-                if Some(u.points) == best {
-                    after = after.max(u.rating);
-                } else if Some(u.points) == worst {
-                    after = after.min(u.rating);
-                }
-            }
+            let after = u.rating + k * (score - expected);
             Change {
                 before: u.rating,
                 after: after.max(params.rating_floor),
@@ -452,16 +444,15 @@ mod tests {
     }
 
     #[test]
-    fn ddz_first_never_loses_last_never_gains_middle_moves() {
-        // A heavy favourite who only just comes first would lose points on
-        // expectation alone; the clamp holds them at zero.
-        let c = ddz(6, &[(2300.0, 1), (1500.0, 0), (1500.0, -1)]);
-        assert_eq!(c[0], 0.0);
-        // The same favourite in the middle is not protected.
-        let c = ddz(6, &[(1500.0, 1), (2300.0, 0), (1500.0, -1)]);
-        assert!(c[1] < -10.0, "{c:?}");
-        // An underdog who comes last would gain on expectation alone.
-        let c = ddz(6, &[(2300.0, 1), (2300.0, 0), (700.0, -1)]);
-        assert_eq!(c[2], 0.0);
+    fn ddz_changes_sum_to_zero() {
+        for standings in [
+            [(2300.0, 1), (1500.0, 0), (1500.0, -1)],
+            [(1500.0, 1), (2300.0, 0), (1500.0, -1)],
+            [(2300.0, 1), (2300.0, 0), (700.0, -1)],
+            [(1700.0, 30), (1500.0, -6), (1300.0, -24)],
+        ] {
+            let sum: f64 = ddz(6, &standings).iter().sum();
+            assert!(sum.abs() < 0.151, "{standings:?}: {sum}");
+        }
     }
 }

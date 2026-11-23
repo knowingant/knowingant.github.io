@@ -83,7 +83,7 @@ const Stats = (props: { stats: api.ProfileStats }): JSX.Element => {
     ["Rounds played", `${s.rounds}`],
     ["Rounds won", withPercent(s.rounds_won, s.rounds)],
     [
-      "Rounds on the defending team",
+      "Rounds defending",
       `${s.defender_rounds} (won ${withPercent(s.defender_wins, s.defender_rounds)})`,
     ],
     [
@@ -91,7 +91,7 @@ const Stats = (props: { stats: api.ProfileStats }): JSX.Element => {
       `${s.landlord_rounds} (won ${withPercent(s.landlord_wins, s.landlord_rounds)})`,
     ],
     ["Levels gained", `${s.levels_gained}`],
-    ["Average rank gain / loss per round", averageRankChange(s)],
+    ["Average rank G/L", averageRankChange(s)],
     ["Matches played", `${s.matches}`],
     [
       "Matches won / lost / drawn",
@@ -123,6 +123,12 @@ const DdzStats = (props: { stats: api.ProfileStats }): JSX.Element => {
       `${s.landlord_rounds} (won ${withPercent(s.landlord_wins, s.landlord_rounds)})`,
     ],
     ["Points", api.formatDelta(s.levels_gained)],
+    [
+      "Points per round",
+      s.rounds > 0
+        ? `${s.levels_gained < 0 ? "−" : "+"}${Math.abs(s.levels_gained / s.rounds).toFixed(2)}`
+        : "0",
+    ],
     ["Matches played", `${s.matches}`],
     [
       "Matches 1st / 2nd / 3rd",

@@ -3743,7 +3743,7 @@ var Stats = function (props) {
         ["Rounds played", "".concat(s.rounds)],
         ["Rounds won", withPercent(s.rounds_won, s.rounds)],
         [
-            "Rounds on the defending team",
+            "Rounds defending",
             "".concat(s.defender_rounds, " (won ").concat(withPercent(s.defender_wins, s.defender_rounds), ")"),
         ],
         [
@@ -3751,7 +3751,7 @@ var Stats = function (props) {
             "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
         ],
         ["Levels gained", "".concat(s.levels_gained)],
-        ["Average rank gain / loss per round", averageRankChange(s)],
+        ["Average rank G/L", averageRankChange(s)],
         ["Matches played", "".concat(s.matches)],
         [
             "Matches won / lost / drawn",
@@ -3777,6 +3777,12 @@ var DdzStats = function (props) {
             "".concat(s.landlord_rounds, " (won ").concat(withPercent(s.landlord_wins, s.landlord_rounds), ")"),
         ],
         ["Points", api/* formatDelta */.CW(s.levels_gained)],
+        [
+            "Points per round",
+            s.rounds > 0
+                ? "".concat(s.levels_gained < 0 ? "−" : "+").concat(Math.abs(s.levels_gained / s.rounds).toFixed(2))
+                : "0",
+        ],
         ["Matches played", "".concat(s.matches)],
         [
             "Matches 1st / 2nd / 3rd",
@@ -10485,4 +10491,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.e5426d2dd022101ebf79.js.map
+//# sourceMappingURL=main.ce37f83781b113e91e98.js.map

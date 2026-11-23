@@ -92,9 +92,7 @@ score   s_uv as above (0.95 + 0.05·m, 0.05 + 0.05·m, or 0.5)
 Δ_u = K(R) · mean_v (s_uv − E_uv),       K(R) = 8 · R
 ```
 
-First place never loses points and last place never gains any; the middle
-seat moves either way. (Tractor's rule, "whoever scored above ½", would make
-second place jump between 0 and −13 on a one-point difference.)
+There is no clamp: the three changes always sum to zero.
 
 Six rounds, totals +30 / −6 / −24:
 
