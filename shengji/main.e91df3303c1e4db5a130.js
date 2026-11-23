@@ -1003,7 +1003,7 @@ function errorMessage(e) {
 /// the caller is responsible for clearing `AppState.auth`.
 function apiFetch(path_1) {
     return __awaiter(this, arguments, void 0, function (path, init) {
-        var headers, body, token, sendAuth, response, text, parsed, message;
+        var headers, body, token, sendAuth, response, text, parsed, unparsable, message;
         var _a;
         if (init === void 0) { init = {}; }
         return __generator(this, function (_b) {
@@ -1024,6 +1024,9 @@ function apiFetch(path_1) {
                             headers: headers,
                             body: body,
                             credentials: "omit",
+                            // Revalidate: a stale non-JSON answer (e.g. the page served for an API
+                            // path before the backend knew it) must not be reused.
+                            cache: "no-cache",
                         })];
                 case 1:
                     response = _b.sent();
@@ -1031,12 +1034,14 @@ function apiFetch(path_1) {
                 case 2:
                     text = _b.sent();
                     parsed = null;
+                    unparsable = false;
                     if (text.length > 0) {
                         try {
                             parsed = JSON.parse(text);
                         }
                         catch (_c) {
                             parsed = null;
+                            unparsable = true;
                         }
                     }
                     if (!response.ok) {
@@ -1050,6 +1055,9 @@ function apiFetch(path_1) {
                             setToken(null);
                         }
                         throw new ApiError(response.status, message);
+                    }
+                    if (unparsable) {
+                        throw new ApiError(response.status, "unexpected response from the server");
                     }
                     return [2 /*return*/, parsed];
             }
@@ -10491,4 +10499,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.d61487fe66e3a62745f1.js.map
+//# sourceMappingURL=main.e91df3303c1e4db5a130.js.map

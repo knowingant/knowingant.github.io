@@ -288,14 +288,19 @@ export async function apiFetch<T = any>(
     headers,
     body,
     credentials: "omit",
+    // Revalidate: a stale non-JSON answer (e.g. the page served for an API
+    // path before the backend knew it) must not be reused.
+    cache: "no-cache",
   });
   const text = await response.text();
   let parsed: any = null;
+  let unparsable = false;
   if (text.length > 0) {
     try {
       parsed = JSON.parse(text);
     } catch {
       parsed = null;
+      unparsable = true;
     }
   }
   if (!response.ok) {
@@ -312,6 +317,9 @@ export async function apiFetch<T = any>(
       setToken(null);
     }
     throw new ApiError(response.status, message);
+  }
+  if (unparsable) {
+    throw new ApiError(response.status, "unexpected response from the server");
   }
   return parsed as T;
 }
