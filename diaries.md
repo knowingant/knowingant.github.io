@@ -42,6 +42,7 @@ These diaries are published once a week on Sunday nights.
 
 I also publish diaries for some of the events I go to.
 In that case, the diary replaces the usual daily diary.
+- [PUMaC 2026](/assets/diaries/pumac-2026/pumac-2026.pdf)
 - [RSI 2026](/assets/diaries/rsi-2026/rsi-2026.pdf)
 - [TSTST 2026](/assets/diaries/tstst-2026/tstst-2026.pdf)
 - [ARML 2026](/assets/diaries/arml-2026/arml-2026.pdf)
