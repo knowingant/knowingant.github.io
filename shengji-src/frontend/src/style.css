@@ -612,7 +612,7 @@ label {
    so the ladders sit side by side instead of wrapping onto a second line. */
 .leaderboard-page {
   width: 95%;
-  max-width: 1200px;
+  max-width: 720px;
   /* override .game's desktop minimums so phones don't scroll sideways */
   min-width: 0;
   min-height: 0;
@@ -772,9 +772,6 @@ label {
   max-width: 100%;
 }
 
-.ladder {
-  max-width: 700px;
-}
 
 .ladder h4 {
   margin: 6px 0 2px;
