@@ -879,7 +879,7 @@ async fn leaderboard(
 
 /// Minimum finished rounds before a per-round average is listed: one lucky
 /// round should not top a leaderboard.
-pub const MIN_ROUNDS_FOR_AVERAGE: i64 = 100;
+pub const MIN_ROUNDS_FOR_AVERAGE: i64 = 20;
 
 #[derive(Deserialize)]
 struct PerRoundQuery {

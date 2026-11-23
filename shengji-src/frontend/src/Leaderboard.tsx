@@ -259,7 +259,7 @@ const Leaderboard = (): JSX.Element => {
               <option value="ddz">Fight the Landlord ladder</option>
             </optgroup>
             <optgroup label="Per round">
-              <option value="tractor">Tractor: levels gained per round</option>
+              <option value="tractor">Tractor: average rank G/L</option>
               <option value="ddz_points">
                 Fight the Landlord: points per round
               </option>
@@ -289,7 +289,7 @@ const Leaderboard = (): JSX.Element => {
           </p>
           {view === "tractor" ? (
             <PerRoundLadder
-              title="Tractor: levels gained per round"
+              title="Tractor: average rank G/L"
               unit="levels"
               state={tractor}
               highlight={me}

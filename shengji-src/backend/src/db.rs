@@ -609,7 +609,8 @@ pub struct PerRoundRow {
 /// `round_players`, rated or not) of one game: Fight the Landlord (`ddz`), or
 /// everything else (Tractor, including 1v1 and Finding Friends rooms). For
 /// Fight the Landlord `round_players.levels_gained` is the round's points, so
-/// this is signed points per round; elsewhere it is levels climbed per round.
+/// this is signed points per round; elsewhere it is net levels per round
+/// (climbed minus conceded).
 /// Players with fewer than `min_rounds` rounds are left out, so one lucky
 /// round cannot top the table.
 pub fn per_round_leaders(
@@ -619,14 +620,23 @@ pub fn per_round_leaders(
     limit: i64,
 ) -> DbResult<Vec<PerRoundRow>> {
     let game = if ddz { "= 'ddz'" } else { "<> 'ddz'" };
+    // Tractor: net levels, as on the account page (levels climbed minus
+    // levels the other side climbed in rounds lost). Fight the Landlord:
+    // points.
+    let total = if ddz {
+        "COALESCE(SUM(rp.levels_gained), 0)"
+    } else {
+        "COALESCE(SUM(rp.levels_gained), 0) \
+         - COALESCE(SUM(CASE WHEN rp.won = 0 THEN r.level_delta ELSE 0 END), 0)"
+    };
     let mut stmt = conn.prepare(&format!(
-        "SELECT u.username, COUNT(*), COALESCE(SUM(rp.levels_gained), 0) \
+        "SELECT u.username, COUNT(*), {total} \
          FROM round_players rp JOIN rounds r ON r.id = rp.round_id \
          JOIN users u ON u.id = rp.user_id \
          WHERE r.mode {game} \
          GROUP BY rp.user_id \
          HAVING COUNT(*) >= ?1 \
-         ORDER BY CAST(COALESCE(SUM(rp.levels_gained), 0) AS REAL) / COUNT(*) DESC, \
+         ORDER BY CAST(({total}) AS REAL) / COUNT(*) DESC, \
                   COUNT(*) DESC, u.username ASC \
          LIMIT ?2"
     ))?;
@@ -1188,8 +1198,8 @@ mod tests {
             )
             .unwrap();
         };
-        // Two Tractor rounds: a climbs 2 then 0 (average 1.0), b 0 then 1
-        // (average 0.5).
+        // Two Tractor rounds: a climbs 2 then loses a round b wins by 1
+        // (net +1, average 0.5); b the other way round (net -1, average -0.5).
         round("t1", RatingMode::Team, 2, 0);
         round("t2", RatingMode::Team, 0, 1);
         // One Fight the Landlord round, whose "levels" are points.
@@ -1198,10 +1208,10 @@ mod tests {
         let tractor = per_round_leaders(&conn, false, 2, 10).unwrap();
         assert_eq!(tractor.len(), 2);
         assert_eq!(tractor[0].username, "a");
-        assert_eq!((tractor[0].rounds, tractor[0].total), (2, 2));
-        assert!((tractor[0].average - 1.0).abs() < 1e-9);
+        assert_eq!((tractor[0].rounds, tractor[0].total), (2, 1));
+        assert!((tractor[0].average - 0.5).abs() < 1e-9);
         assert_eq!(tractor[1].username, "b");
-        assert!((tractor[1].average - 0.5).abs() < 1e-9);
+        assert!((tractor[1].average + 0.5).abs() < 1e-9);
         // The minimum rounds keeps one-round samples off the table.
         assert!(per_round_leaders(&conn, false, 3, 10).unwrap().is_empty());
 

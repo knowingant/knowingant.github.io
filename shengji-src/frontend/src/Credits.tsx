@@ -65,7 +65,7 @@ const ChangeLog = (): JSX.Element => {
         <ul>
           <li>
             The leaderboards have a page of their own (linked from the lobby),
-            with the best average levels gained per round in Tractor and the
+            with the best average rank gain / loss per round in Tractor and the
             best average points per round in Fight the Landlord.
           </li>
           <li>

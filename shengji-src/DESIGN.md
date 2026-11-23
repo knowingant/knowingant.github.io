@@ -383,7 +383,7 @@ renders this; `AccountBar`, leaderboard rows and player names link to it.
   profile link, sign out), `JoinRoom` (room code), leaderboard.
 - Hash routing: `#<16-char room>` joins a room; `#user/<name>` shows an
   account page (`AccountPage.tsx`); `#leaderboard` shows the leaderboards
-  (`Leaderboard.tsx`: the three rating ladders plus levels gained per round
+  (`Leaderboard.tsx`: the three rating ladders plus average rank gain / loss per round
   in Tractor and points per round in Fight the Landlord), linked from the
   lobby instead of sitting on it.
 - In room (`Game.tsx`): `RatedBanner` ("Rated match · first to 5 · round

@@ -7075,7 +7075,7 @@ var ChangeLog = function () {
             react.createElement("h2", null, "Change Log"),
             react.createElement("p", null, "11/23/2026:"),
             react.createElement("ul", null,
-                react.createElement("li", null, "The leaderboards have a page of their own (linked from the lobby), with the best average levels gained per round in Tractor and the best average points per round in Fight the Landlord."),
+                react.createElement("li", null, "The leaderboards have a page of their own (linked from the lobby), with the best average rank gain / loss per round in Tractor and the best average points per round in Fight the Landlord."),
                 react.createElement("li", null, "A spectator watching a hand in Fight the Landlord now sees the cards at the top, as in Tractor."),
                 react.createElement("li", null, "Any two players can agree to reset a game that is in progress, so a player having to leave does not hold the room up.")),
             react.createElement("p", null, "11/10/2026:"),
@@ -9735,7 +9735,7 @@ var Leaderboard = function () {
                         react.createElement("option", { value: "1v1" }, "1v1 ladder"),
                         react.createElement("option", { value: "ddz" }, "Fight the Landlord ladder")),
                     react.createElement("optgroup", { label: "Per round" },
-                        react.createElement("option", { value: "tractor" }, "Tractor: levels gained per round"),
+                        react.createElement("option", { value: "tractor" }, "Tractor: average rank G/L"),
                         react.createElement("option", { value: "ddz_points" }, "Fight the Landlord: points per round"))))),
         view === "team" && (react.createElement(Ladder, { mode: "team", title: "Team ladder", state: team, highlight: me })),
         view === "1v1" && (react.createElement(Ladder, { mode: "1v1", title: "1v1 ladder", state: oneVsOne, highlight: me })),
@@ -9745,7 +9745,7 @@ var Leaderboard = function () {
                 "Averages count every finished round, rated or not; a player needs at least ",
                 minRounds,
                 " rounds of that game to be listed."),
-            view === "tractor" ? (react.createElement(PerRoundLadder, { title: "Tractor: levels gained per round", unit: "levels", state: tractor, highlight: me })) : (react.createElement(PerRoundLadder, { title: "Fight the Landlord: points per round", unit: "points", state: ddzPoints, highlight: me }))))));
+            view === "tractor" ? (react.createElement(PerRoundLadder, { title: "Tractor: average rank G/L", unit: "levels", state: tractor, highlight: me })) : (react.createElement(PerRoundLadder, { title: "Fight the Landlord: points per round", unit: "points", state: ddzPoints, highlight: me }))))));
 };
 /* harmony default export */ const src_Leaderboard = (Leaderboard);
 
@@ -10491,4 +10491,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.ce37f83781b113e91e98.js.map
+//# sourceMappingURL=main.d61487fe66e3a62745f1.js.map
