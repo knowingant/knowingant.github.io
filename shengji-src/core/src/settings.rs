@@ -486,6 +486,15 @@ impl PropagatedState {
         self.rated
     }
 
+    /// The scoring step size over the default one (see
+    /// `GameScoringParameters::step_ratio`).
+    pub fn step_ratio(&self) -> f64 {
+        match self.decks() {
+            Ok(decks) => self.game_scoring_parameters.step_ratio(&decks),
+            Err(_) => 1.0,
+        }
+    }
+
     pub fn player_mode(&self) -> PlayerMode {
         self.player_mode
     }

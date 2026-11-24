@@ -177,6 +177,20 @@ fn migrate(conn: &Connection) -> DbResult<()> {
         CREATE INDEX IF NOT EXISTS round_players_user ON round_players(user_id);
         "#,
     )?;
+    // Added later: the scoring step size over the default one, for rating
+    // weight. Older matches were all rated as if it were 1.
+    let has_step_ratio = conn
+        .prepare("PRAGMA table_info(matches)")?
+        .query_map([], |row| row.get::<_, String>(1))?
+        .collect::<Result<Vec<_>, _>>()?
+        .iter()
+        .any(|name| name == "step_ratio");
+    if !has_step_ratio {
+        conn.execute(
+            "ALTER TABLE matches ADD COLUMN step_ratio REAL NOT NULL DEFAULT 1.0",
+            [],
+        )?;
+    }
     Ok(())
 }
 
@@ -675,6 +689,8 @@ pub struct MatchRecord {
     pub rating_applied: bool,
     /// The "first to rank N" target, as a rank string ("5", "A", "NT").
     pub first_to_rank: String,
+    /// Scoring step size over the default one (1.0 unless the room changed it).
+    pub step_ratio: f64,
     pub finished_at: i64,
     /// Rounds played in the match.
     pub rounds: i64,
@@ -715,8 +731,8 @@ pub fn insert_match(
     players: &[MatchPlayerRecord],
 ) -> DbResult<i64> {
     let res = conn.execute(
-        "INSERT INTO matches (match_key, room, mode, rated, rating_applied, first_to_rank, finished_at, rounds) \
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+        "INSERT INTO matches (match_key, room, mode, rated, rating_applied, first_to_rank, finished_at, rounds, step_ratio) \
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
         params![
             m.match_key,
             m.room,
@@ -725,7 +741,8 @@ pub fn insert_match(
             m.rating_applied as i64,
             m.first_to_rank,
             m.finished_at,
-            m.rounds
+            m.rounds,
+            m.step_ratio
         ],
     );
     match res {
@@ -927,6 +944,7 @@ pub struct RatedMatchRow {
     pub mode: RatingMode,
     pub first_to_rank: String,
     pub rounds: i64,
+    pub step_ratio: f64,
     pub finished_at: i64,
     pub players: Vec<RatedMatchPlayer>,
 }
@@ -944,7 +962,7 @@ pub struct RatedMatchPlayer {
 /// Every match whose ratings were applied, oldest first.
 pub fn rated_matches_in_order(conn: &Connection) -> DbResult<Vec<RatedMatchRow>> {
     let mut stmt = conn.prepare(
-        "SELECT id, mode, first_to_rank, finished_at, rounds FROM matches \
+        "SELECT id, mode, first_to_rank, finished_at, rounds, step_ratio FROM matches \
          WHERE rating_applied = 1 ORDER BY id ASC",
     )?;
     let heads = stmt
@@ -955,6 +973,7 @@ pub fn rated_matches_in_order(conn: &Connection) -> DbResult<Vec<RatedMatchRow>>
                 mode: parse_mode(mode, 1)?,
                 first_to_rank: row.get(2)?,
                 rounds: row.get(4)?,
+                step_ratio: row.get(5)?,
                 finished_at: row.get(3)?,
                 players: vec![],
             })
@@ -1365,6 +1384,7 @@ mod tests {
                     rated: applied,
                     rating_applied: applied,
                     first_to_rank: "3".into(),
+                    step_ratio: 1.0,
                     finished_at: 1,
                     rounds: 1,
                 },
@@ -1520,6 +1540,7 @@ mod tests {
                 rated: true,
                 rating_applied: true,
                 first_to_rank: "5".into(),
+                step_ratio: 1.0,
                 finished_at: 2,
                 rounds: 1,
             },
@@ -1558,6 +1579,7 @@ mod tests {
                     rated: true,
                     rating_applied: false,
                     first_to_rank: "5".into(),
+                    step_ratio: 1.0,
                     finished_at: 3,
                     rounds: 1,
                 },

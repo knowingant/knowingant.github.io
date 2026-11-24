@@ -71,8 +71,10 @@ pub struct GameScoringParameters {
     /// Number-of-deck-based adjustments to the step size
     step_adjustments: HashMap<usize, isize>,
     /// Number of steps (as a fraction of the overall number in the deck)
-    /// necessary to give the attacking team landlord.
-    num_steps_to_non_landlord_turnover: usize,
+    /// necessary to give the attacking team landlord. `None` keeps the
+    /// turnover at 2/5 of the points in play whatever the step size is.
+    #[serde(default)]
+    num_steps_to_non_landlord_turnover: Option<usize>,
     /// Number of steps (as a fraction of the overall number in the deck) that
     /// control is turned over, but neither side goes up a level.
     deadzone_size: usize,
@@ -85,7 +87,7 @@ impl Default for GameScoringParameters {
     fn default() -> Self {
         Self {
             step_size_per_deck: 20,
-            num_steps_to_non_landlord_turnover: 2,
+            num_steps_to_non_landlord_turnover: None,
             deadzone_size: 1,
             truncate_zero_crossing_window: true,
             step_adjustments: HashMap::new(),
@@ -117,8 +119,35 @@ impl GameScoringParameters {
         }
     }
 
+    /// The step size relative to the default one for these decks (20 points
+    /// per deck): 1.0 for the defaults, 0.5 for half-size steps. Ratings use it
+    /// to count a match with finer steps as shorter.
+    pub fn step_ratio(&self, decks: &[Deck]) -> f64 {
+        match self.step_size(decks) {
+            Ok(step) if !decks.is_empty() => {
+                step as f64 / (decks.len() * Self::default().step_size_per_deck) as f64
+            }
+            _ => 1.0,
+        }
+    }
+
+    /// Steps the attacking team needs to take over: the set number, or enough
+    /// steps to reach 2/5 of the points in play (2 steps at the default step
+    /// size of 20 per deck, 4 at 10 per deck).
+    pub fn turnover_steps(&self, decks: &[Deck]) -> Result<usize, Error> {
+        match self.num_steps_to_non_landlord_turnover {
+            Some(steps) => Ok(steps),
+            None => {
+                let total_points = decks.iter().map(|d| d.points()).sum::<usize>();
+                let step = self.step_size(decks)?;
+                Ok(((total_points * 2 + step * 5 / 2) / (step * 5)).max(1))
+            }
+        }
+    }
+
     pub fn materialize(&self, decks: &[Deck]) -> Result<MaterializedScoringParameters, Error> {
-        if self.num_steps_to_non_landlord_turnover == 0 {
+        let num_steps = self.turnover_steps(decks)?;
+        if num_steps == 0 {
             bail!("Landlord team must be able to win")
         }
 
@@ -127,7 +156,7 @@ impl GameScoringParameters {
             let mut landlord_wins = vec![];
 
             let mut delta = 1;
-            for offset in (2..=self.num_steps_to_non_landlord_turnover).rev() {
+            for offset in (2..=num_steps).rev() {
                 landlord_wins.push(LandlordWinningScoreSegment {
                     start: (offset as isize - 1) * s,
                     end: offset as isize * s,
@@ -151,8 +180,8 @@ impl GameScoringParameters {
             landlord_wins
         } else {
             vec![LandlordWinningScoreSegment {
-                start: (self.num_steps_to_non_landlord_turnover - 1) as isize * s,
-                end: self.num_steps_to_non_landlord_turnover as isize * s,
+                start: (num_steps - 1) as isize * s,
+                end: num_steps as isize * s,
                 landlord_delta: 1,
             }]
         };
@@ -161,14 +190,14 @@ impl GameScoringParameters {
             vec![]
         } else {
             vec![LandlordLosingScoreSegment {
-                start: self.num_steps_to_non_landlord_turnover as isize * s,
-                end: (self.num_steps_to_non_landlord_turnover + self.deadzone_size) as isize * s,
+                start: num_steps as isize * s,
+                end: (num_steps + self.deadzone_size) as isize * s,
                 non_landlord_delta: 0,
             }]
         };
         landlord_loses.push(LandlordLosingScoreSegment {
-            start: (self.num_steps_to_non_landlord_turnover + self.deadzone_size) as isize * s,
-            end: (self.num_steps_to_non_landlord_turnover + self.deadzone_size + 1) as isize * s,
+            start: (num_steps + self.deadzone_size) as isize * s,
+            end: (num_steps + self.deadzone_size + 1) as isize * s,
             non_landlord_delta: 1,
         });
 
@@ -433,6 +462,42 @@ mod tests {
     use super::{compute_level_deltas, BonusLevelPolicy, GameScoreResult, GameScoringParameters};
 
     use crate::deck::Deck;
+
+    #[test]
+    fn turnover_stays_at_two_fifths_of_the_points_when_steps_shrink() {
+        let two = [Deck::default(), Deck::default()];
+        let one = [Deck::default()];
+        let steps = |per_deck: usize, decks: &[Deck]| {
+            GameScoringParameters {
+                step_size_per_deck: per_deck,
+                ..Default::default()
+            }
+            .turnover_steps(decks)
+            .unwrap()
+        };
+        // Default: 2 steps of 40 (2 decks) or of 20 (1 deck).
+        assert_eq!(steps(20, &two), 2);
+        assert_eq!(steps(20, &one), 2);
+        // Half-size steps need twice as many for the same 80 / 40 points.
+        assert_eq!(steps(10, &two), 4);
+        assert_eq!(steps(10, &one), 4);
+        assert_eq!(steps(5, &two), 8);
+        // A value set by hand is kept.
+        let fixed = GameScoringParameters {
+            step_size_per_deck: 10,
+            num_steps_to_non_landlord_turnover: Some(2),
+            ..Default::default()
+        };
+        assert_eq!(fixed.turnover_steps(&two).unwrap(), 2);
+        // The first point at which control turns over is still 80.
+        let half = GameScoringParameters {
+            step_size_per_deck: 10,
+            ..Default::default()
+        };
+        assert!(half.materialize(&two).is_ok());
+        assert_eq!(half.step_ratio(&two), 0.5);
+        assert_eq!(GameScoringParameters::default().step_ratio(&two), 1.0);
+    }
 
     #[test]
     fn test_level_deltas() {

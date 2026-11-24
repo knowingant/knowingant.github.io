@@ -127,6 +127,9 @@ pub struct MatchOutcome {
     pub game_mode: GameModeSettings,
     /// The room's `rated` setting.
     pub rated: bool,
+    /// The room's scoring step size over the default one; a match with finer
+    /// steps counts as shorter for `K`.
+    pub step_ratio: f64,
     pub first_to_rank: Rank,
     /// In seat (player) order.
     pub standings: Vec<MatchStanding>,
@@ -355,7 +358,7 @@ pub fn apply_match(db: &Db, config: &Config, outcome: &MatchOutcome) -> DbResult
                     side,
                 })
                 .collect();
-            rate_match(params, t, &standings)
+            rate_match(params, t, outcome.step_ratio, &standings)
         } else {
             vec![]
         };
@@ -401,6 +404,7 @@ pub fn apply_match(db: &Db, config: &Config, outcome: &MatchOutcome) -> DbResult
                 rated: outcome.rated,
                 rating_applied: apply,
                 first_to_rank: outcome.first_to_rank.as_str().to_string(),
+                step_ratio: outcome.step_ratio,
                 finished_at: now,
                 rounds: outcome.rounds as i64,
             },
@@ -671,6 +675,7 @@ pub fn apply_ddz_match(
                 rated: outcome.rated,
                 rating_applied: apply,
                 first_to_rank: outcome.rounds.to_string(),
+                step_ratio: 1.0,
                 finished_at: now,
                 rounds: outcome.rounds as i64,
             },
@@ -755,7 +760,7 @@ pub fn replay_ratings(db: &Db, config: &Config) -> DbResult<Vec<ReplayedMatch>> 
                         side: p.side.max(0) as usize,
                     })
                     .collect();
-                rate_match(params, t, &standings)
+                rate_match(params, t, m.step_ratio, &standings)
             };
             let mut players = Vec::with_capacity(m.players.len());
             for (i, ((p, row), c)) in m
@@ -1135,6 +1140,7 @@ mod tests {
             game_mode: GameModeSettings::Tractor,
             rated,
             first_to_rank: R5,
+            step_ratio: 1.0,
             standings: vec![
                 standing(0, "alice", R5, R5),
                 standing(1, "bob", R2, R5),

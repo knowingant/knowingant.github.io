@@ -136,13 +136,13 @@ const renderScoringMessage = (message: Message): JSX.Element => {
       );
     }
     if (
-      variant.old_parameters.num_steps_to_non_landlord_turnover !==
-      variant.parameters.num_steps_to_non_landlord_turnover
+      (variant.old_parameters.num_steps_to_non_landlord_turnover ?? null) !==
+      (variant.parameters.num_steps_to_non_landlord_turnover ?? null)
     ) {
       changes.push(
         <span key={changes.length}>
           steps to turnover:{" "}
-          {variant.parameters.num_steps_to_non_landlord_turnover}{" "}
+          {variant.parameters.num_steps_to_non_landlord_turnover ?? "auto"}{" "}
         </span>,
       );
     }

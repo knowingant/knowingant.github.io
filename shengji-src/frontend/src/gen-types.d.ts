@@ -899,9 +899,9 @@ export interface GameScoringParameters {
    */
   deadzone_size: number;
   /**
-   * Number of steps (as a fraction of the overall number in the deck) necessary to give the attacking team landlord.
+   * Number of steps (as a fraction of the overall number in the deck) necessary to give the attacking team landlord. `None` keeps the turnover at 2/5 of the points in play whatever the step size is.
    */
-  num_steps_to_non_landlord_turnover: number;
+  num_steps_to_non_landlord_turnover?: number | null;
   /**
    * Number-of-deck-based adjustments to the step size
    */

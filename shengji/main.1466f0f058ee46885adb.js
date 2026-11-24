@@ -4290,14 +4290,15 @@ var __rest = (undefined && undefined.__rest) || function (s, e) {
 
 
 var GameScoringSettings = function (props) {
+    var _a, _b;
     var send = react.useContext(WebsocketProvider_WebsocketContext).send;
     var engine = useEngine();
-    var _a = react.useState(null), highlighted = _a[0], setHighlighted = _a[1];
-    var _b = react.useState([]), scoreTransitions = _b[0], setScoreTransitions = _b[1];
-    var _c = react.useState([]), bonusScoreTransitions = _c[0], setBonusScoreTransitions = _c[1];
-    var _d = react.useState(10), stepSize = _d[0], setStepSize = _d[1];
-    var _e = react.useState(100), totalPoints = _e[0], setTotalPoints = _e[1];
-    var _f = react.useState(true), isLoading = _f[0], setIsLoading = _f[1];
+    var _c = react.useState(null), highlighted = _c[0], setHighlighted = _c[1];
+    var _d = react.useState([]), scoreTransitions = _d[0], setScoreTransitions = _d[1];
+    var _e = react.useState([]), bonusScoreTransitions = _e[0], setBonusScoreTransitions = _e[1];
+    var _f = react.useState(10), stepSize = _f[0], setStepSize = _f[1];
+    var _g = react.useState(100), totalPoints = _g[0], setTotalPoints = _g[1];
+    var _h = react.useState(true), isLoading = _h[0], setIsLoading = _h[1];
     var updateSettings = function (updates) {
         send({
             Action: {
@@ -4520,17 +4521,20 @@ var GameScoringSettings = function (props) {
                 "(default: 1)"),
             react.createElement("div", null,
                 react.createElement("label", null, "Number of steps for the attacking team to win: "),
-                react.createElement("select", { value: "".concat(props.params.num_steps_to_non_landlord_turnover), onChange: function (evt) {
+                react.createElement("select", { value: "".concat((_a = props.params.num_steps_to_non_landlord_turnover) !== null && _a !== void 0 ? _a : "auto"), onChange: function (evt) {
                         evt.preventDefault();
-                        var steps = parseInt(evt.target.value, 10);
                         updateSettings({
-                            num_steps_to_non_landlord_turnover: steps,
+                            num_steps_to_non_landlord_turnover: evt.target.value === "auto"
+                                ? null
+                                : parseInt(evt.target.value, 10),
                         });
-                    } }, Array(Math.max(maxSteps, props.params.num_steps_to_non_landlord_turnover))
-                    .fill(undefined)
-                    .map(function (_, idx) { return (react.createElement("option", { key: idx + 1 }, idx + 1)); })),
+                    } },
+                    react.createElement("option", { key: "auto", value: "auto" }, "auto"),
+                    Array(Math.max(maxSteps, (_b = props.params.num_steps_to_non_landlord_turnover) !== null && _b !== void 0 ? _b : 0))
+                        .fill(undefined)
+                        .map(function (_, idx) { return (react.createElement("option", { key: idx + 1 }, idx + 1)); })),
                 " ",
-                "(default: 2)"),
+                "(default: auto, 2/5 of the points)"),
             react.createElement("div", null,
                 react.createElement("label", null, "Grant a bonus level for unexpectedly small team"),
                 " ",
@@ -7638,7 +7642,7 @@ var renderMessage = function (message) {
     }
 };
 var renderScoringMessage = function (message) {
-    var _a, _b;
+    var _a, _b, _c, _d, _e;
     var changes = [];
     var variant = (_a = message.data) === null || _a === void 0 ? void 0 : _a.variant;
     if ((variant === null || variant === void 0 ? void 0 : variant.type) === "GameScoringParametersChanged") {
@@ -7655,12 +7659,11 @@ var renderScoringMessage = function (message) {
                 variant.parameters.deadzone_size,
                 " "));
         }
-        if (variant.old_parameters.num_steps_to_non_landlord_turnover !==
-            variant.parameters.num_steps_to_non_landlord_turnover) {
+        if (((_b = variant.old_parameters.num_steps_to_non_landlord_turnover) !== null && _b !== void 0 ? _b : null) !==
+            ((_c = variant.parameters.num_steps_to_non_landlord_turnover) !== null && _c !== void 0 ? _c : null)) {
             changes.push(react.createElement("span", { key: changes.length },
                 "steps to turnover:",
-                " ",
-                variant.parameters.num_steps_to_non_landlord_turnover,
+                " ", (_d = variant.parameters.num_steps_to_non_landlord_turnover) !== null && _d !== void 0 ? _d : "auto",
                 " "));
         }
         for (var k in variant.parameters.step_adjustments) {
@@ -7693,8 +7696,8 @@ var renderScoringMessage = function (message) {
                 changes.push(react.createElement("span", { key: changes.length }, "small-team bonus disabled"));
             }
         }
-        return (react.createElement("span", null, (_b = message.data) === null || _b === void 0 ? void 0 :
-            _b.actor_name,
+        return (react.createElement("span", null, (_e = message.data) === null || _e === void 0 ? void 0 :
+            _e.actor_name,
             " updated the scoring parameters: ",
             changes));
     }
@@ -10538,7 +10541,7 @@ var Timeout = function (props) {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"182f34d87e08376e8de5"}[chunkId] + ".js";
+/******/ 			return "" + (chunkId === 61 ? "playing-cards" : chunkId) + "." + {"61":"b9b315f899eab27828a7","410":"7affd7ce6f78fddd33f1","411":"af6b7a97d4e0aaab9fe1"}[chunkId] + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -10791,4 +10794,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.e289ef75ae73433cfa5a.js.map
+//# sourceMappingURL=main.1466f0f058ee46885adb.js.map

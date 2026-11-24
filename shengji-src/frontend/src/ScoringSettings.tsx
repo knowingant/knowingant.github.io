@@ -325,20 +325,24 @@ export const GameScoringSettings = (props: IProps): JSX.Element => {
         <div>
           <label>Number of steps for the attacking team to win: </label>
           <select
-            value={`${props.params.num_steps_to_non_landlord_turnover}`}
+            value={`${props.params.num_steps_to_non_landlord_turnover ?? "auto"}`}
             onChange={(evt) => {
               evt.preventDefault();
-              const steps = parseInt(evt.target.value, 10);
-
               updateSettings({
-                num_steps_to_non_landlord_turnover: steps,
+                num_steps_to_non_landlord_turnover:
+                  evt.target.value === "auto"
+                    ? null
+                    : parseInt(evt.target.value, 10),
               });
             }}
           >
+            <option key="auto" value="auto">
+              auto
+            </option>
             {Array(
               Math.max(
                 maxSteps,
-                props.params.num_steps_to_non_landlord_turnover,
+                props.params.num_steps_to_non_landlord_turnover ?? 0,
               ),
             )
               .fill(undefined)
@@ -346,7 +350,7 @@ export const GameScoringSettings = (props: IProps): JSX.Element => {
                 <option key={idx + 1}>{idx + 1}</option>
               ))}
           </select>{" "}
-          (default: 2)
+          (default: auto, 2/5 of the points)
         </div>
         <div>
           <label>Grant a bonus level for unexpectedly small team</label>{" "}

@@ -2329,7 +2329,6 @@
       "required": [
         "bonus_level_policy",
         "deadzone_size",
-        "num_steps_to_non_landlord_turnover",
         "step_adjustments",
         "step_size_per_deck",
         "truncate_zero_crossing_window"
@@ -2345,8 +2344,9 @@
           "minimum": 0.0
         },
         "num_steps_to_non_landlord_turnover": {
-          "description": "Number of steps (as a fraction of the overall number in the deck) necessary to give the attacking team landlord.",
-          "type": "integer",
+          "description": "Number of steps (as a fraction of the overall number in the deck) necessary to give the attacking team landlord. `None` keeps the turnover at 2/5 of the points in play whatever the step size is.",
+          "default": null,
+          "type": ["integer", "null"],
           "format": "uint",
           "minimum": 0.0
         },
@@ -4122,7 +4122,7 @@
           "default": {
             "bonus_level_policy": "BonusLevelForSmallerLandlordTeam",
             "deadzone_size": 1,
-            "num_steps_to_non_landlord_turnover": 2,
+            "num_steps_to_non_landlord_turnover": null,
             "step_adjustments": {},
             "step_size_per_deck": 20,
             "truncate_zero_crossing_window": true

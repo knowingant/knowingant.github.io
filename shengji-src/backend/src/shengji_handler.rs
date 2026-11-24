@@ -1444,6 +1444,8 @@ fn apply_action(
 #[derive(Clone, Debug)]
 struct PreRound {
     rated: bool,
+    /// Scoring step size over the default one (rating weight).
+    step_ratio: f64,
     player_mode: PlayerMode,
     game_mode: GameModeSettings,
     round_key: String,
@@ -1456,6 +1458,7 @@ fn pre_round(state: &GameState, action: &Action) -> Option<PreRound> {
     match (action, state) {
         (Action::StartNewGame, GameState::Play(_)) => Some(PreRound {
             rated: state.rated(),
+            step_ratio: state.step_ratio(),
             player_mode: state.player_mode(),
             game_mode: state.game_mode_settings(),
             round_key: state.round_key().to_string(),
@@ -1544,6 +1547,7 @@ fn parse_match_outcome<'a>(
                 player_mode: pre.player_mode,
                 game_mode: pre.game_mode,
                 rated: pre.rated,
+                step_ratio: pre.step_ratio,
                 first_to_rank: *first_to_rank,
                 standings: standings.clone(),
                 rounds: pre.rounds,

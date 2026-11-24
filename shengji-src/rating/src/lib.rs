@@ -22,16 +22,22 @@ use serde::{Deserialize, Serialize};
 /// Tunable parameters. [`Params::default`] is what production uses.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Params {
-    /// `K(N) = k_per_level · (N − 2)`.
+    /// `K = k_per_level · L` for a match of `L` levels (`first to rank N` is
+    /// `N − 2` levels), up to `k_linear_levels`; beyond that it grows with the
+    /// square root of `L` (see [`k_factor`]).
     pub k_per_level: f64,
+    /// Levels up to which `K` is linear (3 = first to rank 5).
+    pub k_linear_levels: f64,
     /// Elo logistic scale (rating points per factor of 10 in odds).
     pub elo_scale: f64,
     /// Rating of a new account.
     pub initial_rating: f64,
     /// Lowest possible rating (applied after the update).
     pub rating_floor: f64,
-    /// Fight the Landlord: `K = ddz_k_per_round · rounds`.
+    /// Fight the Landlord: `K = ddz_k_per_round · rounds`, up to
+    /// `ddz_k_linear_rounds` rounds, then with the square root of the rounds.
     pub ddz_k_per_round: f64,
+    pub ddz_k_linear_rounds: f64,
     /// Fight the Landlord: a points gap of this much per round is a full margin.
     pub ddz_margin_per_round: f64,
 }
@@ -40,10 +46,12 @@ impl Default for Params {
     fn default() -> Self {
         Params {
             k_per_level: 24.0,
+            k_linear_levels: 3.0,
             elo_scale: 2000.0,
             initial_rating: 1500.0,
             rating_floor: 0.0,
             ddz_k_per_round: 8.0,
+            ddz_k_linear_rounds: 6.0,
             ddz_margin_per_round: 6.0,
         }
     }
@@ -84,9 +92,27 @@ pub fn target_levels(first_to_rank_index: usize) -> usize {
     first_to_rank_index.saturating_sub(2).max(1)
 }
 
-/// `K(N)`.
-pub fn k_factor(params: &Params, target_levels: usize) -> f64 {
-    params.k_per_level * target_levels as f64
+/// `size` up to `linear`, then `linear · sqrt(size / linear)`: a long match
+/// is worth more than a short one, but ever less per extra unit of length.
+fn grows_linearly_then_sqrt(size: f64, linear: f64) -> f64 {
+    if size <= linear {
+        size
+    } else {
+        linear * (size / linear).sqrt()
+    }
+}
+
+/// `K` of a Tractor match that is worth `levels` levels (`N − 2` for first to
+/// rank `N`, times the step-size factor, see [`rate_match`]): linear up to
+/// `k_linear_levels` (first to rank 5), proportional to the square root of
+/// the levels after that.
+pub fn k_factor(params: &Params, levels: f64) -> f64 {
+    params.k_per_level * grows_linearly_then_sqrt(levels, params.k_linear_levels)
+}
+
+/// `K` of a Fight the Landlord match of `rounds` rounds.
+pub fn ddz_k_factor(params: &Params, rounds: f64) -> f64 {
+    params.ddz_k_per_round * grows_linearly_then_sqrt(rounds, params.ddz_k_linear_rounds)
 }
 
 /// How much of a result the margin is worth: a win scores
@@ -113,12 +139,21 @@ pub fn expected_score(params: &Params, r_u: f64, r_v: f64) -> f64 {
 }
 
 /// Rate one finished match. `target_levels` is `N − 2` (at least 1).
+/// `step_ratio` is the room's scoring step size over the default one: with
+/// smaller steps a level is easier to come by, so the match counts as that
+/// fraction of its length for `K` (half-size steps: first to rank 5 rates
+/// like first to rank 3.5). Larger steps count as the default.
 ///
 /// Returns one [`Change`] per standing, in input order. A user with no
 /// opponents on another side (e.g. everyone on one side) gets no change.
-pub fn rate_match(params: &Params, target_levels: usize, standings: &[Standing]) -> Vec<Change> {
+pub fn rate_match(
+    params: &Params,
+    target_levels: usize,
+    step_ratio: f64,
+    standings: &[Standing],
+) -> Vec<Change> {
     let t = target_levels.max(1) as f64;
-    let k = k_factor(params, target_levels.max(1));
+    let k = k_factor(params, t * step_ratio.clamp(f64::MIN_POSITIVE, 1.0));
     standings
         .iter()
         .map(|u| {
@@ -188,7 +223,7 @@ pub fn rate_points_match(
     standings: &[PointsStanding],
 ) -> Vec<Change> {
     let rounds = rounds.max(1) as f64;
-    let k = params.ddz_k_per_round * rounds;
+    let k = ddz_k_factor(params, rounds);
     let full = params.ddz_margin_per_round * rounds;
     standings
         .iter()
@@ -235,6 +270,7 @@ mod tests {
         rate_match(
             &p(),
             t,
+            1.0,
             &[
                 Standing {
                     rating: ra,
@@ -286,18 +322,51 @@ mod tests {
     }
 
     #[test]
-    fn k_scales_linearly_with_match_length() {
-        for t in 1..=12usize {
+    fn k_is_linear_to_rank_5_then_sqrt() {
+        // Between equals a shutout is worth K/2: 12·T up to T = 3 (rank 5),
+        // then 36·sqrt(T/3).
+        for t in 1..=3usize {
             let c = two(t, 0, 1500.0, 1500.0, t);
-            assert!(
-                (c[0].delta() - 12.0 * t as f64).abs() < 1e-6,
-                "T={t} {:?}",
-                c
-            );
+            assert!((c[0].delta() - 12.0 * t as f64).abs() < 1e-6, "T={t} {c:?}");
+        }
+        for t in 4..=12usize {
+            let c = two(t, 0, 1500.0, 1500.0, t);
+            let want = 36.0 * (t as f64 / 3.0).sqrt();
+            assert!((c[0].delta() - want).abs() < 1e-6, "T={t} {c:?}");
         }
         assert_eq!(target_levels(5), 3);
         assert_eq!(target_levels(3), 1);
         assert_eq!(target_levels(2), 1);
+    }
+
+    #[test]
+    fn smaller_steps_count_as_a_shorter_match() {
+        let shutout = |t: usize, ratio: f64| {
+            rate_match(
+                &p(),
+                t,
+                ratio,
+                &[
+                    Standing {
+                        rating: 1500.0,
+                        levels: t,
+                        side: 0,
+                    },
+                    Standing {
+                        rating: 1500.0,
+                        levels: 0,
+                        side: 1,
+                    },
+                ],
+            )[0]
+            .delta()
+        };
+        // Half-size steps: first to rank 5 (3 levels) rates like 1.5 levels.
+        assert!((shutout(3, 0.5) - 18.0).abs() < 1e-9);
+        // First to rank 8 (6 levels) at half steps is like 3 levels.
+        assert!((shutout(6, 0.5) - 36.0).abs() < 1e-9);
+        // Bigger steps are not rewarded.
+        assert_eq!(shutout(3, 2.0), shutout(3, 1.0));
     }
 
     #[test]
@@ -333,6 +402,7 @@ mod tests {
         let c = rate_match(
             &p(),
             3,
+            1.0,
             &[
                 s(1500.0, 3, 0),
                 s(1500.0, 3, 0),
@@ -346,7 +416,7 @@ mod tests {
         let total: f64 = c.iter().map(|c| c.delta()).sum();
         assert!(total.abs() < 1e-6);
         // teammates are not compared with each other: a lone side gets nothing
-        let solo = rate_match(&p(), 3, &[s(1500.0, 3, 0), s(1500.0, 0, 0)]);
+        let solo = rate_match(&p(), 3, 1.0, &[s(1500.0, 3, 0), s(1500.0, 0, 0)]);
         assert_eq!(solo[0].delta(), 0.0);
     }
 
@@ -362,6 +432,7 @@ mod tests {
         let c = rate_match(
             &p(),
             3,
+            1.0,
             &[
                 s(1500.0, 3, 0),
                 s(1500.0, 3, 1),
@@ -435,9 +506,10 @@ mod tests {
     }
 
     #[test]
-    fn ddz_k_grows_with_rounds() {
+    fn ddz_k_is_linear_to_six_rounds_then_sqrt() {
         let e = 1500.0;
-        for (rounds, win) in [(3, 12.0), (6, 24.0), (9, 36.0), (12, 48.0)] {
+        // A full-margin first place between equals earns K/2.
+        for (rounds, win) in [(3, 12.0), (6, 24.0), (9, 29.4), (12, 33.9)] {
             let big = 100 * rounds as i64;
             assert_eq!(ddz(rounds, &[(e, big), (e, 0), (e, -big)])[0], win);
         }

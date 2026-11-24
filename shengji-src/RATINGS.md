@@ -42,7 +42,10 @@ result's value by at most 5%. The user's change is the average over their
 opponents:
 
 ```
-Δ_u = K(N) · mean_v (s_uv − E_uv),      K(N) = 24 · (N − 2)
+Δ_u = K · mean_v (s_uv − E_uv)
+K   = 24 · L                 for L ≤ 3 (first to rank 5 or less)
+    = 72 · sqrt(L / 3)       for L > 3
+L   = (N − 2) · min(1, step size / default step size)
 ```
 
 then clamped so that a result is never punished: a user whose mean score is
@@ -63,9 +66,19 @@ Two equally rated sides, default N = 5 (`T = 3`, `K = 72`):
 
 So a win against an equal opponent is worth 34–36 points at N = 5
 (`16 + 4N` for the full margin). Longer matches swing more: the full-margin
-win is `12·(N − 2)` points (12 at N = 3, 96 at N = 10), because a longer
+win is `K/2`: `12·(N − 2)` up to N = 5 (12 at N = 3), then proportional to
+`sqrt(N − 2)` (46.5 at N = 7, 58.8 at N = 10, 72 at N = 14), because a longer
 race carries proportionally more information. Changes are deliberately
 small: the ladder is meant to move over dozens of matches, not a handful.
+
+Scoring step size: a room with smaller steps than the default (20 points per
+deck) makes levels easier to come by, so its match counts as shorter in `L`
+above: with half-size steps first to rank 5 is rated like first to rank 3.5
+(`L = 1.5`, `K = 36`). Larger steps count as the default. The step size is
+stored with every match, and matches before this was recorded count as the
+default. In the settings, "steps for the attacking team to win" is automatic
+by default (2/5 of the points in play whatever the step size, i.e. 2 steps at
+20 per deck, 4 at 10), so a smaller step needs no other change.
 
 Rating differences matter the usual Elo way, but on a scale of 2000 (not the
 usual 400), so a gap counts for a fifth as much: the game is mostly luck and
@@ -91,7 +104,9 @@ points gap as the margin:
 ```
 margin  m_uv = (S_u − S_v) / (6 · R)     clamped to [−1, 1]
 score   s_uv as above (0.95 + 0.05·m, 0.05 + 0.05·m, or 0.5)
-Δ_u = K(R) · mean_v (s_uv − E_uv),       K(R) = 8 · R
+Δ_u = K(R) · mean_v (s_uv − E_uv)
+K(R) = 8 · R             for R ≤ 6
+     = 48 · sqrt(R / 6)  for R > 6
 ```
 
 There is no clamp: the three changes always sum to zero.
@@ -106,7 +121,7 @@ Six rounds, totals +30 / −6 / −24:
 
 Other results between equals: +4 / +2 / −6 gives +22.0 / +0.2 / −22.2; a tie
 for first at +12 / +12 / −24 gives +12 / +12 / −24. First or last among
-equals moves about ±12 (3 rounds), ±24 (6), ±36 (9), ±48 (12).
+equals moves about ±12 (3 rounds), ±24 (6), ±29 (9), ±34 (12).
 
 On the ladder a first place counts as a win, a last place as a loss and the
 middle as a draw.
