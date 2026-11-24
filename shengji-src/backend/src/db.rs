@@ -782,31 +782,100 @@ pub struct MatchSummaryPlayer {
     pub rating_after: Option<f64>,
 }
 
-/// The most recent `limit` matches a user played, newest first.
-pub fn recent_matches_for_user(
+/// Which matches [`list_matches`] returns. Every field narrows the list.
+#[derive(Clone, Debug, Default)]
+pub struct MatchFilter {
+    /// Only matches this account played in.
+    pub user_id: Option<i64>,
+    /// Only matches of this ladder.
+    pub mode: Option<RatingMode>,
+    /// `Some(true)`: ratings were applied; `Some(false)`: they were not.
+    pub rated: Option<bool>,
+    /// Only matches the filtered user finished with this result
+    /// (`won` / `lost` / `drawn`); ignored without `user_id`.
+    pub result: Option<String>,
+}
+
+/// The `WHERE` clause of a [`MatchFilter`] (after `WHERE 1 = 1`) and its
+/// arguments.
+fn match_filter_sql(filter: &MatchFilter) -> (String, Vec<Box<dyn rusqlite::ToSql>>) {
+    let mut sql = String::new();
+    let mut args: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
+    if let Some(uid) = filter.user_id {
+        args.push(Box::new(uid));
+        let n = args.len();
+        sql.push_str(&format!(
+            " AND EXISTS (SELECT 1 FROM match_players mp WHERE mp.match_id = m.id AND mp.user_id = ?{n}"
+        ));
+        if let Some(result) = &filter.result {
+            args.push(Box::new(result.clone()));
+            sql.push_str(&format!(" AND mp.result = ?{}", args.len()));
+        }
+        sql.push(')');
+    }
+    if let Some(mode) = filter.mode {
+        args.push(Box::new(mode.as_str().to_string()));
+        sql.push_str(&format!(" AND m.mode = ?{}", args.len()));
+    }
+    if let Some(rated) = filter.rated {
+        sql.push_str(if rated {
+            " AND m.rating_applied = 1"
+        } else {
+            " AND m.rating_applied = 0"
+        });
+    }
+    (sql, args)
+}
+
+/// How many matches pass `filter`.
+pub fn count_matches(conn: &Connection, filter: &MatchFilter) -> DbResult<i64> {
+    let (clause, args) = match_filter_sql(filter);
+    let sql = format!("SELECT COUNT(*) FROM matches m WHERE 1 = 1{clause}");
+    Ok(conn.query_row(
+        &sql,
+        rusqlite::params_from_iter(args.iter().map(|a| a.as_ref())),
+        |r| r.get(0),
+    )?)
+}
+
+/// Matches newest first: `limit` of them after skipping `offset`, with every
+/// player of each.
+pub fn list_matches(
     conn: &Connection,
-    user_id: i64,
+    filter: &MatchFilter,
     limit: i64,
+    offset: i64,
 ) -> DbResult<Vec<MatchSummary>> {
-    let mut stmt = conn.prepare(
+    let (clause, mut args) = match_filter_sql(filter);
+    let mut sql = format!(
         "SELECT m.id, m.mode, m.rated, m.rating_applied, m.first_to_rank, m.finished_at, m.rounds \
-         FROM matches m JOIN match_players mp ON mp.match_id = m.id \
-         WHERE mp.user_id = ?1 ORDER BY m.id DESC LIMIT ?2",
-    )?;
+         FROM matches m WHERE 1 = 1{clause}"
+    );
+    args.push(Box::new(limit));
+    args.push(Box::new(offset));
+    sql.push_str(&format!(
+        " ORDER BY m.id DESC LIMIT ?{} OFFSET ?{}",
+        args.len() - 1,
+        args.len()
+    ));
+    let mut stmt = conn.prepare(&sql)?;
     let heads = stmt
-        .query_map(params![user_id, limit], |row| {
-            let mode: String = row.get(1)?;
-            Ok(MatchSummary {
-                match_id: row.get(0)?,
-                mode: parse_mode(mode, 1)?,
-                rated: row.get::<_, i64>(2)? != 0,
-                rating_applied: row.get::<_, i64>(3)? != 0,
-                first_to_rank: row.get(4)?,
-                finished_at: row.get(5)?,
-                rounds: row.get(6)?,
-                players: vec![],
-            })
-        })?
+        .query_map(
+            rusqlite::params_from_iter(args.iter().map(|a| a.as_ref())),
+            |row| {
+                let mode: String = row.get(1)?;
+                Ok(MatchSummary {
+                    match_id: row.get(0)?,
+                    mode: parse_mode(mode, 1)?,
+                    rated: row.get::<_, i64>(2)? != 0,
+                    rating_applied: row.get::<_, i64>(3)? != 0,
+                    first_to_rank: row.get(4)?,
+                    finished_at: row.get(5)?,
+                    rounds: row.get(6)?,
+                    players: vec![],
+                })
+            },
+        )?
         .collect::<Result<Vec<_>, _>>()?;
     let mut out = Vec::with_capacity(heads.len());
     let mut pstmt = conn.prepare(
@@ -831,6 +900,23 @@ pub fn recent_matches_for_user(
         out.push(h);
     }
     Ok(out)
+}
+
+/// The most recent `limit` matches a user played, newest first.
+pub fn recent_matches_for_user(
+    conn: &Connection,
+    user_id: i64,
+    limit: i64,
+) -> DbResult<Vec<MatchSummary>> {
+    list_matches(
+        conn,
+        &MatchFilter {
+            user_id: Some(user_id),
+            ..MatchFilter::default()
+        },
+        limit,
+        0,
+    )
 }
 
 /// A rated match as needed to replay ratings: its players with the sides and
@@ -1246,6 +1332,119 @@ mod tests {
         touch_user_device(&conn, c.id, "dev2").unwrap();
         let shared = shared_devices(&conn, &[a.id, b.id, c.id], 3600).unwrap();
         assert_eq!(shared, vec![(a.id, b.id, "dev1".to_string())]);
+    }
+
+    #[test]
+    fn list_matches_filters_and_pages() {
+        let db = Db::open_in_memory().unwrap();
+        let conn = db.lock().unwrap();
+        let a = create_user(&conn, "a", Some("sa"), None).unwrap();
+        let b = create_user(&conn, "b", Some("sb"), None).unwrap();
+        let c = create_user(&conn, "c", Some("sc"), None).unwrap();
+        let add = |key: &str, mode: RatingMode, applied: bool, players: [(i64, &str); 2]| {
+            let rows: Vec<MatchPlayerRecord> = players
+                .iter()
+                .enumerate()
+                .map(|(i, (uid, result))| MatchPlayerRecord {
+                    user_id: *uid,
+                    side: i as i64,
+                    levels: 1,
+                    final_rank: "3".into(),
+                    result: result.to_string(),
+                    rating_before: None,
+                    rating_after: None,
+                    score: None,
+                })
+                .collect();
+            insert_match(
+                &conn,
+                &MatchRecord {
+                    match_key: key.into(),
+                    room: "room".into(),
+                    mode,
+                    rated: applied,
+                    rating_applied: applied,
+                    first_to_rank: "3".into(),
+                    finished_at: 1,
+                    rounds: 1,
+                },
+                &rows,
+            )
+            .unwrap()
+        };
+        let m1 = add(
+            "k1",
+            RatingMode::OneVsOne,
+            true,
+            [(a.id, "won"), (b.id, "lost")],
+        );
+        let m2 = add(
+            "k2",
+            RatingMode::Team,
+            false,
+            [(a.id, "lost"), (c.id, "won")],
+        );
+        let m3 = add(
+            "k3",
+            RatingMode::Team,
+            true,
+            [(b.id, "won"), (c.id, "lost")],
+        );
+        let ids = |f: &MatchFilter, limit: i64| -> Vec<i64> {
+            list_matches(&conn, f, limit, 0)
+                .unwrap()
+                .iter()
+                .map(|m| m.match_id)
+                .collect()
+        };
+        let all = MatchFilter::default();
+        assert_eq!(ids(&all, 10), vec![m3, m2, m1]);
+        assert_eq!(ids(&all, 2), vec![m3, m2]);
+        let second_page: Vec<i64> = list_matches(&conn, &all, 2, 2)
+            .unwrap()
+            .iter()
+            .map(|m| m.match_id)
+            .collect();
+        assert_eq!(second_page, vec![m1]);
+        assert_eq!(count_matches(&conn, &all).unwrap(), 3);
+        let user_a = MatchFilter {
+            user_id: Some(a.id),
+            ..all.clone()
+        };
+        assert_eq!(ids(&user_a, 10), vec![m2, m1]);
+        assert_eq!(
+            ids(
+                &MatchFilter {
+                    result: Some("won".into()),
+                    ..user_a.clone()
+                },
+                10
+            ),
+            vec![m1]
+        );
+        assert_eq!(
+            ids(
+                &MatchFilter {
+                    mode: Some(RatingMode::Team),
+                    ..all.clone()
+                },
+                10
+            ),
+            vec![m3, m2]
+        );
+        assert_eq!(
+            ids(
+                &MatchFilter {
+                    rated: Some(false),
+                    ..all.clone()
+                },
+                10
+            ),
+            vec![m2]
+        );
+        // a match lists all its players, not just the filtered one
+        let first = list_matches(&conn, &user_a, 1, 0).unwrap();
+        assert_eq!(first[0].players.len(), 2);
     }
 
     #[test]

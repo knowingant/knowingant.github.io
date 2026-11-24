@@ -125,6 +125,52 @@ export interface ProfileMatch {
   delta: number | null;
 }
 
+/// One entry of `GET /api/matches`. The player's own fields are there only
+/// when the list was filtered to a user.
+export type ListedMatch = Omit<
+  ProfileMatch,
+  "levels" | "result" | "rating_before" | "rating_after" | "delta"
+> &
+  Partial<
+    Pick<
+      ProfileMatch,
+      "levels" | "result" | "rating_before" | "rating_after" | "delta"
+    >
+  >;
+
+export interface MatchesQuery {
+  user?: string;
+  mode?: RatingMode;
+  /// `yes`: ratings were applied; `no`: they were not.
+  rated?: "yes" | "no";
+  /// Needs `user`.
+  result?: MatchResult;
+  /// From 1.
+  page?: number;
+}
+
+export interface MatchesResponse {
+  matches: ListedMatch[];
+  /// Matches that pass the filters, over all pages.
+  total: number;
+  page: number;
+  per_page: number;
+}
+
+/// `GET /api/matches` (public).
+export function fetchMatches(query: MatchesQuery): Promise<MatchesResponse> {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== "") {
+      params.set(key, String(value));
+    }
+  }
+  const qs = params.toString();
+  return apiFetch<MatchesResponse>(`/api/matches${qs ? "?" + qs : ""}`, {
+    auth: false,
+  });
+}
+
 /// `GET /api/users/:username`.
 export interface ProfileView extends UserView {
   stats: ProfileStats;

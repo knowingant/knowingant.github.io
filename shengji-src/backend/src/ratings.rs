@@ -809,11 +809,12 @@ impl RatingsState {
 }
 
 /// Routes: `GET /api/leaderboard`, `GET /api/leaderboard/per_round`,
-/// `GET /api/users/:username`.
+/// `GET /api/users/:username`, `GET /api/matches`.
 pub fn router(state: RatingsState) -> Router {
     Router::new()
         .route("/api/leaderboard", get(leaderboard))
         .route("/api/leaderboard/per_round", get(per_round_leaderboard))
+        .route("/api/matches", get(matches_list))
         .route("/api/users/:username", get(user_profile))
         .with_state(state)
 }
@@ -923,6 +924,141 @@ async fn per_round_leaderboard(
     })))
 }
 
+/// One match as the API shows it. With `me`, that player's own levels,
+/// result and rating movement are added at the top level.
+pub fn match_view(m: &db::MatchSummary, me: Option<&str>) -> Value {
+    let mut v = json!({
+        "match_id": m.match_id,
+        "mode": m.mode,
+        "rated": m.rated,
+        "rating_applied": m.rating_applied,
+        "first_to_rank": m.first_to_rank,
+        "finished_at": m.finished_at,
+        "rounds": m.rounds,
+        "players": m.players.iter().map(|p| json!({
+            "username": p.username,
+            "side": p.side,
+            "levels": p.levels,
+            "final_rank": p.final_rank,
+            "result": p.result,
+            "rating_before": p.rating_before.map(|r| r.round() as i64),
+            "rating_after": p.rating_after.map(|r| r.round() as i64),
+        })).collect::<Vec<_>>(),
+    });
+    if let Some(name) = me {
+        let mine = m.players.iter().find(|p| p.username == name);
+        let (levels, result, before, after) = mine
+            .map(|p| (p.levels, p.result.clone(), p.rating_before, p.rating_after))
+            .unwrap_or((0, "drawn".to_string(), None, None));
+        let delta = match (before, after) {
+            (Some(b), Some(a)) => Some(a.round() as i64 - b.round() as i64),
+            _ => None,
+        };
+        if let Some(obj) = v.as_object_mut() {
+            obj.insert("levels".to_string(), json!(levels));
+            obj.insert("result".to_string(), json!(result));
+            obj.insert(
+                "rating_before".to_string(),
+                json!(before.map(|r| r.round() as i64)),
+            );
+            obj.insert(
+                "rating_after".to_string(),
+                json!(after.map(|r| r.round() as i64)),
+            );
+            obj.insert("delta".to_string(), json!(delta));
+        }
+    }
+    v
+}
+
+#[derive(Deserialize)]
+struct MatchesQuery {
+    user: Option<String>,
+    mode: Option<String>,
+    rated: Option<String>,
+    result: Option<String>,
+    page: Option<String>,
+    limit: Option<String>,
+}
+
+/// Matches shown per page of `GET /api/matches`.
+pub const DEFAULT_MATCHES_LIMIT: i64 = 25;
+pub const MAX_MATCHES_LIMIT: i64 = 100;
+
+/// `GET /api/matches?user=&mode=&rated=&result=&page=&limit=`: finished
+/// matches, newest first, filtered. `rated` is `yes` (ratings applied) or
+/// `no`; `result` (`won` / `lost` / `drawn`) needs `user`; `page` counts from 1
+/// and the answer carries the `total` matches that pass the filters.
+async fn matches_list(
+    State(state): State<RatingsState>,
+    Query(q): Query<MatchesQuery>,
+) -> Result<Json<Value>, ApiError> {
+    let mut filter = db::MatchFilter::default();
+    if let Some(name) = q.user.as_deref().filter(|s| !s.is_empty()) {
+        if !valid_username(name) {
+            return Err(ApiError::not_found("unknown user"));
+        }
+        let user = state
+            .db
+            .with(|c| db::get_user_by_username(c, name))?
+            .ok_or_else(|| ApiError::not_found("unknown user"))?;
+        filter.user_id = Some(user.id);
+    }
+    if let Some(mode) = q.mode.as_deref().filter(|s| !s.is_empty()) {
+        filter.mode = Some(
+            mode.parse()
+                .map_err(|_| ApiError::bad_request("mode must be team, 1v1 or ddz"))?,
+        );
+    }
+    filter.rated = match q.rated.as_deref() {
+        None | Some("") => None,
+        Some("yes") => Some(true),
+        Some("no") => Some(false),
+        Some(_) => return Err(ApiError::bad_request("rated must be yes or no")),
+    };
+    match q.result.as_deref() {
+        None | Some("") => {}
+        Some(r @ ("won" | "lost" | "drawn")) => {
+            if filter.user_id.is_none() {
+                return Err(ApiError::bad_request("result needs a user"));
+            }
+            filter.result = Some(r.to_string());
+        }
+        Some(_) => return Err(ApiError::bad_request("result must be won, lost or drawn")),
+    }
+    let page = match q.page.as_deref() {
+        None | Some("") => 1,
+        Some(s) => s
+            .parse::<i64>()
+            .ok()
+            .filter(|n| *n >= 1)
+            .ok_or_else(|| ApiError::bad_request("page must be a positive number"))?,
+    };
+    let limit = match q.limit.as_deref() {
+        None | Some("") => DEFAULT_MATCHES_LIMIT,
+        Some(s) => s
+            .parse::<i64>()
+            .ok()
+            .filter(|n| *n >= 1)
+            .ok_or_else(|| ApiError::bad_request("limit must be a positive number"))?
+            .min(MAX_MATCHES_LIMIT),
+    };
+    let me = q.user.as_deref().filter(|s| !s.is_empty());
+    let (rows, total) = state.db.with(|c| {
+        Ok((
+            db::list_matches(c, &filter, limit, (page - 1).saturating_mul(limit))?,
+            db::count_matches(c, &filter)?,
+        ))
+    })?;
+    let matches: Vec<Value> = rows.iter().map(|m| match_view(m, me)).collect();
+    Ok(Json(json!({
+        "matches": matches,
+        "total": total,
+        "page": page,
+        "per_page": limit,
+    })))
+}
+
 /// The account page payload (DESIGN.md, "Account pages").
 pub fn profile_view(db: &Db, config: &Config, user: &db::User) -> DbResult<Value> {
     let mut v = auth::user_view(db, config, user);
@@ -934,40 +1070,8 @@ pub fn profile_view(db: &Db, config: &Config, user: &db::User) -> DbResult<Value
         ))
     })?;
     let recent: Vec<Value> = recent
-        .into_iter()
-        .map(|m| {
-            let me = m.players.iter().find(|p| p.username == user.username);
-            let (levels, result, before, after) = me
-                .map(|p| (p.levels, p.result.clone(), p.rating_before, p.rating_after))
-                .unwrap_or((0, "drawn".to_string(), None, None));
-            let delta = match (before, after) {
-                (Some(b), Some(a)) => Some(a.round() as i64 - b.round() as i64),
-                _ => None,
-            };
-            json!({
-                "match_id": m.match_id,
-                "mode": m.mode,
-                "rated": m.rated,
-                "rating_applied": m.rating_applied,
-                "first_to_rank": m.first_to_rank,
-                "finished_at": m.finished_at,
-                "rounds": m.rounds,
-                "players": m.players.iter().map(|p| json!({
-                    "username": p.username,
-                    "side": p.side,
-                    "levels": p.levels,
-                    "final_rank": p.final_rank,
-                    "result": p.result,
-                    "rating_before": p.rating_before.map(|r| r.round() as i64),
-                    "rating_after": p.rating_after.map(|r| r.round() as i64),
-                })).collect::<Vec<_>>(),
-                "levels": levels,
-                "result": result,
-                "rating_before": before.map(|r| r.round() as i64),
-                "rating_after": after.map(|r| r.round() as i64),
-                "delta": delta,
-            })
-        })
+        .iter()
+        .map(|m| match_view(m, Some(&user.username)))
         .collect();
     if let Some(obj) = v.as_object_mut() {
         obj.insert("stats".to_string(), json!(stats));

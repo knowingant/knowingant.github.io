@@ -38,6 +38,9 @@ const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
   const { state } = React.useContext(AppStateContext);
   const { send } = React.useContext(WebsocketContext);
   const [target, setTarget] = React.useState<number | null>(null);
+  // Dou Di Zhu: the server sends every hand; this narrows what is shown to
+  // one player, or null for all three.
+  const [onlyOne, setOnlyOne] = React.useState<boolean>(false);
 
   const propagated = propagatedOf(props.gameState);
   const phase = handsOf(props.gameState);
@@ -65,26 +68,33 @@ const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
       <label>
         Watch:{" "}
         <select
-          value={watching === null ? "" : String(watching)}
+          value={
+            watching === null
+              ? ""
+              : ddz !== null && !onlyOne
+                ? "all"
+                : String(watching)
+          }
           onChange={(evt) => {
+            const raw = evt.target.value;
             const v =
-              evt.target.value === "" ? null : parseInt(evt.target.value, 10);
+              raw === ""
+                ? null
+                : raw === "all"
+                  ? (watching ?? players[0]?.id ?? null)
+                  : parseInt(raw, 10);
+            setOnlyOne(raw !== "" && raw !== "all");
             setTarget(v);
             send({ Shadow: v });
           }}
         >
           <option value="">nobody</option>
-          {ddz !== null ? (
-            <option value={String(watching ?? players[0]?.id ?? "")}>
-              everyone
+          {ddz !== null ? <option value="all">everyone</option> : null}
+          {players.map((p) => (
+            <option key={p.id} value={String(p.id)}>
+              {p.name}
             </option>
-          ) : (
-            players.map((p) => (
-              <option key={p.id} value={String(p.id)}>
-                {p.name}
-              </option>
-            ))
-          )}
+          ))}
         </select>
       </label>
       {watching !== null && phase !== null ? (
@@ -95,6 +105,9 @@ const WatchHand = (props: { gameState: GameState }): JSX.Element | null => {
       {watchedDdz !== null ? (
         <div className="watch-hand-cards">
           {watchedDdz.seats.map((id, seat) => {
+            if (onlyOne && id !== watching) {
+              return null;
+            }
             const hand = watchedDdz.round.hands[seat] ?? [];
             // Only hands the server sent face up (it redacts them unless the
             // room's shadowing policy let us watch).

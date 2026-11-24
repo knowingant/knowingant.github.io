@@ -14,6 +14,12 @@ interface IProps {
 export const accountHref = (username: string): string =>
   `#user/${encodeURIComponent(username)}`;
 
+/// `#matches` (everyone's) or `#matches/<username>`.
+export const matchesHref = (username?: string): string =>
+  username === undefined
+    ? "#matches"
+    : `#matches/${encodeURIComponent(username)}`;
+
 const ladderName = api.ladderName;
 
 /// "won" / "lost" / "drew", as a verb with the player as the subject.
@@ -150,9 +156,11 @@ const DdzStats = (props: { stats: api.ProfileStats }): JSX.Element => {
   );
 };
 
-const Match = (props: {
-  match: api.ProfileMatch;
-  username: string;
+/// One finished match. With `username`, that player is highlighted and their
+/// own result and rating movement are shown underneath.
+export const Match = (props: {
+  match: api.ListedMatch;
+  username?: string;
 }): JSX.Element => {
   const { match, username } = props;
   const ddz = match.mode === "ddz";
@@ -201,22 +209,28 @@ const Match = (props: {
           </li>
         ))}
       </ul>
-      <div className="account-match-outcome">
-        <strong>{username}</strong>{" "}
-        {ddz ? api.formatDelta(match.levels) : resultVerb(match.result)}
-        {match.delta !== null &&
-        match.delta !== undefined &&
-        match.rating_before !== null &&
-        match.rating_after !== null ? (
-          <>
-            {": "}
-            {match.rating_before} &rarr; {match.rating_after} (
-            {api.formatDelta(match.delta)})
-          </>
-        ) : (
-          <> (no rating change)</>
-        )}
-      </div>
+      {username !== undefined &&
+      match.levels !== undefined &&
+      match.result !== undefined ? (
+        <div className="account-match-outcome">
+          <strong>{username}</strong>{" "}
+          {ddz ? api.formatDelta(match.levels) : resultVerb(match.result)}
+          {match.delta !== null &&
+          match.delta !== undefined &&
+          match.rating_before !== null &&
+          match.rating_before !== undefined &&
+          match.rating_after !== null &&
+          match.rating_after !== undefined ? (
+            <>
+              {": "}
+              {match.rating_before} &rarr; {match.rating_after} (
+              {api.formatDelta(match.delta)})
+            </>
+          ) : (
+            <> (no rating change)</>
+          )}
+        </div>
+      ) : null}
     </li>
   );
 };
@@ -307,6 +321,9 @@ const AccountPage = (props: IProps): JSX.Element => {
             ))}
           </ul>
         )}
+        <p>
+          <a href={matchesHref(profile.username)}>All matches</a>
+        </p>
       </>
     );
   }

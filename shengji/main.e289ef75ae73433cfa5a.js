@@ -817,6 +817,7 @@ var TimerProvider = function (props) { return react__WEBPACK_IMPORTED_MODULE_0__
 /* harmony export */   po: () => (/* binding */ formatWinLossDraw),
 /* harmony export */   ri: () => (/* binding */ logout),
 /* harmony export */   rk: () => (/* binding */ fetchAuthConfig),
+/* harmony export */   us: () => (/* binding */ fetchMatches),
 /* harmony export */   vJ: () => (/* binding */ googleComplete),
 /* harmony export */   wE: () => (/* binding */ deviceId),
 /* harmony export */   y0: () => (/* binding */ apiUrl),
@@ -881,6 +882,20 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 };
 function isNeedsUsername(r) {
     return r.needs_username === true;
+}
+/// `GET /api/matches` (public).
+function fetchMatches(query) {
+    var params = new URLSearchParams();
+    for (var _i = 0, _a = Object.entries(query); _i < _a.length; _i++) {
+        var _b = _a[_i], key = _b[0], value = _b[1];
+        if (value !== undefined && value !== "") {
+            params.set(key, String(value));
+        }
+    }
+    var qs = params.toString();
+    return apiFetch("/api/matches".concat(qs ? "?" + qs : ""), {
+        auth: false,
+    });
 }
 /// localStorage key of the session token. Exported so AuthBootstrap can
 /// watch for it changing in another tab (the `storage` event).
@@ -1194,7 +1209,56 @@ function formatDate(unixSeconds) {
 
 /***/ }),
 
-/***/ 6443:
+/***/ 6649:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   u: () => (/* binding */ isWasmAvailable)
+/* harmony export */ });
+function isWasmAvailable() {
+    // Check for URL parameter to force no-WASM mode
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("no-wasm") === "true") {
+        console.log("No-WASM mode enabled via URL parameter");
+        return false;
+    }
+    try {
+        if (typeof WebAssembly === "object" &&
+            typeof WebAssembly.instantiate === "function") {
+            var module_1 = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+            if (module_1 instanceof WebAssembly.Module) {
+                return new WebAssembly.Instance(module_1) instanceof WebAssembly.Instance;
+            }
+        }
+    }
+    catch (e) {
+        console.warn("WebAssembly not available:", e);
+    }
+    return false;
+}
+
+
+/***/ }),
+
+/***/ 7236:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  A: () => (/* binding */ preloadedCards)
+});
+
+;// ./src/generated/cards.json
+const cards_namespaceObject = /*#__PURE__*/JSON.parse('{"k":[{"value":"🃁","display_value":"🃁","typ":"♢","number":"A","points":0},{"value":"🃎","display_value":"🃎","typ":"♢","number":"K","points":10},{"value":"🃍","display_value":"🃍","typ":"♢","number":"Q","points":0},{"value":"🃋","display_value":"🃋","typ":"♢","number":"J","points":0},{"value":"🃊","display_value":"🃊","typ":"♢","number":"10","points":10},{"value":"🃉","display_value":"🃉","typ":"♢","number":"9","points":0},{"value":"🃈","display_value":"🃈","typ":"♢","number":"8","points":0},{"value":"🃇","display_value":"🃇","typ":"♢","number":"7","points":0},{"value":"🃆","display_value":"🃆","typ":"♢","number":"6","points":0},{"value":"🃅","display_value":"🃅","typ":"♢","number":"5","points":5},{"value":"🃄","display_value":"🃄","typ":"♢","number":"4","points":0},{"value":"🃃","display_value":"🃃","typ":"♢","number":"3","points":0},{"value":"🃂","display_value":"🃂","typ":"♢","number":"2","points":0},{"value":"🃑","display_value":"🃑","typ":"♧","number":"A","points":0},{"value":"🃞","display_value":"🃞","typ":"♧","number":"K","points":10},{"value":"🃝","display_value":"🃝","typ":"♧","number":"Q","points":0},{"value":"🃛","display_value":"🃛","typ":"♧","number":"J","points":0},{"value":"🃚","display_value":"🃚","typ":"♧","number":"10","points":10},{"value":"🃙","display_value":"🃙","typ":"♧","number":"9","points":0},{"value":"🃘","display_value":"🃘","typ":"♧","number":"8","points":0},{"value":"🃗","display_value":"🃗","typ":"♧","number":"7","points":0},{"value":"🃖","display_value":"🃖","typ":"♧","number":"6","points":0},{"value":"🃕","display_value":"🃕","typ":"♧","number":"5","points":5},{"value":"🃔","display_value":"🃔","typ":"♧","number":"4","points":0},{"value":"🃓","display_value":"🃓","typ":"♧","number":"3","points":0},{"value":"🃒","display_value":"🃒","typ":"♧","number":"2","points":0},{"value":"🂱","display_value":"🂱","typ":"♡","number":"A","points":0},{"value":"🂾","display_value":"🂾","typ":"♡","number":"K","points":10},{"value":"🂽","display_value":"🂽","typ":"♡","number":"Q","points":0},{"value":"🂻","display_value":"🂻","typ":"♡","number":"J","points":0},{"value":"🂺","display_value":"🂺","typ":"♡","number":"10","points":10},{"value":"🂹","display_value":"🂹","typ":"♡","number":"9","points":0},{"value":"🂸","display_value":"🂸","typ":"♡","number":"8","points":0},{"value":"🂷","display_value":"🂷","typ":"♡","number":"7","points":0},{"value":"🂶","display_value":"🂶","typ":"♡","number":"6","points":0},{"value":"🂵","display_value":"🂵","typ":"♡","number":"5","points":5},{"value":"🂴","display_value":"🂴","typ":"♡","number":"4","points":0},{"value":"🂳","display_value":"🂳","typ":"♡","number":"3","points":0},{"value":"🂲","display_value":"🂲","typ":"♡","number":"2","points":0},{"value":"🂡","display_value":"🂡","typ":"♤","number":"A","points":0},{"value":"🂮","display_value":"🂮","typ":"♤","number":"K","points":10},{"value":"🂭","display_value":"🂭","typ":"♤","number":"Q","points":0},{"value":"🂫","display_value":"🂫","typ":"♤","number":"J","points":0},{"value":"🂪","display_value":"🂪","typ":"♤","number":"10","points":10},{"value":"🂩","display_value":"🂩","typ":"♤","number":"9","points":0},{"value":"🂨","display_value":"🂨","typ":"♤","number":"8","points":0},{"value":"🂧","display_value":"🂧","typ":"♤","number":"7","points":0},{"value":"🂦","display_value":"🂦","typ":"♤","number":"6","points":0},{"value":"🂥","display_value":"🂥","typ":"♤","number":"5","points":5},{"value":"🂤","display_value":"🂤","typ":"♤","number":"4","points":0},{"value":"🂣","display_value":"🂣","typ":"♤","number":"3","points":0},{"value":"🂢","display_value":"🂢","typ":"♤","number":"2","points":0},{"value":"🃟","display_value":"🃟","typ":"🃟","number":null,"points":0},{"value":"🃏","display_value":"🃟","typ":"🃏","number":null,"points":0}]}');
+;// ./src/preloadedCards.ts
+
+/* harmony default export */ const preloadedCards = (cards_namespaceObject.k);
+
+
+/***/ }),
+
+/***/ 7239:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 
@@ -1482,6 +1546,77 @@ var beep = function (vol, freq, duration) {
 
 // EXTERNAL MODULE: ./src/api.ts
 var api = __webpack_require__(4300);
+;// ./src/chatHistory.ts
+/// The most recent chat lines kept per room, so a reload (or a dropped tab)
+/// does not empty the chat.
+var CHAT_HISTORY_LINES = 100;
+/// Saved chat older than this is dropped.
+var CHAT_HISTORY_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+var PREFIX = "chat:";
+var storage = function () {
+    try {
+        return window.localStorage;
+    }
+    catch (_a) {
+        return null;
+    }
+};
+/// Remember `messages` (the last [`CHAT_HISTORY_LINES`]) for `room`.
+var saveChat = function (room, messages) {
+    var s = storage();
+    if (s === null || room.length === 0) {
+        return;
+    }
+    var saved = {
+        at: Date.now(),
+        messages: messages.slice(-CHAT_HISTORY_LINES),
+    };
+    try {
+        s.setItem(PREFIX + room, JSON.stringify(saved));
+    }
+    catch (_a) {
+        // Storage full or blocked: the chat just is not restored.
+    }
+};
+/// The saved chat of `room`; other rooms' stale entries are cleared on the way.
+var loadChat = function (room) {
+    var _a;
+    var s = storage();
+    if (s === null || room.length === 0) {
+        return [];
+    }
+    var result = [];
+    try {
+        var now = Date.now();
+        for (var i = s.length - 1; i >= 0; i--) {
+            var key = s.key(i);
+            if (key === null || !key.startsWith(PREFIX)) {
+                continue;
+            }
+            var saved = null;
+            try {
+                saved = JSON.parse((_a = s.getItem(key)) !== null && _a !== void 0 ? _a : "null");
+            }
+            catch (_b) {
+                saved = null;
+            }
+            if (saved === null ||
+                typeof saved.at !== "number" ||
+                !Array.isArray(saved.messages) ||
+                now - saved.at > CHAT_HISTORY_MAX_AGE_MS) {
+                s.removeItem(key);
+            }
+            else if (key === PREFIX + room) {
+                result = saved.messages.slice(-CHAT_HISTORY_LINES);
+            }
+        }
+    }
+    catch (_c) {
+        return result;
+    }
+    return result;
+};
+
 ;// ./src/websocketHandler.ts
 var websocketHandler_assign = (undefined && undefined.__assign) || function () {
     websocketHandler_assign = Object.assign || function(t) {
@@ -1505,6 +1640,7 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 };
 
 
+
 var truncate = function (length) {
     return function (array) {
         if (array.length > length) {
@@ -1516,9 +1652,33 @@ var truncate = function (length) {
     };
 };
 var truncateMessages = truncate(300);
+/// Room the chat was last restored for, so a reconnect does not repeat it.
+var restoredFor = null;
+/// After a reload the chat starts empty: the first time a room is touched,
+/// put what this browser saw there ahead of anything that arrived since.
+var restoreOnce = function (state) {
+    if (restoredFor === state.roomName) {
+        return null;
+    }
+    restoredFor = state.roomName;
+    var earlier = loadChat(state.roomName);
+    return earlier.length > 0
+        ? truncateMessages(__spreadArray(__spreadArray([], earlier, true), state.messages, true))
+        : null;
+};
+/// `state.messages` plus `message`, remembered for the room so a reload can
+/// bring the chat back.
+var appendMessage = function (state, message) {
+    var _a;
+    var messages = truncateMessages(__spreadArray(__spreadArray([], ((_a = restoreOnce(state)) !== null && _a !== void 0 ? _a : state.messages), true), [
+        message,
+    ], false));
+    saveChat(state.roomName, messages);
+    return { messages: messages };
+};
 var messageHandler = function (state, message) {
     if ("Message" in message) {
-        return { messages: truncateMessages(__spreadArray(__spreadArray([], state.messages, true), [message.Message], false)) };
+        return appendMessage(state, message.Message);
     }
     else {
         return null;
@@ -1532,7 +1692,7 @@ var broadcastHandler = function (state, message) {
             data: message.Broadcast.data,
             from_game: true,
         };
-        return { messages: truncateMessages(__spreadArray(__spreadArray([], state.messages, true), [newMessage], false)) };
+        return appendMessage(state, newMessage);
     }
     else {
         return null;
@@ -1634,18 +1794,17 @@ var gameFinishedHandler = function (state, message) {
     }
     return null;
 };
-var joinedHandler = function (_, message) {
+var joinedHandler = function (state, message) {
     if ("Joined" in message) {
         var j = message.Joined;
-        return {
-            name: j.username,
-            seats: {
+        var restoredMessages = restoreOnce(state);
+        var restored = restoredMessages !== null ? { messages: restoredMessages } : {};
+        return websocketHandler_assign(websocketHandler_assign({}, restored), { name: j.username, seats: {
                 username: j.username,
                 names: j.names,
                 playerIds: j.player_ids,
                 playerMode: j.player_mode,
-            },
-        };
+            } });
     }
     else {
         return null;
@@ -1681,14 +1840,11 @@ var matchRatedHandler = function (state, message) {
             from_game: true,
             ratings: { match_id: u.match_id, mode: u.mode, changes: u.changes },
         };
-        return {
-            messages: truncateMessages(__spreadArray(__spreadArray([], state.messages, true), [newMessage], false)),
-            lastMatchRated: {
+        return websocketHandler_assign(websocketHandler_assign({}, appendMessage(state, newMessage)), { lastMatchRated: {
                 matchId: u.match_id,
                 mode: u.mode,
                 changes: u.changes,
-            },
-        };
+            } });
     }
     else {
         return null;
@@ -1733,7 +1889,7 @@ var systemHandler = function (state, message) {
             message: message.System.message,
             from_game: true,
         };
-        return { messages: truncateMessages(__spreadArray(__spreadArray([], state.messages, true), [newMessage], false)) };
+        return appendMessage(state, newMessage);
     }
     else {
         return null;
@@ -2825,7 +2981,10 @@ var Landing = function () {
             react.createElement("p", null,
                 "See the ",
                 react.createElement("a", { href: "#leaderboard" }, "leaderboards"),
-                ": the three ladders, and the best average levels and points per round."))));
+                ": the three ladders, and the best average levels and points per round. Or browse all",
+                " ",
+                react.createElement("a", { href: "#matches" }, "matches"),
+                "."))));
 };
 /* harmony default export */ const src_Landing = (Landing);
 
@@ -3695,6 +3854,12 @@ var MovePlayerRight = MovePlayerButton(1, ">");
 var accountHref = function (username) {
     return "#user/".concat(encodeURIComponent(username));
 };
+/// `#matches` (everyone's) or `#matches/<username>`.
+var matchesHref = function (username) {
+    return username === undefined
+        ? "#matches"
+        : "#matches/".concat(encodeURIComponent(username));
+};
 var ladderName = api/* ladderName */.UC;
 /// "won" / "lost" / "drew", as a verb with the player as the subject.
 var resultVerb = function (result) {
@@ -3806,6 +3971,8 @@ var DdzStats = function (props) {
                 react.createElement("td", null, value)));
         }))));
 };
+/// One finished match. With `username`, that player is highlighted and their
+/// own result and rating movement are shown underneath.
 var Match = function (props) {
     var match = props.match, username = props.username;
     var ddz = match.mode === "ddz";
@@ -3845,21 +4012,25 @@ var Match = function (props) {
             "), ",
             resultVerb(p.result),
             p.result === "won" ? " 🏆" : "")))); })),
-        react.createElement("div", { className: "account-match-outcome" },
+        username !== undefined &&
+            match.levels !== undefined &&
+            match.result !== undefined ? (react.createElement("div", { className: "account-match-outcome" },
             react.createElement("strong", null, username),
             " ",
             ddz ? api/* formatDelta */.CW(match.levels) : resultVerb(match.result),
             match.delta !== null &&
                 match.delta !== undefined &&
                 match.rating_before !== null &&
-                match.rating_after !== null ? (react.createElement(react.Fragment, null,
+                match.rating_before !== undefined &&
+                match.rating_after !== null &&
+                match.rating_after !== undefined ? (react.createElement(react.Fragment, null,
                 ": ",
                 match.rating_before,
                 " \u2192 ",
                 match.rating_after,
                 " (",
                 api/* formatDelta */.CW(match.delta),
-                ")")) : (react.createElement(react.Fragment, null, " (no rating change)")))));
+                ")")) : (react.createElement(react.Fragment, null, " (no rating change)")))) : null));
 };
 /// The `#user/<username>` route: one account's ratings, statistics and
 /// recent matches, from `GET /api/users/:username`.
@@ -3926,7 +4097,9 @@ var AccountPage = function (props) {
                 react.createElement("h3", null, "Fight the Landlord"),
                 react.createElement(DdzStats, { stats: profile.ddz_stats }))) : null,
             react.createElement("h3", null, "Recent matches"),
-            profile.recent_matches.length === 0 ? (react.createElement("p", { className: "auth-hint" }, "No finished matches yet.")) : (react.createElement("ul", { className: "account-matches" }, profile.recent_matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: profile.username })); })))));
+            profile.recent_matches.length === 0 ? (react.createElement("p", { className: "auth-hint" }, "No finished matches yet.")) : (react.createElement("ul", { className: "account-matches" }, profile.recent_matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: profile.username })); }))),
+            react.createElement("p", null,
+                react.createElement("a", { href: matchesHref(profile.username) }, "All matches"))));
     }
     return (react.createElement("div", { className: "game account-page" },
         react.createElement("p", null,
@@ -8986,10 +9159,13 @@ var handsOf = function (gameState) {
 /// watching shows every hand, and all of them are listed under the picker.
 /// Players never see this.
 var WatchHand = function (props) {
-    var _a, _b, _c, _d;
+    var _a, _b;
     var state = react.useContext(AppStateContext).state;
     var send = react.useContext(WebsocketProvider_WebsocketContext).send;
-    var _e = react.useState(null), target = _e[0], setTarget = _e[1];
+    var _c = react.useState(null), target = _c[0], setTarget = _c[1];
+    // Dou Di Zhu: the server sends every hand; this narrows what is shown to
+    // one player, or null for all three.
+    var _d = react.useState(false), onlyOne = _d[0], setOnlyOne = _d[1];
     var propagated = propagatedOf(props.gameState);
     var phase = handsOf(props.gameState);
     var ddz = "Ddz" in props.gameState ? props.gameState.Ddz.game : null;
@@ -9011,17 +9187,32 @@ var WatchHand = function (props) {
         react.createElement("label", null,
             "Watch:",
             " ",
-            react.createElement("select", { value: watching === null ? "" : String(watching), onChange: function (evt) {
-                    var v = evt.target.value === "" ? null : parseInt(evt.target.value, 10);
+            react.createElement("select", { value: watching === null
+                    ? ""
+                    : ddz !== null && !onlyOne
+                        ? "all"
+                        : String(watching), onChange: function (evt) {
+                    var _a, _b;
+                    var raw = evt.target.value;
+                    var v = raw === ""
+                        ? null
+                        : raw === "all"
+                            ? ((_b = watching !== null && watching !== void 0 ? watching : (_a = players[0]) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : null)
+                            : parseInt(raw, 10);
+                    setOnlyOne(raw !== "" && raw !== "all");
                     setTarget(v);
                     send({ Shadow: v });
                 } },
                 react.createElement("option", { value: "" }, "nobody"),
-                ddz !== null ? (react.createElement("option", { value: String((_d = watching !== null && watching !== void 0 ? watching : (_c = players[0]) === null || _c === void 0 ? void 0 : _c.id) !== null && _d !== void 0 ? _d : "") }, "everyone")) : (players.map(function (p) { return (react.createElement("option", { key: p.id, value: String(p.id) }, p.name)); })))),
+                ddz !== null ? react.createElement("option", { value: "all" }, "everyone") : null,
+                players.map(function (p) { return (react.createElement("option", { key: p.id, value: String(p.id) }, p.name)); }))),
         watching !== null && phase !== null ? (react.createElement("div", { className: "watch-hand-cards" },
             react.createElement(src_Cards, { hands: phase.hands, playerId: watching, trump: phase.trump }))) : null,
         watchedDdz !== null ? (react.createElement("div", { className: "watch-hand-cards" }, watchedDdz.seats.map(function (id, seat) {
             var _a, _b, _c;
+            if (onlyOne && id !== watching) {
+                return null;
+            }
             var hand = (_a = watchedDdz.round.hands[seat]) !== null && _a !== void 0 ? _a : [];
             // Only hands the server sent face up (it redacts them unless the
             // room's shadowing policy let us watch).
@@ -9573,6 +9764,23 @@ var Game = function (props) {
 };
 /* harmony default export */ const src_Game = (Game);
 
+;// ./src/useDeviceWidth.ts
+
+/// The app has no viewport meta (the game table needs the desktop layout), so
+/// phones render pages at ~980px. Pages that are laid out for narrow screens
+/// opt in to the device width while they are open.
+var useDeviceWidth = function () {
+    react.useEffect(function () {
+        var meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content = "width=device-width, initial-scale=1";
+        document.head.appendChild(meta);
+        return function () {
+            meta.remove();
+        };
+    }, []);
+};
+
 ;// ./src/Leaderboard.tsx
 var Leaderboard_assign = (undefined && undefined.__assign) || function () {
     Leaderboard_assign = Object.assign || function(t) {
@@ -9585,6 +9793,7 @@ var Leaderboard_assign = (undefined && undefined.__assign) || function () {
     };
     return Leaderboard_assign.apply(this, arguments);
 };
+
 
 
 
@@ -9713,17 +9922,7 @@ var Leaderboard = function () {
     react.useEffect(function () {
         load();
     }, [load]);
-    // The app has no viewport meta (the game table needs the desktop layout), so
-    // phones render this page at ~980px. Opt in to device width while it's open.
-    react.useEffect(function () {
-        var meta = document.createElement("meta");
-        meta.name = "viewport";
-        meta.content = "width=device-width, initial-scale=1";
-        document.head.appendChild(meta);
-        return function () {
-            meta.remove();
-        };
-    }, []);
+    useDeviceWidth();
     var me = (_b = (_a = state.auth) === null || _a === void 0 ? void 0 : _a.user.username) !== null && _b !== void 0 ? _b : null;
     var minRounds = (_f = (_d = (_c = tractor.data) === null || _c === void 0 ? void 0 : _c.min_rounds) !== null && _d !== void 0 ? _d : (_e = ddzPoints.data) === null || _e === void 0 ? void 0 : _e.min_rounds) !== null && _f !== void 0 ? _f : 5;
     return (react.createElement("div", { className: "game leaderboard-page" },
@@ -9757,7 +9956,128 @@ var Leaderboard = function () {
 };
 /* harmony default export */ const src_Leaderboard = (Leaderboard);
 
+;// ./src/Matches.tsx
+
+
+
+
+/// The `#matches` page: every finished match, newest first, filtered by
+/// player, ladder, rated or not and (with a player) their result.
+var Matches = function (props) {
+    useDeviceWidth();
+    var _a = react.useState(props.initialUser), userInput = _a[0], setUserInput = _a[1];
+    var _b = react.useState(props.initialUser), user = _b[0], setUser = _b[1];
+    var _c = react.useState(""), mode = _c[0], setMode = _c[1];
+    var _d = react.useState(""), rated = _d[0], setRated = _d[1];
+    var _e = react.useState(""), result = _e[0], setResult = _e[1];
+    var _f = react.useState([]), matches = _f[0], setMatches = _f[1];
+    var _g = react.useState(1), page = _g[0], setPage = _g[1];
+    var _h = react.useState(1), pages = _h[0], setPages = _h[1];
+    var _j = react.useState(true), loading = _j[0], setLoading = _j[1];
+    var _k = react.useState(null), error = _k[0], setError = _k[1];
+    // The route changed (e.g. a player link clicked on this page).
+    react.useEffect(function () {
+        setUserInput(props.initialUser);
+        setUser(props.initialUser);
+        setPage(1);
+    }, [props.initialUser]);
+    var query = function () { return ({
+        user: user.trim() === "" ? undefined : user.trim(),
+        mode: mode === "" ? undefined : mode,
+        rated: rated === "" ? undefined : rated,
+        result: user.trim() === "" || result === "" ? undefined : result,
+        page: page,
+    }); };
+    react.useEffect(function () {
+        var cancelled = false;
+        setLoading(true);
+        setError(null);
+        api/* fetchMatches */.us(query()).then(function (r) {
+            if (!cancelled) {
+                setMatches(r.matches);
+                setPages(Math.max(1, Math.ceil(r.total / r.per_page)));
+                setLoading(false);
+            }
+        }, function (e) {
+            if (!cancelled) {
+                setMatches([]);
+                setError(api/* errorMessage */.gJ(e));
+                setLoading(false);
+            }
+        });
+        return function () {
+            cancelled = true;
+        };
+    }, [user, mode, rated, result, page]);
+    // A filter changed: back to the first page.
+    var filterChanged = function () { return setPage(1); };
+    var filtered = user.trim() !== "";
+    return (react.createElement("div", { className: "game matches-page" },
+        react.createElement("p", null,
+            react.createElement("a", { href: "#" }, "\u2190 Back to the lobby")),
+        react.createElement("h2", null, "Matches"),
+        react.createElement("form", { className: "matches-filters", onSubmit: function (e) {
+                e.preventDefault();
+                filterChanged();
+                setUser(userInput);
+                window.location.hash =
+                    userInput.trim() === "" ? "matches" : matchesHref(userInput.trim());
+            } },
+            react.createElement("label", null,
+                "Player",
+                " ",
+                react.createElement("input", { type: "text", value: userInput, onChange: function (e) { return setUserInput(e.target.value); } })),
+            react.createElement("label", null,
+                "Ladder",
+                " ",
+                react.createElement("select", { value: mode, onChange: function (e) {
+                        filterChanged();
+                        setMode(e.target.value);
+                    } },
+                    react.createElement("option", { value: "" }, "All"),
+                    react.createElement("option", { value: "team" }, "Team"),
+                    react.createElement("option", { value: "1v1" }, "1v1"),
+                    react.createElement("option", { value: "ddz" }, "Fight the Landlord"))),
+            react.createElement("label", null,
+                "Rated",
+                " ",
+                react.createElement("select", { value: rated, onChange: function (e) {
+                        filterChanged();
+                        setRated(e.target.value);
+                    } },
+                    react.createElement("option", { value: "" }, "All"),
+                    react.createElement("option", { value: "yes" }, "Rated"),
+                    react.createElement("option", { value: "no" }, "Unrated"))),
+            filtered ? (react.createElement("label", null,
+                "Result",
+                " ",
+                react.createElement("select", { value: result, onChange: function (e) {
+                        filterChanged();
+                        setResult(e.target.value);
+                    } },
+                    react.createElement("option", { value: "" }, "All"),
+                    react.createElement("option", { value: "won" }, "Won"),
+                    react.createElement("option", { value: "lost" }, "Lost"),
+                    react.createElement("option", { value: "drawn" }, "Drew")))) : null,
+            react.createElement("button", { type: "submit", className: "normal" }, "Search")),
+        error !== null ? (react.createElement("p", { className: "auth-error" },
+            "Could not load: ",
+            error)) : matches.length === 0 && !loading ? (react.createElement("p", { className: "auth-hint" }, "No matches.")) : (react.createElement("ul", { className: "account-matches" }, matches.map(function (m) { return (react.createElement(Match, { key: m.match_id, match: m, username: filtered ? user.trim() : undefined })); }))),
+        loading ? react.createElement("p", { className: "auth-hint" }, "Loading\u2026") : null,
+        pages > 1 ? (react.createElement("p", { className: "matches-pages" },
+            react.createElement("button", { type: "button", className: "normal", disabled: page <= 1 || loading, onClick: function () { return setPage(page - 1); } }, "Previous"),
+            " ",
+            "Page ",
+            page,
+            " of ",
+            pages,
+            " ",
+            react.createElement("button", { type: "button", className: "normal", disabled: page >= pages || loading, onClick: function () { return setPage(page + 1); } }, "Next"))) : null));
+};
+/* harmony default export */ const src_Matches = (Matches);
+
 ;// ./src/Root.tsx
+
 
 
 
@@ -9781,6 +10101,18 @@ var isLeaderboardRoute = function (hash) {
     var trimmed = hash.startsWith("#") ? hash.slice(1) : hash;
     return trimmed === "leaderboard";
 };
+/// The player of the `#matches/<username>` route ("" for `#matches`), or
+/// null for every other hash.
+var matchesRouteUser = function (hash) {
+    var trimmed = hash.startsWith("#") ? hash.slice(1) : hash;
+    if (trimmed === "matches") {
+        return "";
+    }
+    if (!trimmed.startsWith("matches/")) {
+        return null;
+    }
+    return decodeURIComponent(trimmed.slice("matches/".length)).trim();
+};
 /// `window.location.hash`, kept up to date as the user follows in-page
 /// links (`#user/<name>`, "back to the lobby") and uses the back button.
 var useHash = function () {
@@ -9799,6 +10131,7 @@ var Root = function () {
     var state = react.useContext(AppStateContext).state;
     var hash = useHash();
     var accountUsername = accountRouteUsername(hash);
+    var matchesUser = matchesRouteUser(hash);
     var _a = react.useState([]), previousHeaderMessages = _a[0], setPreviousHeaderMessages = _a[1];
     var _b = react.useState(state.headerMessages.length > 0), showHeaderMessages = _b[0], setShowHeaderMessages = _b[1];
     react.useEffect(function () {
@@ -9828,6 +10161,14 @@ var Root = function () {
         return (react.createElement("div", null,
             headerMessages,
             react.createElement(src_Leaderboard, null),
+            react.createElement("hr", null),
+            react.createElement(src_Credits, null),
+            react.createElement(src_TitleHandler, { playerName: state.name })));
+    }
+    if (matchesUser !== null) {
+        return (react.createElement("div", null,
+            headerMessages,
+            react.createElement(src_Matches, { initialUser: matchesUser }),
             react.createElement("hr", null),
             react.createElement(src_Credits, null),
             react.createElement(src_TitleHandler, { playerName: state.name })));
@@ -9964,55 +10305,6 @@ var bootstrap = function () {
                                 react.createElement(src_Root, null)))))))));
 };
 bootstrap();
-
-
-/***/ }),
-
-/***/ 6649:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   u: () => (/* binding */ isWasmAvailable)
-/* harmony export */ });
-function isWasmAvailable() {
-    // Check for URL parameter to force no-WASM mode
-    var urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("no-wasm") === "true") {
-        console.log("No-WASM mode enabled via URL parameter");
-        return false;
-    }
-    try {
-        if (typeof WebAssembly === "object" &&
-            typeof WebAssembly.instantiate === "function") {
-            var module_1 = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-            if (module_1 instanceof WebAssembly.Module) {
-                return new WebAssembly.Instance(module_1) instanceof WebAssembly.Instance;
-            }
-        }
-    }
-    catch (e) {
-        console.warn("WebAssembly not available:", e);
-    }
-    return false;
-}
-
-
-/***/ }),
-
-/***/ 7236:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  A: () => (/* binding */ preloadedCards)
-});
-
-;// ./src/generated/cards.json
-const cards_namespaceObject = /*#__PURE__*/JSON.parse('{"k":[{"value":"🃁","display_value":"🃁","typ":"♢","number":"A","points":0},{"value":"🃎","display_value":"🃎","typ":"♢","number":"K","points":10},{"value":"🃍","display_value":"🃍","typ":"♢","number":"Q","points":0},{"value":"🃋","display_value":"🃋","typ":"♢","number":"J","points":0},{"value":"🃊","display_value":"🃊","typ":"♢","number":"10","points":10},{"value":"🃉","display_value":"🃉","typ":"♢","number":"9","points":0},{"value":"🃈","display_value":"🃈","typ":"♢","number":"8","points":0},{"value":"🃇","display_value":"🃇","typ":"♢","number":"7","points":0},{"value":"🃆","display_value":"🃆","typ":"♢","number":"6","points":0},{"value":"🃅","display_value":"🃅","typ":"♢","number":"5","points":5},{"value":"🃄","display_value":"🃄","typ":"♢","number":"4","points":0},{"value":"🃃","display_value":"🃃","typ":"♢","number":"3","points":0},{"value":"🃂","display_value":"🃂","typ":"♢","number":"2","points":0},{"value":"🃑","display_value":"🃑","typ":"♧","number":"A","points":0},{"value":"🃞","display_value":"🃞","typ":"♧","number":"K","points":10},{"value":"🃝","display_value":"🃝","typ":"♧","number":"Q","points":0},{"value":"🃛","display_value":"🃛","typ":"♧","number":"J","points":0},{"value":"🃚","display_value":"🃚","typ":"♧","number":"10","points":10},{"value":"🃙","display_value":"🃙","typ":"♧","number":"9","points":0},{"value":"🃘","display_value":"🃘","typ":"♧","number":"8","points":0},{"value":"🃗","display_value":"🃗","typ":"♧","number":"7","points":0},{"value":"🃖","display_value":"🃖","typ":"♧","number":"6","points":0},{"value":"🃕","display_value":"🃕","typ":"♧","number":"5","points":5},{"value":"🃔","display_value":"🃔","typ":"♧","number":"4","points":0},{"value":"🃓","display_value":"🃓","typ":"♧","number":"3","points":0},{"value":"🃒","display_value":"🃒","typ":"♧","number":"2","points":0},{"value":"🂱","display_value":"🂱","typ":"♡","number":"A","points":0},{"value":"🂾","display_value":"🂾","typ":"♡","number":"K","points":10},{"value":"🂽","display_value":"🂽","typ":"♡","number":"Q","points":0},{"value":"🂻","display_value":"🂻","typ":"♡","number":"J","points":0},{"value":"🂺","display_value":"🂺","typ":"♡","number":"10","points":10},{"value":"🂹","display_value":"🂹","typ":"♡","number":"9","points":0},{"value":"🂸","display_value":"🂸","typ":"♡","number":"8","points":0},{"value":"🂷","display_value":"🂷","typ":"♡","number":"7","points":0},{"value":"🂶","display_value":"🂶","typ":"♡","number":"6","points":0},{"value":"🂵","display_value":"🂵","typ":"♡","number":"5","points":5},{"value":"🂴","display_value":"🂴","typ":"♡","number":"4","points":0},{"value":"🂳","display_value":"🂳","typ":"♡","number":"3","points":0},{"value":"🂲","display_value":"🂲","typ":"♡","number":"2","points":0},{"value":"🂡","display_value":"🂡","typ":"♤","number":"A","points":0},{"value":"🂮","display_value":"🂮","typ":"♤","number":"K","points":10},{"value":"🂭","display_value":"🂭","typ":"♤","number":"Q","points":0},{"value":"🂫","display_value":"🂫","typ":"♤","number":"J","points":0},{"value":"🂪","display_value":"🂪","typ":"♤","number":"10","points":10},{"value":"🂩","display_value":"🂩","typ":"♤","number":"9","points":0},{"value":"🂨","display_value":"🂨","typ":"♤","number":"8","points":0},{"value":"🂧","display_value":"🂧","typ":"♤","number":"7","points":0},{"value":"🂦","display_value":"🂦","typ":"♤","number":"6","points":0},{"value":"🂥","display_value":"🂥","typ":"♤","number":"5","points":5},{"value":"🂤","display_value":"🂤","typ":"♤","number":"4","points":0},{"value":"🂣","display_value":"🂣","typ":"♤","number":"3","points":0},{"value":"🂢","display_value":"🂢","typ":"♤","number":"2","points":0},{"value":"🃟","display_value":"🃟","typ":"🃟","number":null,"points":0},{"value":"🃏","display_value":"🃟","typ":"🃏","number":null,"points":0}]}');
-;// ./src/preloadedCards.ts
-
-/* harmony default export */ const preloadedCards = (cards_namespaceObject.k);
 
 
 /***/ }),
@@ -10494,9 +10786,9 @@ var Timeout = function (props) {
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(6443)))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(7239)))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.cd77431d7aa20e7b716e.js.map
+//# sourceMappingURL=main.e289ef75ae73433cfa5a.js.map

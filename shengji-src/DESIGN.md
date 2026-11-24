@@ -99,6 +99,13 @@ the frontend clears its stored token on that response.
   non-Fight-the-Landlord rooms; `ddz` averages the round's points, which are
   stored in the same column and may be negative. Players with fewer than
   `min_rounds` rounds are left out.
+- `GET /api/matches?user=&mode=team|1v1|ddz&rated=yes|no&result=won|lost|drawn&page=1&limit=25`
+  → `{"matches": [match], "total", "page", "per_page"}`: finished matches,
+  newest first, each as in an account page's `recent_matches` (the `user`'s
+  own `levels`, `result` and rating movement are added when `user` is set).
+  `rated=yes` means ratings were applied; `result` needs `user`; `total`
+  counts every match that passes the filters (for "page 1 of N"). The frontend shows it at
+  `#matches` and `#matches/<username>`.
 - `GET /api/users/:username` → `profile` (see "Account pages")
 
 `user` = `{id, username, ratings: {team: RatingView, "1v1": RatingView, ddz: RatingView}}`,

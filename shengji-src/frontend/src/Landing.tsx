@@ -64,7 +64,8 @@ const Landing = (): JSX.Element => {
         {content}
         <p>
           See the <a href="#leaderboard">leaderboards</a>: the three ladders,
-          and the best average levels and points per round.
+          and the best average levels and points per round. Or browse all{" "}
+          <a href="#matches">matches</a>.
         </p>
       </div>
     </>

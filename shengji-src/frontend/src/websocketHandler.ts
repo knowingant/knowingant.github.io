@@ -3,6 +3,7 @@ import beep from "./beep";
 import { GameMessage, RatingChange, RatingMode } from "./gen-types";
 import { Message } from "./ChatMessage";
 import { formatDelta, ladderName } from "./api";
+import { loadChat, saveChat } from "./chatHistory";
 
 const truncate =
   (length: number) =>
@@ -15,6 +16,36 @@ const truncate =
   };
 const truncateMessages = truncate(300);
 
+/// Room the chat was last restored for, so a reconnect does not repeat it.
+let restoredFor: string | null = null;
+
+/// After a reload the chat starts empty: the first time a room is touched,
+/// put what this browser saw there ahead of anything that arrived since.
+const restoreOnce = (state: AppState): Message[] | null => {
+  if (restoredFor === state.roomName) {
+    return null;
+  }
+  restoredFor = state.roomName;
+  const earlier = loadChat(state.roomName);
+  return earlier.length > 0
+    ? truncateMessages([...earlier, ...state.messages])
+    : null;
+};
+
+/// `state.messages` plus `message`, remembered for the room so a reload can
+/// bring the chat back.
+const appendMessage = (
+  state: AppState,
+  message: Message,
+): Partial<AppState> => {
+  const messages = truncateMessages([
+    ...(restoreOnce(state) ?? state.messages),
+    message,
+  ]);
+  saveChat(state.roomName, messages);
+  return { messages };
+};
+
 type WebsocketHandler = (
   state: AppState,
   message: GameMessage,
@@ -25,7 +56,7 @@ const messageHandler: WebsocketHandler = (
   message: GameMessage,
 ) => {
   if ("Message" in message) {
-    return { messages: truncateMessages([...state.messages, message.Message]) };
+    return appendMessage(state, message.Message);
   } else {
     return null;
   }
@@ -42,7 +73,7 @@ const broadcastHandler: WebsocketHandler = (
       data: message.Broadcast.data,
       from_game: true,
     };
-    return { messages: truncateMessages([...state.messages, newMessage]) };
+    return appendMessage(state, newMessage);
   } else {
     return null;
   }
@@ -166,10 +197,17 @@ const gameFinishedHandler: WebsocketHandler = (
   return null;
 };
 
-const joinedHandler: WebsocketHandler = (_: AppState, message: GameMessage) => {
+const joinedHandler: WebsocketHandler = (
+  state: AppState,
+  message: GameMessage,
+) => {
   if ("Joined" in message) {
     const j = message.Joined;
+    const restoredMessages = restoreOnce(state);
+    const restored: Partial<AppState> =
+      restoredMessages !== null ? { messages: restoredMessages } : {};
     return {
+      ...restored,
       name: j.username,
       seats: {
         username: j.username,
@@ -222,7 +260,7 @@ const matchRatedHandler: WebsocketHandler = (
       ratings: { match_id: u.match_id, mode: u.mode, changes: u.changes },
     };
     return {
-      messages: truncateMessages([...state.messages, newMessage]),
+      ...appendMessage(state, newMessage),
       lastMatchRated: {
         matchId: u.match_id,
         mode: u.mode,
@@ -282,7 +320,7 @@ const systemHandler: WebsocketHandler = (
       message: message.System.message,
       from_game: true,
     };
-    return { messages: truncateMessages([...state.messages, newMessage]) };
+    return appendMessage(state, newMessage);
   } else {
     return null;
   }

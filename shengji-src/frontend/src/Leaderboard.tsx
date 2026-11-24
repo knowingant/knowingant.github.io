@@ -2,6 +2,7 @@ import * as React from "react";
 import { AppStateContext } from "./AppStateProvider";
 import * as api from "./api";
 import { accountHref } from "./AccountPage";
+import { useDeviceWidth } from "./useDeviceWidth";
 import type { RatingMode } from "./gen-types";
 
 import type { JSX } from "react";
@@ -215,17 +216,7 @@ const Leaderboard = (): JSX.Element => {
     load();
   }, [load]);
 
-  // The app has no viewport meta (the game table needs the desktop layout), so
-  // phones render this page at ~980px. Opt in to device width while it's open.
-  React.useEffect(() => {
-    const meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1";
-    document.head.appendChild(meta);
-    return () => {
-      meta.remove();
-    };
-  }, []);
+  useDeviceWidth();
 
   const me = state.auth?.user.username ?? null;
   const minRounds = tractor.data?.min_rounds ?? ddzPoints.data?.min_rounds ?? 5;

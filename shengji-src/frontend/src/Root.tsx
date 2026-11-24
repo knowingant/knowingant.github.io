@@ -4,6 +4,7 @@ import Landing from "./Landing";
 import Game from "./Game";
 import AccountPage from "./AccountPage";
 import Leaderboard from "./Leaderboard";
+import Matches from "./Matches";
 import Credits from "./Credits";
 import TitleHandler from "./TitleHandler";
 
@@ -26,6 +27,19 @@ export const isLeaderboardRoute = (hash: string): boolean => {
   return trimmed === "leaderboard";
 };
 
+/// The player of the `#matches/<username>` route ("" for `#matches`), or
+/// null for every other hash.
+export const matchesRouteUser = (hash: string): string | null => {
+  const trimmed = hash.startsWith("#") ? hash.slice(1) : hash;
+  if (trimmed === "matches") {
+    return "";
+  }
+  if (!trimmed.startsWith("matches/")) {
+    return null;
+  }
+  return decodeURIComponent(trimmed.slice("matches/".length)).trim();
+};
+
 /// `window.location.hash`, kept up to date as the user follows in-page
 /// links (`#user/<name>`, "back to the lobby") and uses the back button.
 const useHash = (): string => {
@@ -45,6 +59,7 @@ const Root = (): JSX.Element => {
   const { state } = React.useContext(AppStateContext);
   const hash = useHash();
   const accountUsername = accountRouteUsername(hash);
+  const matchesUser = matchesRouteUser(hash);
 
   const [previousHeaderMessages, setPreviousHeaderMessages] = React.useState<
     string[]
@@ -93,6 +108,18 @@ const Root = (): JSX.Element => {
       <div>
         {headerMessages}
         <Leaderboard />
+        <hr />
+        <Credits />
+        <TitleHandler playerName={state.name} />
+      </div>
+    );
+  }
+
+  if (matchesUser !== null) {
+    return (
+      <div>
+        {headerMessages}
+        <Matches initialUser={matchesUser} />
         <hr />
         <Credits />
         <TitleHandler playerName={state.name} />
