@@ -34,7 +34,7 @@ margin  m_uv = (L_u − L_v) / T                       ∈ [−1, 1]
 score   s_uv = 0.95 + 0.05·m_uv   if m_uv > 0        (a win is worth ≥ 0.95)
              = 0.05 + 0.05·m_uv   if m_uv < 0        (a loss is worth ≤ 0.05)
              = 0.5                if m_uv = 0
-expected E_uv = 1 / (1 + 10^((R_v − R_u) / 400))
+expected E_uv = 1 / (1 + 10^((R_v − R_u) / 2000))
 ```
 
 The result is what counts; the margin is a second-order term that moves a
@@ -67,10 +67,12 @@ win is `12·(N − 2)` points (12 at N = 3, 96 at N = 10), because a longer
 race carries proportionally more information. Changes are deliberately
 small: the ladder is meant to move over dozens of matches, not a handful.
 
-Rating differences matter the usual Elo way: a 1700 beating a 1500 by the
-full margin gains `72·(1 − 0.76) ≈ +17`; beating them narrowly (loser at
-rank 4) gains `72·(0.967 − 0.76) ≈ +15`; losing to them narrowly costs the
-1700 `72·(0.033 − 0.76) ≈ −52`.
+Rating differences matter the usual Elo way, but on a scale of 2000 (not the
+usual 400), so a gap counts for a fifth as much: the game is mostly luck and
+a gap of 200 means only a 56% chance. A 1700 beating a 1500 by the full
+margin gains `72·(1 − 0.557) ≈ +32`; beating them narrowly (loser at rank 4)
+gains `72·(0.967 − 0.557) ≈ +29`; losing to them narrowly costs the 1700
+`72·(0.033 − 0.557) ≈ −38`.
 
 Team members share a rank in Tractor, so both members of the winning team
 get the same score against each opponent; their changes differ only through
@@ -99,8 +101,8 @@ Six rounds, totals +30 / −6 / −24:
 | ratings (1st / 2nd / 3rd) | 1st | 2nd | 3rd |
 |---|---|---|---|
 | 1500 / 1500 / 1500 | +24.0 | −0.6 | −23.4 |
-| 1700 / 1500 / 1500 | +11.5 | +5.6 | −17.2 |
-| 1500 / 1500 / 1700 | +30.2 | +5.6 | −35.9 |
+| 1700 / 1500 / 1500 | +21.2 | +0.8 | −22.0 |
+| 1500 / 1500 / 1700 | +25.4 | +0.8 | −26.2 |
 
 Other results between equals: +4 / +2 / −6 gives +22.0 / +0.2 / −22.2; a tie
 for first at +12 / +12 / −24 gives +12 / +12 / −24. First or last among

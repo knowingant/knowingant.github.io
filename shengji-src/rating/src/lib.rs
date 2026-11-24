@@ -9,7 +9,7 @@
 //! * `s_uv = 0.95 + 0.05·m` for a win, `0.05 + 0.05·m` for a loss, `0.5`
 //!   for a tie: the result is what counts, the margin is a second-order
 //!   term worth at most 5% of it,
-//! * `E_uv = 1 / (1 + 10^((R_v − R_u)/400))`,
+//! * `E_uv = 1 / (1 + 10^((R_v − R_u)/2000))`,
 //! * `Δ_u = K(N) · mean_v (s_uv − E_uv)` with `K(N) = 24 · (N − 2)`,
 //!   clamped so that whoever came out ahead never loses points and whoever
 //!   came out behind never gains any.
@@ -40,7 +40,7 @@ impl Default for Params {
     fn default() -> Self {
         Params {
             k_per_level: 24.0,
-            elo_scale: 400.0,
+            elo_scale: 2000.0,
             initial_rating: 1500.0,
             rating_floor: 0.0,
             ddz_k_per_round: 8.0,
@@ -273,14 +273,14 @@ mod tests {
 
     #[test]
     fn lopsided_results_are_never_punished() {
-        // An 800 loses narrowly to a 1500: Elo expected 0.017 of them, the
+        // A 500 loses narrowly to a 3600: Elo expected 0.028 of them, the
         // narrow loss scores 0.033, so unclamped they would gain (and the
-        // 1500, expected to win by more, would lose). Neither happens.
-        let c = two(3, 2, 1500.0, 800.0, 3);
+        // 3600, expected to win by more, would lose). Neither happens.
+        let c = two(3, 2, 3600.0, 500.0, 3);
         assert_eq!(c[0].delta(), 0.0, "{:?}", c);
         assert_eq!(c[1].delta(), 0.0, "{:?}", c);
         // A shutout by the favourite still pays them (a little).
-        let c = two(3, 0, 1500.0, 800.0, 3);
+        let c = two(3, 0, 3600.0, 500.0, 3);
         assert!(c[0].delta() > 0.0 && c[0].delta() < 10.0, "{:?}", c);
         assert!((c[0].delta() + c[1].delta()).abs() < 1e-9);
     }
@@ -303,16 +303,16 @@ mod tests {
     #[test]
     fn rating_difference_matters_the_elo_way() {
         let e = expected_score(&p(), 1700.0, 1500.0);
-        assert!((e - 0.7597).abs() < 1e-3, "{e}");
+        assert!((e - 0.5573).abs() < 1e-3, "{e}");
         let c = two(3, 0, 1700.0, 1500.0, 3);
         assert!((c[0].delta() - 72.0 * (1.0 - e)).abs() < 1e-9);
-        assert!(c[0].delta() > 17.0 && c[0].delta() < 18.0, "{:?}", c);
-        // narrow win: 72·(0.9667 − 0.7597) ≈ +14.9
+        assert!(c[0].delta() > 31.5 && c[0].delta() < 32.5, "{:?}", c);
+        // narrow win: 72·(0.9667 − 0.5573) ≈ +29.5
         let c = two(3, 2, 1700.0, 1500.0, 3);
-        assert!(c[0].delta() > 14.5 && c[0].delta() < 15.5, "{:?}", c);
-        // narrow loss: 72·(0.0333 − 0.7597) ≈ −52.3
+        assert!(c[0].delta() > 29.0 && c[0].delta() < 30.0, "{:?}", c);
+        // narrow loss: 72·(0.0333 − 0.5573) ≈ −37.7
         let c = two(2, 3, 1700.0, 1500.0, 3);
-        assert!(c[0].delta() < -52.0 && c[0].delta() > -53.0, "{:?}", c);
+        assert!(c[0].delta() < -37.0 && c[0].delta() > -38.5, "{:?}", c);
         // zero-sum for two users
         assert!((c[0].delta() + c[1].delta()).abs() < 1e-9);
     }
@@ -426,11 +426,11 @@ mod tests {
     fn ddz_unequal_ratings() {
         assert_eq!(
             ddz(6, &[(1700.0, 30), (1500.0, -6), (1500.0, -24)]),
-            vec![11.5, 5.6, -17.2]
+            vec![21.2, 0.8, -22.0]
         );
         assert_eq!(
             ddz(6, &[(1500.0, 30), (1500.0, -6), (1700.0, -24)]),
-            vec![30.2, 5.6, -35.9]
+            vec![25.4, 0.8, -26.2]
         );
     }
 
