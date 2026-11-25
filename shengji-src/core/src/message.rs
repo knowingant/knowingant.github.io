@@ -293,6 +293,9 @@ pub struct DdzSeatResult {
     pub delta: i64,
     /// Match total after this round.
     pub total: i64,
+    /// The cards this player still held when the round ended.
+    #[serde(default)]
+    pub remaining: Vec<Card>,
 }
 
 /// One player's final standing in a Fight the Landlord match, best first.
@@ -542,12 +545,21 @@ impl MessageVariant {
             DdzRedouble { redoubled: false } => format!("{} did not redouble", n?),
             DdzBottom { ref cards } => format!("Bottom: {}", cards.iter().map(|c| c.as_char()).collect::<String>()),
             DdzPassed => format!("{} passed", n?),
-            DdzRoundFinished { round, landlord, landlord_won, results, .. } => format!(
-                "Round {round}: {} {}. {}",
-                player_name(*landlord)?,
-                if *landlord_won { "won" } else { "lost" },
-                results.iter().map(|r| format!("{} {}", r.name, signed(r.delta))).collect::<Vec<_>>().join(", ")
-            ),
+            DdzRoundFinished { round, landlord, landlord_won, results, .. } => {
+                let left = results
+                    .iter()
+                    .filter(|r| !r.remaining.is_empty())
+                    .map(|r| format!("{} {}", r.name, r.remaining.iter().map(|c| c.as_char()).collect::<String>()))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                format!(
+                    "Round {round}: {} {}. {}{}",
+                    player_name(*landlord)?,
+                    if *landlord_won { "won" } else { "lost" },
+                    results.iter().map(|r| format!("{} {}", r.name, signed(r.delta))).collect::<Vec<_>>().join(", "),
+                    if left.is_empty() { String::new() } else { format!(". Left: {left}") }
+                )
+            }
             DdzNextRound { round } => format!("Round {round}"),
             DdzMatchFinished { standings, .. } => format!(
                 "Match over: {}",

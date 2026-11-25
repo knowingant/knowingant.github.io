@@ -1602,6 +1602,7 @@ mod tests {
             won: delta > 0,
             delta,
             total: delta,
+            remaining: vec![],
         };
         let outcome = DdzRoundOutcome {
             room: "0123456789abcdef".to_string(),

@@ -29,7 +29,9 @@ const Landing = (): JSX.Element => {
       </p>
       <p>
         If you&apos;re not familiar with the rules, check them out{" "}
-        <a href="rules.html">here</a>!
+        <a href="rules.html">here</a>! See{" "}
+        <a href="#leaderboard">leaderboards</a> and browse all{" "}
+        <a href="#matches">matches</a>.
       </p>
     </>
   );
@@ -62,11 +64,6 @@ const Landing = (): JSX.Element => {
         {title}
         {intro}
         {content}
-        <p>
-          See the <a href="#leaderboard">leaderboards</a>: the three ladders,
-          and the best average levels and points per round. Or browse all{" "}
-          <a href="#matches">matches</a>.
-        </p>
       </div>
     </>
   );

@@ -1449,6 +1449,14 @@
           "format": "uint",
           "minimum": 0.0
         },
+        "remaining": {
+          "description": "The cards this player still held when the round ended.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Card"
+          }
+        },
         "total": {
           "description": "Match total after this round.",
           "type": "integer",

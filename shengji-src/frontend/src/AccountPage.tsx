@@ -22,18 +22,6 @@ export const matchesHref = (username?: string): string =>
 
 const ladderName = api.ladderName;
 
-/// "won" / "lost" / "drew", as a verb with the player as the subject.
-const resultVerb = (result: api.MatchResult): string => {
-  switch (result) {
-    case "won":
-      return "won";
-    case "lost":
-      return "lost";
-    default:
-      return "drew";
-  }
-};
-
 /// `47 (68.12%)`, or just `0` when there is nothing to take a percentage of.
 const withPercent = (count: number, total: number): string =>
   total > 0 ? `${count} (${((count / total) * 100).toFixed(2)}%)` : `${count}`;
@@ -156,6 +144,34 @@ const DdzStats = (props: { stats: api.ProfileStats }): JSX.Element => {
   );
 };
 
+/// `, 1520 +20`: the rating after the match and the change, the sign green,
+/// red or gray as the change is positive, negative or zero. Nothing for a
+/// match that did not move ratings.
+const RatingChange = (props: {
+  player: api.ProfileMatchPlayer;
+}): JSX.Element | null => {
+  const { rating_before: before, rating_after: after } = props.player;
+  if (
+    before === null ||
+    before === undefined ||
+    after === null ||
+    after === undefined
+  ) {
+    return null;
+  }
+  const delta = after - before;
+  const kind = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+  return (
+    <>
+      , {after}{" "}
+      <span className={`rating-delta rating-delta-${kind}`}>
+        {delta < 0 ? "−" : "+"}
+        {Math.abs(delta)}
+      </span>
+    </>
+  );
+};
+
 /// One finished match. With `username`, that player is highlighted and their
 /// own result and rating movement are shown underneath.
 export const Match = (props: {
@@ -201,36 +217,13 @@ export const Match = (props: {
             ) : (
               <>
                 <a href={accountHref(p.username)}>{p.username}</a> &mdash; rank{" "}
-                {p.final_rank} ({p.levels} {p.levels === 1 ? "level" : "levels"}
-                ), {resultVerb(p.result)}
-                {p.result === "won" ? " 🏆" : ""}
+                {p.final_rank}
               </>
             )}
+            <RatingChange player={p} />
           </li>
         ))}
       </ul>
-      {username !== undefined &&
-      match.levels !== undefined &&
-      match.result !== undefined ? (
-        <div className="account-match-outcome">
-          <strong>{username}</strong>{" "}
-          {ddz ? api.formatDelta(match.levels) : resultVerb(match.result)}
-          {match.delta !== null &&
-          match.delta !== undefined &&
-          match.rating_before !== null &&
-          match.rating_before !== undefined &&
-          match.rating_after !== null &&
-          match.rating_after !== undefined ? (
-            <>
-              {": "}
-              {match.rating_before} &rarr; {match.rating_after} (
-              {api.formatDelta(match.delta)})
-            </>
-          ) : (
-            <> (no rating change)</>
-          )}
-        </div>
-      ) : null}
     </li>
   );
 };

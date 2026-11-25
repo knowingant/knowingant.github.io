@@ -1480,6 +1480,10 @@ export interface DdzSeatResult {
   name: string;
   player: number;
   /**
+   * The cards this player still held when the round ended.
+   */
+  remaining?: Card[];
+  /**
    * Match total after this round.
    */
   total: number;

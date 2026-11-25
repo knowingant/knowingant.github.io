@@ -89,6 +89,7 @@ impl DdzPhase {
                     won: (seat == result.landlord) == result.landlord_won,
                     delta: result.deltas[seat],
                     total: self.game.totals[seat],
+                    remaining: self.game.round.hands[seat].clone(),
                 })
                 .collect(),
         }
@@ -329,6 +330,31 @@ mod tests {
         assert!(g
             .interact(RoomAction::SetDdzSettings(s), ids[0], &l)
             .is_err());
+    }
+
+    #[test]
+    fn a_finished_round_lists_the_cards_left() {
+        let (mut g, ids) = lobby();
+        for id in &ids {
+            g.interact(RoomAction::StartGame, *id, &logger()).unwrap();
+        }
+        let msgs = play_round(&mut g);
+        let results = msgs
+            .iter()
+            .find_map(|m| match m {
+                MessageVariant::DdzRoundFinished { results, .. } => Some(results.clone()),
+                _ => None,
+            })
+            .unwrap();
+        // Whoever went out holds nothing; at least one other seat still does.
+        assert!(results.iter().any(|r| r.remaining.is_empty()));
+        assert!(results.iter().any(|r| !r.remaining.is_empty()));
+        let text = msgs
+            .iter()
+            .find(|m| matches!(m, MessageVariant::DdzRoundFinished { .. }))
+            .and_then(|m| m.to_string(ids[0], |_| Ok("p")).ok())
+            .unwrap_or_default();
+        assert!(text.contains("Left: "), "{}", text);
     }
 
     #[test]

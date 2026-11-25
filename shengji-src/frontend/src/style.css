@@ -981,3 +981,23 @@ label {
     box-sizing: border-box;
   }
 }
+
+.rating-delta-up {
+  color: #1a8a2e;
+}
+
+.rating-delta-down {
+  color: #c0281c;
+}
+
+.rating-delta-flat {
+  color: #808080;
+}
+
+.dark-mode .rating-delta-up {
+  color: #4cd964;
+}
+
+.dark-mode .rating-delta-down {
+  color: #ff6b61;
+}

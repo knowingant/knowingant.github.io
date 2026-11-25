@@ -2956,7 +2956,13 @@ var Landing = function () {
             "If you're not familiar with the rules, check them out",
             " ",
             react.createElement("a", { href: "rules.html" }, "here"),
-            "!")));
+            "! See",
+            " ",
+            react.createElement("a", { href: "#leaderboard" }, "leaderboards"),
+            " and browse all",
+            " ",
+            react.createElement("a", { href: "#matches" }, "matches"),
+            ".")));
     var content;
     if (state.authLoading) {
         content = react.createElement("p", null, "Loading...");
@@ -2977,14 +2983,7 @@ var Landing = function () {
         react.createElement("div", { className: "game" },
             title,
             intro,
-            content,
-            react.createElement("p", null,
-                "See the ",
-                react.createElement("a", { href: "#leaderboard" }, "leaderboards"),
-                ": the three ladders, and the best average levels and points per round. Or browse all",
-                " ",
-                react.createElement("a", { href: "#matches" }, "matches"),
-                "."))));
+            content)));
 };
 /* harmony default export */ const src_Landing = (Landing);
 
@@ -3861,17 +3860,6 @@ var matchesHref = function (username) {
         : "#matches/".concat(encodeURIComponent(username));
 };
 var ladderName = api/* ladderName */.UC;
-/// "won" / "lost" / "drew", as a verb with the player as the subject.
-var resultVerb = function (result) {
-    switch (result) {
-        case "won":
-            return "won";
-        case "lost":
-            return "lost";
-        default:
-            return "drew";
-    }
-};
 /// `47 (68.12%)`, or just `0` when there is nothing to take a percentage of.
 var withPercent = function (count, total) {
     return total > 0 ? "".concat(count, " (").concat(((count / total) * 100).toFixed(2), "%)") : "".concat(count);
@@ -3971,6 +3959,27 @@ var DdzStats = function (props) {
                 react.createElement("td", null, value)));
         }))));
 };
+/// `, 1520 +20`: the rating after the match and the change, the sign green,
+/// red or gray as the change is positive, negative or zero. Nothing for a
+/// match that did not move ratings.
+var RatingChange = function (props) {
+    var _a = props.player, before = _a.rating_before, after = _a.rating_after;
+    if (before === null ||
+        before === undefined ||
+        after === null ||
+        after === undefined) {
+        return null;
+    }
+    var delta = after - before;
+    var kind = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+    return (react.createElement(react.Fragment, null,
+        ", ",
+        after,
+        " ",
+        react.createElement("span", { className: "rating-delta rating-delta-".concat(kind) },
+            delta < 0 ? "−" : "+",
+            Math.abs(delta))));
+};
 /// One finished match. With `username`, that player is highlighted and their
 /// own result and rating movement are shown underneath.
 var Match = function (props) {
@@ -3994,43 +4003,19 @@ var Match = function (props) {
                 match.first_to_rank)),
             " · ",
             match.rounds === 1 ? "1 round" : "".concat(match.rounds, " rounds")),
-        react.createElement("ul", { className: "account-match-players" }, match.players.map(function (p) { return (react.createElement("li", { key: p.username, className: p.username === username ? "me" : undefined }, ddz ? (react.createElement(react.Fragment, null,
-            p.final_rank,
-            ".",
-            " ",
-            react.createElement("a", { href: accountHref(p.username) }, p.username),
-            " ",
-            api/* formatDelta */.CW(p.levels))) : (react.createElement(react.Fragment, null,
-            react.createElement("a", { href: accountHref(p.username) }, p.username),
-            " \u2014 rank",
-            " ",
-            p.final_rank,
-            " (",
-            p.levels,
-            " ",
-            p.levels === 1 ? "level" : "levels",
-            "), ",
-            resultVerb(p.result),
-            p.result === "won" ? " 🏆" : "")))); })),
-        username !== undefined &&
-            match.levels !== undefined &&
-            match.result !== undefined ? (react.createElement("div", { className: "account-match-outcome" },
-            react.createElement("strong", null, username),
-            " ",
-            ddz ? api/* formatDelta */.CW(match.levels) : resultVerb(match.result),
-            match.delta !== null &&
-                match.delta !== undefined &&
-                match.rating_before !== null &&
-                match.rating_before !== undefined &&
-                match.rating_after !== null &&
-                match.rating_after !== undefined ? (react.createElement(react.Fragment, null,
-                ": ",
-                match.rating_before,
-                " \u2192 ",
-                match.rating_after,
-                " (",
-                api/* formatDelta */.CW(match.delta),
-                ")")) : (react.createElement(react.Fragment, null, " (no rating change)")))) : null));
+        react.createElement("ul", { className: "account-match-players" }, match.players.map(function (p) { return (react.createElement("li", { key: p.username, className: p.username === username ? "me" : undefined },
+            ddz ? (react.createElement(react.Fragment, null,
+                p.final_rank,
+                ".",
+                " ",
+                react.createElement("a", { href: accountHref(p.username) }, p.username),
+                " ",
+                api/* formatDelta */.CW(p.levels))) : (react.createElement(react.Fragment, null,
+                react.createElement("a", { href: accountHref(p.username) }, p.username),
+                " \u2014 rank",
+                " ",
+                p.final_rank)),
+            react.createElement(RatingChange, { player: p }))); }))));
 };
 /// The `#user/<username>` route: one account's ratings, statistics and
 /// recent matches, from `GET /api/users/:username`.
@@ -10794,4 +10779,4 @@ var Timeout = function (props) {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.1466f0f058ee46885adb.js.map
+//# sourceMappingURL=main.737c3797eb6140ba4a67.js.map
