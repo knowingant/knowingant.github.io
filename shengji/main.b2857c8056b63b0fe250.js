@@ -446,819 +446,7 @@ var WasmOrRpcProvider = function (props) {
 
 /***/ }),
 
-/***/ 2895:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   L9: () => (/* binding */ explainScoringCache),
-/* harmony export */   O3: () => (/* binding */ getExplainScoringKey),
-/* harmony export */   PU: () => (/* binding */ cardInfoCache),
-/* harmony export */   bM: () => (/* binding */ prefillExplainScoringCache),
-/* harmony export */   i7: () => (/* binding */ getPrefillPromise),
-/* harmony export */   j9: () => (/* binding */ prefillCardInfoCache),
-/* harmony export */   us: () => (/* binding */ getTrumpKey)
-/* harmony export */ });
-/* unused harmony exports isPrefillInProgress, markPrefillStarted */
-/* harmony import */ var _preloadedCards__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7236);
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-// Cache for card info to avoid repeated async calls
-var cardInfoCache = {};
-// Cache for explainScoring results
-var explainScoringCache = {};
-// Track which trumps are currently being prefilled to avoid duplicate requests
-var prefillInProgressMap = {};
-function isPrefillInProgress(trump) {
-    var trumpKey = getTrumpKey(trump);
-    return (prefillInProgressMap[trumpKey] !== undefined &&
-        prefillInProgressMap[trumpKey] !== null);
-}
-function markPrefillStarted(trump, promise) {
-    var trumpKey = getTrumpKey(trump);
-    prefillInProgressMap[trumpKey] = promise;
-}
-function markPrefillCompleted(trump) {
-    var trumpKey = getTrumpKey(trump);
-    delete prefillInProgressMap[trumpKey];
-}
-function getPrefillPromise(trump) {
-    var trumpKey = getTrumpKey(trump);
-    return prefillInProgressMap[trumpKey] || null;
-}
-// Helper to create a stable cache key from trump
-var getTrumpKey = function (trump) {
-    if ("Standard" in trump) {
-        return "std_".concat(trump.Standard.suit, "_").concat(trump.Standard.number);
-    }
-    else if ("NoTrump" in trump) {
-        return "nt_".concat(trump.NoTrump.number || "none");
-    }
-    return "unknown";
-};
-// Prefill card info cache for all cards with a given trump using batch API
-var prefillCardInfoCache = function (engine, trump) { return __awaiter(void 0, void 0, void 0, function () {
-    var trumpKey, existingPromise, prefillPromise;
-    return __generator(this, function (_a) {
-        trumpKey = getTrumpKey(trump);
-        existingPromise = getPrefillPromise(trump);
-        if (existingPromise) {
-            // Prefill already in progress for this trump, return existing promise
-            return [2 /*return*/, existingPromise];
-        }
-        prefillPromise = (function () { return __awaiter(void 0, void 0, void 0, function () {
-            var requestsToMake, _i, preloadedCards_1, cardInfo, cacheKey, unknownCacheKey, batchResponse, error_1, _loop_1, _a, requestsToMake_1, _b, card, cacheKey;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        requestsToMake = [];
-                        // Get all unique card values from preloadedCards
-                        for (_i = 0, preloadedCards_1 = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A; _i < preloadedCards_1.length; _i++) {
-                            cardInfo = preloadedCards_1[_i];
-                            cacheKey = "".concat(cardInfo.value, "_").concat(trumpKey);
-                            // Skip if already cached
-                            if (cacheKey in cardInfoCache) {
-                                continue;
-                            }
-                            requestsToMake.push({ card: cardInfo.value, cacheKey: cacheKey });
-                        }
-                        unknownCacheKey = "\uD83C\uDCA0_".concat(trumpKey);
-                        if (!(unknownCacheKey in cardInfoCache)) {
-                            requestsToMake.push({ card: "🂠", cacheKey: unknownCacheKey });
-                        }
-                        // If nothing to fetch, return early
-                        if (requestsToMake.length === 0) {
-                            // Card info cache already filled for this trump
-                            return [2 /*return*/];
-                        }
-                        _c.label = 1;
-                    case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, engine.batchGetCardInfo({
-                                requests: requestsToMake.map(function (r) { return ({
-                                    card: r.card,
-                                    trump: trump,
-                                }); }),
-                            })];
-                    case 2:
-                        batchResponse = _c.sent();
-                        // Process batch response
-                        // Validate response structure
-                        if (!batchResponse ||
-                            !batchResponse.results ||
-                            !Array.isArray(batchResponse.results)) {
-                            throw new Error("Invalid batch response structure: ".concat(JSON.stringify(batchResponse)));
-                        }
-                        if (batchResponse.results.length !== requestsToMake.length) {
-                            console.warn("Response length mismatch: expected ".concat(requestsToMake.length, ", got ").concat(batchResponse.results.length));
-                        }
-                        // Store results in cache
-                        batchResponse.results.forEach(function (info, index) {
-                            if (index >= requestsToMake.length) {
-                                console.warn("Skipping extra response at index ".concat(index));
-                                return;
-                            }
-                            var cacheKey = requestsToMake[index].cacheKey;
-                            cardInfoCache[cacheKey] = info;
-                        });
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _c.sent();
-                        console.error("❌ Error batch fetching card info:", error_1);
-                        console.error("Error details:", error_1 instanceof Error ? error_1.stack : error_1);
-                        _loop_1 = function (card, cacheKey) {
-                            var cardData = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A.find(function (c) { return c.value === card; });
-                            cardInfoCache[cacheKey] = {
-                                suit: null,
-                                effective_suit: "Unknown",
-                                value: card,
-                                display_value: (cardData === null || cardData === void 0 ? void 0 : cardData.display_value) || card,
-                                typ: (cardData === null || cardData === void 0 ? void 0 : cardData.typ) || "unknown",
-                                number: (cardData === null || cardData === void 0 ? void 0 : cardData.number) || null,
-                                points: (cardData === null || cardData === void 0 ? void 0 : cardData.points) || 0,
-                            };
-                        };
-                        // Fallback to individual requests or static data
-                        for (_a = 0, requestsToMake_1 = requestsToMake; _a < requestsToMake_1.length; _a++) {
-                            _b = requestsToMake_1[_a], card = _b.card, cacheKey = _b.cacheKey;
-                            _loop_1(card, cacheKey);
-                        }
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        }); })();
-        // Store the promise and set up cleanup
-        markPrefillStarted(trump, prefillPromise);
-        // Clear the in-progress flag when done
-        prefillPromise.finally(function () {
-            markPrefillCompleted(trump);
-        });
-        return [2 /*return*/, prefillPromise];
-    });
-}); };
-// Create a cache key for explainScoring requests
-var getExplainScoringKey = function (params, smallerLandlordTeamSize, decks) {
-    // Create a stable key based on the request parameters
-    return JSON.stringify({
-        params: params,
-        smallerLandlordTeamSize: smallerLandlordTeamSize,
-        deckCount: decks.length,
-        // We assume deck configuration is the same for a given count
-    });
-};
-// Prefill explainScoring cache
-var prefillExplainScoringCache = function (engine, params, decks) { return __awaiter(void 0, void 0, void 0, function () {
-    var promises, _loop_2, _i, _a, smallerTeamSize;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                promises = [];
-                _loop_2 = function (smallerTeamSize) {
-                    var cacheKey = getExplainScoringKey(params, smallerTeamSize, decks);
-                    if (cacheKey in explainScoringCache) {
-                        return "continue";
-                    }
-                    var promise = engine
-                        .explainScoring({
-                        params: params,
-                        smaller_landlord_team_size: smallerTeamSize,
-                        decks: decks,
-                    })
-                        .then(function (result) {
-                        explainScoringCache[cacheKey] = result;
-                    })
-                        .catch(function (error) {
-                        console.error("Error prefilling explainScoring cache:", error);
-                        // Fallback to empty result
-                        explainScoringCache[cacheKey] = {
-                            results: [],
-                            step_size: 10,
-                            total_points: 100,
-                        };
-                    });
-                    promises.push(promise);
-                };
-                // Prefill both regular and bonus scoring
-                for (_i = 0, _a = [false, true]; _i < _a.length; _i++) {
-                    smallerTeamSize = _a[_i];
-                    _loop_2(smallerTeamSize);
-                }
-                return [4 /*yield*/, Promise.all(promises)];
-            case 1:
-                _b.sent();
-                return [2 /*return*/];
-        }
-    });
-}); };
-
-
-/***/ }),
-
-/***/ 3701:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* unused harmony export WasmContext */
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
-
-var WasmContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
-    decodeWireFormat: function (_) {
-        throw new Error("cannot decode wire format");
-    },
-});
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (WasmContext);
-
-
-/***/ }),
-
-/***/ 3904:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__),
-/* harmony export */   P: () => (/* binding */ TimerContext)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
-// Provides a WebWorker-based timer implementation which doesn't get
-// wakeup-limited by the browser when the tab is running in the background.
-//
-// Relies on timer-worker.js to service the underlying timing requests.
-
-var TimerContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
-    setTimeout: function (_fn, _delay) { return 0; },
-    clearTimeout: function (_id) { },
-    setInterval: function (_fn, _interval) { return 0; },
-    clearInterval: function (_id) { },
-});
-var _TimerProvider = function (props) {
-    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(null), worker = _a[0], setWorker = _a[1];
-    var timeoutId = react__WEBPACK_IMPORTED_MODULE_0__.useRef(0);
-    var callbacks = react__WEBPACK_IMPORTED_MODULE_0__.useRef(new Map());
-    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
-        var timerWorker = new Worker("timer-worker.js");
-        timerWorker.addEventListener("message", function (evt) {
-            var data = evt.data;
-            var id = data.id;
-            if (callbacks.current.has(id)) {
-                var cb = callbacks.current.get(id);
-                if (cb) {
-                    cb();
-                }
-            }
-            if (data.variant === "timeout") {
-                callbacks.current.delete(id);
-            }
-        });
-        setWorker(timerWorker);
-        return function () {
-            timerWorker.terminate();
-        };
-    }, []);
-    var setTimeout = function (fn, delay) {
-        timeoutId.current += 1;
-        delay = delay === undefined ? 0 : delay;
-        var id = timeoutId.current;
-        callbacks.current.set(id, fn);
-        if (worker !== null) {
-            worker.postMessage({ command: "setTimeout", id: id, timeout: delay });
-        }
-        return id;
-    };
-    var clearTimeout = function (id) {
-        if (worker) {
-            worker.postMessage({ command: "clearTimeout", id: id });
-        }
-        callbacks.current.delete(id);
-    };
-    var setInterval = function (fn, interval) {
-        timeoutId.current += 1;
-        interval = interval === undefined ? 0 : interval;
-        var id = timeoutId.current;
-        callbacks.current.set(id, fn);
-        if (worker !== null) {
-            worker.postMessage({ command: "setInterval", id: id, interval: interval });
-        }
-        return id;
-    };
-    var clearInterval = function (id) {
-        if (worker !== null) {
-            worker.postMessage({ command: "clearInterval", id: id });
-        }
-        callbacks.current.delete(id);
-    };
-    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(TimerContext.Provider, { value: { setTimeout: setTimeout, clearTimeout: clearTimeout, setInterval: setInterval, clearInterval: clearInterval } }, props.children));
-};
-var TimerProvider = function (props) { return react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimerProvider, null, props.children); };
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TimerProvider);
-
-
-/***/ }),
-
-/***/ 4300:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Ab: () => (/* binding */ googleSignIn),
-/* harmony export */   CW: () => (/* binding */ formatDelta),
-/* harmony export */   Ie: () => (/* binding */ logoutAll),
-/* harmony export */   RM: () => (/* binding */ fetchPerRoundLeaderboard),
-/* harmony export */   UC: () => (/* binding */ ladderName),
-/* harmony export */   WG: () => (/* binding */ setToken),
-/* harmony export */   Xq: () => (/* binding */ formatRating),
-/* harmony export */   Yq: () => (/* binding */ formatDate),
-/* harmony export */   eH: () => (/* binding */ isNeedsUsername),
-/* harmony export */   eO: () => (/* binding */ fetchProfile),
-/* harmony export */   gJ: () => (/* binding */ errorMessage),
-/* harmony export */   gf: () => (/* binding */ getToken),
-/* harmony export */   hD: () => (/* binding */ ApiError),
-/* harmony export */   il: () => (/* binding */ TOKEN_KEY),
-/* harmony export */   k6: () => (/* binding */ formatRatingWithRecord),
-/* harmony export */   kK: () => (/* binding */ fetchLeaderboard),
-/* harmony export */   me: () => (/* binding */ me),
-/* harmony export */   nz: () => (/* binding */ apiHost),
-/* harmony export */   pE: () => (/* binding */ devLogin),
-/* harmony export */   po: () => (/* binding */ formatWinLossDraw),
-/* harmony export */   ri: () => (/* binding */ logout),
-/* harmony export */   rk: () => (/* binding */ fetchAuthConfig),
-/* harmony export */   us: () => (/* binding */ fetchMatches),
-/* harmony export */   vJ: () => (/* binding */ googleComplete),
-/* harmony export */   wE: () => (/* binding */ deviceId),
-/* harmony export */   y0: () => (/* binding */ apiUrl),
-/* harmony export */   yq: () => (/* binding */ wsUrl)
-/* harmony export */ });
-/* unused harmony exports NOT_SIGNED_IN, isNotSignedIn, apiFetch, formatRecord */
-// Backend location and authenticated fetch helpers.
-//
-// The static (GitHub Pages) build reads the backend origin from
-// `window._API_HOST`, set by `runtime.js`. An empty string / null means
-// "same origin as this page" (the backend serving the frontend itself).
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-function isNeedsUsername(r) {
-    return r.needs_username === true;
-}
-/// `GET /api/matches` (public).
-function fetchMatches(query) {
-    var params = new URLSearchParams();
-    for (var _i = 0, _a = Object.entries(query); _i < _a.length; _i++) {
-        var _b = _a[_i], key = _b[0], value = _b[1];
-        if (value !== undefined && value !== "") {
-            params.set(key, String(value));
-        }
-    }
-    var qs = params.toString();
-    return apiFetch("/api/matches".concat(qs ? "?" + qs : ""), {
-        auth: false,
-    });
-}
-/// localStorage key of the session token. Exported so AuthBootstrap can
-/// watch for it changing in another tab (the `storage` event).
-var TOKEN_KEY = "auth_token";
-var DEVICE_KEY = "device_id";
-/// The documented body of a 401 from an authenticated endpoint whose token
-/// is missing, unknown or expired.
-var NOT_SIGNED_IN = "not signed in";
-/// Origin of the backend, without a trailing slash. "" = same origin.
-function apiHost() {
-    var host = window._API_HOST;
-    if (typeof host === "string" && host.length > 0) {
-        return host.replace(/\/+$/, "");
-    }
-    return "";
-}
-/// Absolute URL for a backend path such as "/api/auth/me" or
-/// "public_games.json". Relative paths are resolved against the page's
-/// directory when the API is same-origin (the app lives under /shengji/).
-function apiUrl(path) {
-    var host = apiHost();
-    if (host !== "") {
-        return host + (path.startsWith("/") ? path : "/" + path);
-    }
-    if (path.startsWith("/")) {
-        var dir = location.pathname.endsWith("/")
-            ? location.pathname
-            : location.pathname.replace(/[^/]*$/, "");
-        return dir.replace(/\/$/, "") + path;
-    }
-    return path;
-}
-/// WebSocket URL for the game endpoint.
-function wsUrl() {
-    var host = apiHost();
-    if (host !== "") {
-        return (host.replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://") +
-            "/api");
-    }
-    return ((location.protocol === "https:" ? "wss://" : "ws://") +
-        location.host +
-        location.pathname +
-        (location.pathname.endsWith("/") ? "api" : "/api"));
-}
-function getToken() {
-    try {
-        return window.localStorage.getItem(TOKEN_KEY);
-    }
-    catch (_a) {
-        return null;
-    }
-}
-function setToken(token) {
-    try {
-        if (token === null) {
-            window.localStorage.removeItem(TOKEN_KEY);
-        }
-        else {
-            window.localStorage.setItem(TOKEN_KEY, token);
-        }
-    }
-    catch (_a) {
-        // ignore (private mode etc.)
-    }
-}
-/// A random per-browser identifier, sent on login and room join as a cheap
-/// "same device" signal for alt detection. Not a secret.
-function deviceId() {
-    try {
-        var id = window.localStorage.getItem(DEVICE_KEY);
-        if (id === null || id.length === 0) {
-            var arr = new Uint8Array(16);
-            window.crypto.getRandomValues(arr);
-            id = Array.from(arr, function (d) { return ("0" + d.toString(16)).slice(-2); }).join("");
-            window.localStorage.setItem(DEVICE_KEY, id);
-        }
-        return id;
-    }
-    catch (_a) {
-        return "";
-    }
-}
-var ApiError = /** @class */ (function (_super) {
-    __extends(ApiError, _super);
-    function ApiError(status, message) {
-        var _this = _super.call(this, message) || this;
-        _this.status = status;
-        // TS targets ES5: restore the prototype chain so `instanceof` works.
-        Object.setPrototypeOf(_this, ApiError.prototype);
-        return _this;
-    }
-    return ApiError;
-}(Error));
-
-/// True when `e` is the server telling us our session token is no longer
-/// valid (as opposed to, say, a wrong password on the login form).
-function isNotSignedIn(e) {
-    return (e instanceof ApiError && e.status === 401 && e.message === NOT_SIGNED_IN);
-}
-/// Human-readable error text for anything thrown by `apiFetch`.
-function errorMessage(e) {
-    if (e instanceof ApiError) {
-        return e.message;
-    }
-    if (e instanceof Error) {
-        return e.message.length > 0 ? e.message : "request failed";
-    }
-    return "request failed";
-}
-/// fetch() against the backend. Adds the bearer token when signed in, sends
-/// JSON bodies, parses JSON responses, and throws ApiError with the
-/// server's `error` message on non-2xx. Never sends cookies.
-///
-/// `init.token` sends that session token instead of the stored one (the
-/// in-memory session of a tab whose stored token was replaced or removed
-/// by another tab); by default the stored token is used.
-///
-/// A 401 whose body is the documented "not signed in" clears the stored
-/// token if it is the one that was sent (the session is dead either way);
-/// the caller is responsible for clearing `AppState.auth`.
-function apiFetch(path_1) {
-    return __awaiter(this, arguments, void 0, function (path, init) {
-        var headers, body, token, sendAuth, response, text, parsed, unparsable, message;
-        var _a;
-        if (init === void 0) { init = {}; }
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    headers = {};
-                    if (init.body !== undefined) {
-                        headers["Content-Type"] = "application/json";
-                        body = JSON.stringify(init.body);
-                    }
-                    token = init.token !== undefined && init.token !== null ? init.token : getToken();
-                    sendAuth = init.auth !== false && token !== null;
-                    if (sendAuth) {
-                        headers["Authorization"] = "Bearer " + token;
-                    }
-                    return [4 /*yield*/, fetch(apiUrl(path), {
-                            method: (_a = init.method) !== null && _a !== void 0 ? _a : (init.body !== undefined ? "POST" : "GET"),
-                            headers: headers,
-                            body: body,
-                            credentials: "omit",
-                            // Revalidate: a stale non-JSON answer (e.g. the page served for an API
-                            // path before the backend knew it) must not be reused.
-                            cache: "no-cache",
-                        })];
-                case 1:
-                    response = _b.sent();
-                    return [4 /*yield*/, response.text()];
-                case 2:
-                    text = _b.sent();
-                    parsed = null;
-                    unparsable = false;
-                    if (text.length > 0) {
-                        try {
-                            parsed = JSON.parse(text);
-                        }
-                        catch (_c) {
-                            parsed = null;
-                            unparsable = true;
-                        }
-                    }
-                    if (!response.ok) {
-                        message = parsed !== null && typeof parsed.error === "string"
-                            ? parsed.error
-                            : "request failed (".concat(response.status, ")");
-                        if (sendAuth &&
-                            response.status === 401 &&
-                            message === NOT_SIGNED_IN &&
-                            getToken() === token) {
-                            setToken(null);
-                        }
-                        throw new ApiError(response.status, message);
-                    }
-                    if (unparsable) {
-                        throw new ApiError(response.status, "unexpected response from the server");
-                    }
-                    return [2 /*return*/, parsed];
-            }
-        });
-    });
-}
-// --- typed wrappers for the endpoints in DESIGN.md ("HTTP API") ---------
-var authConfigPromise = null;
-/// `GET /api/auth/config`, fetched once per page load and shared.
-function fetchAuthConfig() {
-    if (authConfigPromise === null) {
-        authConfigPromise = apiFetch("/api/auth/config", {
-            auth: false,
-        }).catch(function (e) {
-            // Let a later caller retry (e.g. the backend was still starting).
-            authConfigPromise = null;
-            throw e;
-        });
-    }
-    return authConfigPromise;
-}
-function googleSignIn(credential) {
-    return apiFetch("/api/auth/google", {
-        auth: false,
-        body: { credential: credential, device_id: deviceId() },
-    });
-}
-function googleComplete(pending, username) {
-    return apiFetch("/api/auth/google/complete", {
-        auth: false,
-        body: { pending: pending, username: username, device_id: deviceId() },
-    });
-}
-/// `POST /api/auth/dev_login`. Only reachable when the server sets
-/// `DEV_LOGIN=1` (local development); a 404 means it is off.
-function devLogin(username) {
-    return apiFetch("/api/auth/dev_login", {
-        auth: false,
-        body: { username: username, device_id: deviceId() },
-    });
-}
-function me() {
-    return apiFetch("/api/auth/me");
-}
-/// Revoke the session. Pass the in-memory session token (`AppState.auth
-/// .token`) so that signing out still reaches the server after another
-/// tab has removed or replaced the stored token; without it the stored
-/// token is used.
-function logout(token) {
-    return apiFetch("/api/auth/logout", { method: "POST", token: token });
-}
-function logoutAll(token) {
-    return apiFetch("/api/auth/logout_all", { method: "POST", token: token });
-}
-function fetchLeaderboard(mode, limit) {
-    if (limit === void 0) { limit = 50; }
-    return apiFetch("/api/leaderboard?mode=".concat(encodeURIComponent(mode), "&limit=").concat(limit), { auth: false });
-}
-/// `GET /api/leaderboard/per_round` (public): best average per round, over
-/// every finished round of that game (rated or not).
-function fetchPerRoundLeaderboard(game, limit) {
-    if (limit === void 0) { limit = 50; }
-    return apiFetch("/api/leaderboard/per_round?game=".concat(encodeURIComponent(game), "&limit=").concat(limit), { auth: false });
-}
-/// `GET /api/users/:username` (public). A 404 means there is no such
-/// account.
-function fetchProfile(username) {
-    return apiFetch("/api/users/".concat(encodeURIComponent(username)), {
-        auth: false,
-    });
-}
-/// `1512`. Ratings are plain integers: no rating deviation, no provisional
-/// period.
-function formatRating(r) {
-    if (r === null || r === undefined) {
-        return "—";
-    }
-    return "".concat(r.rating);
-}
-/// `2–1` (wins–losses), or `2–1–1` when there are draws.
-function formatRecord(r) {
-    if (r === null || r === undefined) {
-        return "—";
-    }
-    var record = "".concat(r.wins, "\u2013").concat(r.losses);
-    return r.draws > 0 ? "".concat(record, "\u2013").concat(r.draws) : record;
-}
-/// `2–1–0` (wins–losses–draws), for a table column of its own.
-function formatWinLossDraw(r) {
-    if (r === null || r === undefined) {
-        return "—";
-    }
-    return "".concat(r.wins, "\u2013").concat(r.losses, "\u2013").concat(r.draws);
-}
-/// `1512 (3 matches, 2–1)`, or `1500 (no matches yet)`.
-function formatRatingWithRecord(r) {
-    if (r === null || r === undefined) {
-        return "—";
-    }
-    if (r.matches === 0) {
-        return "".concat(r.rating, " (no matches yet)");
-    }
-    var matches = r.matches === 1 ? "1 match" : "".concat(r.matches, " matches");
-    return "".concat(r.rating, " (").concat(matches, ", ").concat(formatRecord(r), ")");
-}
-/// `+180` / `−180` (a real minus sign), for a rating change.
-/// The ladder a rating mode names, e.g. "team ladder".
-function ladderName(mode) {
-    switch (mode) {
-        case "1v1":
-            return "1v1 ladder";
-        case "ddz":
-            return "Fight the Landlord ladder";
-        default:
-            return "team ladder";
-    }
-}
-function formatDelta(delta) {
-    return delta < 0 ? "\u2212".concat(Math.abs(delta)) : "+".concat(delta);
-}
-/// A unix-seconds timestamp as a local date, e.g. "18 Sep 2026".
-function formatDate(unixSeconds) {
-    var date = new Date(unixSeconds * 1000);
-    if (isNaN(date.getTime())) {
-        return "unknown";
-    }
-    return date.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
-}
-
-
-/***/ }),
-
-/***/ 6649:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   u: () => (/* binding */ isWasmAvailable)
-/* harmony export */ });
-function isWasmAvailable() {
-    // Check for URL parameter to force no-WASM mode
-    var urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("no-wasm") === "true") {
-        console.log("No-WASM mode enabled via URL parameter");
-        return false;
-    }
-    try {
-        if (typeof WebAssembly === "object" &&
-            typeof WebAssembly.instantiate === "function") {
-            var module_1 = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-            if (module_1 instanceof WebAssembly.Module) {
-                return new WebAssembly.Instance(module_1) instanceof WebAssembly.Instance;
-            }
-        }
-    }
-    catch (e) {
-        console.warn("WebAssembly not available:", e);
-    }
-    return false;
-}
-
-
-/***/ }),
-
-/***/ 7236:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  A: () => (/* binding */ preloadedCards)
-});
-
-;// ./src/generated/cards.json
-const cards_namespaceObject = /*#__PURE__*/JSON.parse('{"k":[{"value":"🃁","display_value":"🃁","typ":"♢","number":"A","points":0},{"value":"🃎","display_value":"🃎","typ":"♢","number":"K","points":10},{"value":"🃍","display_value":"🃍","typ":"♢","number":"Q","points":0},{"value":"🃋","display_value":"🃋","typ":"♢","number":"J","points":0},{"value":"🃊","display_value":"🃊","typ":"♢","number":"10","points":10},{"value":"🃉","display_value":"🃉","typ":"♢","number":"9","points":0},{"value":"🃈","display_value":"🃈","typ":"♢","number":"8","points":0},{"value":"🃇","display_value":"🃇","typ":"♢","number":"7","points":0},{"value":"🃆","display_value":"🃆","typ":"♢","number":"6","points":0},{"value":"🃅","display_value":"🃅","typ":"♢","number":"5","points":5},{"value":"🃄","display_value":"🃄","typ":"♢","number":"4","points":0},{"value":"🃃","display_value":"🃃","typ":"♢","number":"3","points":0},{"value":"🃂","display_value":"🃂","typ":"♢","number":"2","points":0},{"value":"🃑","display_value":"🃑","typ":"♧","number":"A","points":0},{"value":"🃞","display_value":"🃞","typ":"♧","number":"K","points":10},{"value":"🃝","display_value":"🃝","typ":"♧","number":"Q","points":0},{"value":"🃛","display_value":"🃛","typ":"♧","number":"J","points":0},{"value":"🃚","display_value":"🃚","typ":"♧","number":"10","points":10},{"value":"🃙","display_value":"🃙","typ":"♧","number":"9","points":0},{"value":"🃘","display_value":"🃘","typ":"♧","number":"8","points":0},{"value":"🃗","display_value":"🃗","typ":"♧","number":"7","points":0},{"value":"🃖","display_value":"🃖","typ":"♧","number":"6","points":0},{"value":"🃕","display_value":"🃕","typ":"♧","number":"5","points":5},{"value":"🃔","display_value":"🃔","typ":"♧","number":"4","points":0},{"value":"🃓","display_value":"🃓","typ":"♧","number":"3","points":0},{"value":"🃒","display_value":"🃒","typ":"♧","number":"2","points":0},{"value":"🂱","display_value":"🂱","typ":"♡","number":"A","points":0},{"value":"🂾","display_value":"🂾","typ":"♡","number":"K","points":10},{"value":"🂽","display_value":"🂽","typ":"♡","number":"Q","points":0},{"value":"🂻","display_value":"🂻","typ":"♡","number":"J","points":0},{"value":"🂺","display_value":"🂺","typ":"♡","number":"10","points":10},{"value":"🂹","display_value":"🂹","typ":"♡","number":"9","points":0},{"value":"🂸","display_value":"🂸","typ":"♡","number":"8","points":0},{"value":"🂷","display_value":"🂷","typ":"♡","number":"7","points":0},{"value":"🂶","display_value":"🂶","typ":"♡","number":"6","points":0},{"value":"🂵","display_value":"🂵","typ":"♡","number":"5","points":5},{"value":"🂴","display_value":"🂴","typ":"♡","number":"4","points":0},{"value":"🂳","display_value":"🂳","typ":"♡","number":"3","points":0},{"value":"🂲","display_value":"🂲","typ":"♡","number":"2","points":0},{"value":"🂡","display_value":"🂡","typ":"♤","number":"A","points":0},{"value":"🂮","display_value":"🂮","typ":"♤","number":"K","points":10},{"value":"🂭","display_value":"🂭","typ":"♤","number":"Q","points":0},{"value":"🂫","display_value":"🂫","typ":"♤","number":"J","points":0},{"value":"🂪","display_value":"🂪","typ":"♤","number":"10","points":10},{"value":"🂩","display_value":"🂩","typ":"♤","number":"9","points":0},{"value":"🂨","display_value":"🂨","typ":"♤","number":"8","points":0},{"value":"🂧","display_value":"🂧","typ":"♤","number":"7","points":0},{"value":"🂦","display_value":"🂦","typ":"♤","number":"6","points":0},{"value":"🂥","display_value":"🂥","typ":"♤","number":"5","points":5},{"value":"🂤","display_value":"🂤","typ":"♤","number":"4","points":0},{"value":"🂣","display_value":"🂣","typ":"♤","number":"3","points":0},{"value":"🂢","display_value":"🂢","typ":"♤","number":"2","points":0},{"value":"🃟","display_value":"🃟","typ":"🃟","number":null,"points":0},{"value":"🃏","display_value":"🃟","typ":"🃏","number":null,"points":0}]}');
-;// ./src/preloadedCards.ts
-
-/* harmony default export */ const preloadedCards = (cards_namespaceObject.k);
-
-
-/***/ }),
-
-/***/ 7239:
+/***/ 1135:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 
@@ -1546,77 +734,6 @@ var beep = function (vol, freq, duration) {
 
 // EXTERNAL MODULE: ./src/api.ts
 var api = __webpack_require__(4300);
-;// ./src/chatHistory.ts
-/// The most recent chat lines kept per room, so a reload (or a dropped tab)
-/// does not empty the chat.
-var CHAT_HISTORY_LINES = 100;
-/// Saved chat older than this is dropped.
-var CHAT_HISTORY_MAX_AGE_MS = 12 * 60 * 60 * 1000;
-var PREFIX = "chat:";
-var storage = function () {
-    try {
-        return window.localStorage;
-    }
-    catch (_a) {
-        return null;
-    }
-};
-/// Remember `messages` (the last [`CHAT_HISTORY_LINES`]) for `room`.
-var saveChat = function (room, messages) {
-    var s = storage();
-    if (s === null || room.length === 0) {
-        return;
-    }
-    var saved = {
-        at: Date.now(),
-        messages: messages.slice(-CHAT_HISTORY_LINES),
-    };
-    try {
-        s.setItem(PREFIX + room, JSON.stringify(saved));
-    }
-    catch (_a) {
-        // Storage full or blocked: the chat just is not restored.
-    }
-};
-/// The saved chat of `room`; other rooms' stale entries are cleared on the way.
-var loadChat = function (room) {
-    var _a;
-    var s = storage();
-    if (s === null || room.length === 0) {
-        return [];
-    }
-    var result = [];
-    try {
-        var now = Date.now();
-        for (var i = s.length - 1; i >= 0; i--) {
-            var key = s.key(i);
-            if (key === null || !key.startsWith(PREFIX)) {
-                continue;
-            }
-            var saved = null;
-            try {
-                saved = JSON.parse((_a = s.getItem(key)) !== null && _a !== void 0 ? _a : "null");
-            }
-            catch (_b) {
-                saved = null;
-            }
-            if (saved === null ||
-                typeof saved.at !== "number" ||
-                !Array.isArray(saved.messages) ||
-                now - saved.at > CHAT_HISTORY_MAX_AGE_MS) {
-                s.removeItem(key);
-            }
-            else if (key === PREFIX + room) {
-                result = saved.messages.slice(-CHAT_HISTORY_LINES);
-            }
-        }
-    }
-    catch (_c) {
-        return result;
-    }
-    return result;
-};
-
 ;// ./src/websocketHandler.ts
 var websocketHandler_assign = (undefined && undefined.__assign) || function () {
     websocketHandler_assign = Object.assign || function(t) {
@@ -1640,7 +757,6 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 };
 
 
-
 var truncate = function (length) {
     return function (array) {
         if (array.length > length) {
@@ -1652,51 +768,76 @@ var truncate = function (length) {
     };
 };
 var truncateMessages = truncate(300);
-/// Room the chat was last restored for, so a reconnect does not repeat it.
-var restoredFor = null;
-/// After a reload the chat starts empty: the first time a room is touched,
-/// put what this browser saw there ahead of anything that arrived since.
-var restoreOnce = function (state) {
-    if (restoredFor === state.roomName) {
-        return null;
-    }
-    restoredFor = state.roomName;
-    var earlier = loadChat(state.roomName);
-    return earlier.length > 0
-        ? truncateMessages(__spreadArray(__spreadArray([], earlier, true), state.messages, true))
-        : null;
+var formatMatchRated = function (mode, changes) {
+    return "Match rated (".concat((0,api/* ladderName */.UC)(mode), "): ") +
+        changes
+            .map(function (c) { return "".concat(c.username, " ").concat(c.before, " \u2192 ").concat(c.after, " (").concat((0,api/* formatDelta */.CW)(c.delta), ")"); })
+            .join(", ");
 };
-/// `state.messages` plus `message`, remembered for the room so a reload can
-/// bring the chat back.
-var appendMessage = function (state, message) {
-    var _a;
-    var messages = truncateMessages(__spreadArray(__spreadArray([], ((_a = restoreOnce(state)) !== null && _a !== void 0 ? _a : state.messages), true), [
-        message,
-    ], false));
-    saveChat(state.roomName, messages);
-    return { messages: messages };
-};
-var messageHandler = function (state, message) {
+/// The chat line a server message stands for, or null if the chat does not
+/// show it. Used for live messages and for the history sent on joining.
+var chatLineOf = function (message) {
     if ("Message" in message) {
-        return appendMessage(state, message.Message);
+        return message.Message;
     }
-    else {
-        return null;
-    }
-};
-var broadcastHandler = function (state, message) {
-    if ("Broadcast" in message) {
-        var newMessage = {
+    else if ("Broadcast" in message) {
+        return {
             from: "GAME",
             message: message.Broadcast.message,
             data: message.Broadcast.data,
             from_game: true,
         };
-        return appendMessage(state, newMessage);
     }
-    else {
+    else if ("System" in message) {
+        return { from: "GAME", message: message.System.message, from_game: true };
+    }
+    else if ("MatchRated" in message) {
+        var u = message.MatchRated;
+        return {
+            from: "GAME",
+            message: formatMatchRated(u.mode, u.changes),
+            from_game: true,
+            ratings: { match_id: u.match_id, mode: u.mode, changes: u.changes },
+        };
+    }
+    return null;
+};
+var appendMessage = function (state, message) { return ({
+    messages: truncateMessages(__spreadArray(__spreadArray([], state.messages, true), [message], false)),
+}); };
+/// `ChatHistory` arrives once on joining: the room's recent chat, which
+/// replaces what we have, keeping only lines that arrived live and are not
+/// in it (matched one for one, so repeated lines are not lost).
+var chatHistoryHandler = function (state, message) {
+    var _a;
+    if (!("ChatHistory" in message)) {
         return null;
     }
+    var history = message.ChatHistory.messages
+        .map(chatLineOf)
+        .filter(function (m) { return m !== null; });
+    var unmatched = new Map();
+    for (var _i = 0, history_1 = history; _i < history_1.length; _i++) {
+        var m = history_1[_i];
+        var key = JSON.stringify(m);
+        unmatched.set(key, ((_a = unmatched.get(key)) !== null && _a !== void 0 ? _a : 0) + 1);
+    }
+    var extra = state.messages.filter(function (m) {
+        var _a;
+        var key = JSON.stringify(m);
+        var left = (_a = unmatched.get(key)) !== null && _a !== void 0 ? _a : 0;
+        if (left > 0) {
+            unmatched.set(key, left - 1);
+            return false;
+        }
+        return true;
+    });
+    return { messages: truncateMessages(__spreadArray(__spreadArray([], history, true), extra, true)) };
+};
+/// Live chat: `Message`, `Broadcast`, `System` and `MatchRated` lines.
+var chatHandler = function (state, message) {
+    var line = chatLineOf(message);
+    return line === null ? null : appendMessage(state, line);
 };
 var errorHandler = function (state, message) {
     if ("Error" in message) {
@@ -1794,17 +935,18 @@ var gameFinishedHandler = function (state, message) {
     }
     return null;
 };
-var joinedHandler = function (state, message) {
+var joinedHandler = function (_, message) {
     if ("Joined" in message) {
         var j = message.Joined;
-        var restoredMessages = restoreOnce(state);
-        var restored = restoredMessages !== null ? { messages: restoredMessages } : {};
-        return websocketHandler_assign(websocketHandler_assign({}, restored), { name: j.username, seats: {
+        return {
+            name: j.username,
+            seats: {
                 username: j.username,
                 names: j.names,
                 playerIds: j.player_ids,
                 playerMode: j.player_mode,
-            } });
+            },
+        };
     }
     else {
         return null;
@@ -1823,28 +965,18 @@ var roomRatingsHandler = function (_, message) {
         return null;
     }
 };
-var formatMatchRated = function (mode, changes) {
-    return "Match rated (".concat((0,api/* ladderName */.UC)(mode), "): ") +
-        changes
-            .map(function (c) { return "".concat(c.username, " ").concat(c.before, " \u2192 ").concat(c.after, " (").concat((0,api/* formatDelta */.CW)(c.delta), ")"); })
-            .join(", ");
-};
-/// `MatchRated` arrives once, after a rated match has ended: it becomes a
-/// chat message and feeds the match summary modal.
-var matchRatedHandler = function (state, message) {
+/// `MatchRated` arrives once, after a rated match has ended: it feeds the
+/// match summary modal (it is a chat line too, see `chatLineOf`).
+var matchRatedHandler = function (_, message) {
     if ("MatchRated" in message) {
         var u = message.MatchRated;
-        var newMessage = {
-            from: "GAME",
-            message: formatMatchRated(u.mode, u.changes),
-            from_game: true,
-            ratings: { match_id: u.match_id, mode: u.mode, changes: u.changes },
-        };
-        return websocketHandler_assign(websocketHandler_assign({}, appendMessage(state, newMessage)), { lastMatchRated: {
+        return {
+            lastMatchRated: {
                 matchId: u.match_id,
                 mode: u.mode,
                 changes: u.changes,
-            } });
+            },
+        };
     }
     else {
         return null;
@@ -1882,22 +1014,9 @@ var matchFinishedHandler = function (_, message) {
         return null;
     }
 };
-var systemHandler = function (state, message) {
-    if ("System" in message) {
-        var newMessage = {
-            from: "GAME",
-            message: message.System.message,
-            from_game: true,
-        };
-        return appendMessage(state, newMessage);
-    }
-    else {
-        return null;
-    }
-};
 var allHandlers = [
-    messageHandler,
-    broadcastHandler,
+    chatHandler,
+    chatHistoryHandler,
     errorHandler,
     stateHandler,
     headerMessageHandler,
@@ -1906,7 +1025,6 @@ var allHandlers = [
     roomRatingsHandler,
     matchRatedHandler,
     matchFinishedHandler,
-    systemHandler,
 ];
 var composedHandlers = function (state, message, send) {
     var partials = {};
@@ -5471,7 +4589,9 @@ var Initialize = function (props) {
             firstToRank,
             ", round",
             " ",
-            roundsFinished + 1)),
+            roundsFinished + 1,
+            " ",
+            react.createElement("button", { type: "button", className: "normal", onClick: function () { return send({ Action: "EndMatch" }); } }, "End match"))),
         props.state.propagated.players.length >= 4 ? (react.createElement(react.Fragment, null,
             react.createElement("button", { className: "big", disabled: props.state.propagated.game_start_policy ===
                     "AllowLandlordOnly" &&
@@ -7591,7 +6711,7 @@ var renderMessage = function (message) {
                 " ",
                 variant.rank));
         case "MatchAbandoned":
-            return (react.createElement("span", null, "The match was abandoned because a player left; everyone is back at rank 2"));
+            return react.createElement("span", null, "The match was ended; everyone is back at rank 2");
         case "GameEndedAutomatically":
             return (react.createElement("span", null, "The remaining cards can't change the result, so this round is over"));
         case "MadeBid":
@@ -10297,6 +9417,818 @@ bootstrap();
 
 /***/ }),
 
+/***/ 2895:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   L9: () => (/* binding */ explainScoringCache),
+/* harmony export */   O3: () => (/* binding */ getExplainScoringKey),
+/* harmony export */   PU: () => (/* binding */ cardInfoCache),
+/* harmony export */   bM: () => (/* binding */ prefillExplainScoringCache),
+/* harmony export */   i7: () => (/* binding */ getPrefillPromise),
+/* harmony export */   j9: () => (/* binding */ prefillCardInfoCache),
+/* harmony export */   us: () => (/* binding */ getTrumpKey)
+/* harmony export */ });
+/* unused harmony exports isPrefillInProgress, markPrefillStarted */
+/* harmony import */ var _preloadedCards__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7236);
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+// Cache for card info to avoid repeated async calls
+var cardInfoCache = {};
+// Cache for explainScoring results
+var explainScoringCache = {};
+// Track which trumps are currently being prefilled to avoid duplicate requests
+var prefillInProgressMap = {};
+function isPrefillInProgress(trump) {
+    var trumpKey = getTrumpKey(trump);
+    return (prefillInProgressMap[trumpKey] !== undefined &&
+        prefillInProgressMap[trumpKey] !== null);
+}
+function markPrefillStarted(trump, promise) {
+    var trumpKey = getTrumpKey(trump);
+    prefillInProgressMap[trumpKey] = promise;
+}
+function markPrefillCompleted(trump) {
+    var trumpKey = getTrumpKey(trump);
+    delete prefillInProgressMap[trumpKey];
+}
+function getPrefillPromise(trump) {
+    var trumpKey = getTrumpKey(trump);
+    return prefillInProgressMap[trumpKey] || null;
+}
+// Helper to create a stable cache key from trump
+var getTrumpKey = function (trump) {
+    if ("Standard" in trump) {
+        return "std_".concat(trump.Standard.suit, "_").concat(trump.Standard.number);
+    }
+    else if ("NoTrump" in trump) {
+        return "nt_".concat(trump.NoTrump.number || "none");
+    }
+    return "unknown";
+};
+// Prefill card info cache for all cards with a given trump using batch API
+var prefillCardInfoCache = function (engine, trump) { return __awaiter(void 0, void 0, void 0, function () {
+    var trumpKey, existingPromise, prefillPromise;
+    return __generator(this, function (_a) {
+        trumpKey = getTrumpKey(trump);
+        existingPromise = getPrefillPromise(trump);
+        if (existingPromise) {
+            // Prefill already in progress for this trump, return existing promise
+            return [2 /*return*/, existingPromise];
+        }
+        prefillPromise = (function () { return __awaiter(void 0, void 0, void 0, function () {
+            var requestsToMake, _i, preloadedCards_1, cardInfo, cacheKey, unknownCacheKey, batchResponse, error_1, _loop_1, _a, requestsToMake_1, _b, card, cacheKey;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        requestsToMake = [];
+                        // Get all unique card values from preloadedCards
+                        for (_i = 0, preloadedCards_1 = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A; _i < preloadedCards_1.length; _i++) {
+                            cardInfo = preloadedCards_1[_i];
+                            cacheKey = "".concat(cardInfo.value, "_").concat(trumpKey);
+                            // Skip if already cached
+                            if (cacheKey in cardInfoCache) {
+                                continue;
+                            }
+                            requestsToMake.push({ card: cardInfo.value, cacheKey: cacheKey });
+                        }
+                        unknownCacheKey = "\uD83C\uDCA0_".concat(trumpKey);
+                        if (!(unknownCacheKey in cardInfoCache)) {
+                            requestsToMake.push({ card: "🂠", cacheKey: unknownCacheKey });
+                        }
+                        // If nothing to fetch, return early
+                        if (requestsToMake.length === 0) {
+                            // Card info cache already filled for this trump
+                            return [2 /*return*/];
+                        }
+                        _c.label = 1;
+                    case 1:
+                        _c.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, engine.batchGetCardInfo({
+                                requests: requestsToMake.map(function (r) { return ({
+                                    card: r.card,
+                                    trump: trump,
+                                }); }),
+                            })];
+                    case 2:
+                        batchResponse = _c.sent();
+                        // Process batch response
+                        // Validate response structure
+                        if (!batchResponse ||
+                            !batchResponse.results ||
+                            !Array.isArray(batchResponse.results)) {
+                            throw new Error("Invalid batch response structure: ".concat(JSON.stringify(batchResponse)));
+                        }
+                        if (batchResponse.results.length !== requestsToMake.length) {
+                            console.warn("Response length mismatch: expected ".concat(requestsToMake.length, ", got ").concat(batchResponse.results.length));
+                        }
+                        // Store results in cache
+                        batchResponse.results.forEach(function (info, index) {
+                            if (index >= requestsToMake.length) {
+                                console.warn("Skipping extra response at index ".concat(index));
+                                return;
+                            }
+                            var cacheKey = requestsToMake[index].cacheKey;
+                            cardInfoCache[cacheKey] = info;
+                        });
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _c.sent();
+                        console.error("❌ Error batch fetching card info:", error_1);
+                        console.error("Error details:", error_1 instanceof Error ? error_1.stack : error_1);
+                        _loop_1 = function (card, cacheKey) {
+                            var cardData = _preloadedCards__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .A.find(function (c) { return c.value === card; });
+                            cardInfoCache[cacheKey] = {
+                                suit: null,
+                                effective_suit: "Unknown",
+                                value: card,
+                                display_value: (cardData === null || cardData === void 0 ? void 0 : cardData.display_value) || card,
+                                typ: (cardData === null || cardData === void 0 ? void 0 : cardData.typ) || "unknown",
+                                number: (cardData === null || cardData === void 0 ? void 0 : cardData.number) || null,
+                                points: (cardData === null || cardData === void 0 ? void 0 : cardData.points) || 0,
+                            };
+                        };
+                        // Fallback to individual requests or static data
+                        for (_a = 0, requestsToMake_1 = requestsToMake; _a < requestsToMake_1.length; _a++) {
+                            _b = requestsToMake_1[_a], card = _b.card, cacheKey = _b.cacheKey;
+                            _loop_1(card, cacheKey);
+                        }
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); })();
+        // Store the promise and set up cleanup
+        markPrefillStarted(trump, prefillPromise);
+        // Clear the in-progress flag when done
+        prefillPromise.finally(function () {
+            markPrefillCompleted(trump);
+        });
+        return [2 /*return*/, prefillPromise];
+    });
+}); };
+// Create a cache key for explainScoring requests
+var getExplainScoringKey = function (params, smallerLandlordTeamSize, decks) {
+    // Create a stable key based on the request parameters
+    return JSON.stringify({
+        params: params,
+        smallerLandlordTeamSize: smallerLandlordTeamSize,
+        deckCount: decks.length,
+        // We assume deck configuration is the same for a given count
+    });
+};
+// Prefill explainScoring cache
+var prefillExplainScoringCache = function (engine, params, decks) { return __awaiter(void 0, void 0, void 0, function () {
+    var promises, _loop_2, _i, _a, smallerTeamSize;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                promises = [];
+                _loop_2 = function (smallerTeamSize) {
+                    var cacheKey = getExplainScoringKey(params, smallerTeamSize, decks);
+                    if (cacheKey in explainScoringCache) {
+                        return "continue";
+                    }
+                    var promise = engine
+                        .explainScoring({
+                        params: params,
+                        smaller_landlord_team_size: smallerTeamSize,
+                        decks: decks,
+                    })
+                        .then(function (result) {
+                        explainScoringCache[cacheKey] = result;
+                    })
+                        .catch(function (error) {
+                        console.error("Error prefilling explainScoring cache:", error);
+                        // Fallback to empty result
+                        explainScoringCache[cacheKey] = {
+                            results: [],
+                            step_size: 10,
+                            total_points: 100,
+                        };
+                    });
+                    promises.push(promise);
+                };
+                // Prefill both regular and bonus scoring
+                for (_i = 0, _a = [false, true]; _i < _a.length; _i++) {
+                    smallerTeamSize = _a[_i];
+                    _loop_2(smallerTeamSize);
+                }
+                return [4 /*yield*/, Promise.all(promises)];
+            case 1:
+                _b.sent();
+                return [2 /*return*/];
+        }
+    });
+}); };
+
+
+/***/ }),
+
+/***/ 3701:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* unused harmony export WasmContext */
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
+
+var WasmContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
+    decodeWireFormat: function (_) {
+        throw new Error("cannot decode wire format");
+    },
+});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (WasmContext);
+
+
+/***/ }),
+
+/***/ 3904:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   P: () => (/* binding */ TimerContext)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6540);
+// Provides a WebWorker-based timer implementation which doesn't get
+// wakeup-limited by the browser when the tab is running in the background.
+//
+// Relies on timer-worker.js to service the underlying timing requests.
+
+var TimerContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext({
+    setTimeout: function (_fn, _delay) { return 0; },
+    clearTimeout: function (_id) { },
+    setInterval: function (_fn, _interval) { return 0; },
+    clearInterval: function (_id) { },
+});
+var _TimerProvider = function (props) {
+    var _a = react__WEBPACK_IMPORTED_MODULE_0__.useState(null), worker = _a[0], setWorker = _a[1];
+    var timeoutId = react__WEBPACK_IMPORTED_MODULE_0__.useRef(0);
+    var callbacks = react__WEBPACK_IMPORTED_MODULE_0__.useRef(new Map());
+    react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
+        var timerWorker = new Worker("timer-worker.js");
+        timerWorker.addEventListener("message", function (evt) {
+            var data = evt.data;
+            var id = data.id;
+            if (callbacks.current.has(id)) {
+                var cb = callbacks.current.get(id);
+                if (cb) {
+                    cb();
+                }
+            }
+            if (data.variant === "timeout") {
+                callbacks.current.delete(id);
+            }
+        });
+        setWorker(timerWorker);
+        return function () {
+            timerWorker.terminate();
+        };
+    }, []);
+    var setTimeout = function (fn, delay) {
+        timeoutId.current += 1;
+        delay = delay === undefined ? 0 : delay;
+        var id = timeoutId.current;
+        callbacks.current.set(id, fn);
+        if (worker !== null) {
+            worker.postMessage({ command: "setTimeout", id: id, timeout: delay });
+        }
+        return id;
+    };
+    var clearTimeout = function (id) {
+        if (worker) {
+            worker.postMessage({ command: "clearTimeout", id: id });
+        }
+        callbacks.current.delete(id);
+    };
+    var setInterval = function (fn, interval) {
+        timeoutId.current += 1;
+        interval = interval === undefined ? 0 : interval;
+        var id = timeoutId.current;
+        callbacks.current.set(id, fn);
+        if (worker !== null) {
+            worker.postMessage({ command: "setInterval", id: id, interval: interval });
+        }
+        return id;
+    };
+    var clearInterval = function (id) {
+        if (worker !== null) {
+            worker.postMessage({ command: "clearInterval", id: id });
+        }
+        callbacks.current.delete(id);
+    };
+    return (react__WEBPACK_IMPORTED_MODULE_0__.createElement(TimerContext.Provider, { value: { setTimeout: setTimeout, clearTimeout: clearTimeout, setInterval: setInterval, clearInterval: clearInterval } }, props.children));
+};
+var TimerProvider = function (props) { return react__WEBPACK_IMPORTED_MODULE_0__.createElement(_TimerProvider, null, props.children); };
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TimerProvider);
+
+
+/***/ }),
+
+/***/ 4300:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Ab: () => (/* binding */ googleSignIn),
+/* harmony export */   CW: () => (/* binding */ formatDelta),
+/* harmony export */   Ie: () => (/* binding */ logoutAll),
+/* harmony export */   RM: () => (/* binding */ fetchPerRoundLeaderboard),
+/* harmony export */   UC: () => (/* binding */ ladderName),
+/* harmony export */   WG: () => (/* binding */ setToken),
+/* harmony export */   Xq: () => (/* binding */ formatRating),
+/* harmony export */   Yq: () => (/* binding */ formatDate),
+/* harmony export */   eH: () => (/* binding */ isNeedsUsername),
+/* harmony export */   eO: () => (/* binding */ fetchProfile),
+/* harmony export */   gJ: () => (/* binding */ errorMessage),
+/* harmony export */   gf: () => (/* binding */ getToken),
+/* harmony export */   hD: () => (/* binding */ ApiError),
+/* harmony export */   il: () => (/* binding */ TOKEN_KEY),
+/* harmony export */   k6: () => (/* binding */ formatRatingWithRecord),
+/* harmony export */   kK: () => (/* binding */ fetchLeaderboard),
+/* harmony export */   me: () => (/* binding */ me),
+/* harmony export */   nz: () => (/* binding */ apiHost),
+/* harmony export */   pE: () => (/* binding */ devLogin),
+/* harmony export */   po: () => (/* binding */ formatWinLossDraw),
+/* harmony export */   ri: () => (/* binding */ logout),
+/* harmony export */   rk: () => (/* binding */ fetchAuthConfig),
+/* harmony export */   us: () => (/* binding */ fetchMatches),
+/* harmony export */   vJ: () => (/* binding */ googleComplete),
+/* harmony export */   wE: () => (/* binding */ deviceId),
+/* harmony export */   y0: () => (/* binding */ apiUrl),
+/* harmony export */   yq: () => (/* binding */ wsUrl)
+/* harmony export */ });
+/* unused harmony exports NOT_SIGNED_IN, isNotSignedIn, apiFetch, formatRecord */
+// Backend location and authenticated fetch helpers.
+//
+// The static (GitHub Pages) build reads the backend origin from
+// `window._API_HOST`, set by `runtime.js`. An empty string / null means
+// "same origin as this page" (the backend serving the frontend itself).
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+function isNeedsUsername(r) {
+    return r.needs_username === true;
+}
+/// `GET /api/matches` (public).
+function fetchMatches(query) {
+    var params = new URLSearchParams();
+    for (var _i = 0, _a = Object.entries(query); _i < _a.length; _i++) {
+        var _b = _a[_i], key = _b[0], value = _b[1];
+        if (value !== undefined && value !== "") {
+            params.set(key, String(value));
+        }
+    }
+    var qs = params.toString();
+    return apiFetch("/api/matches".concat(qs ? "?" + qs : ""), {
+        auth: false,
+    });
+}
+/// localStorage key of the session token. Exported so AuthBootstrap can
+/// watch for it changing in another tab (the `storage` event).
+var TOKEN_KEY = "auth_token";
+var DEVICE_KEY = "device_id";
+/// The documented body of a 401 from an authenticated endpoint whose token
+/// is missing, unknown or expired.
+var NOT_SIGNED_IN = "not signed in";
+/// Origin of the backend, without a trailing slash. "" = same origin.
+function apiHost() {
+    var host = window._API_HOST;
+    if (typeof host === "string" && host.length > 0) {
+        return host.replace(/\/+$/, "");
+    }
+    return "";
+}
+/// Absolute URL for a backend path such as "/api/auth/me" or
+/// "public_games.json". Relative paths are resolved against the page's
+/// directory when the API is same-origin (the app lives under /shengji/).
+function apiUrl(path) {
+    var host = apiHost();
+    if (host !== "") {
+        return host + (path.startsWith("/") ? path : "/" + path);
+    }
+    if (path.startsWith("/")) {
+        var dir = location.pathname.endsWith("/")
+            ? location.pathname
+            : location.pathname.replace(/[^/]*$/, "");
+        return dir.replace(/\/$/, "") + path;
+    }
+    return path;
+}
+/// WebSocket URL for the game endpoint.
+function wsUrl() {
+    var host = apiHost();
+    if (host !== "") {
+        return (host.replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://") +
+            "/api");
+    }
+    return ((location.protocol === "https:" ? "wss://" : "ws://") +
+        location.host +
+        location.pathname +
+        (location.pathname.endsWith("/") ? "api" : "/api"));
+}
+function getToken() {
+    try {
+        return window.localStorage.getItem(TOKEN_KEY);
+    }
+    catch (_a) {
+        return null;
+    }
+}
+function setToken(token) {
+    try {
+        if (token === null) {
+            window.localStorage.removeItem(TOKEN_KEY);
+        }
+        else {
+            window.localStorage.setItem(TOKEN_KEY, token);
+        }
+    }
+    catch (_a) {
+        // ignore (private mode etc.)
+    }
+}
+/// A random per-browser identifier, sent on login and room join as a cheap
+/// "same device" signal for alt detection. Not a secret.
+function deviceId() {
+    try {
+        var id = window.localStorage.getItem(DEVICE_KEY);
+        if (id === null || id.length === 0) {
+            var arr = new Uint8Array(16);
+            window.crypto.getRandomValues(arr);
+            id = Array.from(arr, function (d) { return ("0" + d.toString(16)).slice(-2); }).join("");
+            window.localStorage.setItem(DEVICE_KEY, id);
+        }
+        return id;
+    }
+    catch (_a) {
+        return "";
+    }
+}
+var ApiError = /** @class */ (function (_super) {
+    __extends(ApiError, _super);
+    function ApiError(status, message) {
+        var _this = _super.call(this, message) || this;
+        _this.status = status;
+        // TS targets ES5: restore the prototype chain so `instanceof` works.
+        Object.setPrototypeOf(_this, ApiError.prototype);
+        return _this;
+    }
+    return ApiError;
+}(Error));
+
+/// True when `e` is the server telling us our session token is no longer
+/// valid (as opposed to, say, a wrong password on the login form).
+function isNotSignedIn(e) {
+    return (e instanceof ApiError && e.status === 401 && e.message === NOT_SIGNED_IN);
+}
+/// Human-readable error text for anything thrown by `apiFetch`.
+function errorMessage(e) {
+    if (e instanceof ApiError) {
+        return e.message;
+    }
+    if (e instanceof Error) {
+        return e.message.length > 0 ? e.message : "request failed";
+    }
+    return "request failed";
+}
+/// fetch() against the backend. Adds the bearer token when signed in, sends
+/// JSON bodies, parses JSON responses, and throws ApiError with the
+/// server's `error` message on non-2xx. Never sends cookies.
+///
+/// `init.token` sends that session token instead of the stored one (the
+/// in-memory session of a tab whose stored token was replaced or removed
+/// by another tab); by default the stored token is used.
+///
+/// A 401 whose body is the documented "not signed in" clears the stored
+/// token if it is the one that was sent (the session is dead either way);
+/// the caller is responsible for clearing `AppState.auth`.
+function apiFetch(path_1) {
+    return __awaiter(this, arguments, void 0, function (path, init) {
+        var headers, body, token, sendAuth, response, text, parsed, unparsable, message;
+        var _a;
+        if (init === void 0) { init = {}; }
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    headers = {};
+                    if (init.body !== undefined) {
+                        headers["Content-Type"] = "application/json";
+                        body = JSON.stringify(init.body);
+                    }
+                    token = init.token !== undefined && init.token !== null ? init.token : getToken();
+                    sendAuth = init.auth !== false && token !== null;
+                    if (sendAuth) {
+                        headers["Authorization"] = "Bearer " + token;
+                    }
+                    return [4 /*yield*/, fetch(apiUrl(path), {
+                            method: (_a = init.method) !== null && _a !== void 0 ? _a : (init.body !== undefined ? "POST" : "GET"),
+                            headers: headers,
+                            body: body,
+                            credentials: "omit",
+                            // Revalidate: a stale non-JSON answer (e.g. the page served for an API
+                            // path before the backend knew it) must not be reused.
+                            cache: "no-cache",
+                        })];
+                case 1:
+                    response = _b.sent();
+                    return [4 /*yield*/, response.text()];
+                case 2:
+                    text = _b.sent();
+                    parsed = null;
+                    unparsable = false;
+                    if (text.length > 0) {
+                        try {
+                            parsed = JSON.parse(text);
+                        }
+                        catch (_c) {
+                            parsed = null;
+                            unparsable = true;
+                        }
+                    }
+                    if (!response.ok) {
+                        message = parsed !== null && typeof parsed.error === "string"
+                            ? parsed.error
+                            : "request failed (".concat(response.status, ")");
+                        if (sendAuth &&
+                            response.status === 401 &&
+                            message === NOT_SIGNED_IN &&
+                            getToken() === token) {
+                            setToken(null);
+                        }
+                        throw new ApiError(response.status, message);
+                    }
+                    if (unparsable) {
+                        throw new ApiError(response.status, "unexpected response from the server");
+                    }
+                    return [2 /*return*/, parsed];
+            }
+        });
+    });
+}
+// --- typed wrappers for the endpoints in DESIGN.md ("HTTP API") ---------
+var authConfigPromise = null;
+/// `GET /api/auth/config`, fetched once per page load and shared.
+function fetchAuthConfig() {
+    if (authConfigPromise === null) {
+        authConfigPromise = apiFetch("/api/auth/config", {
+            auth: false,
+        }).catch(function (e) {
+            // Let a later caller retry (e.g. the backend was still starting).
+            authConfigPromise = null;
+            throw e;
+        });
+    }
+    return authConfigPromise;
+}
+function googleSignIn(credential) {
+    return apiFetch("/api/auth/google", {
+        auth: false,
+        body: { credential: credential, device_id: deviceId() },
+    });
+}
+function googleComplete(pending, username) {
+    return apiFetch("/api/auth/google/complete", {
+        auth: false,
+        body: { pending: pending, username: username, device_id: deviceId() },
+    });
+}
+/// `POST /api/auth/dev_login`. Only reachable when the server sets
+/// `DEV_LOGIN=1` (local development); a 404 means it is off.
+function devLogin(username) {
+    return apiFetch("/api/auth/dev_login", {
+        auth: false,
+        body: { username: username, device_id: deviceId() },
+    });
+}
+function me() {
+    return apiFetch("/api/auth/me");
+}
+/// Revoke the session. Pass the in-memory session token (`AppState.auth
+/// .token`) so that signing out still reaches the server after another
+/// tab has removed or replaced the stored token; without it the stored
+/// token is used.
+function logout(token) {
+    return apiFetch("/api/auth/logout", { method: "POST", token: token });
+}
+function logoutAll(token) {
+    return apiFetch("/api/auth/logout_all", { method: "POST", token: token });
+}
+function fetchLeaderboard(mode, limit) {
+    if (limit === void 0) { limit = 50; }
+    return apiFetch("/api/leaderboard?mode=".concat(encodeURIComponent(mode), "&limit=").concat(limit), { auth: false });
+}
+/// `GET /api/leaderboard/per_round` (public): best average per round, over
+/// every finished round of that game (rated or not).
+function fetchPerRoundLeaderboard(game, limit) {
+    if (limit === void 0) { limit = 50; }
+    return apiFetch("/api/leaderboard/per_round?game=".concat(encodeURIComponent(game), "&limit=").concat(limit), { auth: false });
+}
+/// `GET /api/users/:username` (public). A 404 means there is no such
+/// account.
+function fetchProfile(username) {
+    return apiFetch("/api/users/".concat(encodeURIComponent(username)), {
+        auth: false,
+    });
+}
+/// `1512`. Ratings are plain integers: no rating deviation, no provisional
+/// period.
+function formatRating(r) {
+    if (r === null || r === undefined) {
+        return "—";
+    }
+    return "".concat(r.rating);
+}
+/// `2–1` (wins–losses), or `2–1–1` when there are draws.
+function formatRecord(r) {
+    if (r === null || r === undefined) {
+        return "—";
+    }
+    var record = "".concat(r.wins, "\u2013").concat(r.losses);
+    return r.draws > 0 ? "".concat(record, "\u2013").concat(r.draws) : record;
+}
+/// `2–1–0` (wins–losses–draws), for a table column of its own.
+function formatWinLossDraw(r) {
+    if (r === null || r === undefined) {
+        return "—";
+    }
+    return "".concat(r.wins, "\u2013").concat(r.losses, "\u2013").concat(r.draws);
+}
+/// `1512 (3 matches, 2–1)`, or `1500 (no matches yet)`.
+function formatRatingWithRecord(r) {
+    if (r === null || r === undefined) {
+        return "—";
+    }
+    if (r.matches === 0) {
+        return "".concat(r.rating, " (no matches yet)");
+    }
+    var matches = r.matches === 1 ? "1 match" : "".concat(r.matches, " matches");
+    return "".concat(r.rating, " (").concat(matches, ", ").concat(formatRecord(r), ")");
+}
+/// `+180` / `−180` (a real minus sign), for a rating change.
+/// The ladder a rating mode names, e.g. "team ladder".
+function ladderName(mode) {
+    switch (mode) {
+        case "1v1":
+            return "1v1 ladder";
+        case "ddz":
+            return "Fight the Landlord ladder";
+        default:
+            return "team ladder";
+    }
+}
+function formatDelta(delta) {
+    return delta < 0 ? "\u2212".concat(Math.abs(delta)) : "+".concat(delta);
+}
+/// A unix-seconds timestamp as a local date, e.g. "18 Sep 2026".
+function formatDate(unixSeconds) {
+    var date = new Date(unixSeconds * 1000);
+    if (isNaN(date.getTime())) {
+        return "unknown";
+    }
+    return date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+}
+
+
+/***/ }),
+
+/***/ 6649:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   u: () => (/* binding */ isWasmAvailable)
+/* harmony export */ });
+function isWasmAvailable() {
+    // Check for URL parameter to force no-WASM mode
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("no-wasm") === "true") {
+        console.log("No-WASM mode enabled via URL parameter");
+        return false;
+    }
+    try {
+        if (typeof WebAssembly === "object" &&
+            typeof WebAssembly.instantiate === "function") {
+            var module_1 = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+            if (module_1 instanceof WebAssembly.Module) {
+                return new WebAssembly.Instance(module_1) instanceof WebAssembly.Instance;
+            }
+        }
+    }
+    catch (e) {
+        console.warn("WebAssembly not available:", e);
+    }
+    return false;
+}
+
+
+/***/ }),
+
+/***/ 7236:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  A: () => (/* binding */ preloadedCards)
+});
+
+;// ./src/generated/cards.json
+const cards_namespaceObject = /*#__PURE__*/JSON.parse('{"k":[{"value":"🃁","display_value":"🃁","typ":"♢","number":"A","points":0},{"value":"🃎","display_value":"🃎","typ":"♢","number":"K","points":10},{"value":"🃍","display_value":"🃍","typ":"♢","number":"Q","points":0},{"value":"🃋","display_value":"🃋","typ":"♢","number":"J","points":0},{"value":"🃊","display_value":"🃊","typ":"♢","number":"10","points":10},{"value":"🃉","display_value":"🃉","typ":"♢","number":"9","points":0},{"value":"🃈","display_value":"🃈","typ":"♢","number":"8","points":0},{"value":"🃇","display_value":"🃇","typ":"♢","number":"7","points":0},{"value":"🃆","display_value":"🃆","typ":"♢","number":"6","points":0},{"value":"🃅","display_value":"🃅","typ":"♢","number":"5","points":5},{"value":"🃄","display_value":"🃄","typ":"♢","number":"4","points":0},{"value":"🃃","display_value":"🃃","typ":"♢","number":"3","points":0},{"value":"🃂","display_value":"🃂","typ":"♢","number":"2","points":0},{"value":"🃑","display_value":"🃑","typ":"♧","number":"A","points":0},{"value":"🃞","display_value":"🃞","typ":"♧","number":"K","points":10},{"value":"🃝","display_value":"🃝","typ":"♧","number":"Q","points":0},{"value":"🃛","display_value":"🃛","typ":"♧","number":"J","points":0},{"value":"🃚","display_value":"🃚","typ":"♧","number":"10","points":10},{"value":"🃙","display_value":"🃙","typ":"♧","number":"9","points":0},{"value":"🃘","display_value":"🃘","typ":"♧","number":"8","points":0},{"value":"🃗","display_value":"🃗","typ":"♧","number":"7","points":0},{"value":"🃖","display_value":"🃖","typ":"♧","number":"6","points":0},{"value":"🃕","display_value":"🃕","typ":"♧","number":"5","points":5},{"value":"🃔","display_value":"🃔","typ":"♧","number":"4","points":0},{"value":"🃓","display_value":"🃓","typ":"♧","number":"3","points":0},{"value":"🃒","display_value":"🃒","typ":"♧","number":"2","points":0},{"value":"🂱","display_value":"🂱","typ":"♡","number":"A","points":0},{"value":"🂾","display_value":"🂾","typ":"♡","number":"K","points":10},{"value":"🂽","display_value":"🂽","typ":"♡","number":"Q","points":0},{"value":"🂻","display_value":"🂻","typ":"♡","number":"J","points":0},{"value":"🂺","display_value":"🂺","typ":"♡","number":"10","points":10},{"value":"🂹","display_value":"🂹","typ":"♡","number":"9","points":0},{"value":"🂸","display_value":"🂸","typ":"♡","number":"8","points":0},{"value":"🂷","display_value":"🂷","typ":"♡","number":"7","points":0},{"value":"🂶","display_value":"🂶","typ":"♡","number":"6","points":0},{"value":"🂵","display_value":"🂵","typ":"♡","number":"5","points":5},{"value":"🂴","display_value":"🂴","typ":"♡","number":"4","points":0},{"value":"🂳","display_value":"🂳","typ":"♡","number":"3","points":0},{"value":"🂲","display_value":"🂲","typ":"♡","number":"2","points":0},{"value":"🂡","display_value":"🂡","typ":"♤","number":"A","points":0},{"value":"🂮","display_value":"🂮","typ":"♤","number":"K","points":10},{"value":"🂭","display_value":"🂭","typ":"♤","number":"Q","points":0},{"value":"🂫","display_value":"🂫","typ":"♤","number":"J","points":0},{"value":"🂪","display_value":"🂪","typ":"♤","number":"10","points":10},{"value":"🂩","display_value":"🂩","typ":"♤","number":"9","points":0},{"value":"🂨","display_value":"🂨","typ":"♤","number":"8","points":0},{"value":"🂧","display_value":"🂧","typ":"♤","number":"7","points":0},{"value":"🂦","display_value":"🂦","typ":"♤","number":"6","points":0},{"value":"🂥","display_value":"🂥","typ":"♤","number":"5","points":5},{"value":"🂤","display_value":"🂤","typ":"♤","number":"4","points":0},{"value":"🂣","display_value":"🂣","typ":"♤","number":"3","points":0},{"value":"🂢","display_value":"🂢","typ":"♤","number":"2","points":0},{"value":"🃟","display_value":"🃟","typ":"🃟","number":null,"points":0},{"value":"🃏","display_value":"🃟","typ":"🃏","number":null,"points":0}]}');
+;// ./src/preloadedCards.ts
+
+/* harmony default export */ const preloadedCards = (cards_namespaceObject.k);
+
+
+/***/ }),
+
 /***/ 9625:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -10774,9 +10706,9 @@ var Timeout = function (props) {
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(7239)))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, [999], () => (__webpack_require__(1135)))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=main.737c3797eb6140ba4a67.js.map
+//# sourceMappingURL=main.b2857c8056b63b0fe250.js.map

@@ -27,7 +27,7 @@ use shengji_types::{GameMessage, RatingMode};
 use storage::Storage;
 
 use crate::{
-    auth,
+    auth, chat_log,
     config::Config,
     db::{self, Db},
     ratings::{
@@ -481,6 +481,7 @@ async fn player_subscribe_task(
             | GameMessage::Joined { .. }
             | GameMessage::RoomRatings { .. }
             | GameMessage::System { .. }
+            | GameMessage::ChatHistory { .. }
             | GameMessage::MatchRated { .. } => true,
             // Name-targeted messages match any seat of this user.
             GameMessage::Beep { target } | GameMessage::Kicked { target } => {
@@ -631,6 +632,17 @@ async fn register_user<S: Storage<VersionedGame, E>, E: std::fmt::Debug + Send>(
             },
         )
         .await;
+    let _ = session
+        .backend_storage
+        .clone()
+        .publish_to_single_subscriber(
+            session.key(),
+            ws_id,
+            GameMessage::ChatHistory {
+                messages: chat_log::history(&session.room),
+            },
+        )
+        .await;
     publish_room_ratings(session, seats.player_mode, &all_names).await;
     Ok((seats, version))
 }
@@ -697,6 +709,19 @@ async fn run_game_for_player<S: Storage<VersionedGame, E>, E: Send + std::fmt::D
     debug!(session.logger, "Exiting main game loop");
 }
 
+/// Publish a chat line to the whole room and remember it in the room's log.
+async fn publish_chat<S: Storage<VersionedGame, E>, E: Send>(
+    session: &Session<S>,
+    message: GameMessage,
+) -> Result<(), E> {
+    chat_log::record(&session.room, std::slice::from_ref(&message));
+    session
+        .backend_storage
+        .clone()
+        .publish(session.key(), message)
+        .await
+}
+
 async fn handle_user_action<S: Storage<VersionedGame, E>, E: Send>(
     session: &Session<S>,
     msg: UserMessage,
@@ -739,30 +764,24 @@ async fn handle_user_action<S: Storage<VersionedGame, E>, E: Send>(
                 .await?;
         }
         UserMessage::Message(m) => {
-            session
-                .backend_storage
-                .clone()
-                .publish(
-                    session.key(),
-                    GameMessage::Message {
-                        from: name,
-                        message: m,
-                    },
-                )
-                .await?;
+            publish_chat(
+                session,
+                GameMessage::Message {
+                    from: name,
+                    message: m,
+                },
+            )
+            .await?;
         }
         UserMessage::ReadyCheck => {
-            session
-                .backend_storage
-                .clone()
-                .publish(
-                    session.key(),
-                    GameMessage::Message {
-                        from: name.clone(),
-                        message: "Is everyone ready?".to_owned(),
-                    },
-                )
-                .await?;
+            publish_chat(
+                session,
+                GameMessage::Message {
+                    from: name.clone(),
+                    message: "Is everyone ready?".to_owned(),
+                },
+            )
+            .await?;
             session
                 .backend_storage
                 .clone()
@@ -770,17 +789,14 @@ async fn handle_user_action<S: Storage<VersionedGame, E>, E: Send>(
                 .await?;
         }
         UserMessage::Ready => {
-            session
-                .backend_storage
-                .clone()
-                .publish(
-                    session.key(),
-                    GameMessage::Message {
-                        from: name,
-                        message: "I'm ready!".to_owned(),
-                    },
-                )
-                .await?;
+            publish_chat(
+                session,
+                GameMessage::Message {
+                    from: name,
+                    message: "I'm ready!".to_owned(),
+                },
+            )
+            .await?;
         }
         UserMessage::Kick(id) => {
             info!(session.logger, "Kicking user"; "other" => id.0);
@@ -1211,6 +1227,37 @@ pub fn record_reset_vote(
     }
 }
 
+/// Record `caller`'s agreement to end the match from the lobby. `None` once
+/// two different users have agreed (the action may go through); otherwise
+/// the notice to show: the match ends only by mutual agreement, so a player
+/// cannot throw away a match alone, and one other player is enough so that
+/// someone who has had to leave cannot hold the room up.
+pub fn end_match_vote(
+    state: &GameState,
+    caller: PlayerID,
+    votes: &mut HashSet<PlayerID>,
+) -> Option<String> {
+    if !state.is_player(caller) {
+        return None;
+    }
+    votes.insert(caller);
+    let mut users: Vec<String> = votes
+        .iter()
+        .filter_map(|id| state.player_name(*id).ok())
+        .map(|n| username_for_seat(n).to_string())
+        .collect();
+    users.sort();
+    users.dedup();
+    if users.len() >= 2 {
+        None
+    } else {
+        Some(format!(
+            "{} wants to end the match; another player must agree (1 of 2)",
+            users.first().cloned().unwrap_or_default()
+        ))
+    }
+}
+
 /// Reset guard (DESIGN.md, "Reset guards"): the confirming `ResetGame` must
 /// come from the other team in a rated Play phase, and from a different
 /// user in 1v1 rooms. A repeated request by the requester is a no-op in the
@@ -1253,6 +1300,11 @@ pub fn guard_action(
         Action::CancelResetGame => {
             if !state.is_player(caller) {
                 bail!("only players can cancel a reset");
+            }
+        }
+        Action::EndMatch => {
+            if !state.is_player(caller) {
+                bail!("only players can end the match");
             }
         }
         Action::SetRated(_) | Action::SetFirstToRank(_) | Action::SetDdzSettings(_) => {
@@ -1625,10 +1677,19 @@ async fn perform_action<S: Storage<VersionedGame, E>, E: Send>(
                     }]);
                 }
             }
+            // Ending a match from the lobby needs a second user to agree.
+            if matches!(action, Action::EndMatch) {
+                if let Some(msg) = end_match_vote(game.state(), caller, reset_votes) {
+                    return Ok(vec![GameMessage::System { message: msg }]);
+                }
+            }
             // Cancelling, a new round and any phase change void the votes.
             let clears_votes = matches!(
                 action,
-                Action::CancelResetGame | Action::StartGame | Action::StartNewGame
+                Action::CancelResetGame
+                    | Action::StartGame
+                    | Action::StartNewGame
+                    | Action::EndMatch
             );
             let phase = std::mem::discriminant(game.state());
             let pre = pre_round(game.state(), &action);
@@ -1830,18 +1891,15 @@ async fn handle_match_outcome<S: Storage<VersionedGame, E>, E: Send>(
                 "mode" => mode.as_str(),
                 "match_key" => &match_key,
             );
-            session
-                .backend_storage
-                .clone()
-                .publish(
-                    session.key(),
-                    GameMessage::MatchRated {
-                        match_id,
-                        mode,
-                        changes,
-                    },
-                )
-                .await?;
+            publish_chat(
+                session,
+                GameMessage::MatchRated {
+                    match_id,
+                    mode,
+                    changes,
+                },
+            )
+            .await?;
             publish_room_ratings(session, player_mode, &all_names).await;
             return Ok(());
         }
@@ -1869,11 +1927,7 @@ async fn handle_match_outcome<S: Storage<VersionedGame, E>, E: Send>(
             "Not rated: internal error.".to_string()
         }
     };
-    session
-        .backend_storage
-        .clone()
-        .publish(session.key(), GameMessage::System { message: notice })
-        .await?;
+    publish_chat(session, GameMessage::System { message: notice }).await?;
     Ok(())
 }
 
@@ -2354,6 +2408,24 @@ mod tests {
         assert!(switch_player_mode(&mut g, a[0], PlayerMode::OneVsOne, &mut ws).is_err());
         assert_eq!(g.state().player_mode(), PlayerMode::Standard);
         assert_eq!(names(g.state()), vec!["alice", "bob", "carol"]);
+    }
+
+    #[test]
+    fn ending_a_match_needs_two_different_users() {
+        let mut g = InteractiveGame::new();
+        let a = g.register("a".into()).unwrap().0;
+        let b = g.register("b".into()).unwrap().0;
+        let spectator_free = g.state().clone();
+        let mut votes: HashSet<PlayerID> = HashSet::new();
+        // One user alone (even asking twice) cannot end it.
+        assert!(end_match_vote(&spectator_free, a, &mut votes).is_some());
+        assert!(end_match_vote(&spectator_free, a, &mut votes).is_some());
+        // A second user's agreement lets it through.
+        assert_eq!(end_match_vote(&spectator_free, b, &mut votes), None);
+        // With no match in progress the core refuses anyway.
+        assert!(g.interact(Action::EndMatch, a, &logger()).is_err());
+        // Only players may vote.
+        assert!(guard_action(g.state(), a, &Action::EndMatch).is_ok());
     }
 
     #[test]

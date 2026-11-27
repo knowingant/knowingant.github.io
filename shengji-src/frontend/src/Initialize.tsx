@@ -1325,7 +1325,14 @@ const Initialize = (props: IProps): JSX.Element => {
       {matchInProgress && (
         <p className="match-in-progress">
           Match in progress &mdash; first to rank {firstToRank}, round{" "}
-          {roundsFinished + 1}
+          {roundsFinished + 1}{" "}
+          <button
+            type="button"
+            className="normal"
+            onClick={() => send({ Action: "EndMatch" })}
+          >
+            End match
+          </button>
         </p>
       )}
       {props.state.propagated.players.length >= 4 ? (

@@ -137,6 +137,11 @@
           ]
         },
         {
+          "description": "End the match in progress from the lobby, back at rank 2 and unrated. The server only lets it through once another player has agreed.",
+          "type": "string",
+          "enum": ["EndMatch"]
+        },
+        {
           "type": "object",
           "required": ["MakeObserver"],
           "properties": {
@@ -2013,6 +2018,26 @@
     },
     "GameMessage": {
       "oneOf": [
+        {
+          "description": "The room's recent chat (`Message`, `Broadcast`, `System` and `MatchRated` lines, oldest first), sent once when a connection joins.",
+          "type": "object",
+          "required": ["ChatHistory"],
+          "properties": {
+            "ChatHistory": {
+              "type": "object",
+              "required": ["messages"],
+              "properties": {
+                "messages": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/GameMessage"
+                  }
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
         {
           "type": "object",
           "required": ["State"],

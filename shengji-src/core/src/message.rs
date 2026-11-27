@@ -511,7 +511,7 @@ impl MessageVariant {
                 let winners = standings.iter().filter(|s| s.winner).map(|s| s.name.as_str()).collect::<Vec<_>>();
                 format!("The match is over: {} reached rank {}", winners.join(" and "), first_to_rank.as_str())
             }
-            MatchAbandoned => "The match was abandoned because a player left; everyone is back at rank 2".to_string(),
+            MatchAbandoned => "The match was ended; everyone is back at rank 2".to_string(),
             GameEndedAutomatically => "The remaining cards can't change the result, so the round is over".to_string(),
             HideThrowHaltingPlayer { set: true } => format!("{} hid the player who prevents throws", n?),
             HideThrowHaltingPlayer { set: false } => format!("{} un-hid the player who prevents throws", n?),

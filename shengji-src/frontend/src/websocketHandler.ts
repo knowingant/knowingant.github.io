@@ -3,7 +3,6 @@ import beep from "./beep";
 import { GameMessage, RatingChange, RatingMode } from "./gen-types";
 import { Message } from "./ChatMessage";
 import { formatDelta, ladderName } from "./api";
-import { loadChat, saveChat } from "./chatHistory";
 
 const truncate =
   (length: number) =>
@@ -16,34 +15,75 @@ const truncate =
   };
 const truncateMessages = truncate(300);
 
-/// Room the chat was last restored for, so a reconnect does not repeat it.
-let restoredFor: string | null = null;
+const formatMatchRated = (mode: RatingMode, changes: RatingChange[]): string =>
+  `Match rated (${ladderName(mode)}): ` +
+  changes
+    .map(
+      (c) => `${c.username} ${c.before} → ${c.after} (${formatDelta(c.delta)})`,
+    )
+    .join(", ");
 
-/// After a reload the chat starts empty: the first time a room is touched,
-/// put what this browser saw there ahead of anything that arrived since.
-const restoreOnce = (state: AppState): Message[] | null => {
-  if (restoredFor === state.roomName) {
-    return null;
+/// The chat line a server message stands for, or null if the chat does not
+/// show it. Used for live messages and for the history sent on joining.
+const chatLineOf = (message: GameMessage): Message | null => {
+  if ("Message" in message) {
+    return message.Message;
+  } else if ("Broadcast" in message) {
+    return {
+      from: "GAME",
+      message: message.Broadcast.message,
+      data: message.Broadcast.data,
+      from_game: true,
+    };
+  } else if ("System" in message) {
+    return { from: "GAME", message: message.System.message, from_game: true };
+  } else if ("MatchRated" in message) {
+    const u = message.MatchRated;
+    return {
+      from: "GAME",
+      message: formatMatchRated(u.mode, u.changes),
+      from_game: true,
+      ratings: { match_id: u.match_id, mode: u.mode, changes: u.changes },
+    };
   }
-  restoredFor = state.roomName;
-  const earlier = loadChat(state.roomName);
-  return earlier.length > 0
-    ? truncateMessages([...earlier, ...state.messages])
-    : null;
+  return null;
 };
 
-/// `state.messages` plus `message`, remembered for the room so a reload can
-/// bring the chat back.
 const appendMessage = (
   state: AppState,
   message: Message,
-): Partial<AppState> => {
-  const messages = truncateMessages([
-    ...(restoreOnce(state) ?? state.messages),
-    message,
-  ]);
-  saveChat(state.roomName, messages);
-  return { messages };
+): Partial<AppState> => ({
+  messages: truncateMessages([...state.messages, message]),
+});
+
+/// `ChatHistory` arrives once on joining: the room's recent chat, which
+/// replaces what we have, keeping only lines that arrived live and are not
+/// in it (matched one for one, so repeated lines are not lost).
+const chatHistoryHandler: WebsocketHandler = (
+  state: AppState,
+  message: GameMessage,
+) => {
+  if (!("ChatHistory" in message)) {
+    return null;
+  }
+  const history = message.ChatHistory.messages
+    .map(chatLineOf)
+    .filter((m): m is Message => m !== null);
+  const unmatched = new Map<string, number>();
+  for (const m of history) {
+    const key = JSON.stringify(m);
+    unmatched.set(key, (unmatched.get(key) ?? 0) + 1);
+  }
+  const extra = state.messages.filter((m) => {
+    const key = JSON.stringify(m);
+    const left = unmatched.get(key) ?? 0;
+    if (left > 0) {
+      unmatched.set(key, left - 1);
+      return false;
+    }
+    return true;
+  });
+  return { messages: truncateMessages([...history, ...extra]) };
 };
 
 type WebsocketHandler = (
@@ -51,32 +91,13 @@ type WebsocketHandler = (
   message: GameMessage,
 ) => Partial<AppState> | null;
 
-const messageHandler: WebsocketHandler = (
+/// Live chat: `Message`, `Broadcast`, `System` and `MatchRated` lines.
+const chatHandler: WebsocketHandler = (
   state: AppState,
   message: GameMessage,
 ) => {
-  if ("Message" in message) {
-    return appendMessage(state, message.Message);
-  } else {
-    return null;
-  }
-};
-
-const broadcastHandler: WebsocketHandler = (
-  state: AppState,
-  message: GameMessage,
-) => {
-  if ("Broadcast" in message) {
-    const newMessage: Message = {
-      from: "GAME",
-      message: message.Broadcast.message,
-      data: message.Broadcast.data,
-      from_game: true,
-    };
-    return appendMessage(state, newMessage);
-  } else {
-    return null;
-  }
+  const line = chatLineOf(message);
+  return line === null ? null : appendMessage(state, line);
 };
 
 const errorHandler: WebsocketHandler = (
@@ -197,17 +218,10 @@ const gameFinishedHandler: WebsocketHandler = (
   return null;
 };
 
-const joinedHandler: WebsocketHandler = (
-  state: AppState,
-  message: GameMessage,
-) => {
+const joinedHandler: WebsocketHandler = (_: AppState, message: GameMessage) => {
   if ("Joined" in message) {
     const j = message.Joined;
-    const restoredMessages = restoreOnce(state);
-    const restored: Partial<AppState> =
-      restoredMessages !== null ? { messages: restoredMessages } : {};
     return {
-      ...restored,
       name: j.username,
       seats: {
         username: j.username,
@@ -237,30 +251,15 @@ const roomRatingsHandler: WebsocketHandler = (
   }
 };
 
-const formatMatchRated = (mode: RatingMode, changes: RatingChange[]): string =>
-  `Match rated (${ladderName(mode)}): ` +
-  changes
-    .map(
-      (c) => `${c.username} ${c.before} → ${c.after} (${formatDelta(c.delta)})`,
-    )
-    .join(", ");
-
-/// `MatchRated` arrives once, after a rated match has ended: it becomes a
-/// chat message and feeds the match summary modal.
+/// `MatchRated` arrives once, after a rated match has ended: it feeds the
+/// match summary modal (it is a chat line too, see `chatLineOf`).
 const matchRatedHandler: WebsocketHandler = (
-  state: AppState,
+  _: AppState,
   message: GameMessage,
 ) => {
   if ("MatchRated" in message) {
     const u = message.MatchRated;
-    const newMessage: Message = {
-      from: "GAME",
-      message: formatMatchRated(u.mode, u.changes),
-      from_game: true,
-      ratings: { match_id: u.match_id, mode: u.mode, changes: u.changes },
-    };
     return {
-      ...appendMessage(state, newMessage),
       lastMatchRated: {
         matchId: u.match_id,
         mode: u.mode,
@@ -310,25 +309,9 @@ const matchFinishedHandler: WebsocketHandler = (
   }
 };
 
-const systemHandler: WebsocketHandler = (
-  state: AppState,
-  message: GameMessage,
-) => {
-  if ("System" in message) {
-    const newMessage: Message = {
-      from: "GAME",
-      message: message.System.message,
-      from_game: true,
-    };
-    return appendMessage(state, newMessage);
-  } else {
-    return null;
-  }
-};
-
 const allHandlers: WebsocketHandler[] = [
-  messageHandler,
-  broadcastHandler,
+  chatHandler,
+  chatHistoryHandler,
   errorHandler,
   stateHandler,
   headerMessageHandler,
@@ -337,7 +320,6 @@ const allHandlers: WebsocketHandler[] = [
   roomRatingsHandler,
   matchRatedHandler,
   matchFinishedHandler,
-  systemHandler,
 ];
 
 const composedHandlers = (

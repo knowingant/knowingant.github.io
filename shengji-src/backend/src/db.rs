@@ -175,6 +175,13 @@ fn migrate(conn: &Connection) -> DbResult<()> {
             PRIMARY KEY (round_id, user_id)
         );
         CREATE INDEX IF NOT EXISTS round_players_user ON round_players(user_id);
+        CREATE TABLE IF NOT EXISTS chat_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            room TEXT NOT NULL,
+            at INTEGER NOT NULL,
+            payload TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS chat_log_room ON chat_log(room, id);
         "#,
     )?;
     // Added later: the scoring step size over the default one, for rating
@@ -192,6 +199,36 @@ fn migrate(conn: &Connection) -> DbResult<()> {
         )?;
     }
     Ok(())
+}
+
+/// Append one chat line (a serialized `GameMessage`) to a room's log and
+/// drop everything but its newest `keep` lines.
+pub fn chat_log_add(conn: &Connection, room: &str, payload: &str, keep: i64) -> DbResult<()> {
+    conn.execute(
+        "INSERT INTO chat_log (room, at, payload) VALUES (?1, ?2, ?3)",
+        params![room, now_secs(), payload],
+    )?;
+    conn.execute(
+        "DELETE FROM chat_log WHERE room = ?1 AND id <= \
+         (SELECT id FROM chat_log WHERE room = ?1 ORDER BY id DESC LIMIT 1 OFFSET ?2)",
+        params![room, keep],
+    )?;
+    Ok(())
+}
+
+/// A room's chat log, oldest first (at most `limit` lines).
+pub fn chat_log_for_room(conn: &Connection, room: &str, limit: i64) -> DbResult<Vec<String>> {
+    let mut stmt = conn.prepare(
+        "SELECT payload FROM (SELECT id, payload FROM chat_log WHERE room = ?1 \
+         ORDER BY id DESC LIMIT ?2) ORDER BY id ASC",
+    )?;
+    let rows = stmt.query_map(params![room, limit], |r| r.get::<_, String>(0))?;
+    Ok(rows.collect::<Result<Vec<_>, _>>()?)
+}
+
+/// Forget chat older than `before` (unix seconds).
+pub fn chat_log_delete_older(conn: &Connection, before: i64) -> DbResult<usize> {
+    Ok(conn.execute("DELETE FROM chat_log WHERE at < ?1", params![before])?)
 }
 
 /// Hash of a bearer / pending token as stored in the database (hex SHA-256).
@@ -1351,6 +1388,32 @@ mod tests {
         touch_user_device(&conn, c.id, "dev2").unwrap();
         let shared = shared_devices(&conn, &[a.id, b.id, c.id], 3600).unwrap();
         assert_eq!(shared, vec![(a.id, b.id, "dev1".to_string())]);
+    }
+
+    #[test]
+    fn chat_log_keeps_the_newest_lines_per_room() {
+        let db = Db::open_in_memory().unwrap();
+        let conn = db.lock().unwrap();
+        for i in 0..5 {
+            chat_log_add(&conn, "room1", &format!("m{i}"), 3).unwrap();
+        }
+        chat_log_add(&conn, "room2", "other", 3).unwrap();
+        assert_eq!(
+            chat_log_for_room(&conn, "room1", 10).unwrap(),
+            vec!["m2", "m3", "m4"]
+        );
+        assert_eq!(
+            chat_log_for_room(&conn, "room1", 2).unwrap(),
+            vec!["m3", "m4"]
+        );
+        assert_eq!(
+            chat_log_for_room(&conn, "room2", 10).unwrap(),
+            vec!["other"]
+        );
+        assert_eq!(chat_log_for_room(&conn, "nowhere", 10).unwrap().len(), 0);
+        // Nothing is older than the epoch; everything is older than the future.
+        assert_eq!(chat_log_delete_older(&conn, 0).unwrap(), 0);
+        assert_eq!(chat_log_delete_older(&conn, now_secs() + 10).unwrap(), 4);
     }
 
     #[test]

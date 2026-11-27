@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::io::{self, ErrorKind};
+use std::sync::{Arc, Mutex};
 
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
@@ -8,6 +9,7 @@ use shengji_mechanics::types::PlayerID;
 use shengji_types::GameMessage;
 use storage::Storage;
 
+use crate::chat_log;
 use crate::serving_types::VersionedGame;
 
 pub async fn try_read_file<M: serde::de::DeserializeOwned>(path: &'_ str) -> Result<M, io::Error> {
@@ -58,6 +60,8 @@ where
     F: FnOnce(&InteractiveGame, u64) -> Result<Vec<GameMessage>, anyhow::Error> + Send + 'static,
 {
     let room_name_ = room_name.as_bytes().to_vec();
+    let logged = Arc::new(Mutex::new(Vec::new()));
+    let logged_ = logged.clone();
 
     let res = backend_storage
         .clone()
@@ -66,6 +70,7 @@ where
             move |versioned_game| {
                 let g = InteractiveGame::new_from_state(versioned_game.game);
                 let msgs = operation(&g, versioned_game.monotonic_id).map_err(EitherError::E2)?;
+                *logged_.lock().unwrap() = msgs.clone();
                 Ok((
                     VersionedGame {
                         game: g.into_state(),
@@ -80,7 +85,10 @@ where
         )
         .await;
     match res {
-        Ok(_) => true,
+        Ok(_) => {
+            chat_log::record(room_name, &logged.lock().unwrap());
+            true
+        }
         Err(EitherError::E(_)) => {
             let err = GameMessage::Error(format!("Failed to {action_description}"));
             let _ = backend_storage
@@ -118,6 +126,8 @@ where
         + 'static,
 {
     let room_name_ = room_name.as_bytes().to_vec();
+    let logged = Arc::new(Mutex::new(Vec::new()));
+    let logged_ = logged.clone();
 
     let res = backend_storage
         .clone()
@@ -134,6 +144,7 @@ where
                     &mut reset_votes,
                 )
                 .map_err(EitherError::E2)?;
+                *logged_.lock().unwrap() = msgs.clone();
                 let game = g.into_state();
                 msgs.push(GameMessage::State {
                     state: game.clone(),
@@ -152,7 +163,10 @@ where
         )
         .await;
     match res {
-        Ok(_) => true,
+        Ok(_) => {
+            chat_log::record(room_name, &logged.lock().unwrap());
+            true
+        }
         Err(EitherError::E(_)) => {
             let err = GameMessage::Error(format!("Failed to {action_description}"));
             let _ = backend_storage

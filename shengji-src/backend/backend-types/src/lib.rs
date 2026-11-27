@@ -76,6 +76,11 @@ pub struct RatingChange {
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 pub enum GameMessage {
+    /// The room's recent chat (`Message`, `Broadcast`, `System` and
+    /// `MatchRated` lines, oldest first), sent once when a connection joins.
+    ChatHistory {
+        messages: Vec<GameMessage>,
+    },
     State {
         state: game_state::GameState,
     },

@@ -27,6 +27,7 @@ use shengji_types::ZSTD_ZSTD_DICT;
 use storage::{HashMapStorage, Storage};
 
 mod auth;
+mod chat_log;
 mod config;
 mod db;
 mod ratings;
@@ -143,6 +144,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let db = Db::open(&config.database_path)?;
     let _ = db.with(|c| db::delete_expired_sessions(c));
+    chat_log::init(db.clone());
 
     let (backend_storage, stats) = state_dump::load_state().await?;
 

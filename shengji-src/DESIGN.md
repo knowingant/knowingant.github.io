@@ -339,6 +339,20 @@ match, one other player's confirmation is enough (`reset_votes` on
 `VersionedGame`; cleared on cancel or phase change). Two players agreeing is
 always sufficient, so a player who has had to leave cannot hold the room up.
 
+Ending a match from the lobby: `Action::EndMatch` (players only, only while a
+match is in progress) resets the match (everyone back at rank 2, unrated, a
+`MatchAbandoned` broadcast) and needs two different users to send it
+(`end_match_vote`, votes in `reset_votes`). Fight the Landlord matches end
+through the existing reset, which already needs a second player. Once the
+match is over the room type can be changed again.
+
+Chat history: `chat_log` table (`room`, `at`, `payload` = a serialized
+`GameMessage`), the newest 200 lines per room for 7 days. `Message`,
+`Broadcast`, `System` and `MatchRated` messages are recorded when they are
+published (`chat_log::record`, in `execute_operation` and `publish_chat`),
+and a joining connection gets `GameMessage::ChatHistory { messages }`
+(oldest first) right after `Joined`, which replaces the client's chat.
+
 ## 1v1 rooms (backend)
 
 - Creation: `room_type: "OneVsOne"` on a fresh room sets

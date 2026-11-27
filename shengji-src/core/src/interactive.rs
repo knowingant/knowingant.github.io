@@ -120,6 +120,17 @@ impl InteractiveGame {
                 info!(logger, "Requesting game reset");
                 self.state.request_reset(id)?
             }
+            (Action::EndMatch, GameState::Initialize(ref mut state)) => {
+                if !state.match_in_progress() {
+                    bail!("there is no match in progress");
+                }
+                info!(logger, "Ending the match by agreement");
+                state.propagated_mut().reset_match();
+                vec![MessageVariant::MatchAbandoned]
+            }
+            (Action::EndMatch, _) => {
+                bail!("a match can be ended from the lobby (use reset during a round)")
+            }
             (Action::CancelResetGame, _) => {
                 info!(logger, "Cancelling game reset request");
                 self.state.cancel_reset()?
@@ -544,6 +555,9 @@ impl InteractiveGame {
 pub enum Action {
     CancelResetGame,
     ResetGame,
+    /// End the match in progress from the lobby, back at rank 2 and unrated.
+    /// The server only lets it through once another player has agreed.
+    EndMatch,
     MakeObserver(PlayerID),
     MakePlayer(PlayerID),
     SetChatLink(Option<String>),

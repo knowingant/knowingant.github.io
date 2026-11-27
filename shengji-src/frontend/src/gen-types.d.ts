@@ -22,6 +22,7 @@ export type Action =
       | "StartNewGame"
       | "Beep"
     )
+  | "EndMatch"
   | {
       MakeObserver: number;
     }
@@ -301,6 +302,12 @@ export type DdzKind =
   | "Bomb"
   | "Rocket";
 export type GameMessage =
+  | {
+      ChatHistory: {
+        messages: GameMessage[];
+        [k: string]: unknown;
+      };
+    }
   | {
       State: {
         state: GameState;

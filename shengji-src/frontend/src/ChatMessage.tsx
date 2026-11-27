@@ -47,12 +47,7 @@ const renderMessage = (message: Message): JSX.Element => {
         </span>
       );
     case "MatchAbandoned":
-      return (
-        <span>
-          The match was abandoned because a player left; everyone is back at
-          rank 2
-        </span>
-      );
+      return <span>The match was ended; everyone is back at rank 2</span>;
     case "GameEndedAutomatically":
       return (
         <span>
